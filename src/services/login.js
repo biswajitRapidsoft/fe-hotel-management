@@ -5,7 +5,10 @@ const loginApi = apiSlice.injectEndpoints({
   endpoints: (build) => ({
     login: build.mutation({
       query: (payload) => ({
-        url: config.apiName.login,
+        url:
+          payload.password === null
+            ? config.apiName.loginAsGuest
+            : config.apiName.loginAsCustomer,
         method: "POST",
         data: payload,
       }),

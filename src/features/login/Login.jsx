@@ -14,7 +14,7 @@ import IconButton from "@mui/material/IconButton";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link as RouterLink } from "react-router-dom";
 
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -26,6 +26,9 @@ import { useLoginMutation } from "../../services/login";
 
 import { Cookies } from "../../helper/cookies";
 import { SUPER_ADMIN } from "../../helper/constants";
+
+const phoneRegex = /^[0-9]{10}$/;
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 function Copyright(props) {
   return (
@@ -50,13 +53,40 @@ function Copyright(props) {
 }
 
 const validationSchema = Yup.object().shape({
-  email: Yup.string()
-    .email("Please provide a valid email")
-    .required("Email is required"),
-  password: Yup.string().required("Password is required"),
+  username: Yup.string()
+    .required("This field is required")
+    .test(
+      "phone-or-email",
+      "Please enter a valid email or phone number",
+      (value) => {
+        if (!value) return false;
+
+        if (phoneRegex.test(value)) {
+          return true;
+        }
+
+        if (emailRegex.test(value)) {
+          return true;
+        }
+
+        return false;
+      }
+    ),
+  // password: Yup.string().required("Password is required"),
+  password: Yup.string().test(
+    "optional-password",
+    "Password is required.",
+    (value) => {
+      if (window.location.pathname === "/staff-login" && !value) {
+        return false;
+      }
+      return true;
+    }
+  ),
 });
 
 export default function SignIn() {
+  const location = useLocation();
   const navigate = useNavigate();
   const [login, loginResponse] = useLoginMutation();
   const [snack, setSnack] = React.useState({
@@ -66,14 +96,15 @@ export default function SignIn() {
   });
   const formik = useFormik({
     initialValues: {
-      email: "",
+      username: "",
       password: "",
     },
     validationSchema,
     onSubmit: (values) => {
       login({
-        username: values.email,
-        password: values.password,
+        username: values.username,
+        password: location.pathname === "/staff-login" ? values.password : null,
+        isPhone: phoneRegex.test(values.username) ? true : false,
       })
         .unwrap()
         .then((res) => {
@@ -143,41 +174,47 @@ export default function SignIn() {
               margin="normal"
               required
               fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
+              id="username"
+              label="Enter Email / Phone"
+              name="username"
+              autoComplete="username"
               autoFocus
               variant="standard"
-              value={formik.values.email}
+              value={formik.values.username}
               onChange={formik.handleChange}
-              error={formik.touched.email && Boolean(formik.errors.email)}
-              helperText={formik.touched.email && formik.errors.email}
+              error={formik.touched.username && Boolean(formik.errors.username)}
+              helperText={formik.touched.username && formik.errors.username}
             />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type={visible ? "text" : "password"}
-              id="password"
-              autoComplete="current-password"
-              variant="standard"
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton size="small" onClick={handleSetVisibility}>
-                      {visible ? <VisibilityOffIcon /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-              value={formik.values.password}
-              onChange={formik.handleChange}
-              error={formik.touched.password && Boolean(formik.errors.password)}
-              helperText={formik.touched.password && formik.errors.password}
-            />
+            {location.pathname === "/staff-login" && (
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label="Password"
+                type={visible ? "text" : "password"}
+                id="password"
+                autoComplete="current-password"
+                variant="standard"
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton size="small" onClick={handleSetVisibility}>
+                          {visible ? <VisibilityOffIcon /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                error={
+                  formik.touched.password && Boolean(formik.errors.password)
+                }
+                helperText={formik.touched.password && formik.errors.password}
+              />
+            )}
             <Button
               type="submit"
               fullWidth
@@ -186,6 +223,30 @@ export default function SignIn() {
             >
               Sign In
             </Button>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent:
+                  location.pathname === "/guest-login"
+                    ? "center"
+                    : "space-between",
+              }}
+            >
+              {location.pathname === "/staff-login" && (
+                <Link component={RouterLink} href="#" variant="body1">
+                  Forgot password?
+                </Link>
+              )}
+              {location.pathname === "/staff-login" ? (
+                <Link component={RouterLink} to="/guest-login" variant="body1">
+                  {"Sign In as Guest"}
+                </Link>
+              ) : (
+                <Link component={RouterLink} to="/staff-login" variant="body1">
+                  {"Sign In as Staff"}
+                </Link>
+              )}
+            </Box>
           </Box>
         </Box>
         <Copyright sx={{ mt: 8, mb: 4, color: "#FFFFFF" }} />
