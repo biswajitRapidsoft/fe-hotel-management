@@ -1,7 +1,12 @@
 import React from "react";
+import Header from "../header/Header";
 
 const Dashboard = () => {
-  return <div>Dashboard</div>;
+  return (
+    <div style={{ backgroundColor: "red" }}>
+      <Header />
+    </div>
+  );
 };
 
 export default Dashboard;
