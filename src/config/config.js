@@ -1,7 +1,8 @@
 const config = Object.freeze({
   baseUrl: "",
   apiName: {
-    login: "",
+    loginAsCustomer: "login/as/customer",
+    loginAsGuest: "login",
   },
 });
 
