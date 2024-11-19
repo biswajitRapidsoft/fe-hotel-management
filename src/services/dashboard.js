@@ -14,8 +14,15 @@ const dashboardApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["getAllRoomListByHotelId"],
     }),
+    getAllHotels: build.query({
+      query: () => ({
+        url: config.apiName.getAllHotels,
+        method: "GET",
+      }),
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useGetAllRoomListByHotelIdQuery } = dashboardApi;
+export const { useGetAllRoomListByHotelIdQuery, useGetAllHotelsQuery } =
+  dashboardApi;

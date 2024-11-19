@@ -535,7 +535,7 @@ const PasswordChangeDialog = React.memo(function ({
   );
 });
 
-const MenuComp = React.memo(function (props) {
+export const MenuComp = React.memo(function (props) {
   return (
     <Menu
       {...props}
