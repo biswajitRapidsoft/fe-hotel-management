@@ -13,3 +13,4 @@ export const STANDARD_ROOM = { id: 1, key: "Standard" };
 export const DELUXE_ROOM = { id: 2, key: "Delux" };
 export const FAMILY_SUITE_ROOM = { id: 3, key: "Family Suite" };
 export const BUSINESS_SUITE_ROOM = { id: 4, key: "Business Suite" };
+export const KING_ROOM = { id: 5, key: "KING" };

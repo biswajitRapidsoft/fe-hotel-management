@@ -5,6 +5,9 @@ const config = Object.freeze({
     loginAsStaff: "login",
     getAllState: "statelist",
     getAllCity: "citylist",
+
+    // DASHBOARD API ENDPOINTS
+    roomListByHotelId: "get/room/list",
   },
 });
 
