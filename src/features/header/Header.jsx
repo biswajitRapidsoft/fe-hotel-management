@@ -100,9 +100,13 @@ const Header = () => {
         alignItems: "center",
         justifyContent: "space-between",
         background: (theme) =>
-      `linear-gradient(to right, white, ${theme.palette.secondary.main})`,
-         boxShadow: (theme) => theme.shadows[2],
-  }}
+          `linear-gradient(to right, white, ${theme.palette.primary.main})`,
+        boxShadow: (theme) => theme.shadows[2],
+        position: "sticky",
+        top: 0,
+        zIndex: 1000,
+        px: 1,
+      }}
     >
       <img
         src={logo}
@@ -235,14 +239,15 @@ const Header = () => {
               sx={{
                 fontWeight: 600,
                 fontSize: 20,
+                letterSpacing: 1,
               }}
             >
               {/* {JSON.parse(sessionStorage.getItem("data")).userName} */}
               Nikhil
             </Typography>
-            <Typography sx={{ fontSize: 14 }}>
+            <Typography sx={{ fontSize: 14, letterSpacing: 1 }}>
               {/* {getUserType(JSON.parse(sessionStorage.getItem("data")).userType)} */}
-              Admin
+              ADMIN
             </Typography>
           </Box>
 
