@@ -7,8 +7,8 @@ const loginApi = apiSlice.injectEndpoints({
       query: (payload) => ({
         url:
           payload.password === null
-            ? config.apiName.loginAsGuest
-            : config.apiName.loginAsCustomer,
+            ? config.apiName.loginAsCustomer
+            : config.apiName.loginAsStaff,
         method: "POST",
         data: payload,
       }),

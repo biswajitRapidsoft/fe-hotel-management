@@ -8,6 +8,7 @@ import Dashboard from "./features/dashboard/Dashboard";
 import Layout from "./routes/Layout";
 import AdminDashboard from "./features/dashboard/AdminDashboard";
 import GuestDashboard from "./features/dashboard/GuestDashboard";
+import HotelList from "./features/hotel/HotelList";
 
 const Login = React.lazy(() => import("./features/login/Login"));
 
@@ -23,6 +24,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route path="/guest-dashboard" element={<GuestDashboard />} />
+            <Route path="/hotel-list" element={<HotelList />} />
           </Route>
         </Routes>
       </React.Suspense>
