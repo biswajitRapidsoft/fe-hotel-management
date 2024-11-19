@@ -31,7 +31,8 @@ import SnackAlert from "../../components/Alert";
 import { useNavigate } from "react-router-dom";
 import { styled } from "@mui/material/styles";
 
-import logo from "../../img/hotelicon.svg";
+// import logo from "../../img/hotelicon.svg";
+import logo from "../../img/logo.svg";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -98,12 +99,19 @@ const Header = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
+        background: (theme) =>
+          `linear-gradient(to right, white, ${theme.palette.primary.main})`,
+        boxShadow: (theme) => theme.shadows[2],
+        position: "sticky",
+        top: 0,
+        zIndex: 1000,
+        px: 1,
       }}
     >
       <img
         src={logo}
         alt="Logo"
-        width="100"
+        width="300"
         // style={{
         //   cursor:
         //     JSON.parse(sessionStorage.getItem("data")).userType === SUPER_ADMIN
@@ -231,14 +239,15 @@ const Header = () => {
               sx={{
                 fontWeight: 600,
                 fontSize: 20,
+                letterSpacing: 1,
               }}
             >
               {/* {JSON.parse(sessionStorage.getItem("data")).userName} */}
               Nikhil
             </Typography>
-            <Typography sx={{ fontSize: 14 }}>
+            <Typography sx={{ fontSize: 14, letterSpacing: 1 }}>
               {/* {getUserType(JSON.parse(sessionStorage.getItem("data")).userType)} */}
-              hello
+              ADMIN
             </Typography>
           </Box>
 
