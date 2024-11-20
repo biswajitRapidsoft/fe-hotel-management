@@ -79,11 +79,11 @@ const HotelList = () => {
       e.preventDefault();
       addHotel({
         name: formData.hotelName,
-        companyId: {
+        company: {
           id: JSON.parse(sessionStorage.getItem("data")).companyId,
         },
         createdByUser: {
-          id: JSON.parse(sessionStorage.getItem("data")).companyId,
+          id: JSON.parse(sessionStorage.getItem("data")).id,
         },
         city: {
           id: formData.selectedCity.id,
