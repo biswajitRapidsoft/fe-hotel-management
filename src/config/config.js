@@ -9,7 +9,10 @@ const config = Object.freeze({
     // DASHBOARD API ENDPOINTS
     roomListByHotelId: "get/room/list",
 
+    // GUEST DASHBOARD API ENDPOINTS
     getAllHotels: "public/hotels/list",
+    reserveHotelRoom: "book/new/room",
+    getAllBookingDetails: "public/booking/data",
   },
 });
 

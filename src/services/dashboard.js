@@ -20,9 +20,29 @@ const dashboardApi = apiSlice.injectEndpoints({
         method: "GET",
       }),
     }),
+    reserveHotelRoom: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.reserveHotelRoom,
+        method: "POST",
+        data: payload,
+      }),
+    }),
+    getAllBookingDetails: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllBookingDetails,
+        method: "GET",
+        params: {
+          phoneNumber: payload,
+        },
+      }),
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useGetAllRoomListByHotelIdQuery, useGetAllHotelsQuery } =
-  dashboardApi;
+export const {
+  useGetAllRoomListByHotelIdQuery,
+  useGetAllHotelsQuery,
+  useReserveHotelRoomMutation,
+  useGetAllBookingDetailsQuery,
+} = dashboardApi;
