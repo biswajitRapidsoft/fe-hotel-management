@@ -5,7 +5,9 @@ const config = Object.freeze({
     loginAsStaff: "login",
     getAllState: "statelist",
     getAllCity: "citylist",
-
+    getAllRoomTypesByCompany: "api/get/room/type/by/company",
+    fileUpload: "api/upload",
+    addHotel: "api/add/hotel",
     // DASHBOARD API ENDPOINTS
     roomListByHotelId: "get/room/list",
 

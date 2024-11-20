@@ -15,8 +15,39 @@ const hotelApi = apiSlice.injectEndpoints({
         method: "GET",
       }),
     }),
+    getAllRoomTypesByCompany: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllRoomTypesByCompany,
+        method: "GET",
+        params: {
+          companyId: payload,
+        },
+      }),
+    }),
+
+    uploadFile: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.fileUpload,
+        method: "POST",
+        data: payload,
+      }),
+    }),
+
+    addHotel: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.addHotel,
+        method: "POST",
+        data: payload,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useGetStateListQuery, useGetCityListQuery } = hotelApi;
+export const {
+  useGetStateListQuery,
+  useGetCityListQuery,
+  useGetAllRoomTypesByCompanyQuery,
+  useUploadFileMutation,
+  useAddHotelMutation,
+} = hotelApi;
