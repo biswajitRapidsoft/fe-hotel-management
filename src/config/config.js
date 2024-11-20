@@ -7,7 +7,7 @@ const config = Object.freeze({
     getAllCity: "citylist",
 
     // DASHBOARD API ENDPOINTS
-    roomListByHotelId: "get/room/list",
+    getAllRoomListByHotelId: "api/get/room/list",
 
     getAllHotels: "public/hotels/list",
   },
