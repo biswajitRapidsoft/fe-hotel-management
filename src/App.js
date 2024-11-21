@@ -4,13 +4,17 @@ import "./App.css";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import LoadingComponent from "./components/LoadingComponent";
-import Dashboard from "./features/dashboard/Dashboard";
-import Layout from "./routes/Layout";
-import AdminDashboard from "./features/dashboard/AdminDashboard";
-import GuestDashboard from "./features/dashboard/GuestDashboard";
-import HotelList from "./features/hotel/HotelList";
 
 const Login = React.lazy(() => import("./features/login/Login"));
+const Dashboard = React.lazy(() => import("./features/dashboard/Dashboard"));
+const Layout = React.lazy(() => import("./routes/Layout"));
+const AdminDashboard = React.lazy(() =>
+  import("./features/dashboard/AdminDashboard")
+);
+const GuestDashboard = React.lazy(() =>
+  import("./features/dashboard/GuestDashboard")
+);
+const HotelList = React.lazy(() => import("./features/hotel/HotelList"));
 
 function App() {
   return (
