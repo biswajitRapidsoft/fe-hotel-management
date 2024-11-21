@@ -31,6 +31,7 @@ import {
   useAddHotelMutation,
 } from "../../services/hotel";
 import SnackAlert from "../../components/Alert";
+import LoadingComponent from "../../components/LoadingComponent";
 
 const HotelList = () => {
   const [snack, setSnack] = React.useState({
@@ -122,10 +123,19 @@ const HotelList = () => {
   );
 
   const handleChange = React.useCallback((e) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [e.target.name]: e.target.value,
-    }));
+    if (e.target.name === "selectedState") {
+      setFormData((prevData) => ({
+        ...prevData,
+        [e.target.name]: e.target.value,
+        selectedCity: null,
+        selectedCityInputVal: "",
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [e.target.name]: e.target.value,
+      }));
+    }
   }, []);
 
   const handleAddFloor = React.useCallback(() => {
@@ -170,6 +180,17 @@ const HotelList = () => {
           message: res.message,
           severity: "success",
         });
+        setFormData({
+          hotelName: "",
+          selectedState: null,
+          selectedStateInputVal: "",
+          selectedCity: null,
+          selectedCityInputVal: "",
+          address: "",
+          hotelImage: "",
+          hotelImageUrl: "",
+        });
+        imageRef.current.value = "";
       })
       .catch((err) => {
         setSnack({
@@ -551,6 +572,9 @@ const HotelList = () => {
         </Box>
       </Box>
       <SnackAlert snack={snack} setSnack={setSnack} />
+      <LoadingComponent
+        open={uploadFileRes.isLoading || addHotelRes.isLoading}
+      />
     </Container>
   );
 };
