@@ -54,7 +54,7 @@ const HotelList = () => {
   const imageRef = React.useRef(null);
   const [floorList, setFloorList] = React.useState([
     {
-      id: 1,
+      id: crypto.randomUUID(),
       roomList: [],
     },
   ]);
@@ -190,6 +190,12 @@ const HotelList = () => {
           hotelImage: "",
           hotelImageUrl: "",
         });
+        setFloorList([
+          {
+            id: crypto.randomUUID(),
+            roomList: [],
+          },
+        ]);
         imageRef.current.value = "";
       })
       .catch((err) => {
