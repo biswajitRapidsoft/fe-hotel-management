@@ -67,7 +67,7 @@ const HotelListTable = () => {
                     fontWeight: "bold",
                     fontSize: "1rem",
                     letterSpacing: 1,
-                    backgroundColor: "#ccc",
+                    backgroundColor: "#f5f5f5",
                   },
                 }}
               >
@@ -141,6 +141,7 @@ function Row({ hotel, sequence }) {
                       ".MuiTableCell-root": {
                         fontWeight: "bold",
                         letterSpacing: 1,
+                        backgroundColor: "#e3f2fd",
                       },
                     }}
                   >
