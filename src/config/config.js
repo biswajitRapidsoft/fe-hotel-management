@@ -11,7 +11,10 @@ const config = Object.freeze({
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
 
+    // GUEST DASHBOARD API ENDPOINTS
     getAllHotels: "public/hotels/list",
+    reserveHotelRoom: "book/new/room",
+    getAllBookingDetails: "public/booking/data",
   },
 });
 
