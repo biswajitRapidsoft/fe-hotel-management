@@ -5,7 +5,7 @@ const dashboardApi = apiSlice.injectEndpoints({
   endpoints: (build) => ({
     getAllRoomListByHotelId: build.query({
       query: (payload) => ({
-        url: config.apiName.roomListByHotelId,
+        url: config.apiName.getAllRoomListByHotelId,
         method: "GET",
         params: {
           hotelId: payload?.hotelId,
