@@ -15,6 +15,7 @@ const config = Object.freeze({
     getAllHotels: "public/hotels/list",
     reserveHotelRoom: "book/new/room",
     getAllBookingDetails: "public/booking/data",
+    cancelHotelRoom: "public/cancel/booking",
   },
 });
 
