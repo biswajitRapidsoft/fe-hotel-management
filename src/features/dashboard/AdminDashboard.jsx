@@ -50,7 +50,7 @@ const AdminDashboard = () => {
                       {tab.label}
                     </Typography>
                   </Grid>
-                  <Grid item size={12}>
+                  <Grid size={12}>
                     <Typography align="center" variant="h6">
                       {tab.count}
                     </Typography>
@@ -61,6 +61,7 @@ const AdminDashboard = () => {
           );
         })}
       </Grid>
+      {/* hotel list table  */}
     </React.Fragment>
   );
 };

@@ -39,6 +39,18 @@ const hotelApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
+      invalidatesTags: ["getHotelListByCompany"],
+    }),
+
+    getHotelListByCompany: build.query({
+      query: (payload) => ({
+        url: config.apiName.getHotelListByCompany,
+        method: "GET",
+        params: {
+          companyId: payload,
+        },
+      }),
+      providesTags: ["getHotelListByCompany"],
     }),
   }),
   overrideExisting: false,
@@ -50,4 +62,5 @@ export const {
   useGetAllRoomTypesByCompanyQuery,
   useUploadFileMutation,
   useAddHotelMutation,
+  useGetHotelListByCompanyQuery,
 } = hotelApi;

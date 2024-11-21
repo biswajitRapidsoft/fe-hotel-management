@@ -32,6 +32,7 @@ import {
 } from "../../services/hotel";
 import SnackAlert from "../../components/Alert";
 import LoadingComponent from "../../components/LoadingComponent";
+import HotelListTable from "./HotelListTable";
 
 const HotelList = () => {
   const [snack, setSnack] = React.useState({
@@ -50,6 +51,8 @@ const HotelList = () => {
     address: "",
     hotelImage: "",
     hotelImageUrl: "",
+    email: "",
+    phoneNumber: "",
   });
   const imageRef = React.useRef(null);
   const [floorList, setFloorList] = React.useState([
@@ -74,12 +77,40 @@ const HotelList = () => {
     data: roomTypeByCompany = {
       data: [],
     },
-  } = useGetAllRoomTypesByCompanyQuery(1);
+  } = useGetAllRoomTypesByCompanyQuery(
+    JSON.parse(sessionStorage.getItem("data")).companyId
+  );
+
+  const handleResetForm = React.useCallback(() => {
+    setFormData({
+      hotelName: "",
+      selectedState: null,
+      selectedStateInputVal: "",
+      selectedCity: null,
+      selectedCityInputVal: "",
+      address: "",
+      hotelImage: "",
+      hotelImageUrl: "",
+      email: "",
+      phoneNumber: "",
+    });
+    setFloorList([
+      {
+        id: crypto.randomUUID(),
+        roomList: [],
+      },
+    ]);
+    imageRef.current.value = "";
+  }, []);
+
   const handleSubmit = React.useCallback(
     (e) => {
       e.preventDefault();
       addHotel({
         name: formData.hotelName,
+        logoUrl: formData.hotelImageUrl,
+        email: formData.email,
+        contactNo: formData.phoneNumber,
         company: {
           id: JSON.parse(sessionStorage.getItem("data")).companyId,
         },
@@ -92,6 +123,7 @@ const HotelList = () => {
         state: {
           id: formData.selectedState.id,
         },
+
         address: formData.address,
         noOfFloors: floorList.length,
         floorRoomMapData: floorList.map((floor, index) => {
@@ -110,6 +142,7 @@ const HotelList = () => {
         .unwrap()
         .then((res) => {
           setSnack({ open: true, message: res.message, severity: "success" });
+          handleResetForm();
         })
         .catch((err) => {
           setSnack({
@@ -119,7 +152,7 @@ const HotelList = () => {
           });
         });
     },
-    [formData, addHotel, floorList]
+    [formData, addHotel, floorList, handleResetForm]
   );
 
   const handleChange = React.useCallback((e) => {
@@ -154,10 +187,23 @@ const HotelList = () => {
   );
 
   const isFormValid = React.useCallback(() => {
-    const { hotelName, selectedState, selectedCity, address } = formData;
+    const {
+      hotelName,
+      selectedState,
+      selectedCity,
+      address,
+      email,
+      phoneNumber,
+    } = formData;
     return (
-      Boolean(hotelName && selectedState && selectedCity && address) &&
-      !floorList.map((item) => item.roomList.length).includes(0)
+      Boolean(
+        hotelName &&
+          selectedState &&
+          selectedCity &&
+          address &&
+          email &&
+          phoneNumber
+      ) && !floorList.map((item) => item.roomList.length).includes(0)
     );
   }, [formData, floorList]);
 
@@ -180,23 +226,6 @@ const HotelList = () => {
           message: res.message,
           severity: "success",
         });
-        setFormData({
-          hotelName: "",
-          selectedState: null,
-          selectedStateInputVal: "",
-          selectedCity: null,
-          selectedCityInputVal: "",
-          address: "",
-          hotelImage: "",
-          hotelImageUrl: "",
-        });
-        setFloorList([
-          {
-            id: crypto.randomUUID(),
-            roomList: [],
-          },
-        ]);
-        imageRef.current.value = "";
       })
       .catch((err) => {
         setSnack({
@@ -577,6 +606,7 @@ const HotelList = () => {
           </Button>
         </Box>
       </Box>
+      <HotelListTable />
       <SnackAlert snack={snack} setSnack={setSnack} />
       <LoadingComponent
         open={uploadFileRes.isLoading || addHotelRes.isLoading}
