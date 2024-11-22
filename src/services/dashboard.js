@@ -26,6 +26,7 @@ const dashboardApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
+      invalidatesTags: ["getAllBookingDetails"],
     }),
     getAllBookingDetails: build.query({
       query: (payload) => ({
@@ -35,6 +36,15 @@ const dashboardApi = apiSlice.injectEndpoints({
           phoneNumber: payload,
         },
       }),
+      providesTags: ["getAllBookingDetails"],
+    }),
+    cancelHotelRoom: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.cancelHotelRoom,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllBookingDetails"],
     }),
   }),
   overrideExisting: false,
@@ -45,4 +55,5 @@ export const {
   useGetAllHotelsQuery,
   useReserveHotelRoomMutation,
   useGetAllBookingDetailsQuery,
+  useCancelHotelRoomMutation,
 } = dashboardApi;

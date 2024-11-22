@@ -1,7 +1,5 @@
 import React, { memo } from "react";
 import Grid from "@mui/material/Grid2";
-// import { hotels } from "./dummyHotelsJson";
-// import CloseIcon from "@mui/icons-material/Close";
 import Drawer from "@mui/material/Drawer";
 import dayjs from "dayjs";
 
@@ -67,7 +65,6 @@ const GuestDashboard = () => {
             <Box
               sx={{
                 width: "100%",
-                // , backgroundColor: "red"
               }}
             >
               <Grid container size={12} spacing={2}>
@@ -75,7 +72,7 @@ const GuestDashboard = () => {
                   return (
                     <Grid
                       key={`hotel${index}`}
-                      size={{ xs: 12, sm: 6, md: 4, lg: 2.4, xl: 2.4 }}
+                      size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 3 }}
                     >
                       <CustomHotelCard hotelDetails={item} />
                     </Grid>
@@ -116,65 +113,127 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
     severity: "",
   });
   const [reserveHotelRoom, reserveHotelRoomRes] = useReserveHotelRoomMutation();
+
   const toggleDrawer = (open) => () => {
+    if (!open) {
+      handleResetForm();
+    }
     setDrawerOpen(open);
   };
 
-  const handleSubmit = React.useCallback((e) => {
-    e.preventDefault();
-    reserveHotelRoom({
-      firstName: formData.firstName,
-      middleName: formData.middleName,
-      lastName: formData.lastName,
-      phoneNumber: formData.phoneNumber,
-      email: formData.email,
-      address: formData.address,
-      fromDate: formData.fromDate
-        ? dayjs(formData.fromDate).format("DD-MM-YYYY")
-        : null,
-      toDate: formData.toDate
-        ? dayjs(formData.toDate).format("DD-MM-YYYY")
-        : null,
-      noOfPeoples: Number(formData.noOfPeoples),
-      roomTypeId: hotelDetails?.id,
-      hotelId: hotelDetails?.hotelDto?.id,
-    })
-      .unwrap()
-      .then((res) => {
-        setSnack({
-          open: true,
-          message: res.message,
-          severity: "success",
-        });
-        setDrawerOpen(false);
+  // reset formdata function
+  const handleResetForm = React.useCallback(() => {
+    setFormData({
+      firstName: "",
+      middleName: "",
+      lastName: "",
+      phoneNumber: "",
+      email: "",
+      address: "",
+      fromDate: null,
+      toDate: null,
+      noOfPeoples: "",
+    });
+  }, []);
 
-        // Reset form data
-        setFormData({
-          firstName: "",
-          middleName: "",
-          lastName: "",
-          phoneNumber: "",
-          email: "",
-          address: "",
-          fromDate: null,
-          toDate: null,
-          noOfPeoples: "",
-        });
+  const isFormValid = React.useCallback(() => {
+    return Boolean(
+      formData.firstName.trim() &&
+        formData.phoneNumber.length === 10 &&
+        formData.fromDate &&
+        formData.toDate &&
+        formData.noOfPeoples
+    );
+  }, [formData]);
+
+  // add reservation function
+  const handleSubmit = React.useCallback(
+    (e) => {
+      e.preventDefault();
+      reserveHotelRoom({
+        firstName: formData.firstName,
+        middleName: formData.middleName,
+        lastName: formData.lastName,
+        phoneNumber: formData.phoneNumber,
+        email: formData.email,
+        address: formData.address,
+        fromDate: formData.fromDate
+          ? dayjs(formData.fromDate).format("DD-MM-YYYY")
+          : null,
+        toDate: formData.toDate
+          ? dayjs(formData.toDate).format("DD-MM-YYYY")
+          : null,
+        noOfPeoples: Number(formData.noOfPeoples),
+        roomTypeId: hotelDetails?.id,
+        hotelId: hotelDetails?.hotelDto?.id,
       })
-      .catch((err) => {
-        setSnack({
-          open: true,
-          message: err.data?.message || err.data || "Something Went Wrong",
-          severity: "error",
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            severity: "success",
+          });
+          setDrawerOpen(false);
+          handleResetForm();
+          // Reset form data
+          setFormData({
+            firstName: "",
+            middleName: "",
+            lastName: "",
+            phoneNumber: "",
+            email: "",
+            address: "",
+            fromDate: null,
+            toDate: null,
+            noOfPeoples: "",
+          });
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data || "Something Went Wrong",
+            severity: "error",
+          });
         });
-      });
-  });
+    },
+    [formData, hotelDetails, reserveHotelRoom, handleResetForm]
+  );
 
+  // const handleChangeInput = (e) => {
+  //   setFormData((prevData) => ({
+  //     ...prevData,
+  //     [e.target.name]: e.target.value,
+  //   }));
+  // };
   const handleChangeInput = (e) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [e.target.name]: e.target.value,
-    }));
+    const { name, value } = e.target;
+
+    if (name === "noOfPeoples") {
+      // Allow only numeric values
+      const numericRegex = /^[0-9]*$/;
+      if (numericRegex.test(value)) {
+        setFormData((prevData) => ({
+          ...prevData,
+          [name]: value, // Update the value only if it's numeric
+        }));
+      }
+    } else if (name === "phoneNumber") {
+      // Allow only numeric values and limit to 10 digits
+      const numericRegex = /^[0-9]*$/;
+      if (numericRegex.test(value) && value.length <= 10) {
+        setFormData((prevData) => ({
+          ...prevData,
+          [name]: value,
+        }));
+      }
+    } else {
+      // Default handler for other fields
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
   };
 
   const handleDateChange = (field) => (date) => {
@@ -183,11 +242,21 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
       [field]: date,
     }));
   };
+
+  React.useEffect(() => {
+    const sessionData = JSON.parse(sessionStorage.getItem("data"));
+    if (sessionData && sessionData.phoneNo) {
+      setFormData((prevData) => ({
+        ...prevData,
+        phoneNumber: sessionData.phoneNo,
+      }));
+    }
+  }, []);
   return (
     <Box
       sx={{
         boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
-        // boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+        backgroundColor: "#fff",
       }}
     >
       <Box
@@ -196,7 +265,14 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
           flexDirection: "column",
         }}
       >
-        <Box sx={{ width: "100%", height: "15rem" }}>
+        <Box
+          sx={{
+            width: "100%",
+            height: "15rem",
+            // maxHeight: "15rem",
+            // minHeight: "15rem",
+          }}
+        >
           {hotelDetails?.images?.[0] && (
             <img
               src={hotelDetails.images[0]}
@@ -224,9 +300,8 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
               {hotelDetails?.hotelDto?.name}
             </Typography>
             <Typography sx={{ color: "gray" }}>
-              {`${
-                hotelDetails?.hotelDto?.address
-              }, ${hotelDetails?.hotelDto?.state?.name
+              {`${hotelDetails?.hotelDto?.address}
+              , ${hotelDetails?.hotelDto?.state?.name
                 ?.toLowerCase()
                 ?.replace(/\b\w/g, (char) => char.toUpperCase())}`}
             </Typography>
@@ -255,17 +330,7 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
 
       {/* Drawer for booking details */}
 
-      <Drawer
-        anchor="right"
-        open={drawerOpen}
-        onClose={toggleDrawer(false)}
-        // BackdropProps={{
-        //   sx: {
-        //     backdropFilter: "blur(1.3px)",
-        //     backgroundColor: "rgba(0, 0, 0, 0.5)",
-        //   },
-        // }}
-      >
+      <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
         <Box sx={{ width: 500 }} role="presentation">
           <Box
             sx={{
@@ -293,8 +358,6 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
                   value={formData.firstName}
                   onChange={handleChangeInput}
                   inputProps={{ maxLength: 25 }}
-
-                  // size="small"
                 />
               </Grid>
               <Grid size={{ xs: 6 }}>
@@ -306,8 +369,6 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
                   value={formData.middleName}
                   onChange={handleChangeInput}
                   inputProps={{ maxLength: 25 }}
-
-                  // size="small"
                 />
               </Grid>
               <Grid size={{ xs: 6 }}>
@@ -319,8 +380,6 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
                   value={formData.lastName}
                   onChange={handleChangeInput}
                   inputProps={{ maxLength: 25 }}
-
-                  // size="small"
                 />
               </Grid>
               <Grid size={{ xs: 6 }}>
@@ -331,7 +390,7 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
                   variant="outlined"
                   value={formData.phoneNumber}
                   onChange={handleChangeInput}
-                  // size="small"
+                  // disabled
                 />
               </Grid>
               <Grid size={{ xs: 6 }}>
@@ -343,8 +402,6 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
                   value={formData.email}
                   onChange={handleChangeInput}
                   inputProps={{ maxLength: 25 }}
-
-                  // size="small"
                 />
               </Grid>
 
@@ -357,8 +414,6 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
                   value={formData.noOfPeoples}
                   onChange={handleChangeInput}
                   inputProps={{ maxLength: 2 }}
-
-                  // size="small"
                 />
               </Grid>
               <Grid size={{ xs: 6 }}>
@@ -397,25 +452,28 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
                   value={formData.address}
                   onChange={handleChangeInput}
                   fullWidth
-                  // size="small"
+                  inputProps={{ maxLength: 30 }}
                 />
               </Grid>
-              {/* <Grid size={{ xs: 6 }} /> */}
-              {/* <Grid size={{ xs: 6 }} /> */}
               <Grid size={{ xs: 12 }}>
                 <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                   <Button
                     variant="contained"
                     sx={{
-                      backgroundImage:
-                        "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
-                      color: "white",
-                      "&:hover": {
-                        backgroundImage:
-                          "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
-                      },
+                      backgroundImage: isFormValid()
+                        ? "linear-gradient(to right, #0acffe 0%, #495aff 100%)"
+                        : "none",
+                      backgroundColor: isFormValid() ? "inherit" : "gray",
+                      color: isFormValid() ? "white" : "black",
+                      "&:hover": isFormValid()
+                        ? {
+                            backgroundImage:
+                              "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
+                          }
+                        : {},
                     }}
                     type="submit"
+                    disabled={!isFormValid()}
                   >
                     Reserve
                   </Button>

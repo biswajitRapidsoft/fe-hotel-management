@@ -90,7 +90,7 @@ const Header = () => {
   const handleLogout = React.useCallback(() => {
     //  sessionStorage.clear();
     setOpenDialog(false);
-    navigate("/login");
+    navigate("/");
   }, [navigate]);
 
   return (
