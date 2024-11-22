@@ -111,7 +111,11 @@ function Row({ hotel, sequence }) {
         <TableCell>{sequence}</TableCell>
         <TableCell>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Box component="img" src={hotel.logoUrl} sx={{ width: 50 }} />
+            <Box
+              component="img"
+              src={hotel.logoUrl}
+              sx={{ width: 50, height: 50 }}
+            />
             {hotel.name}
           </Box>
         </TableCell>

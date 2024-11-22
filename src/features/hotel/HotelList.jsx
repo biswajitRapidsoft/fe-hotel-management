@@ -26,10 +26,10 @@ import AttachmentIcon from "@mui/icons-material/Attachment";
 import {
   useGetCityListQuery,
   useGetStateListQuery,
-  useGetAllRoomTypesByCompanyQuery,
   useUploadFileMutation,
   useAddHotelMutation,
 } from "../../services/hotel";
+import { useGetAllRoomTypesByCompanyQuery } from "../../services/roomType";
 import SnackAlert from "../../components/Alert";
 import LoadingComponent from "../../components/LoadingComponent";
 import HotelListTable from "./HotelListTable";

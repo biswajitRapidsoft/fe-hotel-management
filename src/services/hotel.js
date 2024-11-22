@@ -15,15 +15,6 @@ const hotelApi = apiSlice.injectEndpoints({
         method: "GET",
       }),
     }),
-    getAllRoomTypesByCompany: build.query({
-      query: (payload) => ({
-        url: config.apiName.getAllRoomTypesByCompany,
-        method: "GET",
-        params: {
-          companyId: payload,
-        },
-      }),
-    }),
 
     uploadFile: build.mutation({
       query: (payload) => ({
@@ -59,7 +50,6 @@ const hotelApi = apiSlice.injectEndpoints({
 export const {
   useGetStateListQuery,
   useGetCityListQuery,
-  useGetAllRoomTypesByCompanyQuery,
   useUploadFileMutation,
   useAddHotelMutation,
   useGetHotelListByCompanyQuery,

@@ -15,6 +15,7 @@ const GuestDashboard = React.lazy(() =>
   import("./features/dashboard/GuestDashboard")
 );
 const HotelList = React.lazy(() => import("./features/hotel/HotelList"));
+const RoomType = React.lazy(() => import("./features/roomType/RoomType"));
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route path="/guest-dashboard" element={<GuestDashboard />} />
             <Route path="/hotel-list" element={<HotelList />} />
+            <Route path="/room-type" element={<RoomType />} />
           </Route>
         </Routes>
       </React.Suspense>
