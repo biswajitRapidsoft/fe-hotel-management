@@ -20,9 +20,37 @@ const dashboardApi = apiSlice.injectEndpoints({
         method: "GET",
       }),
     }),
+    getAllGovtIds: build.query({
+      query: () => ({
+        url: config.apiName.getAllGovtIds,
+        method: "GET",
+      }),
+      providesTags: ["getAllGovtIds"],
+    }),
+    getAllPaymentMethods: build.query({
+      query: () => ({
+        url: config?.apiName?.getAllPaymentMethods,
+        method: "GET",
+      }),
+      providesTags: ["getAllPaymentMethods"],
+    }),
+    saveCustomerCheckIn: build.mutation({
+      query: (payload) => ({
+        url: config?.apiName.saveCustomerCheckIn,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllRoomListByHotelId"],
+    }),
   }),
+
   overrideExisting: false,
 });
 
-export const { useGetAllRoomListByHotelIdQuery, useGetAllHotelsQuery } =
-  dashboardApi;
+export const {
+  useGetAllRoomListByHotelIdQuery,
+  useGetAllHotelsQuery,
+  useGetAllGovtIdsQuery,
+  useGetAllPaymentMethodsQuery,
+  useSaveCustomerCheckInMutation,
+} = dashboardApi;
