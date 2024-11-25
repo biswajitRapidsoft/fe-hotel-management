@@ -27,9 +27,12 @@ import RoomTypeTable from "./RoomTypeTable";
 
 import { useGetAllExtraItemsQuery } from "../../services/extraItem";
 
+import { useAddRoomTypeMutation } from "../../services/roomType";
+
 import LoadingComponent from "../../components/LoadingComponent";
 
 const RoomType = () => {
+  const [addRoomType, addRoomTypeRes] = useAddRoomTypeMutation();
   const [formData, setFormData] = React.useState({
     roomType: "",
     description: "",
@@ -92,10 +95,32 @@ const RoomType = () => {
   const handleSubmit = React.useCallback(
     (event) => {
       event.preventDefault();
-      console.log(formData, "formDataaa");
+      addRoomType({
+        type: formData.roomType,
+        description: formData.description,
+        capacity: formData.capacity,
+        basePrice: formData.basePrice,
+        companyId: JSON.parse(sessionStorage.getItem("data")).companyId,
+        isAdvanceRequired: formData.isAdvance,
+        advanceAmount: formData.advanceAmount,
+        extraItemsList: extraItemsArr.map((extra) => ({
+          extraItems: {
+            id: extra.extraItem.id,
+          },
+          noOfItems: extra.quantity,
+          isReusable: extra.isReusable,
+        })),
+      })
+        .unwrap()
+        .then((res) => {
+          console.log(res, "res");
+        })
+        .catch((err) => {
+          console.log(err, "err");
+        });
       handleResetForm();
     },
-    [formData, handleResetForm]
+    [formData, handleResetForm, addRoomType, extraItemsArr]
   );
 
   return (
@@ -304,7 +329,7 @@ const RoomType = () => {
         </Box>
       </Box>
       <RoomTypeTable />
-      <LoadingComponent open={isLoading} />
+      <LoadingComponent open={isLoading || addRoomTypeRes.isLoading} />
     </Container>
   );
 };
