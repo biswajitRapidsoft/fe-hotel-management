@@ -38,7 +38,7 @@ const GuestDashboard = () => {
     data: bookingDetails = {
       data: [],
     },
-  } = useGetAllBookingDetailsQuery(6370272922);
+  } = useGetAllBookingDetailsQuery(9668537293);
 
   return (
     <>
@@ -105,6 +105,7 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
     fromDate: null,
     toDate: null,
     noOfPeoples: "",
+    advancePayment: "",
   });
 
   const [snack, setSnack] = React.useState({
@@ -133,18 +134,25 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
       fromDate: null,
       toDate: null,
       noOfPeoples: "",
+      advancePayment: "",
     });
   }, []);
-
   const isFormValid = React.useCallback(() => {
+    const isAdvanceValid =
+      !hotelDetails?.isAdvanceRequired ||
+      (formData.advancePayment &&
+        Number(formData.advancePayment) >= Number(hotelDetails.advanceAmount) &&
+        Number(formData.advancePayment) <= Number(hotelDetails.basePrice));
+
     return Boolean(
       formData.firstName.trim() &&
         formData.phoneNumber.length === 10 &&
         formData.fromDate &&
         formData.toDate &&
-        formData.noOfPeoples
+        formData.noOfPeoples &&
+        isAdvanceValid
     );
-  }, [formData]);
+  }, [formData, hotelDetails]);
 
   // add reservation function
   const handleSubmit = React.useCallback(
@@ -166,6 +174,7 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
         noOfPeoples: Number(formData.noOfPeoples),
         roomTypeId: hotelDetails?.id,
         hotelId: hotelDetails?.hotelDto?.id,
+        paidAmount: formData.advancePayment,
       })
         .unwrap()
         .then((res) => {
@@ -187,6 +196,7 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
             fromDate: null,
             toDate: null,
             noOfPeoples: "",
+            advancePayment: "",
           });
         })
         .catch((err) => {
@@ -210,16 +220,14 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
     const { name, value } = e.target;
 
     if (name === "noOfPeoples") {
-      // Allow only numeric values
       const numericRegex = /^[0-9]*$/;
       if (numericRegex.test(value)) {
         setFormData((prevData) => ({
           ...prevData,
-          [name]: value, // Update the value only if it's numeric
+          [name]: value,
         }));
       }
-    } else if (name === "phoneNumber") {
-      // Allow only numeric values and limit to 10 digits
+    } else if (name === "phoneNumber" || name === "advancePayment") {
       const numericRegex = /^[0-9]*$/;
       if (numericRegex.test(value) && value.length <= 10) {
         setFormData((prevData) => ({
@@ -228,7 +236,6 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
         }));
       }
     } else {
-      // Default handler for other fields
       setFormData((prevData) => ({
         ...prevData,
         [name]: value,
@@ -298,6 +305,9 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
           <Box>
             <Typography sx={{ fontWeight: "bold" }}>
               {hotelDetails?.hotelDto?.name}
+            </Typography>
+            <Typography sx={{ fontWeight: "bold", color: "#929aab" }}>
+              {hotelDetails?.type}
             </Typography>
             <Typography sx={{ color: "gray" }}>
               {`${hotelDetails?.hotelDto?.address}
@@ -443,7 +453,11 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
                   />
                 </LocalizationProvider>
               </Grid>
-              <Grid size={{ xs: 12 }}>
+              <Grid
+                size={{
+                  xs: hotelDetails?.isAdvanceRequired ? 6 : 12,
+                }}
+              >
                 <TextField
                   id="outlined-basic"
                   name="address"
@@ -455,6 +469,32 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
                   inputProps={{ maxLength: 30 }}
                 />
               </Grid>
+
+              {hotelDetails?.isAdvanceRequired && (
+                <Grid size={{ xs: 6 }}>
+                  <TextField
+                    id="outlined-basic"
+                    name="advancePayment"
+                    label="Advance Payment "
+                    variant="outlined"
+                    value={formData.advancePayment}
+                    onChange={handleChangeInput}
+                    fullWidth
+                    helperText={
+                      hotelDetails?.isAdvanceRequired &&
+                      Number(formData.advancePayment) <
+                        Number(hotelDetails.advanceAmount)
+                        ? `Please pay  ₹${hotelDetails.advanceAmount} in advance`
+                        : // `Advance must be at least ₹${hotelDetails.advanceAmount}`
+                        hotelDetails?.isAdvanceRequired &&
+                          Number(formData.advancePayment) >
+                            Number(hotelDetails.basePrice)
+                        ? `Advance amount cannot exceed ₹${hotelDetails.basePrice}`
+                        : ""
+                    }
+                  />
+                </Grid>
+              )}
               <Grid size={{ xs: 12 }}>
                 <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                   <Button
@@ -488,5 +528,19 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
     </Box>
   );
 });
+
+const HotelDetailsDialog = ({ open, onClose }) => {
+  <Dialog
+    TransitionComponent={Transition}
+    open={open}
+    onClose={handleDialogClose}
+    maxWidth="sm"
+    fullWidth
+  >
+    <DialogContent>
+      <Typography>hello</Typography>
+    </DialogContent>
+  </Dialog>;
+};
 
 export default GuestDashboard;
