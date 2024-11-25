@@ -3,17 +3,7 @@ import config from "../config/config";
 
 const dashboardApi = apiSlice.injectEndpoints({
   endpoints: (build) => ({
-    getAllRoomListByHotelId: build.query({
-      query: (payload) => ({
-        url: config.apiName.getAllRoomListByHotelId,
-        method: "GET",
-        params: {
-          hotelId: payload?.hotelId,
-          dateFilterKey: payload?.dateFilterKey,
-        },
-      }),
-      providesTags: ["getAllRoomListByHotelId"],
-    }),
+    //GUEST DASHBOARD
     getAllHotels: build.query({
       query: () => ({
         url: config.apiName.getAllHotels,
@@ -45,6 +35,19 @@ const dashboardApi = apiSlice.injectEndpoints({
         data: payload,
       }),
       invalidatesTags: ["getAllBookingDetails"],
+    }),
+
+    // FRONT-DESK DASHBOARD
+    getAllRoomListByHotelId: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllRoomListByHotelId,
+        method: "GET",
+        params: {
+          hotelId: payload?.hotelId,
+          dateFilterKey: payload?.dateFilterKey,
+        },
+      }),
+      providesTags: ["getAllRoomListByHotelId"],
     }),
     getAllGovtIds: build.query({
       query: () => ({
