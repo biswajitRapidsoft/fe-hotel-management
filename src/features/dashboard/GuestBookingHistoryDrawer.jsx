@@ -352,6 +352,7 @@ const CancelRoomDialog = ({ open, onClose, selectedBookingRefNumber }) => {
             variant="contained"
             onClick={handleSubmit}
             sx={{ backgroundColor: "#228B22" }}
+            disabled={Boolean(rejectionReason) ? "" : true}
           >
             Yes
           </Button>
