@@ -46,7 +46,30 @@ const dashboardApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["getAllBookingDetails"],
     }),
+    getAllGovtIds: build.query({
+      query: () => ({
+        url: config.apiName.getAllGovtIds,
+        method: "GET",
+      }),
+      providesTags: ["getAllGovtIds"],
+    }),
+    getAllPaymentMethods: build.query({
+      query: () => ({
+        url: config?.apiName?.getAllPaymentMethods,
+        method: "GET",
+      }),
+      providesTags: ["getAllPaymentMethods"],
+    }),
+    saveCustomerCheckIn: build.mutation({
+      query: (payload) => ({
+        url: config?.apiName.saveCustomerCheckIn,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllRoomListByHotelId"],
+    }),
   }),
+
   overrideExisting: false,
 });
 
@@ -56,4 +79,7 @@ export const {
   useReserveHotelRoomMutation,
   useGetAllBookingDetailsQuery,
   useCancelHotelRoomMutation,
+  useGetAllGovtIdsQuery,
+  useGetAllPaymentMethodsQuery,
+  useSaveCustomerCheckInMutation,
 } = dashboardApi;

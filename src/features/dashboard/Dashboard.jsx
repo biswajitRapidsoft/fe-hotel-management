@@ -4,6 +4,7 @@ import {
   Button,
   DialogContent,
   DialogTitle,
+  Drawer,
   IconButton,
   Paper,
   TextField,
@@ -35,13 +36,19 @@ import { MdCleaningServices } from "react-icons/md";
 import { BsFillBuildingFill } from "react-icons/bs";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ClearIcon from "@mui/icons-material/Clear";
-import { useGetAllRoomListByHotelIdQuery } from "../../services/dashboard";
+import {
+  useGetAllGovtIdsQuery,
+  useGetAllPaymentMethodsQuery,
+  useGetAllRoomListByHotelIdQuery,
+  useSaveCustomerCheckInMutation,
+} from "../../services/dashboard";
 import { checkRoomStatusType } from "../../helper/helperFunctions";
 import moment from "moment";
 import { BootstrapDialog } from "../header/Header";
 // import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CloseIcon from "@mui/icons-material/Close";
 import ReactDOM from "react-dom";
+import dayjs from "dayjs";
 
 export const StyledCalendarIcon = styled(CalendarMonthIcon)({
   color: "#9380B8",
@@ -108,10 +115,10 @@ export const StyledCalendarIcon = styled(CalendarMonthIcon)({
 //   };
 // });
 
-const tempKeyAlocationData = Array.from({ length: 130 }, (_, index) => ({
-  id: index + 1,
-  roomNo: index + 1,
-}));
+// const tempKeyAlocationData = Array.from({ length: 130 }, (_, index) => ({
+//   id: index + 1,
+//   roomNo: index + 1,
+// }));
 
 const tempDayCheckoutData = Array.from({ length: 130 }, (_, index) => ({
   id: index + 1,
@@ -682,6 +689,9 @@ const CustomRoomCard = memo(function ({
               : "#ccc",
           pointerEvents: "none",
         },
+        "&:hover": {
+          cursor: "pointer",
+        },
       }}
       onClick={() => handleRoomSelectOnClick(roomDetails)}
     >
@@ -707,7 +717,7 @@ const CustomRoomCard = memo(function ({
             FAMILY_SUITE_ROOM,
             BUSINESS_SUITE_ROOM,
             KING_ROOM,
-          ]?.find((type) => type?.key === roomDetails?.roomType?.type)?.key ||
+          ]?.find((type) => type?.key === roomDetails?.roomType?.type)?.name ||
             "NA"}
         </Typography>
         <Typography sx={{ fontWeight: 550 }}>
@@ -718,45 +728,45 @@ const CustomRoomCard = memo(function ({
   );
 });
 
-const KeyAllocationCard = memo(function ({ keyAllocationData }) {
-  return (
-    <>
-      <Box sx={{ width: "100" }}>
-        <Box
-          sx={{
-            borderBottom: "2px solid #ccc",
-            bgcolor: "#e3e3e3",
-            py: 0.5,
-            px: 1,
-          }}
-        >
-          <Typography variant="h6" sx={{ fontWeight: 550, letterSpacing: 1 }}>
-            {`Key Allocation`}
-          </Typography>
-        </Box>
-        <Box sx={{ width: "100%", mt: 2, height: "100px", overflowY: "auto" }}>
-          <Grid container size={12} rowSpacing={2}>
-            {Boolean(keyAllocationData?.length) &&
-              keyAllocationData?.map((keyItem, index) => {
-                return (
-                  <Grid key={`Key-${index}`} size={3}>
-                    <Button variant="contained" size="small">
-                      {keyItem?.roomNo}
-                    </Button>
-                  </Grid>
-                );
-              })}
-          </Grid>
-        </Box>
-      </Box>
-    </>
-  );
-});
+// const KeyAllocationCard = memo(function ({ keyAllocationData }) {
+//   return (
+//     <>
+//       <Box sx={{ width: "100" }}>
+//         <Box
+//           sx={{
+//             borderBottom: "2px solid #ccc",
+//             bgcolor: "#e3e3e3",
+//             py: 0.5,
+//             px: 1,
+//           }}
+//         >
+//           <Typography variant="h6" sx={{ fontWeight: 550, letterSpacing: 1 }}>
+//             {`Key Allocation`}
+//           </Typography>
+//         </Box>
+//         <Box sx={{ width: "100%", mt: 2, height: "100px", overflowY: "auto" }}>
+//           <Grid container size={12} rowSpacing={2}>
+//             {Boolean(keyAllocationData?.length) &&
+//               keyAllocationData?.map((keyItem, index) => {
+//                 return (
+//                   <Grid key={`Key-${index}`} size={3}>
+//                     <Button variant="contained" size="small">
+//                       {keyItem?.roomNo}
+//                     </Button>
+//                   </Grid>
+//                 );
+//               })}
+//           </Grid>
+//         </Box>
+//       </Box>
+//     </>
+//   );
+// });
 
 const DayCheckoutCard = memo(function ({ dayCheckoutData }) {
   return (
     <>
-      <Box sx={{ width: "100" }}>
+      <Box sx={{ width: "100%" }}>
         <Box
           sx={{
             borderBottom: "2px solid #ccc",
@@ -769,7 +779,7 @@ const DayCheckoutCard = memo(function ({ dayCheckoutData }) {
             {`Checkout (Today)`}
           </Typography>
         </Box>
-        <Box sx={{ width: "100%", mt: 2, height: "100px", overflowY: "auto" }}>
+        <Box sx={{ width: "100%", mt: 2, height: "130px", overflowY: "auto" }}>
           <Grid container size={12} rowSpacing={2}>
             {Boolean(dayCheckoutData?.length) &&
               dayCheckoutData?.map((dayCheckoutItem, index) => {
@@ -791,8 +801,11 @@ const DayCheckoutCard = memo(function ({ dayCheckoutData }) {
 const RoomServiceCard = memo(function ({
   handleOpenShowcaseModalForInventory,
   handleOpenShowcaseModalForFood,
+  isSelectedRoom,
+  handleOpenCustomFormDrawer,
 }) {
-  const isRoomBooked = true;
+  console.log("RoomServiceCard isSelectedRoom : ", isSelectedRoom);
+  const selectedRoomStatusType = checkRoomStatusType(isSelectedRoom);
 
   const flatMappedInventoryItems = tempInventoryData?.flatMap(
     (item) => item?.items
@@ -817,6 +830,13 @@ const RoomServiceCard = memo(function ({
   const handleOpenShowcaseModalForFoodOnClick = useCallback(() => {
     handleOpenShowcaseModalForFood(tempFoodData);
   }, [handleOpenShowcaseModalForFood]);
+
+  const handleOpenCustomFormDrawerOnClick = useCallback(
+    (open = true, title = "", type = null) => {
+      handleOpenCustomFormDrawer(open, title, type);
+    },
+    [handleOpenCustomFormDrawer]
+  );
 
   return (
     <>
@@ -844,10 +864,11 @@ const RoomServiceCard = memo(function ({
           sx={{
             width: "100",
             overflowY: "auto",
-            height: "330px",
+            height: "310px",
           }}
         >
-          {isRoomBooked ? (
+          {/* OCCUPIED ROOM CASE */}
+          {selectedRoomStatusType?.key === OCCUPIED?.key && (
             <>
               <Box sx={{ width: "100%", pl: 1 }}>
                 {/* GUEST DETAILS */}
@@ -967,6 +988,93 @@ const RoomServiceCard = memo(function ({
                             }}
                           >
                             Booking Date
+                          </Typography>
+                        </Grid>
+                        <Grid size={7}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                                marginRight: "5px",
+                              }}
+                            >
+                              :
+                            </Typography>
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                // fontWeight: 600,
+                              }}
+                            >
+                              12th-Nov-2024 12:34 PM
+                            </Typography>
+                          </Typography>
+                        </Grid>
+                        {/* FROM DATE */}
+                        <Grid size={5}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            From
+                          </Typography>
+                        </Grid>
+                        <Grid size={7}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                                marginRight: "5px",
+                              }}
+                            >
+                              :
+                            </Typography>
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                // fontWeight: 600,
+                              }}
+                            >
+                              12th-Nov-2024 12:34 PM
+                            </Typography>
+                          </Typography>
+                        </Grid>
+
+                        {/* TO DATE */}
+                        <Grid size={5}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            To
                           </Typography>
                         </Grid>
                         <Grid size={7}>
@@ -1342,12 +1450,1176 @@ const RoomServiceCard = memo(function ({
                 </Box>
               </Box>
             </>
-          ) : (
-            <></>
+          )}
+
+          {/* RESERVED ROOM CASE */}
+          {selectedRoomStatusType?.key === RESERVED?.key && (
+            <>
+              <Box sx={{ width: "100%", pl: 1 }}>
+                {/* GUEST DETAILS */}
+                <Box sx={{ width: "100%" }}>
+                  <Grid container size={12}>
+                    <Grid size={12}>
+                      <Typography
+                        sx={{
+                          fontSize: "18px",
+                          // color: "#707070",
+                          fontWeight: 600,
+                          width: "100%",
+                          borderBottom: "2px solid #ccc",
+                          marginBottom: "5px",
+                        }}
+                      >
+                        Guest Details :
+                      </Typography>
+                    </Grid>
+                    <Grid size={9}>
+                      <Grid container size={12}>
+                        {/* NAME */}
+                        <Grid size={5}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            Name
+                          </Typography>
+                        </Grid>
+                        <Grid size={7}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                                marginRight: "5px",
+                              }}
+                            >
+                              :
+                            </Typography>
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                // fontWeight: 600,
+                              }}
+                            >
+                              {Boolean(isSelectedRoom?.bookingDto?.firstName) &&
+                                `${isSelectedRoom?.bookingDto?.firstName}`}
+                              {Boolean(
+                                isSelectedRoom?.bookingDto?.middleName
+                              ) && ` ${isSelectedRoom?.bookingDto?.middleName}`}
+                              {Boolean(isSelectedRoom?.bookingDto?.lastName) &&
+                                ` ${isSelectedRoom?.bookingDto?.lastName}`}{" "}
+                            </Typography>
+                          </Typography>
+                        </Grid>
+
+                        {/* ROOM TYPE */}
+                        <Grid size={5}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            Room Type
+                          </Typography>
+                        </Grid>
+                        <Grid size={7}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                                marginRight: "5px",
+                              }}
+                            >
+                              :
+                            </Typography>
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                // fontWeight: 600,
+                              }}
+                            >
+                              {[
+                                STANDARD_ROOM,
+                                DELUXE_ROOM,
+                                FAMILY_SUITE_ROOM,
+                                BUSINESS_SUITE_ROOM,
+                                KING_ROOM,
+                              ]?.find(
+                                (type) =>
+                                  type?.key === isSelectedRoom?.roomType?.type
+                              )?.name || "NA"}
+                            </Typography>
+                          </Typography>
+                        </Grid>
+
+                        {/* BOOKING DATE */}
+                        <Grid size={5}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            Booking Date
+                          </Typography>
+                        </Grid>
+                        <Grid size={7}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                                marginRight: "5px",
+                              }}
+                            >
+                              :
+                            </Typography>
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                // fontWeight: 600,
+                              }}
+                            >
+                              {isSelectedRoom?.bookingDto?.bookedOn &&
+                                moment(
+                                  isSelectedRoom?.bookingDto?.bookedOn
+                                ).format("DD-MM-YYYY hh:mm A")}
+                            </Typography>
+                          </Typography>
+                        </Grid>
+                        {/* FROM DATE */}
+                        <Grid size={5}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            From
+                          </Typography>
+                        </Grid>
+                        <Grid size={7}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                                marginRight: "5px",
+                              }}
+                            >
+                              :
+                            </Typography>
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                // fontWeight: 600,
+                              }}
+                            >
+                              {isSelectedRoom?.bookingDto?.fromDate || "NA"}
+                            </Typography>
+                          </Typography>
+                        </Grid>
+
+                        {/* TO DATE */}
+                        <Grid size={5}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            To
+                          </Typography>
+                        </Grid>
+                        <Grid size={7}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                                marginRight: "5px",
+                              }}
+                            >
+                              :
+                            </Typography>
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                // fontWeight: 600,
+                              }}
+                            >
+                              {isSelectedRoom?.bookingDto?.toDate || "NA"}
+                            </Typography>
+                          </Typography>
+                        </Grid>
+
+                        {/* STAYERS */}
+                        <Grid size={5}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            Stayers
+                          </Typography>
+                        </Grid>
+                        <Grid size={7}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                                marginRight: "5px",
+                              }}
+                            >
+                              :
+                            </Typography>
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                // fontWeight: 600,
+                              }}
+                            >
+                              {isSelectedRoom?.bookingDto?.noOfPeoples || ""}
+                            </Typography>
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                    <Grid size={3}>
+                      <img
+                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXp3DxP80ArpRzsB0XWBG9Ow5GeuefbLrUHw&s"
+                        alt="person"
+                        style={{
+                          width: "100%",
+                          height: "130px",
+                          objectFit: "cover",
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
+                </Box>
+              </Box>
+            </>
+          )}
+
+          {/* AVAILABLE ROOM CASE */}
+          {selectedRoomStatusType?.key === AVAILABLE?.key && (
+            <>
+              <Box sx={{ width: "100%", pl: 1 }}>
+                {/* ROOM DETAILS */}
+                <Box sx={{ width: "100%" }}>
+                  <Grid container size={12}>
+                    <Grid size={12}>
+                      <Grid container size={12}>
+                        {/* ROOM NO */}
+                        <Grid size={3.5}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            Room No
+                          </Typography>
+                        </Grid>
+                        <Grid size={8.5}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                                marginRight: "5px",
+                              }}
+                            >
+                              :
+                            </Typography>
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                // fontWeight: 600,
+                              }}
+                            >
+                              101
+                            </Typography>
+                          </Typography>
+                        </Grid>
+
+                        {/* FLOOR NO */}
+                        <Grid size={3.5}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            Floor No
+                          </Typography>
+                        </Grid>
+                        <Grid size={8.5}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                                marginRight: "5px",
+                              }}
+                            >
+                              :
+                            </Typography>
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                // fontWeight: 600,
+                              }}
+                            >
+                              2
+                            </Typography>
+                          </Typography>
+                        </Grid>
+
+                        {/* ROOM TYPE */}
+                        <Grid size={3.5}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            Room Type
+                          </Typography>
+                        </Grid>
+                        <Grid size={8.5}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                                marginRight: "5px",
+                              }}
+                            >
+                              :
+                            </Typography>
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                // fontWeight: 600,
+                              }}
+                            >
+                              Business Suite
+                            </Typography>
+                          </Typography>
+                        </Grid>
+
+                        {/* ROOM STATUS */}
+                        <Grid size={3.5}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            Status
+                          </Typography>
+                        </Grid>
+                        <Grid size={8.5}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                                marginRight: "5px",
+                              }}
+                            >
+                              :
+                            </Typography>
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                // fontWeight: 600,
+                              }}
+                            >
+                              Available
+                            </Typography>
+                          </Typography>
+                        </Grid>
+
+                        <Grid size={12}></Grid>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </Box>
+              </Box>
+            </>
+          )}
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+
+            justifyContent: "center",
+            width: "100%",
+            bgcolor: "white",
+            bottom: 0,
+            gap: 2,
+          }}
+        >
+          {selectedRoomStatusType?.key === AVAILABLE?.key && (
+            <Button variant="contained" size="small">
+              BOOK NOW
+            </Button>
+          )}
+
+          {selectedRoomStatusType?.key === RESERVED?.key && (
+            <>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() =>
+                  handleOpenCustomFormDrawerOnClick("Check-In", "checkIn")
+                }
+              >
+                CHECK-IN
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() =>
+                  handleOpenCustomFormDrawerOnClick(
+                    "Cancel Booking",
+                    "cancelBooking"
+                  )
+                }
+              >
+                CANCEL
+              </Button>
+            </>
+          )}
+
+          {selectedRoomStatusType?.key === OCCUPIED?.key && (
+            <>
+              <Button variant="contained" size="small">
+                CHECK-OUT
+              </Button>
+            </>
           )}
         </Box>
       </Box>
     </>
+  );
+});
+
+const CustomFormDrawer = memo(function ({
+  customDrawerOpen,
+  title,
+  handleToggleCustomFormDrawer,
+  customFormDrawerData,
+  handleChangeCustomFormDrawerData,
+  isSelectedRoom,
+  allGovtIdsData,
+  allPaymentMethods,
+  handleSubmitRoomCheckIn,
+}) {
+  console.log("CustomFormDrawer customDrawerOpen : ", customDrawerOpen);
+  const handleToggleCustomFormDrawerOnChange = useCallback(() => {
+    handleToggleCustomFormDrawer();
+  }, [handleToggleCustomFormDrawer]);
+
+  const handleChangeCustomFormDrawerDataOnChange = useCallback(
+    (name, value, subIndex) => {
+      handleChangeCustomFormDrawerData(name, value, subIndex);
+    },
+    [handleChangeCustomFormDrawerData]
+  );
+  const handleChangeCustomFormDrawerDataOnOpen = useCallback(() => {
+    handleChangeCustomFormDrawerData("fullCheckIn", isSelectedRoom);
+  }, [handleChangeCustomFormDrawerData, isSelectedRoom]);
+
+  const handleSubmitRoomCheckInOnClick = useCallback(() => {
+    handleSubmitRoomCheckIn();
+  }, [handleSubmitRoomCheckIn]);
+
+  useEffect(() => {
+    if (customDrawerOpen && isSelectedRoom) {
+      handleChangeCustomFormDrawerDataOnOpen();
+    }
+  }, [
+    isSelectedRoom,
+    handleChangeCustomFormDrawerDataOnOpen,
+    customDrawerOpen,
+  ]);
+
+  return (
+    <Drawer
+      anchor="right"
+      open={customDrawerOpen}
+      onClose={() => handleToggleCustomFormDrawerOnChange()}
+      // BackdropProps={{
+      //   sx: {
+      //     backdropFilter: "blur(1.3px)",
+      //     backgroundColor: "rgba(0, 0, 0, 0.5)",
+      //   },
+      // }}
+    >
+      <Box sx={{ width: 500 }} role="presentation">
+        <Box
+          sx={{
+            p: 2,
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <Typography sx={{ fontWeight: 550, fontSize: "1.5em" }}>
+            {title}
+          </Typography>
+          <IconButton onClick={() => handleToggleCustomFormDrawerOnChange()}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
+        {/* <Divider /> */}
+        <Box sx={{ px: 2, py: 2 }}>
+          <Grid container size={12} spacing={2}>
+            <Grid size={12}>
+              <Grid container size={12}>
+                {/* STAYERS */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "18px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Stayers
+                  </Typography>
+                </Grid>
+                <Grid size={9}>
+                  <Typography
+                    sx={{
+                      fontSize: "18px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "18px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "18px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {isSelectedRoom?.bookingDto?.noOfPeoples || 0}
+                    </Typography>
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid size={{ xs: 6 }}>
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                id="noOfPeoples"
+                label="Stayer"
+                name="noOfPeoples"
+                // autoComplete="noOfPeoples"
+                variant="standard"
+                value={customFormDrawerData?.noOfPeoples || ""}
+                onChange={(e) =>
+                  handleChangeCustomFormDrawerDataOnChange(
+                    "noOfPeoples",
+                    e?.target?.value
+                  )
+                }
+              />
+            </Grid>
+            <Grid size={{ xs: 6 }}>
+              <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    disablePast
+                    value={customFormDrawerData?.checkOutDate || null}
+                    onChange={(newVal) =>
+                      handleChangeCustomFormDrawerDataOnChange(
+                        "checkOutDate",
+                        newVal
+                      )
+                    }
+                    slotProps={{
+                      textField: {
+                        variant: "standard",
+                        size: "small",
+                        readOnly: true,
+                        label: "Check-Out Date",
+                        sx: {
+                          position: "absolute",
+                          bottom: 7,
+                          "& .MuiOutlinedInput-root": {
+                            borderRadius: 2,
+                            backgroundColor: "rgba(255, 255, 255, 0.25)",
+                            color: "#B4B4B4",
+                          },
+                          "& .MuiTextField-root": {
+                            width: "100%",
+                            backgroundColor: "transparent",
+                          },
+                          // "& .MuiFormLabel-root": {
+                          //   color: (theme) => theme.palette.primary.main,
+                          //   fontWeight: 600,
+                          //   fontSize: 18,
+                          // },
+                        },
+                      },
+                    }}
+                    slots={{
+                      openPickerIcon: StyledCalendarIcon,
+                    }}
+                    format="DD-MM-YYYY"
+                  />
+                </LocalizationProvider>
+              </Box>
+            </Grid>
+
+            <Grid size={12}>
+              <Grid container size={12}>
+                {/* STAYERS */}
+                <Grid size={12}>
+                  <Typography
+                    sx={{
+                      fontSize: "18px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Guests Details :
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Grid>
+
+            <Grid size={{ xs: 12 }}>
+              <Box
+                sx={{
+                  width: "100%",
+                  maxHeight: "calc(100vh - 600px)",
+                  overflowX: "hidden",
+                  overflowY: "auto",
+                }}
+              >
+                {customFormDrawerData?.bookingMapDatas?.map((item, index) => {
+                  return (
+                    <Box
+                      key={`verification-${index}`}
+                      sx={{ width: "100%", marginBottom: "10px" }}
+                    >
+                      <Grid container size={12} spacing={2}>
+                        <Grid size={12}>
+                          <Typography
+                            sx={{
+                              fontSize: "16px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                              width: "100%",
+                              bgcolor: "#e8e8e8",
+                            }}
+                          >
+                            Customer {index + 1} :
+                          </Typography>
+                        </Grid>
+                        <Grid size={6}>
+                          <TextField
+                            margin="normal"
+                            required
+                            fullWidth
+                            id={`customerName${index}`}
+                            label="Guest Name"
+                            name="customerName"
+                            // autoComplete="noOfPeoples"
+                            variant="standard"
+                            value={item?.customerName || ""}
+                            onChange={(e) =>
+                              handleChangeCustomFormDrawerDataOnChange(
+                                "customerName",
+                                e?.target?.value,
+                                index
+                              )
+                            }
+                          />
+                        </Grid>
+                        <Grid size={6}>
+                          <Box
+                            sx={{
+                              height: "100%",
+                              position: "relative",
+                              ".MuiTextField-root": {
+                                width: "100%",
+                                backgroundColor: "transparent",
+                                ".MuiInputBase-root": {
+                                  color: "#B4B4B4",
+                                  background: "rgba(255, 255, 255, 0.25)",
+                                },
+                              },
+                              // ".MuiFormLabel-root": {
+                              //   color: (theme) => theme.palette.primary.main,
+                              //   fontWeight: 600,
+                              //   fontSize: 18,
+                              // },
+                              ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before":
+                                {
+                                  borderBottom: (theme) =>
+                                    `1px solid ${theme.palette.primary.main}`,
+                                },
+                              ".css-iwadjf-MuiInputBase-root-MuiInput-root:before":
+                                {
+                                  borderBottom: (theme) =>
+                                    `1px solid ${theme.palette.primary.main}`,
+                                },
+                            }}
+                          >
+                            <Autocomplete
+                              fullWidth
+                              options={
+                                allGovtIdsData?.data?.map((item) => ({
+                                  key: item,
+                                  name: item.replace(/_/g, " "),
+                                })) || []
+                              }
+                              disableClearable
+                              value={item?.govtIdType || null}
+                              onChange={(e, newVal) =>
+                                handleChangeCustomFormDrawerDataOnChange(
+                                  "govtIdType",
+                                  newVal,
+                                  index
+                                )
+                              }
+                              inputValue={item?.govtIdTypeInputValue}
+                              onInputChange={(e, newVal) =>
+                                handleChangeCustomFormDrawerDataOnChange(
+                                  "govtIdTypeInputValue",
+                                  newVal,
+                                  index
+                                )
+                              }
+                              getOptionLabel={(option) => option?.name}
+                              clearOnEscape
+                              disablePortal
+                              popupIcon={
+                                <KeyboardArrowDownIcon color="primary" />
+                              }
+                              sx={{
+                                // width: 200,
+                                position: "absolute",
+                                bottom: 7,
+                                ".MuiInputBase-root": {
+                                  color: "#fff",
+                                },
+                                "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover":
+                                  {
+                                    backgroundColor: "#E9E5F1",
+                                    color: "#280071",
+                                    fontWeight: 600,
+                                  },
+                                "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                                  {
+                                    backgroundColor: "#E9E5F1",
+                                    color: "#280071",
+                                    fontWeight: 600,
+                                  },
+                              }}
+                              size="small"
+                              clearIcon={<ClearIcon color="primary" />}
+                              PaperComponent={(props) => (
+                                <Paper
+                                  sx={{
+                                    background: "#fff",
+                                    color: "#B4B4B4",
+                                    // borderRadius: "10px",
+                                  }}
+                                  {...props}
+                                />
+                              )}
+                              renderInput={(params) => (
+                                <TextField
+                                  {...params}
+                                  label="Govt. ID Type"
+                                  variant="standard"
+                                  // sx={{
+                                  //   "& .MuiOutlinedInput-root": {
+                                  //     borderRadius: 2,
+                                  //   },
+                                  // }}
+                                />
+                              )}
+                            />
+                          </Box>
+                        </Grid>
+                        <Grid size={6}>
+                          <TextField
+                            margin="normal"
+                            required
+                            fullWidth
+                            id={`govtIdNo${index}`}
+                            label="Govt. Id"
+                            name="govtIdNo"
+                            autoComplete="govtIdNo"
+                            variant="standard"
+                            value={item?.govtIdNo || ""}
+                            onChange={(e) =>
+                              handleChangeCustomFormDrawerDataOnChange(
+                                "govtIdNo",
+                                e?.target?.value,
+                                index
+                              )
+                            }
+                          />
+                        </Grid>
+                      </Grid>
+                    </Box>
+                  );
+                })}
+                {/* <Grid size={{ xs: 12 }}></Grid> */}
+              </Box>
+            </Grid>
+
+            {/* PAYMENTS */}
+            <Grid size={12}>
+              <Grid container size={12}>
+                {/* STAYERS */}
+                <Grid size={12}>
+                  <Typography
+                    sx={{
+                      fontSize: "18px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Payment Details :
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <Grid container size={12} spacing={2}>
+                <Grid size={6}>
+                  <Box
+                    sx={{
+                      height: "100%",
+                      position: "relative",
+                      ".MuiTextField-root": {
+                        width: "100%",
+                        backgroundColor: "transparent",
+                        ".MuiInputBase-root": {
+                          color: "#B4B4B4",
+                          background: "rgba(255, 255, 255, 0.25)",
+                        },
+                      },
+                      // ".MuiFormLabel-root": {
+                      //   color: (theme) => theme.palette.primary.main,
+                      //   fontWeight: 600,
+                      //   fontSize: 18,
+                      // },
+                      ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+                        borderBottom: (theme) =>
+                          `1px solid ${theme.palette.primary.main}`,
+                      },
+                      ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+                        borderBottom: (theme) =>
+                          `1px solid ${theme.palette.primary.main}`,
+                      },
+                    }}
+                  >
+                    <Autocomplete
+                      fullWidth
+                      options={
+                        allPaymentMethods?.data?.map((item) => ({
+                          key: item,
+                          name: item.replace(/_/g, " "),
+                        })) || []
+                      }
+                      disableClearable
+                      value={customFormDrawerData?.paymentMethod || null}
+                      onChange={(e, newVal) =>
+                        handleChangeCustomFormDrawerDataOnChange(
+                          "paymentMethod",
+                          newVal
+                        )
+                      }
+                      inputValue={
+                        customFormDrawerData?.paymentMethodInputValue || ""
+                      }
+                      onInputChange={(e, newVal) =>
+                        handleChangeCustomFormDrawerDataOnChange(
+                          "paymentMethodInputValue",
+                          newVal
+                        )
+                      }
+                      getOptionLabel={(option) => option?.name}
+                      clearOnEscape
+                      disablePortal
+                      popupIcon={<KeyboardArrowDownIcon color="primary" />}
+                      sx={{
+                        // width: 200,
+                        position: "absolute",
+                        bottom: 7,
+                        ".MuiInputBase-root": {
+                          color: "#fff",
+                        },
+                        "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover":
+                          {
+                            backgroundColor: "#E9E5F1",
+                            color: "#280071",
+                            fontWeight: 600,
+                          },
+                        "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                          {
+                            backgroundColor: "#E9E5F1",
+                            color: "#280071",
+                            fontWeight: 600,
+                          },
+                      }}
+                      size="small"
+                      clearIcon={<ClearIcon color="primary" />}
+                      PaperComponent={(props) => (
+                        <Paper
+                          sx={{
+                            background: "#fff",
+                            color: "#B4B4B4",
+                            // borderRadius: "10px",
+                          }}
+                          {...props}
+                        />
+                      )}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Payment Method"
+                          variant="standard"
+                          // sx={{
+                          //   "& .MuiOutlinedInput-root": {
+                          //     borderRadius: 2,
+                          //   },
+                          // }}
+                        />
+                      )}
+                    />
+                  </Box>
+                </Grid>
+                {customFormDrawerData?.paymentMethod &&
+                  !(customFormDrawerData?.paymentMethod?.key === "Cash") && (
+                    <Grid size={6}>
+                      <TextField
+                        margin="normal"
+                        required
+                        fullWidth
+                        id={`transactionReferenceNo`}
+                        label="Transaction ref. No."
+                        name="transactionReferenceNo"
+                        autoComplete="transactionReferenceNo"
+                        variant="standard"
+                        value={
+                          customFormDrawerData?.transactionReferenceNo || ""
+                        }
+                        onChange={(e) =>
+                          handleChangeCustomFormDrawerDataOnChange(
+                            "transactionReferenceNo",
+                            e?.target?.value
+                          )
+                        }
+                      />
+                    </Grid>
+                  )}
+
+                <Grid size={6}>
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    id={`paidAmount`}
+                    label="Amount Paid"
+                    name="paidAmount"
+                    autoComplete="paidAmount"
+                    variant="standard"
+                    value={customFormDrawerData?.paidAmount || ""}
+                    onChange={(e) =>
+                      handleChangeCustomFormDrawerDataOnChange(
+                        "paidAmount",
+                        e?.target?.value
+                      )
+                    }
+                  />
+                </Grid>
+
+                <Grid size={6}>
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    id={`remarks`}
+                    label="Remarks"
+                    name="remarks"
+                    autoComplete="remarks"
+                    variant="standard"
+                    value={customFormDrawerData?.remarks || ""}
+                    onChange={(e) =>
+                      handleChangeCustomFormDrawerDataOnChange(
+                        "remarks",
+                        e?.target?.value
+                      )
+                    }
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+
+            <Grid size={{ xs: 12 }}>
+              <Button
+                variant="contained"
+                sx={{
+                  backgroundImage:
+                    "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
+                  color: "white",
+                  "&:hover": {
+                    backgroundImage:
+                      "linear-gradient(to right, #0acffe 10%, #495aff 90%)", // Optional hover adjustment
+                  },
+                }}
+                onClick={() => handleSubmitRoomCheckInOnClick()}
+              >
+                Reserve
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
+      </Box>
+    </Drawer>
   );
 });
 
@@ -1697,6 +2969,8 @@ const Dashboard = () => {
     selectedRoomStatus: null,
   });
   console.log("roomFilters : ", roomFilters);
+  const [saveCustomerCheckIn, saveCustomerCheckInRes] =
+    useSaveCustomerCheckInMutation();
   const {
     data: apiRoomData = {
       data: {
@@ -1712,18 +2986,18 @@ const Dashboard = () => {
       dateFilterKey:
         roomFilters?.toDate &&
         moment(roomFilters.toDate.$d).format("YYYY-MM-DD"),
+      cacheBuster: saveCustomerCheckInRes?.isSuccess,
     },
     { refetchOnMountOrArgChange: true, skip: false }
   );
   console.log("apiRoomData : ", apiRoomData);
 
-  // console.log("tempRoomData", tempRoomData);
-  const [roomData, setRoomData] = useState([]);
-  console.log("roomData : ", roomData);
-  const [isSelectedRoom, setIsSelectedRoom] = useState(null);
-  console.log("isSelectedRoom : ", isSelectedRoom);
-  // const [isSelectedFloor, setIsSelectedFloor] = useState(null);
-  // console.log("isSelectedFloor : ", isSelectedFloor);
+  const { data: allGovtIdsData = { data: [] } } = useGetAllGovtIdsQuery();
+  console.log("allGovtIdsData : ", allGovtIdsData);
+
+  const { data: allPaymentMethods = { data: [] } } =
+    useGetAllPaymentMethodsQuery();
+  console.log("allPaymentMethods : ", allPaymentMethods);
 
   const floorOptions = React.useMemo(
     () =>
@@ -1746,6 +3020,43 @@ const Dashboard = () => {
     []
   );
 
+  const initialCustomFormDrawerData = useMemo(
+    () => ({
+      fromDate: null,
+      toDate: null,
+      checkOutDate: null,
+      noOfPeoples: null,
+      bookingRefNumber: "",
+      bookingMapDatas: [],
+      paymentMethod: null,
+      paymentMethodInputValue: "",
+      transactionReferenceNo: "",
+      paidAmount: "",
+      remarks: "",
+    }),
+    []
+  );
+
+  // console.log("tempRoomData", tempRoomData);
+  const [roomData, setRoomData] = useState([]);
+  console.log("roomData : ", roomData);
+  const [isSelectedRoom, setIsSelectedRoom] = useState(null);
+  console.log("isSelectedRoom : ", isSelectedRoom);
+  // const [isSelectedFloor, setIsSelectedFloor] = useState(null);
+  // console.log("isSelectedFloor : ", isSelectedFloor);
+  // const [isBookNowSelected, setIsBookNowSelected] = useState(false);
+  const [customFormDrawerOpen, setCustomFormDrawerOpen] = useState({
+    open: false,
+    title: "hola",
+    type: null,
+  });
+
+  console.log("customFormDrawerOpen : ", customFormDrawerOpen);
+  const [customFormDrawerData, setCustomFormDrawerData] = useState(
+    initialCustomFormDrawerData
+  );
+
+  console.log("customFormDrawerData : ", customFormDrawerData);
   const [showcaseDialogData, setShowcaseDialogData] = useState(
     initialShowcaseDialogData
   );
@@ -1755,7 +3066,12 @@ const Dashboard = () => {
   //   setIsSelectedFloor(selectedFloor || null);
   // }, []);
   const handleRoomSelect = useCallback((selectedRoom) => {
-    setIsSelectedRoom(selectedRoom || null);
+    setIsSelectedRoom((prevState) => {
+      if (!selectedRoom || prevState?.id === selectedRoom?.id) {
+        return null;
+      }
+      return selectedRoom;
+    });
   }, []);
 
   const handleChangeRoomFilters = useCallback((name, value) => {
@@ -1864,6 +3180,266 @@ const Dashboard = () => {
     setShowcaseDialogData(initialShowcaseDialogData);
   }, [initialShowcaseDialogData]);
 
+  const handleChangeCustomFormDrawerData = useCallback(
+    (name, inputValue, subIndex) => {
+      console.log(
+        "handleChangeCustomFormDrawerData inputValue : ",
+        name,
+        inputValue,
+        subIndex
+      );
+
+      if (name) {
+        if (name === "noOfPeoples") {
+          const numericRegex = /^[0-9]*$/;
+
+          if (numericRegex.test(inputValue)) {
+            // const modifiedInputValue =
+            //   inputValue === "" ? "" : Number(inputValue);
+            const modifiedInputValue = Math.min(
+              inputValue === "" ? 0 : Number(inputValue),
+              10 // Cap at 10 people
+            );
+
+            setCustomFormDrawerData((prevData) => {
+              const currentLength = prevData.bookingMapDatas.length;
+
+              let updatedBookingMapDatas = [...prevData.bookingMapDatas];
+              if (modifiedInputValue > currentLength) {
+                // Add only the required number of items lazily
+                updatedBookingMapDatas.push(
+                  ...Array.from(
+                    { length: modifiedInputValue - currentLength },
+                    () => ({
+                      customerName: "",
+                      govtIdType: null,
+                      govtIdTypeInputValue: "",
+                      govtIdNo: "",
+                    })
+                  )
+                );
+              } else if (modifiedInputValue < currentLength) {
+                // Trim the array
+                updatedBookingMapDatas = updatedBookingMapDatas.slice(
+                  0,
+                  modifiedInputValue
+                );
+              }
+
+              return {
+                ...prevData,
+                noOfPeoples: modifiedInputValue,
+                bookingMapDatas: updatedBookingMapDatas,
+              };
+            });
+          }
+        } else if (name === "customerName") {
+          setCustomFormDrawerData((prevData) => {
+            return {
+              ...prevData,
+              bookingMapDatas: prevData?.bookingMapDatas?.map(
+                (subItem, index) => {
+                  if (index === subIndex) {
+                    return {
+                      ...subItem,
+                      customerName: inputValue,
+                    };
+                  } else {
+                    return subItem;
+                  }
+                }
+              ),
+            };
+          });
+        } else if (name === "govtIdType") {
+          setCustomFormDrawerData((prevData) => {
+            return {
+              ...prevData,
+              bookingMapDatas: prevData?.bookingMapDatas?.map(
+                (subItem, index) => {
+                  if (index === subIndex) {
+                    return {
+                      ...subItem,
+                      govtIdType: inputValue,
+                    };
+                  } else {
+                    return subItem;
+                  }
+                }
+              ),
+            };
+          });
+        } else if (name === "govtIdTypeInputValue") {
+          setCustomFormDrawerData((prevData) => {
+            return {
+              ...prevData,
+              bookingMapDatas: prevData?.bookingMapDatas?.map(
+                (subItem, index) => {
+                  if (index === subIndex) {
+                    return {
+                      ...subItem,
+                      govtIdTypeInputValue: inputValue,
+                    };
+                  } else {
+                    return subItem;
+                  }
+                }
+              ),
+            };
+          });
+        } else if (name === "govtIdNo") {
+          setCustomFormDrawerData((prevData) => {
+            return {
+              ...prevData,
+              bookingMapDatas: prevData?.bookingMapDatas?.map(
+                (subItem, index) => {
+                  if (index === subIndex) {
+                    return {
+                      ...subItem,
+                      govtIdNo: inputValue,
+                    };
+                  } else {
+                    return subItem;
+                  }
+                }
+              ),
+            };
+          });
+        } else if (name === "paymentMethod") {
+          setCustomFormDrawerData((prevData) => {
+            return {
+              ...prevData,
+              paymentMethod: inputValue,
+            };
+          });
+        } else if (name === "paymentMethodInputValue") {
+          setCustomFormDrawerData((prevData) => {
+            return {
+              ...prevData,
+              paymentMethodInputValue: inputValue,
+            };
+          });
+        } else if (name === "transactionReferenceNo") {
+          setCustomFormDrawerData((prevData) => {
+            return {
+              ...prevData,
+              transactionReferenceNo: inputValue,
+            };
+          });
+        } else if (name === "paidAmount") {
+          setCustomFormDrawerData((prevData) => {
+            return {
+              ...prevData,
+              paidAmount: inputValue,
+            };
+          });
+        } else if (name === "remarks") {
+          setCustomFormDrawerData((prevData) => {
+            return {
+              ...prevData,
+              remarks: inputValue,
+            };
+          });
+        } else if (name === "fullCheckIn") {
+          if (inputValue) {
+            setCustomFormDrawerData((prevData) => ({
+              ...prevData,
+              fromDate: inputValue?.bookingDto?.fromDate,
+              toDate: inputValue?.bookingDto?.toDate,
+              checkOutDate: inputValue?.bookingDto?.toDate
+                ? dayjs("24-11-2024", "DD-MM-YYYY")
+                : null,
+              noOfPeoples: inputValue?.bookingDto?.noOfPeoples || 0,
+              bookingRefNumber: inputValue?.bookingDto?.bookingRefNumber || "",
+              bookingMapDatas: inputValue?.bookingDto?.noOfPeoples
+                ? Array.from(
+                    { length: inputValue?.bookingDto?.noOfPeoples },
+                    () => ({
+                      customerName: "",
+                      govtIdType: null,
+                      govtIdTypeInputValue: "",
+                      govtIdNo: "",
+                    })
+                  )
+                : [],
+              paymentMethod: null,
+              paymentMethodInputValue: "",
+              transactionReferenceNo: "",
+              paidAmount: "",
+              remarks: "",
+            }));
+          }
+
+          // else if (name === "clearUp") {
+          //   setCustomFormDrawerData(initialCustomFormDrawerData);
+          // } else {
+          //   setCustomFormDrawerData((prevData) => ({
+          //     ...prevData,
+          //     [name]: inputValue,
+          //   }));
+          // }
+        } else {
+          setCustomFormDrawerData((prevData) => ({
+            ...prevData,
+            [name]: inputValue,
+          }));
+        }
+      } else {
+        setCustomFormDrawerData(initialCustomFormDrawerData);
+      }
+    },
+    [initialCustomFormDrawerData]
+  );
+
+  const handleSubmitRoomCheckIn = useCallback(() => {
+    const payload = {
+      bookingRefNumber: customFormDrawerData?.bookingRefNumber || "",
+      noOfPeoples: !Boolean(customFormDrawerData?.noOfPeoples)
+        ? 0
+        : Number(customFormDrawerData?.noOfPeoples),
+      paidAmount: !Boolean(customFormDrawerData?.paidAmount)
+        ? 0
+        : Number(customFormDrawerData?.paidAmount),
+      paymentMethod: customFormDrawerData?.paymentMethod?.key,
+      transactionReferenceNo: customFormDrawerData?.transactionReferenceNo,
+      remarks: customFormDrawerData?.remarks,
+      checkOutDate: customFormDrawerData?.checkOutDate
+        ? moment(customFormDrawerData?.checkOutDate.$d).format("DD-MM-YYYY")
+        : null,
+      bookingMapDatas: customFormDrawerData?.bookingMapDatas?.map((item) => {
+        return {
+          customerName: item?.customerName,
+          govtIdType: item?.govtIdType,
+          govtIdNo: item?.govtIdNo,
+        };
+      }),
+    };
+
+    console.log("handleSubmitRoomCheckIn payload : ", payload);
+
+    saveCustomerCheckIn(payload)
+      .unwrap()
+      .then((res) => {
+        alert(res?.data?.message || "Check-In Success");
+      })
+      .catch((err) => {
+        alert(err?.data?.message || err?.data || "Check-In Failed");
+      });
+  }, [customFormDrawerData, saveCustomerCheckIn]);
+
+  const handleOpenCustomFormDrawer = useCallback(
+    (open, title, type) => {
+      setCustomFormDrawerOpen({
+        open: open || false,
+        title: title || "",
+        type: type || null,
+      });
+      // handleChangeCustomFormDrawerData();
+    },
+    [
+      // handleChangeCustomFormDrawerData
+    ]
+  );
   useEffect(() => {
     if (Boolean(apiRoomData?.data?.floorRoomMapData?.length)) {
       handleUpdateRoomDataByFloor(roomFilters);
@@ -1972,22 +3548,26 @@ const Dashboard = () => {
               }}
             >
               <Grid container size={12} spacing={1.5}>
-                <Grid size={12}>
+                {/* <Grid size={12}>
                   <KeyAllocationCard keyAllocationData={tempKeyAlocationData} />
-                </Grid>
+                </Grid> */}
                 <Grid size={12}>
                   <DayCheckoutCard dayCheckoutData={tempDayCheckoutData} />
                 </Grid>
-                <Grid size={12}>
-                  <RoomServiceCard
-                    handleOpenShowcaseModalForInventory={
-                      handleOpenShowcaseModalForInventory
-                    }
-                    handleOpenShowcaseModalForFood={
-                      handleOpenShowcaseModalForFood
-                    }
-                  />
-                </Grid>
+                {isSelectedRoom && (
+                  <Grid size={12}>
+                    <RoomServiceCard
+                      handleOpenShowcaseModalForInventory={
+                        handleOpenShowcaseModalForInventory
+                      }
+                      handleOpenShowcaseModalForFood={
+                        handleOpenShowcaseModalForFood
+                      }
+                      isSelectedRoom={isSelectedRoom}
+                      handleOpenCustomFormDrawer={handleOpenCustomFormDrawer}
+                    />
+                  </Grid>
+                )}
               </Grid>
             </Box>
           </Grid>
@@ -1999,6 +3579,17 @@ const Dashboard = () => {
         inventoryData={showcaseDialogData?.inventoryData}
         foodData={showcaseDialogData?.foodData}
         handleCloseShowcaseDialog={handleCloseShowcaseDialog}
+      />
+      <CustomFormDrawer
+        customDrawerOpen={customFormDrawerOpen?.open}
+        title={customFormDrawerOpen?.title}
+        handleToggleCustomFormDrawer={handleOpenCustomFormDrawer}
+        customFormDrawerData={customFormDrawerData}
+        handleChangeCustomFormDrawerData={handleChangeCustomFormDrawerData}
+        isSelectedRoom={isSelectedRoom}
+        allGovtIdsData={allGovtIdsData}
+        allPaymentMethods={allPaymentMethods}
+        handleSubmitRoomCheckIn={handleSubmitRoomCheckIn}
       />
     </>
   );

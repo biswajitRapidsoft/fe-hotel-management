@@ -11,6 +11,9 @@ const config = Object.freeze({
     getHotelListByCompany: "api/get/all/hotels",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
+    getAllGovtIds: "api/get/all/govt/ids",
+    getAllPaymentMethods: "api/get/all/payment/methods",
+    saveCustomerCheckIn: "api/customer/checkin",
 
     // GUEST DASHBOARD API ENDPOINTS
     getAllHotels: "public/hotels/list",
