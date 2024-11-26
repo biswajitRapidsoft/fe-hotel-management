@@ -3218,11 +3218,36 @@ const ShowcaseDialog = memo(function ({
   inventoryData = [],
   foodData = [],
   checkOutRoomData,
+  showcaseDialogFormData,
+  allPaymentMethods,
+  handleChangeShowcaseDialogFormData,
 }) {
   console.log("type : ", type);
+
   const handleCloseShowcaseDialogOnClose = useCallback(() => {
     handleCloseShowcaseDialog();
   }, [handleCloseShowcaseDialog]);
+
+  const handleChangeShowcaseDialogFormDataOnChange = useCallback(
+    (name, value) => {
+      handleChangeShowcaseDialogFormData(name, value);
+    },
+    [handleChangeShowcaseDialogFormData]
+  );
+
+  useEffect(() => {
+    if (openShowcaseDialog && checkOutRoomData && type === "checkout") {
+      handleChangeShowcaseDialogFormDataOnChange(
+        "fullChange",
+        checkOutRoomData
+      );
+    }
+  }, [
+    openShowcaseDialog,
+    checkOutRoomData,
+    type,
+    handleChangeShowcaseDialogFormDataOnChange,
+  ]);
   return ReactDOM.createPortal(
     <React.Fragment>
       <BootstrapDialog
@@ -3618,7 +3643,7 @@ const ShowcaseDialog = memo(function ({
                                 // fontWeight: 600,
                               }}
                             >
-                              11111111
+                              {showcaseDialogFormData?.subTotalExpense}
                             </Typography>
                           </Typography>
                         </Grid>
@@ -3660,11 +3685,193 @@ const ShowcaseDialog = memo(function ({
                                 // fontWeight: 600,
                               }}
                             >
-                              999999
+                              {showcaseDialogFormData?.subTotalAmountPaid}
                             </Typography>
                           </Typography>
                         </Grid>
                       </Grid>
+                    </Grid>
+
+                    <Grid size={12}>
+                      {Boolean(
+                        showcaseDialogFormData?.subTotalAmountRemaining > 0
+                      ) && (
+                        <Grid container size={12} spacing={2}>
+                          <Grid size={6}>
+                            <Box
+                              sx={{
+                                height: "100%",
+                                position: "relative",
+                                ".MuiTextField-root": {
+                                  width: "100%",
+                                  backgroundColor: "transparent",
+                                  ".MuiInputBase-root": {
+                                    color: "#B4B4B4",
+                                    background: "rgba(255, 255, 255, 0.25)",
+                                  },
+                                },
+                                // ".MuiFormLabel-root": {
+                                //   color: (theme) => theme.palette.primary.main,
+                                //   fontWeight: 600,
+                                //   fontSize: 18,
+                                // },
+                                ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before":
+                                  {
+                                    borderBottom: (theme) =>
+                                      `1px solid ${theme.palette.primary.main}`,
+                                  },
+                                ".css-iwadjf-MuiInputBase-root-MuiInput-root:before":
+                                  {
+                                    borderBottom: (theme) =>
+                                      `1px solid ${theme.palette.primary.main}`,
+                                  },
+                              }}
+                            >
+                              <Autocomplete
+                                fullWidth
+                                options={
+                                  allPaymentMethods?.data?.map((item) => ({
+                                    key: item,
+                                    name: item.replace(/_/g, " "),
+                                  })) || []
+                                }
+                                disableClearable
+                                value={
+                                  showcaseDialogFormData?.paymentMethod || null
+                                }
+                                onChange={(e, newVal) =>
+                                  handleChangeShowcaseDialogFormDataOnChange(
+                                    "paymentMethod",
+                                    newVal
+                                  )
+                                }
+                                inputValue={
+                                  showcaseDialogFormData?.paymentMethodInputValue ||
+                                  ""
+                                }
+                                onInputChange={(e, newVal) =>
+                                  handleChangeShowcaseDialogFormDataOnChange(
+                                    "paymentMethodInputValue",
+                                    newVal
+                                  )
+                                }
+                                getOptionLabel={(option) => option?.name}
+                                clearOnEscape
+                                disablePortal
+                                popupIcon={
+                                  <KeyboardArrowDownIcon color="primary" />
+                                }
+                                sx={{
+                                  // width: 200,
+                                  position: "absolute",
+                                  bottom: 7,
+                                  ".MuiInputBase-root": {
+                                    color: "#fff",
+                                  },
+                                  "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover":
+                                    {
+                                      backgroundColor: "#E9E5F1",
+                                      color: "#280071",
+                                      fontWeight: 600,
+                                    },
+                                  "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                                    {
+                                      backgroundColor: "#E9E5F1",
+                                      color: "#280071",
+                                      fontWeight: 600,
+                                    },
+                                }}
+                                size="small"
+                                clearIcon={<ClearIcon color="primary" />}
+                                PaperComponent={(props) => (
+                                  <Paper
+                                    sx={{
+                                      background: "#fff",
+                                      color: "#B4B4B4",
+                                      // borderRadius: "10px",
+                                    }}
+                                    {...props}
+                                  />
+                                )}
+                                renderInput={(params) => (
+                                  <TextField
+                                    {...params}
+                                    label="Payment Method"
+                                    variant="standard"
+                                    // sx={{
+                                    //   "& .MuiOutlinedInput-root": {
+                                    //     borderRadius: 2,
+                                    //   },
+                                    // }}
+                                  />
+                                )}
+                              />
+                            </Box>
+                          </Grid>
+                          {showcaseDialogFormData?.paymentMethod &&
+                            !(
+                              showcaseDialogFormData?.paymentMethod?.key ===
+                              "Cash"
+                            ) && (
+                              <Grid size={6}>
+                                <TextField
+                                  margin="normal"
+                                  required
+                                  fullWidth
+                                  id={`transactionReferenceNo`}
+                                  label="Transaction ref. No."
+                                  name="transactionReferenceNo"
+                                  autoComplete="transactionReferenceNo"
+                                  variant="standard"
+                                  value={
+                                    showcaseDialogFormData?.transactionReferenceNo ||
+                                    ""
+                                  }
+                                  onChange={(e) =>
+                                    handleChangeShowcaseDialogFormDataOnChange(
+                                      "transactionReferenceNo",
+                                      e?.target?.value
+                                    )
+                                  }
+                                />
+                              </Grid>
+                            )}
+
+                          <Grid size={6}>
+                            <TextField
+                              margin="normal"
+                              fullWidth
+                              disabled={
+                                !Boolean(showcaseDialogFormData?.paymentMethod)
+                              }
+                              id={`paidAmount`}
+                              label="Amount"
+                              name="paidAmount"
+                              autoComplete="paidAmount"
+                              variant="standard"
+                              value={showcaseDialogFormData?.paidAmount || ""}
+                              onChange={(e) =>
+                                handleChangeShowcaseDialogFormDataOnChange(
+                                  "paidAmount",
+                                  e?.target?.value
+                                )
+                              }
+                            />
+                          </Grid>
+                        </Grid>
+                      )}
+
+                      {Boolean(
+                        showcaseDialogFormData?.subTotalAmountRemaining === 0
+                      ) && <Typography>Bills Are Cleared Till Now</Typography>}
+
+                      {Boolean(
+                        showcaseDialogFormData?.subTotalAmountRemaining < 0
+                      ) && (
+                        <Typography>
+                          An Amount Of {"911"} Has To Be Paid To Customer.
+                        </Typography>
+                      )}
                     </Grid>
                   </Grid>
                 </Box>
@@ -3785,6 +3992,20 @@ const Dashboard = () => {
     []
   );
 
+  const initialShowcaseDialogFormData = useMemo(
+    () => ({
+      subTotalExpense: 0,
+      subTotalAmountPaid: 0,
+      subTotalAmountRemaining: 0,
+      paymentMethod: null,
+      paymentMethodInputValue: "",
+      transactionReferenceNo: "",
+      paidAmount: "",
+      remarks: "",
+    }),
+    []
+  );
+
   // console.log("tempRoomData", tempRoomData);
   const [roomData, setRoomData] = useState([]);
   console.log("roomData : ", roomData);
@@ -3809,6 +4030,10 @@ const Dashboard = () => {
     initialShowcaseDialogData
   );
   console.log("showcaseDialogData : ", showcaseDialogData);
+  const [showcaseDialogFormData, setShowcaseDialogFormData] = useState(
+    initialShowcaseDialogFormData
+  );
+  console.log("showcaseDialogFormData : ", showcaseDialogFormData);
 
   const [snack, setSnack] = React.useState({
     open: false,
@@ -4392,6 +4617,45 @@ const Dashboard = () => {
     handleRoomSelect,
   ]);
 
+  const handleChangeShowcaseDialogFormData = useCallback(
+    (name, inputValue) => {
+      if (name) {
+        if (name === "fullChange") {
+          setShowcaseDialogFormData((prevData) => {
+            const totalExpense = inputValue?.bookingDto?.transactionDetails
+              ?.filter((item) => !Boolean(item?.isCredit))
+              ?.reduce((sum, item) => sum + (item.amount || 0), 0);
+            const totalAmountPaid = inputValue?.bookingDto?.transactionDetails
+              ?.filter((item) => Boolean(item?.isCredit))
+              ?.reduce((sum, item) => sum + (item.amount || 0), 0);
+
+            const remainingAmount = totalExpense - totalAmountPaid;
+
+            return {
+              ...prevData,
+              subTotalExpense: totalExpense,
+              subTotalAmountPaid: totalAmountPaid,
+              subTotalAmountRemaining: remainingAmount,
+              paymentMethod: null,
+              paymentMethodInputValue: "",
+              transactionReferenceNo: "",
+              paidAmount: remainingAmount > 0 ? remainingAmount : 0,
+              remarks: "",
+            };
+          });
+        } else {
+          setShowcaseDialogFormData((prevData) => ({
+            ...prevData,
+            [name]: inputValue,
+          }));
+        }
+      } else {
+        setShowcaseDialogFormData(initialShowcaseDialogFormData);
+      }
+    },
+    [initialShowcaseDialogFormData]
+  );
+
   useEffect(() => {
     if (Boolean(apiRoomData?.data?.floorRoomMapData?.length)) {
       handleUpdateRoomDataByFloor(roomFilters);
@@ -4542,6 +4806,9 @@ const Dashboard = () => {
         foodData={showcaseDialogData?.foodData}
         checkOutRoomData={isSelectedRoom}
         handleCloseShowcaseDialog={handleCloseShowcaseDialog}
+        showcaseDialogFormData={showcaseDialogFormData}
+        allPaymentMethods={allPaymentMethods}
+        handleChangeShowcaseDialogFormData={handleChangeShowcaseDialogFormData}
       />
       <CustomFormDrawer
         customDrawerOpen={customFormDrawerOpen?.open}
@@ -4561,7 +4828,8 @@ const Dashboard = () => {
           saveCustomerCheckInRes?.isLoading ||
           cancelReservtionRes?.isLoading ||
           isApiTodayCheckoutRoomDataFetching ||
-          requestRoomCheckoutRes?.isFetching
+          requestRoomCheckoutRes?.isFetching ||
+          false
         }
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
