@@ -195,7 +195,11 @@ const ViewImageDialog = React.memo(function ({
                 viewImageDialog.imageList.map((image) => {
                   return (
                     <Grid size={4} key={image}>
-                      <Box component="img" src={image} sx={{ width: "100%" }} />
+                      <Box
+                        component="img"
+                        src={image}
+                        sx={{ width: "100%", height: "100%" }}
+                      />
                     </Grid>
                   );
                 })}

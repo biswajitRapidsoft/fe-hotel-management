@@ -25,6 +25,7 @@ import AttachmentIcon from "@mui/icons-material/Attachment";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ClearIcon from "@mui/icons-material/Clear";
 import DeleteIcon from "@mui/icons-material/Delete";
+import CloseIcon from "@mui/icons-material/Close";
 import RoomTypeTable from "./RoomTypeTable";
 
 import { useGetAllExtraItemsQuery } from "../../services/extraItem";
@@ -35,7 +36,15 @@ import { useAddRoomTypeMutation } from "../../services/roomType";
 
 import LoadingComponent from "../../components/LoadingComponent";
 
+import SnackAlert from "../../components/Alert";
+
 const RoomType = () => {
+  const [uploadImage, uploadImageRes] = useUploadFileMutation();
+  const [snack, setSnack] = React.useState({
+    open: false,
+    severity: "",
+    message: "",
+  });
   const [addRoomType, addRoomTypeRes] = useAddRoomTypeMutation();
   const [formData, setFormData] = React.useState({
     roomType: "",
@@ -46,6 +55,7 @@ const RoomType = () => {
     isAdvance: false,
   });
   const [extraItemsArr, setExtraItemsArr] = React.useState([]);
+  const [uploadedImageArr, setUploadedImageArr] = React.useState([]);
   const {
     data: extraItemList = {
       data: [],
@@ -54,6 +64,34 @@ const RoomType = () => {
   } = useGetAllExtraItemsQuery(
     JSON.parse(sessionStorage.getItem("data")).companyId
   );
+  const handleUploadImage = React.useCallback(
+    (imgSource) => {
+      const formData = new FormData();
+      formData.append("file", imgSource);
+      uploadImage(formData)
+        .unwrap()
+        .then((res) => {
+          setUploadedImageArr((prevData) => [...prevData, res.data]);
+          setSnack({
+            open: true,
+            severity: "success",
+            message: res.message,
+          });
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            severity: "error",
+            message: err.data?.message || err.data,
+          });
+        });
+    },
+    [uploadImage]
+  );
+
+  const handleDeleteImageFromArray = React.useCallback((imgUrl) => {
+    setUploadedImageArr((prevImg) => prevImg.filter((url) => url !== imgUrl));
+  }, []);
 
   const handleChange = React.useCallback((e) => {
     if (["capacity", "basePrice", "advanceAmount"].includes(e.target.name)) {
@@ -84,6 +122,7 @@ const RoomType = () => {
       isAdvance: false,
     });
     setExtraItemsArr([]);
+    setUploadedImageArr([]);
   }, []);
 
   const isFormValid = React.useCallback(() => {
@@ -107,6 +146,7 @@ const RoomType = () => {
         companyId: JSON.parse(sessionStorage.getItem("data")).companyId,
         isAdvanceRequired: formData.isAdvance,
         advanceAmount: formData.advanceAmount,
+        imageUrl: uploadedImageArr.join(","),
         extraItemsList: extraItemsArr.map((extra) => ({
           extraItems: {
             id: extra.extraItem.id,
@@ -117,14 +157,22 @@ const RoomType = () => {
       })
         .unwrap()
         .then((res) => {
-          console.log(res, "res");
+          setSnack({
+            open: true,
+            severity: "success",
+            message: res.message,
+          });
         })
         .catch((err) => {
-          console.log(err, "err");
+          setSnack({
+            open: true,
+            severity: "error",
+            message: err.data?.message || err.data,
+          });
         });
       handleResetForm();
     },
-    [formData, handleResetForm, addRoomType, extraItemsArr]
+    [formData, handleResetForm, addRoomType, extraItemsArr, uploadedImageArr]
   );
 
   return (
@@ -302,7 +350,11 @@ const RoomType = () => {
             extraItemsArr={extraItemsArr}
             setExtraItemsArr={setExtraItemsArr}
           />
-          <UploadImageFormComponent />
+          <UploadImageFormComponent
+            uploadedImageArr={uploadedImageArr}
+            handleUploadImage={handleUploadImage}
+            handleDeleteImageFromArray={handleDeleteImageFromArray}
+          />
         </Box>
         <Box
           sx={{
@@ -334,17 +386,30 @@ const RoomType = () => {
         </Box>
       </Box>
       <RoomTypeTable />
-      <LoadingComponent open={isLoading || addRoomTypeRes.isLoading} />
+      <LoadingComponent
+        open={isLoading || addRoomTypeRes.isLoading || uploadImageRes.isLoading}
+      />
+      <SnackAlert snack={snack} setSnack={setSnack} />
     </Container>
   );
 };
 
-function UploadImageFormComponent() {
+function UploadImageFormComponent({
+  uploadedImageArr,
+  handleUploadImage,
+  handleDeleteImageFromArray,
+}) {
   const [image, setImage] = React.useState("");
   const imageRef = React.useRef(null);
   const handleAttachmentClick = React.useCallback(() => {
     imageRef.current.click();
   }, []);
+
+  const uploadHandler = React.useCallback(() => {
+    handleUploadImage(imageRef.current.files[0]);
+    imageRef.current.value = "";
+    setImage("");
+  }, [handleUploadImage]);
   return (
     <React.Fragment>
       <Box
@@ -374,7 +439,7 @@ function UploadImageFormComponent() {
       </Box>
       <Divider sx={{ borderColor: "#BDBDBD" }} />
       <Box sx={{ p: 2, border: "1px solid #BDBDBD" }}>
-        <Grid container>
+        <Grid container spacing={2}>
           <Grid size={3}>
             <TextField
               label={<React.Fragment>Attach document</React.Fragment>}
@@ -399,6 +464,55 @@ function UploadImageFormComponent() {
               variant="standard"
               autoComplete="off"
             />
+          </Grid>
+          <Grid size={9}>
+            <Button
+              color="secondary"
+              variant="contained"
+              sx={{
+                color: "#fff",
+                fontWeight: 600,
+                textTransform: "none",
+                fontSize: 15,
+                mt: 1.5,
+                "&.Mui-disabled": {
+                  background: "#B2E5F6",
+                  color: "#FFFFFF",
+                },
+              }}
+              size="small"
+              onClick={uploadHandler}
+              disabled={!Boolean(image)}
+            >
+              Upload
+            </Button>
+          </Grid>
+          <Grid size={12}>
+            <Grid container spacing={2}>
+              {uploadedImageArr.map((item, index) => {
+                return (
+                  <Grid size={3} key={item} sx={{ position: "relative" }}>
+                    <Box
+                      component="img"
+                      src={item}
+                      alt={`image ${index}`}
+                      sx={{
+                        width: "100%",
+                        height: "100%",
+                        backgroundColor: "red",
+                      }}
+                    />
+                    <IconButton
+                      sx={{ position: "absolute", right: 1 }}
+                      color="error"
+                      onClick={() => handleDeleteImageFromArray(item)}
+                    >
+                      <CloseIcon />
+                    </IconButton>
+                  </Grid>
+                );
+              })}
+            </Grid>
           </Grid>
         </Grid>
       </Box>
