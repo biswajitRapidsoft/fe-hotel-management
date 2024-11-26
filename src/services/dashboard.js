@@ -71,6 +71,24 @@ const dashboardApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["getAllRoomListByHotelId"],
     }),
+    getTodayCheckoutRoomsByHotelId: build.query({
+      query: (payload) => ({
+        url: config.apiName.getTodayCheckoutRoomsByHotelId,
+        method: "GET",
+        params: {
+          hotelId: payload?.hotelId,
+        },
+      }),
+      providesTags: ["getTodayCheckoutRoomsByHotelId"],
+    }),
+    requestRoomCheckout: build.mutation({
+      query: (payload) => ({
+        url: config?.apiName.requestRoomCheckout,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllRoomListByHotelId"],
+    }),
   }),
 
   overrideExisting: false,
@@ -85,4 +103,6 @@ export const {
   useGetAllGovtIdsQuery,
   useGetAllPaymentMethodsQuery,
   useSaveCustomerCheckInMutation,
+  useGetTodayCheckoutRoomsByHotelIdQuery,
+  useRequestRoomCheckoutMutation,
 } = dashboardApi;
