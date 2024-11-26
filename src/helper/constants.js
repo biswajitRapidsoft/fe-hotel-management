@@ -9,16 +9,16 @@ export const NOT_AVAILABLE = { id: 4, key: "Not Available" };
 export const BEING_SERVICED = { id: 5, key: "Being Serviced" };
 
 //ROOM STYLE
-export const STANDARD_ROOM = { id: 1, key: "STANDARD_ROOM", name: "Standard" };
-export const DELUXE_ROOM = { id: 2, key: "DELUXE_ROOM", name: "Deluxe" };
+export const STANDARD_ROOM = { id: 1, key: "Standard Room", name: "Standard" };
+export const DELUXE_ROOM = { id: 2, key: "Deluxe Room", name: "Deluxe" };
 export const FAMILY_SUITE_ROOM = {
   id: 3,
-  key: "FAMILY_SUITE_ROOM",
+  key: "Family Suite Room",
   name: "Family Suite",
 };
 export const BUSINESS_SUITE_ROOM = {
   id: 4,
-  key: "BUSINESS_SUITE_ROOM",
+  key: "Business Suite Room",
   name: "Business Suite",
 };
 export const KING_ROOM = { id: 5, key: "KING_ROOM", name: "King" };
