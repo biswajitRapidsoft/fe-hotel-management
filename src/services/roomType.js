@@ -11,9 +11,19 @@ const roomTypeApi = apiSlice.injectEndpoints({
           companyId: payload,
         },
       }),
+      providesTags: ["getAllRoomTypesByCompany"],
+    }),
+    addRoomType: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.addRoomType,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllRoomTypesByCompany"],
     }),
   }),
   overrideExisting: false,
 });
 
-export const { useGetAllRoomTypesByCompanyQuery } = roomTypeApi;
+export const { useGetAllRoomTypesByCompanyQuery, useAddRoomTypeMutation } =
+  roomTypeApi;
