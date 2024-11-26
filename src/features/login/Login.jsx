@@ -118,7 +118,7 @@ export default function SignIn() {
           if (res.data.userType === SUPER_ADMIN) {
             navigate("/home");
           } else {
-            navigate("/dashboard");
+            navigate("/housekeeper-dashboard");
           }
         })
         .catch((err) => {
