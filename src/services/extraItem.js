@@ -11,9 +11,19 @@ const extraItemApi = apiSlice.injectEndpoints({
           companyId: payload,
         },
       }),
+      providesTags: ["getAllExtraItems"],
+    }),
+    addExtraItem: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.addExtraItem,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllExtraItems"],
     }),
   }),
   overrideExisting: false,
 });
 
-export const { useGetAllExtraItemsQuery } = extraItemApi;
+export const { useGetAllExtraItemsQuery, useAddExtraItemMutation } =
+  extraItemApi;

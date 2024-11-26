@@ -5,7 +5,8 @@ import { useNavigate } from "react-router-dom";
 const tabList = [
   { label: "Hotel List", count: 100, path: "/hotel-list" },
   { label: "Room Type", count: 100, path: "/room-type" },
-  { label: "Employee List", count: 100, path: "employee-list" },
+  { label: "Extra Item", count: 100, path: "/extra-item" },
+  { label: "Employee List", count: 100, path: "/employee-list" },
 ];
 
 const AdminDashboard = () => {
