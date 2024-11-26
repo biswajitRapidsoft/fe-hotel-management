@@ -19,13 +19,17 @@ import {
   FormGroup,
   FormControlLabel,
   Checkbox,
+  InputAdornment,
 } from "@mui/material";
+import AttachmentIcon from "@mui/icons-material/Attachment";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ClearIcon from "@mui/icons-material/Clear";
 import DeleteIcon from "@mui/icons-material/Delete";
 import RoomTypeTable from "./RoomTypeTable";
 
 import { useGetAllExtraItemsQuery } from "../../services/extraItem";
+
+import { useUploadFileMutation } from "../../services/hotel";
 
 import { useAddRoomTypeMutation } from "../../services/roomType";
 
@@ -298,6 +302,7 @@ const RoomType = () => {
             extraItemsArr={extraItemsArr}
             setExtraItemsArr={setExtraItemsArr}
           />
+          <UploadImageFormComponent />
         </Box>
         <Box
           sx={{
@@ -333,6 +338,73 @@ const RoomType = () => {
     </Container>
   );
 };
+
+function UploadImageFormComponent() {
+  const [image, setImage] = React.useState("");
+  const imageRef = React.useRef(null);
+  const handleAttachmentClick = React.useCallback(() => {
+    imageRef.current.click();
+  }, []);
+  return (
+    <React.Fragment>
+      <Box
+        sx={{
+          mt: 2,
+          px: 1,
+          py: 0.5,
+          // borderBottom: (theme) => `3px solid ${theme.palette.primary.main}`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          backgroundColor: "#BDBDBD",
+        }}
+      >
+        <Typography
+          variant="h5"
+          sx={{
+            letterSpacing: 1,
+            //   color: (theme) => theme.palette.primary.main,
+            color: "#FFFFFF",
+            fontWeight: 600,
+          }}
+          // gutterBottom
+        >
+          Upload Image
+        </Typography>
+      </Box>
+      <Divider sx={{ borderColor: "#BDBDBD" }} />
+      <Box sx={{ p: 2, border: "1px solid #BDBDBD" }}>
+        <Grid container>
+          <Grid size={3}>
+            <TextField
+              label={<React.Fragment>Attach document</React.Fragment>}
+              type="file"
+              name="attachDocument"
+              inputProps={{
+                style: {
+                  opacity: image ? 1 : 0,
+                },
+                ref: imageRef,
+              }}
+              onChange={(e) => setImage(e.target.value)}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton color="primary" onClick={handleAttachmentClick}>
+                      <AttachmentIcon sx={{ transform: "rotate(45deg)" }} />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              variant="standard"
+              autoComplete="off"
+            />
+          </Grid>
+        </Grid>
+      </Box>
+    </React.Fragment>
+  );
+}
 
 function ExtraItemFormComponent({
   extraItemList,

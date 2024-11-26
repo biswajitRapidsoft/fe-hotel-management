@@ -1,5 +1,6 @@
 const config = Object.freeze({
-  baseUrl: "http://192.168.12.41:9000/",
+  // baseUrl: "http://192.168.12.41:9000/",
+  baseUrl: "http://192.168.12.43:8080/be-hms/",
   apiName: {
     loginAsCustomer: "login/as/customer",
     loginAsStaff: "login",
