@@ -42,8 +42,12 @@ const dashboardApi = apiSlice.injectEndpoints({
       query: (payload) => ({
         url: config.apiName.getServiceableRoomData,
         method: "GET",
+        // params: {
+        //   hotelId: payload,
+        // },
         params: {
-          hotelId: payload,
+          hotelId: payload.hotelId,
+          ...(payload.isService && { isService: payload.isService }), // This will only add isService if it's truthy
         },
       }),
       providesTags: ["getServiceableRoomData"],
