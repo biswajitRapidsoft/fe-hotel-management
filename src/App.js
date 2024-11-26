@@ -16,6 +16,9 @@ const GuestDashboard = React.lazy(() =>
 );
 const HotelList = React.lazy(() => import("./features/hotel/HotelList"));
 const RoomType = React.lazy(() => import("./features/roomType/RoomType"));
+const HouseKeeperDashboard = React.lazy(() =>
+  import("./features/dashboard/HouseKeeperDashboard")
+);
 
 function App() {
   return (
@@ -31,6 +34,10 @@ function App() {
             <Route path="/guest-dashboard" element={<GuestDashboard />} />
             <Route path="/hotel-list" element={<HotelList />} />
             <Route path="/room-type" element={<RoomType />} />
+            <Route
+              path="/housekeeper-dashboard"
+              element={<HouseKeeperDashboard />}
+            />
           </Route>
         </Routes>
       </React.Suspense>

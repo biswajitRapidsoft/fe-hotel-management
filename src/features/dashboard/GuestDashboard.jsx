@@ -3,7 +3,14 @@ import Grid from "@mui/material/Grid2";
 import Drawer from "@mui/material/Drawer";
 import dayjs from "dayjs";
 
-import { Box, Button, Divider, IconButton, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Dialog,
+  Divider,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import {
   useGetAllHotelsQuery,
@@ -529,18 +536,18 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
   );
 });
 
-const HotelDetailsDialog = ({ open, onClose }) => {
-  <Dialog
-    TransitionComponent={Transition}
-    open={open}
-    onClose={handleDialogClose}
-    maxWidth="sm"
-    fullWidth
-  >
-    <DialogContent>
-      <Typography>hello</Typography>
-    </DialogContent>
-  </Dialog>;
-};
+// const HotelDetailsDialog = ({ open, onClose }) => {
+//   <Dialog
+//     TransitionComponent={Transition}
+//     open={open}
+//     onClose={handleDialogClose}
+//     maxWidth="sm"
+//     fullWidth
+//   >
+//     <DialogContent>
+//       <Typography>hello</Typography>
+//     </DialogContent>
+//   </Dialog>;
+// };
 
 export default GuestDashboard;

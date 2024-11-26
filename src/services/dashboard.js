@@ -37,6 +37,26 @@ const dashboardApi = apiSlice.injectEndpoints({
       invalidatesTags: ["getAllBookingDetails"],
     }),
 
+    // HOUSE-KEEPER DASHBOARD
+    getServiceableRoomData: build.query({
+      query: (payload) => ({
+        url: config.apiName.getServiceableRoomData,
+        method: "GET",
+        params: {
+          hotelId: payload,
+        },
+      }),
+      providesTags: ["getServiceableRoomData"],
+    }),
+    approveHouseKeepingService: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.approveHouseKeepingService,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getServiceableRoomData"],
+    }),
+
     // FRONT-DESK DASHBOARD
     getAllRoomListByHotelId: build.query({
       query: (payload) => ({
@@ -105,4 +125,6 @@ export const {
   useSaveCustomerCheckInMutation,
   useGetTodayCheckoutRoomsByHotelIdQuery,
   useRequestRoomCheckoutMutation,
+  useGetServiceableRoomDataQuery,
+  useApproveHouseKeepingServiceMutation,
 } = dashboardApi;
