@@ -38,5 +38,3 @@ const config = Object.freeze({
 });
 
 export default config;
-
-// http://192.168.12.41:9000/public/hotels/list

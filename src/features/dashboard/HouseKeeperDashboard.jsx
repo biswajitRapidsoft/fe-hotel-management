@@ -68,6 +68,7 @@ export const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 const HouseKeeperDashboard = () => {
+  const [currentFilter, setCurrentFilter] = React.useState("All Rooms");
   const [roomServiceDialogOpen, setRoomServiceDialogOpen] =
     React.useState(false);
   const [selectedRoom, setSelectedRoom] = React.useState("");
@@ -84,9 +85,24 @@ const HouseKeeperDashboard = () => {
     },
     isLoading,
   } = useGetServiceableRoomDataQuery(
-    JSON.parse(sessionStorage.getItem("data")).hotelId
+    currentFilter === "Service"
+      ? {
+          hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
+          isService: true,
+        }
+      : {
+          hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
+        },
+    {
+      refetchOnMountOrArgChange: true,
+      skip: false,
+    }
+    // JSON.parse(sessionStorage.getItem("data")).hotelId
   );
 
+  const handleFilterClick = (filterName) => {
+    setCurrentFilter(filterName);
+  };
   const handleRoomClick = (room) => {
     setSelectedRoom(room);
     setRoomServiceDialogOpen(true);
@@ -118,6 +134,7 @@ const HouseKeeperDashboard = () => {
       >
         <HouseKeepingFilters
           houseKeepingFilterButtons={houseKeepingFilterButtons}
+          onFilterClick={handleFilterClick}
         />
       </Box>
       <Box>
@@ -182,7 +199,7 @@ const HouseKeeperDashboard = () => {
     </Box>
   );
 };
-const HouseKeepingFilters = ({ houseKeepingFilterButtons }) => {
+const HouseKeepingFilters = ({ houseKeepingFilterButtons, onFilterClick }) => {
   return (
     <Box
       sx={{
@@ -212,10 +229,12 @@ const HouseKeepingFilters = ({ houseKeepingFilterButtons }) => {
               cursor: "pointer",
               padding: 1,
               "&:hover": {
-                backgroundColor: "#f5f5f5",
+                backgroundColor: "#BEBEBE ",
                 borderRadius: "8px",
+                transition: "background-color 0.3s ease",
               },
             }}
+            onClick={() => onFilterClick(filter.name)}
           >
             {filter.icon}
             <Typography variant="caption" sx={{ fontWeight: "bold", mt: 1 }}>
