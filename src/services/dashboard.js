@@ -3,6 +3,17 @@ import config from "../config/config";
 
 const dashboardApi = apiSlice.injectEndpoints({
   endpoints: (build) => ({
+    // SUPER ADMIN DASHBOARD
+    getMasterDataList: build.query({
+      query: (payload) => ({
+        url: config.apiName.getMasterDataList,
+        method: "GET",
+        params: {
+          companyId: payload,
+        },
+      }),
+      providesTags: ["getMasterDataList"],
+    }),
     //GUEST DASHBOARD
     getAllHotels: build.query({
       query: () => ({
@@ -115,6 +126,7 @@ const dashboardApi = apiSlice.injectEndpoints({
 });
 
 export const {
+  useGetMasterDataListQuery,
   useGetAllRoomListByHotelIdQuery,
   useGetAllHotelsQuery,
   useReserveHotelRoomMutation,

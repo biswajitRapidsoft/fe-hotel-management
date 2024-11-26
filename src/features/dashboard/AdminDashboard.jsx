@@ -2,15 +2,40 @@ import { Grid2 as Grid, Paper, Typography } from "@mui/material";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
+import { useGetMasterDataListQuery } from "../../services/dashboard";
+import LoadingComponent from "../../components/LoadingComponent";
+
 const tabList = [
-  { label: "Hotel List", count: 100, path: "/hotel-list" },
-  { label: "Room Type", count: 100, path: "/room-type" },
-  { label: "Extra Item", count: 100, path: "/extra-item" },
-  { label: "Employee List", count: 100, path: "/employee-list" },
+  { label: "Hotel List", path: "/hotel-list", key: "noOfHotels" },
+  { label: "Room Type", path: "/room-type", key: "noOfRoomTypes" },
+  {
+    label: "Extra Item",
+    path: "/extra-item",
+    key: "noOfExtraItems",
+  },
+  {
+    label: "Employee List",
+    path: "/employee-list",
+    key: "noOfUsers",
+  },
 ];
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+
+  const {
+    data: dashboardData = {
+      data: {
+        noOfExtraItems: 0,
+        noOfHotels: 0,
+        noOfRoomTypes: 0,
+        noOfUsers: 0,
+      },
+    },
+    isLoading,
+  } = useGetMasterDataListQuery(
+    JSON.parse(sessionStorage.getItem("data")).companyId
+  );
 
   const handleClick = React.useCallback(
     (pathName) => {
@@ -53,7 +78,7 @@ const AdminDashboard = () => {
                   </Grid>
                   <Grid size={12}>
                     <Typography align="center" variant="h6">
-                      {tab.count}
+                      {dashboardData.data[tab.key]}
                     </Typography>
                   </Grid>
                 </Grid>
@@ -62,7 +87,7 @@ const AdminDashboard = () => {
           );
         })}
       </Grid>
-      {/* hotel list table  */}
+      <LoadingComponent open={isLoading} />
     </React.Fragment>
   );
 };
