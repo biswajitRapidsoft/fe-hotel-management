@@ -24,6 +24,8 @@ const config = Object.freeze({
     saveCustomerCheckIn: "api/customer/checkin",
     getTodayCheckoutRoomsByHotelId: "api/get/today/checkout/rooms",
     requestRoomCheckout: "api/room/checkout/request",
+    finalRoomCheckOut: "api/customer/checkout",
+    roomCleanRequest: "api/room/clean/request",
 
     // GUEST DASHBOARD API ENDPOINTS
     getAllHotels: "public/hotels/list",

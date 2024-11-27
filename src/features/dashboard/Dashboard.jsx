@@ -8,6 +8,7 @@ import {
   IconButton,
   Paper,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
@@ -38,11 +39,13 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ClearIcon from "@mui/icons-material/Clear";
 import {
   useCancelHotelRoomMutation,
+  useFinalRoomCheckOutMutation,
   useGetAllGovtIdsQuery,
   useGetAllPaymentMethodsQuery,
   useGetAllRoomListByHotelIdQuery,
   useGetTodayCheckoutRoomsByHotelIdQuery,
   useRequestRoomCheckoutMutation,
+  useRoomCleanRequestMutation,
   useSaveCustomerCheckInMutation,
 } from "../../services/dashboard";
 import { checkRoomStatusType } from "../../helper/helperFunctions";
@@ -55,6 +58,7 @@ import dayjs from "dayjs";
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 import Swal from "sweetalert2";
+import CleaningServicesIcon from "@mui/icons-material/CleaningServices";
 
 export const StyledCalendarIcon = styled(CalendarMonthIcon)({
   color: "#9380B8",
@@ -498,7 +502,7 @@ const CustomRoomFilters = memo(function ({
             />
           </LocalizationProvider>
         </Grid>
-        <Grid size={{ lg: 2 }}>
+        <Grid size={{ lg: 2, xl: 1.5 }}>
           <Box
             sx={{
               ".MuiTextField-root": {
@@ -588,7 +592,18 @@ const CustomRoomFilters = memo(function ({
             />
           </Box>
         </Grid>
-        <Grid size={{ xs: 0, xl: 2 }} />
+        <Grid size={{ lg: 2, xl: 1.5 }}>
+          <Button
+            variant="contained"
+            size="small"
+            // onClick={() =>
+            //   handleOpenCustomFormDrawerOnClick(true, "Check-In", "checkIn")
+            // }
+          >
+            Booking History
+          </Button>
+        </Grid>
+        <Grid size={{ xs: 0, xl: 1 }} />
         <Grid size={{ xs: 12, xl: 6.5 }}>
           <Box
             sx={{
@@ -1048,6 +1063,7 @@ const RoomServiceCard = memo(function ({
   handleOpenCustomFormDrawer,
   handleOpenShowcaseModalForCheckout,
   handleRequestRoomCheckout,
+  handleRoomCleanRequest,
 }) {
   console.log("RoomServiceCard isSelectedRoom : ", isSelectedRoom);
   const selectedRoomStatusType = checkRoomStatusType(isSelectedRoom);
@@ -1090,6 +1106,13 @@ const RoomServiceCard = memo(function ({
   const handleRequestRoomCheckoutOnClick = useCallback(() => {
     handleRequestRoomCheckout();
   }, [handleRequestRoomCheckout]);
+
+  const handleRoomCleanRequestOnClick = useCallback(
+    (roomId) => {
+      handleRoomCleanRequest(roomId);
+    },
+    [handleRoomCleanRequest]
+  );
 
   return (
     <>
@@ -1523,6 +1546,79 @@ const RoomServiceCard = memo(function ({
                           objectFit: "cover",
                         }}
                       />
+                    </Grid>
+                  </Grid>
+                </Box>
+
+                {/* ROOM OPERATIONS */}
+                <Box sx={{ width: "100%", mt: 1 }}>
+                  <Grid container size={12}>
+                    <Grid size={12}>
+                      <Typography
+                        sx={{
+                          fontSize: "18px",
+                          // color: "#707070",
+                          fontWeight: 600,
+                          width: "100%",
+                          borderBottom: "2px solid #ccc",
+                          marginBottom: "5px",
+                        }}
+                      >
+                        Room Operations :
+                      </Typography>
+                    </Grid>
+
+                    <Grid size={12}>
+                      <Grid container size={12}>
+                        {/* Services */}
+                        <Grid size={3.8}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            Services
+                          </Typography>
+                        </Grid>
+                        <Grid size={8.2}>
+                          <Box
+                            sx={{
+                              width: "100%",
+                              display: "flex",
+                              flexWrap: "wrap",
+                            }}
+                          >
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "18px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                                marginRight: "5px",
+                              }}
+                            >
+                              :
+                            </Typography>
+                            <Tooltip title={"Request Room Cleaning"} arrow>
+                              <Button
+                                variant="contained"
+                                sx={{ minWidth: "unset", width: "15px" }}
+                                onClick={() =>
+                                  handleRoomCleanRequestOnClick(
+                                    isSelectedRoom?.id
+                                  )
+                                }
+                              >
+                                <CleaningServicesIcon
+                                  sx={{ fontSize: "17px" }}
+                                />
+                              </Button>
+                            </Tooltip>
+                          </Box>
+                        </Grid>
+                      </Grid>
                     </Grid>
                   </Grid>
                 </Box>
@@ -2390,7 +2486,7 @@ const CustomFormDrawer = memo(function ({
   handleSubmitRoomCheckIn,
   handleSubmitRoomBookingCanelation,
 }) {
-  console.log("CustomFormDrawer customDrawerOpen : ", customDrawerOpen);
+  console.log("CustomFormDrawer customDrawerOpen : ", customDrawerOpen, type);
   const handleToggleCustomFormDrawerOnChange = useCallback(() => {
     handleToggleCustomFormDrawer();
   }, [handleToggleCustomFormDrawer]);
@@ -3221,6 +3317,7 @@ const ShowcaseDialog = memo(function ({
   showcaseDialogFormData,
   allPaymentMethods,
   handleChangeShowcaseDialogFormData,
+  handleConfirmFinalCheckout,
 }) {
   console.log("type : ", type);
 
@@ -3234,6 +3331,10 @@ const ShowcaseDialog = memo(function ({
     },
     [handleChangeShowcaseDialogFormData]
   );
+
+  const handleConfirmFinalCheckoutOnClick = useCallback(() => {
+    handleConfirmFinalCheckout();
+  }, [handleConfirmFinalCheckout]);
 
   useEffect(() => {
     if (openShowcaseDialog && checkOutRoomData && type === "checkout") {
@@ -3873,6 +3974,51 @@ const ShowcaseDialog = memo(function ({
                         </Typography>
                       )}
                     </Grid>
+
+                    {/* <Grid size={12}>
+                      <TextField
+                        margin="normal"
+                        required
+                        fullWidth
+                        id={`remarks`}
+                        label="Remarks"
+                        name="remarks"
+                        autoComplete="remarks"
+                        variant="standard"
+                        value={showcaseDialogFormData?.remarks || ""}
+                        onChange={(e) =>
+                          handleChangeShowcaseDialogFormDataOnChange(
+                            "remarks",
+                            e?.target?.value
+                          )
+                        }
+                      />
+                    </Grid> */}
+                    <Grid size={12}>
+                      <Box
+                        sx={{
+                          width: "100%",
+                          display: "flex",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Button
+                          variant="contained"
+                          sx={{
+                            backgroundImage:
+                              "linear-gradient(to right, #ff416c 0%, #ff4b2b 100%)",
+                            color: "white",
+                            "&:hover": {
+                              backgroundImage:
+                                "linear-gradient(to right, #ff416c 10%, #ff4b2b 90%)",
+                            },
+                          }}
+                          onClick={() => handleConfirmFinalCheckoutOnClick()}
+                        >
+                          Confirm Check-Out
+                        </Button>
+                      </Box>
+                    </Grid>
                   </Grid>
                 </Box>
               </>
@@ -3902,6 +4048,9 @@ const Dashboard = () => {
   const [cancelReservation, cancelReservtionRes] = useCancelHotelRoomMutation();
   const [requestRoomCheckout, requestRoomCheckoutRes] =
     useRequestRoomCheckoutMutation();
+  const [finalRoomCheckOut, finalRoomCheckOutRes] =
+    useFinalRoomCheckOutMutation();
+  const [roomCleanRequest, roomCleanRequestRes] = useRoomCleanRequestMutation();
   const [roomListCacheBuster, setRoomListCacheBuster] = useState(false);
   const {
     data: apiTodayCheckoutRoomData = {
@@ -3994,6 +4143,7 @@ const Dashboard = () => {
 
   const initialShowcaseDialogFormData = useMemo(
     () => ({
+      bookingRefNumber: "",
       subTotalExpense: 0,
       subTotalAmountPaid: 0,
       subTotalAmountRemaining: 0,
@@ -4633,6 +4783,7 @@ const Dashboard = () => {
 
             return {
               ...prevData,
+              bookingRefNumber: inputValue?.bookingDto?.bookingRefNumber,
               subTotalExpense: totalExpense,
               subTotalAmountPaid: totalAmountPaid,
               subTotalAmountRemaining: remainingAmount,
@@ -4654,6 +4805,116 @@ const Dashboard = () => {
       }
     },
     [initialShowcaseDialogFormData]
+  );
+
+  const handleConfirmFinalCheckout = useCallback(() => {
+    if (
+      Boolean(showcaseDialogFormData?.subTotalAmountRemaining > 0) &&
+      !showcaseDialogFormData?.paymentMethod?.key
+    ) {
+      setSnack({
+        open: true,
+        message: "Please Select A Payment Method",
+        severity: "warning",
+      });
+      return;
+    }
+
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const payload = {
+          bookingRefNumber: showcaseDialogFormData?.bookingRefNumber,
+          paidAmount: showcaseDialogFormData?.paidAmount,
+          paymentMethod: showcaseDialogFormData?.paymentMethod?.key,
+        };
+        finalRoomCheckOut(payload)
+          .unwrap()
+          .then((res) => {
+            setSnack({
+              open: true,
+              message: res?.message || "Final Check-Out Success",
+              severity: "success",
+            });
+            handleCloseShowcaseDialog();
+            handleChangeShowcaseDialogFormData();
+            handleChangeRoomListCacheBuster();
+            handleRoomSelect();
+          })
+          .catch((err) => {
+            setSnack({
+              open: true,
+              message:
+                err?.data?.message ||
+                err?.data ||
+                "Final Check-Out Request Failed",
+              severity: "error",
+            });
+          });
+      }
+    });
+  }, [
+    finalRoomCheckOut,
+    showcaseDialogFormData,
+    handleCloseShowcaseDialog,
+    handleChangeShowcaseDialogFormData,
+    handleChangeRoomListCacheBuster,
+    handleRoomSelect,
+  ]);
+
+  const handleRoomCleanRequest = useCallback(
+    (roomId) => {
+      Swal.fire({
+        title: "Send Request For Room Cleaning?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const payload = {
+            id: roomId,
+            hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId,
+          };
+          roomCleanRequest(payload)
+            .unwrap()
+            .then((res) => {
+              setSnack({
+                open: true,
+                message: res?.message || "Room Clean Request Success",
+                severity: "success",
+              });
+              handleOpenCustomFormDrawer();
+              handleChangeCustomFormDrawerData();
+              handleChangeRoomListCacheBuster();
+              handleRoomSelect();
+            })
+            .catch((err) => {
+              setSnack({
+                open: true,
+                message:
+                  err?.data?.message || err?.data || "Check-Out Request Failed",
+                severity: "error",
+              });
+            });
+        }
+      });
+    },
+    [
+      roomCleanRequest,
+      handleOpenCustomFormDrawer,
+      handleChangeCustomFormDrawerData,
+      handleChangeRoomListCacheBuster,
+      handleRoomSelect,
+    ]
   );
 
   useEffect(() => {
@@ -4790,6 +5051,7 @@ const Dashboard = () => {
                         handleOpenShowcaseModalForCheckout
                       }
                       handleRequestRoomCheckout={handleRequestRoomCheckout}
+                      handleRoomCleanRequest={handleRoomCleanRequest}
                     />
                   </Grid>
                 )}
@@ -4809,10 +5071,12 @@ const Dashboard = () => {
         showcaseDialogFormData={showcaseDialogFormData}
         allPaymentMethods={allPaymentMethods}
         handleChangeShowcaseDialogFormData={handleChangeShowcaseDialogFormData}
+        handleConfirmFinalCheckout={handleConfirmFinalCheckout}
       />
       <CustomFormDrawer
         customDrawerOpen={customFormDrawerOpen?.open}
         title={customFormDrawerOpen?.title}
+        type={customFormDrawerOpen?.type}
         handleToggleCustomFormDrawer={handleOpenCustomFormDrawer}
         customFormDrawerData={customFormDrawerData}
         handleChangeCustomFormDrawerData={handleChangeCustomFormDrawerData}
@@ -4824,12 +5088,16 @@ const Dashboard = () => {
       />
       <LoadingComponent
         open={
-          isApiRoomDataFetching ||
-          saveCustomerCheckInRes?.isLoading ||
-          cancelReservtionRes?.isLoading ||
-          isApiTodayCheckoutRoomDataFetching ||
-          requestRoomCheckoutRes?.isFetching ||
-          false
+          true
+            ? false
+            : isApiRoomDataFetching ||
+              saveCustomerCheckInRes?.isLoading ||
+              cancelReservtionRes?.isLoading ||
+              isApiTodayCheckoutRoomDataFetching ||
+              requestRoomCheckoutRes?.isLoading ||
+              finalRoomCheckOutRes?.isLoading ||
+              roomCleanRequestRes?.isLoading ||
+              false
         }
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
