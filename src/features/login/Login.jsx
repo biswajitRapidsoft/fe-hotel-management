@@ -25,7 +25,13 @@ import SnackAlert from "../../components/Alert";
 import { useLoginMutation } from "../../services/login";
 
 import { Cookies } from "../../helper/cookies";
-import { SUPER_ADMIN } from "../../helper/constants";
+import {
+  // SUPER_ADMIN,
+  ADMIN,
+  CUSTOMER,
+  FRONTDESK,
+  HOUSEKEEPER,
+} from "../../helper/constants";
 
 const phoneRegex = /^[0-9]{10}$/;
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -115,10 +121,16 @@ export default function SignIn() {
           });
           sessionStorage.setItem("data", JSON.stringify(res.data));
           Cookies.setCookie("loginSuccess", res.message, 2000);
-          if (res.data.userType === SUPER_ADMIN) {
-            navigate("/home");
-          } else {
+          if (res.data.roleType === CUSTOMER) {
+            navigate("/guest-dashboard");
+          } else if (res.data.roleType === ADMIN) {
+            navigate("/admin-dashboard");
+          } else if (res.data.roleType === FRONTDESK) {
+            navigate("/dashboard");
+          } else if (res.data.roleType === HOUSEKEEPER) {
             navigate("/housekeeper-dashboard");
+          } else {
+            navigate("/");
           }
         })
         .catch((err) => {

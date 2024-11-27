@@ -1,5 +1,9 @@
 // ROLES
 export const SUPER_ADMIN = "SUPER_ADMIN";
+export const ADMIN = "Admin";
+export const CUSTOMER = "Customer";
+export const FRONTDESK = "Front_Desk_Staff";
+export const HOUSEKEEPER = "Housekeeping_Staff";
 
 //ROOM STATUSES
 export const AVAILABLE = { id: 1, key: "Available" };

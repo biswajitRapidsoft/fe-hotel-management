@@ -58,7 +58,9 @@ const dashboardApi = apiSlice.injectEndpoints({
         // },
         params: {
           hotelId: payload.hotelId,
-          ...(payload.isService && { isService: payload.isService }), // This will only add isService if it's truthy
+          // ...(payload.isService !== undefined && {
+          isService: payload.isService,
+          // }),
         },
       }),
       providesTags: ["getServiceableRoomData"],

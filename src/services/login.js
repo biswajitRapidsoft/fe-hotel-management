@@ -13,8 +13,15 @@ const loginApi = apiSlice.injectEndpoints({
         data: payload,
       }),
     }),
+    changePassword: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.changePassword,
+        method: "POST",
+        data: payload,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useLoginMutation } = loginApi;
+export const { useLoginMutation, useChangePasswordMutation } = loginApi;

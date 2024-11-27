@@ -18,7 +18,7 @@ import {
   useGetAllBookingDetailsQuery,
 } from "../../services/dashboard";
 import TextField from "@mui/material/TextField";
-
+import { CUSTOMER } from "../../helper/constants";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -45,7 +45,13 @@ const GuestDashboard = () => {
     data: bookingDetails = {
       data: [],
     },
-  } = useGetAllBookingDetailsQuery(9668537293);
+  } = useGetAllBookingDetailsQuery(
+    JSON.parse(sessionStorage.getItem("data")).email ||
+      JSON.parse(sessionStorage.getItem("data")).phoneNo,
+    {
+      skip: !JSON.parse(sessionStorage.getItem("data")).roleType === CUSTOMER,
+    }
+  );
 
   return (
     <>
@@ -454,8 +460,9 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
                     onChange={handleDateChange("toDate")}
                     minDate={
                       formData.fromDate
-                        ? dayjs(formData.fromDate).add(1, "day")
-                        : undefined
+                        ? dayjs(formData.fromDate)
+                        : // .add(1, "day")
+                          undefined
                     }
                   />
                 </LocalizationProvider>

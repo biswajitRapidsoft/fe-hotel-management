@@ -21,7 +21,7 @@ import HouseIcon from "@mui/icons-material/House";
 import CleaningServicesIcon from "@mui/icons-material/CleaningServices";
 import WavingHandIcon from "@mui/icons-material/WavingHand";
 import styled from "@emotion/styled";
-
+import { HOUSEKEEPER } from "../../helper/constants";
 import SnackAlert from "../../components/Alert";
 import LoadingComponent from "../../components/LoadingComponent";
 
@@ -69,6 +69,7 @@ export const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 const HouseKeeperDashboard = () => {
   const [currentFilter, setCurrentFilter] = React.useState("All Rooms");
+  console.log("currentFilter", currentFilter);
   const [roomServiceDialogOpen, setRoomServiceDialogOpen] =
     React.useState(false);
   const [selectedRoom, setSelectedRoom] = React.useState("");
@@ -90,16 +91,23 @@ const HouseKeeperDashboard = () => {
           hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
           isService: true,
         }
+      : currentFilter === "Checkout"
+      ? {
+          hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
+          isService: false,
+        }
       : {
           hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
         },
     {
       refetchOnMountOrArgChange: true,
-      skip: false,
+      skip:
+        !JSON.parse(sessionStorage.getItem("data")).roleType === HOUSEKEEPER,
     }
     // JSON.parse(sessionStorage.getItem("data")).hotelId
   );
 
+  // JSON.parse(sessionStorage.getItem("data")).hotelId
   const handleFilterClick = (filterName) => {
     setCurrentFilter(filterName);
   };
