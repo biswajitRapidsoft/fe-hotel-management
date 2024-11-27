@@ -73,6 +73,18 @@ const getFilterdMenuList = (menuList, mealType, foodType) => {
       }
     });
   } else {
+    menuList.forEach((menu) => {
+      if (menu.type === mealType) {
+        if (foodType === "ALL") {
+          filterdMenuList.push(...menu.veg);
+          filterdMenuList.push(...menu.nonVeg);
+        } else if (foodType === "VEG") {
+          filterdMenuList.push(...menu.veg);
+        } else if (foodType === "NON VEG") {
+          filterdMenuList.push(...menu.nonVeg);
+        }
+      }
+    });
   }
   return filterdMenuList;
 };
