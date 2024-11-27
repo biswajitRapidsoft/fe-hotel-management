@@ -14,6 +14,13 @@ import {
   TextField,
 } from "@mui/material";
 
+import {
+  ADMIN,
+  CUSTOMER,
+  FRONTDESK,
+  HOUSEKEEPER,
+} from "../../helper/constants";
+
 import Grid from "@mui/material/Grid2";
 
 import Button from "@mui/material/Button";
@@ -31,8 +38,9 @@ import SnackAlert from "../../components/Alert";
 import { useNavigate } from "react-router-dom";
 import { styled } from "@mui/material/styles";
 
-// import logo from "../../img/hotelicon.svg";
 import logo from "../../img/logo.svg";
+import { useChangePasswordMutation } from "../../services/login";
+import LoadingComponent from "../../components/LoadingComponent";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -242,12 +250,10 @@ const Header = () => {
                 letterSpacing: 1,
               }}
             >
-              {/* {JSON.parse(sessionStorage.getItem("data")).userName} */}
-              Nikhil
+              {JSON.parse(sessionStorage.getItem("data")).userName}
             </Typography>
             <Typography sx={{ fontSize: 14, letterSpacing: 1 }}>
-              {/* {getUserType(JSON.parse(sessionStorage.getItem("data")).userType)} */}
-              ADMIN
+              {getUserType(JSON.parse(sessionStorage.getItem("data")).roleType)}
             </Typography>
           </Box>
 
@@ -335,7 +341,7 @@ const PasswordChangeDialog = React.memo(function ({
   handleClose,
   setSnack,
 }) {
-  // const [changePassword, changePasswordRes] = useChangePasswordMutation();
+  const [changePassword, changePasswordRes] = useChangePasswordMutation();
   const [formData, setFormData] = React.useState({
     currentPassword: "",
     newPassword: "",
@@ -370,27 +376,28 @@ const PasswordChangeDialog = React.memo(function ({
           severity: "error",
         });
       }
-      // changePassword({
-      //   currentPassword: formData.currentPassword,
-      //   newPassword: formData.newPassword,
-      // })
-      //   .unwrap()
-      //   .then((res) => {
-      //     setSnack({
-      //       open: true,
-      //       message: res.message,
-      //       severity: "success",
-      //     });
-      //     handleClose();
-      //     resetForm();
-      //   })
-      //   .catch((err) => {
-      //     setSnack({
-      //       open: true,
-      //       message: err.data?.message || err.data,
-      //       severity: "error",
-      //     });
-      //   });
+      changePassword({
+        username: JSON.parse(sessionStorage.getItem("data")).email,
+        password: formData.currentPassword,
+        newPassword: formData.newPassword,
+      })
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            severity: "success",
+          });
+          handleClose();
+          resetForm();
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data,
+            severity: "error",
+          });
+        });
     },
     [
       formData,
@@ -529,7 +536,7 @@ const PasswordChangeDialog = React.memo(function ({
           </DialogActions>
         </Box>
       </BootstrapDialog>
-      {/* <LoadingComponent open={changePasswordRes.isLoading} /> */}
+      <LoadingComponent open={changePasswordRes.isLoading} />
     </React.Fragment>,
     document.getElementById("portal")
   );
@@ -587,5 +594,19 @@ export const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   backdropFilter: "blur(8px)",
   backgroundColor: "rgba(0,0,30,0.4)",
 }));
+
+export const getUserType = (type) => {
+  if (type === ADMIN) {
+    return "ADMIN";
+  } else if (type === CUSTOMER) {
+    return "Guest";
+  } else if (type === FRONTDESK) {
+    return "FrontDesk";
+  } else if (type === HOUSEKEEPER) {
+    return "HouseKeeper";
+  } else {
+    return "USER";
+  }
+};
 
 export default Header;
