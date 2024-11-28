@@ -47,6 +47,16 @@ const dashboardApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["getAllBookingDetails"],
     }),
+    getUserDetailsForBooking: build.query({
+      query: (payload) => ({
+        url: config.apiName.getUserDetailsForBooking,
+        method: "GET",
+        params: {
+          details: payload,
+        },
+      }),
+      providesTags: ["getUserDetailsForBooking"],
+    }),
 
     // HOUSE-KEEPER DASHBOARD
     getServiceableRoomData: build.query({
@@ -168,4 +178,5 @@ export const {
   useApproveHouseKeepingServiceMutation,
   useFinalRoomCheckOutMutation,
   useRoomCleanRequestMutation,
+  useGetUserDetailsForBookingQuery,
 } = dashboardApi;

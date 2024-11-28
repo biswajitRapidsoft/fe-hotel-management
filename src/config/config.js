@@ -1,6 +1,6 @@
 const config = Object.freeze({
-  // baseUrl: "http://192.168.12.41:9000/",
-  baseUrl: "http://192.168.12.43:8080/be-hms/",
+  baseUrl: "http://192.168.12.41:9000/",
+  // baseUrl: "http://192.168.12.43:8080/be-hms/",
   apiName: {
     loginAsCustomer: "login/as/customer",
     loginAsStaff: "login",
@@ -33,6 +33,7 @@ const config = Object.freeze({
     reserveHotelRoom: "book/new/room",
     getAllBookingDetails: "public/booking/data",
     cancelHotelRoom: "public/cancel/booking",
+    getUserDetailsForBooking: "public/customer/details",
 
     // HOUSE-KEEPER DASHBOARD API ENDPOINTS
     getServiceableRoomData: "api/get/service/requested/rooms",

@@ -250,10 +250,12 @@ const Header = () => {
                 letterSpacing: 1,
               }}
             >
-              {JSON.parse(sessionStorage.getItem("data")).userName}
+              {JSON.parse(sessionStorage.getItem("data"))?.userName}
             </Typography>
             <Typography sx={{ fontSize: 14, letterSpacing: 1 }}>
-              {getUserType(JSON.parse(sessionStorage.getItem("data")).roleType)}
+              {getUserType(
+                JSON.parse(sessionStorage.getItem("data"))?.roleType
+              )}
             </Typography>
           </Box>
 
@@ -377,7 +379,7 @@ const PasswordChangeDialog = React.memo(function ({
         });
       }
       changePassword({
-        username: JSON.parse(sessionStorage.getItem("data")).email,
+        username: JSON.parse(sessionStorage.getItem("data"))?.email,
         password: formData.currentPassword,
         newPassword: formData.newPassword,
       })
@@ -399,11 +401,7 @@ const PasswordChangeDialog = React.memo(function ({
           });
         });
     },
-    [
-      formData,
-      setSnack,
-      // , handleClose, resetForm
-    ]
+    [formData, setSnack, handleClose, resetForm, changePassword]
     // []
   );
 

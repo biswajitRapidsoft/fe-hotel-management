@@ -30,9 +30,11 @@ export const axiosBaseQuery =
 function getOptions() {
   try {
     return {
-      Authorization: sessionStorage.getItem("data")
-        ? `Bearer ${JSON.parse(sessionStorage.getItem("data")).token}`
-        : null,
+      Authorization:
+        sessionStorage.getItem("data") &&
+        JSON.parse(sessionStorage.getItem("data")).token
+          ? `Bearer ${JSON.parse(sessionStorage.getItem("data")).token}`
+          : null,
     };
   } catch (err) {
     console.log(err);
