@@ -109,6 +109,7 @@ const dashboardApi = apiSlice.injectEndpoints({
       invalidatesTags: [
         "getAllRoomListByHotelId",
         "getTodayCheckoutRoomsByHotelId",
+        "roomBookingHistoryByHotelId",
       ],
     }),
     getTodayCheckoutRoomsByHotelId: build.query({
@@ -127,7 +128,10 @@ const dashboardApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
-      invalidatesTags: ["getAllRoomListByHotelId"],
+      invalidatesTags: [
+        "getAllRoomListByHotelId",
+        "roomBookingHistoryByHotelId",
+      ],
     }),
     finalRoomCheckOut: build.mutation({
       query: (payload) => ({
@@ -146,6 +150,16 @@ const dashboardApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
+    }),
+    roomtypeByHotelId: build.query({
+      query: (payload) => ({
+        url: config.apiName.roomtypeByHotelId,
+        method: "GET",
+        params: {
+          hotelId: payload?.hotelId,
+        },
+      }),
+      providesTags: ["roomtypeByHotelId"],
     }),
   }),
 
@@ -168,4 +182,5 @@ export const {
   useApproveHouseKeepingServiceMutation,
   useFinalRoomCheckOutMutation,
   useRoomCleanRequestMutation,
+  useRoomtypeByHotelIdQuery,
 } = dashboardApi;

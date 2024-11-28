@@ -4,6 +4,7 @@ import {
   Button,
   DialogContent,
   DialogTitle,
+  Divider,
   Drawer,
   IconButton,
   Paper,
@@ -16,14 +17,9 @@ import Grid from "@mui/material/Grid2";
 import {
   AVAILABLE,
   BEING_SERVICED,
-  BUSINESS_SUITE_ROOM,
-  DELUXE_ROOM,
-  FAMILY_SUITE_ROOM,
-  KING_ROOM,
   NOT_AVAILABLE,
   OCCUPIED,
   RESERVED,
-  STANDARD_ROOM,
 } from "../../helper/constants";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
@@ -46,6 +42,7 @@ import {
   useGetTodayCheckoutRoomsByHotelIdQuery,
   useRequestRoomCheckoutMutation,
   useRoomCleanRequestMutation,
+  useRoomtypeByHotelIdQuery,
   useSaveCustomerCheckInMutation,
 } from "../../services/dashboard";
 import { checkRoomStatusType } from "../../helper/helperFunctions";
@@ -59,81 +56,11 @@ import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 import Swal from "sweetalert2";
 import CleaningServicesIcon from "@mui/icons-material/CleaningServices";
+import { useNavigate } from "react-router-dom";
 
 export const StyledCalendarIcon = styled(CalendarMonthIcon)({
   color: "#9380B8",
 });
-
-// const tempRoomData = Array.from({ length: 4 }, (_, floorIndex) => {
-//   const floorNumber = floorIndex + 1;
-//   const rooms = Array.from({ length: 20 }, (_, roomIndex) => {
-//     const roomNumber = floorNumber * 100 + roomIndex + 1;
-
-//     const roomStatus =
-//       roomNumber % 3 === 0
-//         ? "Reserved"
-//         : roomNumber % 5 === 0
-//         ? "Occupied"
-//         : roomNumber % 7 === 0
-//         ? "Not Available"
-//         : roomNumber % 11 === 0
-//         ? "Being Serviced"
-//         : roomNumber % 13 === 0
-//         ? "Available"
-//         : "Available";
-
-//     const roomStyle =
-//       roomNumber % 3 === 0
-//         ? "Standard"
-//         : roomNumber % 5 === 0
-//         ? "Delux"
-//         : roomNumber % 7 === 0
-//         ? "Business Suite"
-//         : roomNumber % 11 === 0
-//         ? "Family Suite"
-//         : roomNumber % 13 === 0
-//         ? "Delux"
-//         : "Delux";
-
-//     const occupier =
-//       roomNumber % 3 === 0
-//         ? "John Doe"
-//         : roomNumber % 5 === 0
-//         ? "Martis Louis"
-//         : "";
-
-//     return {
-//       id: floorIndex * 20 + roomIndex + 1, // Unique ID for each room
-//       roomNumber,
-//       roomStatus,
-//       roomStyle,
-//       occupier,
-//     };
-//   });
-
-//   return {
-//     floorId: floorNumber,
-//     floorNumber,
-//     rooms,
-//   };
-// });
-
-// const tempFloorData = Array.from({ length: 4 }, (_, index) => {
-//   return {
-//     id: index + 1,
-//     floorNumber: index + 1,
-//   };
-// });
-
-// const tempKeyAlocationData = Array.from({ length: 130 }, (_, index) => ({
-//   id: index + 1,
-//   roomNo: index + 1,
-// }));
-
-// const tempDayCheckoutData = Array.from({ length: 130 }, (_, index) => ({
-//   id: index + 1,
-//   roomNo: index + 1,
-// }));
 
 const tempInventoryData = Array.from({ length: 4 }, (_, index) => {
   return {
@@ -421,8 +348,11 @@ const CustomRoomFilters = memo(function ({
   roomFilters,
   handleChangeRoomFilters,
   floorData,
+  roomTypes,
   roomData,
+  handleOpenCustomFormDrawer,
 }) {
+  const navigate = useNavigate();
   const handleChangeRoomFiltersOnChange = useCallback(
     (name, value) => {
       handleChangeRoomFilters(name, value);
@@ -531,6 +461,7 @@ const CustomRoomFilters = memo(function ({
             <Autocomplete
               options={floorData || []}
               disableClearable
+              fullWidth
               value={
                 roomFilters.floor ||
                 (floorData.length > 0 ? floorData[0] : null)
@@ -551,7 +482,7 @@ const CustomRoomFilters = memo(function ({
               disablePortal
               popupIcon={<KeyboardArrowDownIcon color="primary" />}
               sx={{
-                width: 200,
+                // width: 200,
                 ".MuiInputBase-root": {
                   color: "#fff",
                 },
@@ -593,18 +524,107 @@ const CustomRoomFilters = memo(function ({
           </Box>
         </Grid>
         <Grid size={{ lg: 2, xl: 1.5 }}>
+          <Box
+            sx={{
+              ".MuiTextField-root": {
+                width: "100%",
+                backgroundColor: "transparent",
+                ".MuiInputBase-root": {
+                  color: "#B4B4B4",
+                  background: "rgba(255, 255, 255, 0.25)",
+                },
+              },
+              ".MuiFormLabel-root": {
+                color: (theme) => theme.palette.primary.main,
+                fontWeight: 600,
+                fontSize: 18,
+              },
+              ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+                borderBottom: (theme) =>
+                  `1px solid ${theme.palette.primary.main}`,
+              },
+              ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+                borderBottom: (theme) =>
+                  `1px solid ${theme.palette.primary.main}`,
+              },
+            }}
+          >
+            <Autocomplete
+              options={roomTypes || []}
+              // disableClearable
+              fullWidth
+              value={roomFilters?.roomType || null}
+              onChange={(e, newVal) =>
+                handleChangeRoomFiltersOnChange("roomType", newVal)
+              }
+              inputValue={roomFilters.roomTypeInputVal}
+              onInputChange={(e, newVal) =>
+                handleChangeRoomFiltersOnChange("roomTypeInputVal", newVal)
+              }
+              getOptionLabel={(option) =>
+                option?.type
+                  ?.replace(/_/g, " ")
+                  ?.replace(/([a-z])([A-Z])/g, "$1 $2")
+                  ?.replace(/\b\w/g, (char) => char.toUpperCase()) || ""
+              }
+              clearOnEscape
+              disablePortal
+              popupIcon={<KeyboardArrowDownIcon color="primary" />}
+              sx={{
+                // width: 200,
+                ".MuiInputBase-root": {
+                  color: "#fff",
+                },
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover": {
+                  backgroundColor: "#E9E5F1",
+                  color: "#280071",
+                  fontWeight: 600,
+                },
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                  {
+                    backgroundColor: "#E9E5F1",
+                    color: "#280071",
+                    fontWeight: 600,
+                  },
+              }}
+              size="small"
+              clearIcon={<ClearIcon color="primary" />}
+              PaperComponent={(props) => (
+                <Paper
+                  sx={{
+                    background: "#fff",
+                    color: "#B4B4B4",
+                    borderRadius: "10px",
+                  }}
+                  {...props}
+                />
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Room Type"
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                    },
+                  }}
+                />
+              )}
+            />
+          </Box>
+        </Grid>
+        <Grid size={{ lg: 2, xl: 1.5 }}>
           <Button
             variant="contained"
             size="small"
-            // onClick={() =>
-            //   handleOpenCustomFormDrawerOnClick(true, "Check-In", "checkIn")
-            // }
+            onClick={() => navigate("/frontdeskBookingHistory")}
+            sx={{ fontSize: "10px" }}
           >
             Booking History
           </Button>
         </Grid>
         <Grid size={{ xs: 0, xl: 1 }} />
-        <Grid size={{ xs: 12, xl: 6.5 }}>
+        <Grid size={{ xs: 12, xl: 5 }}>
           <Box
             sx={{
               width: "100%",
@@ -656,7 +676,7 @@ const CustomRoomFilters = memo(function ({
                     sx={{
                       display: "flex",
                       flexDirection: "column",
-                      fontSize: "35px",
+                      fontSize: "20px",
                       // bgcolor: "cyan",
                       justifyContent: "center",
                       alignItems: "center",
@@ -688,6 +708,7 @@ const CustomRoomFilters = memo(function ({
                       variant="body1"
                       sx={{
                         letterSpacing: 1,
+                        fontSize: "15px",
                         // whiteSpace: "normal", // Ensures text wraps properly
                         // wordWrap: "break-word",
                         // wordBreak: "break-word",
@@ -698,7 +719,7 @@ const CustomRoomFilters = memo(function ({
                     </Typography>
                     <Typography
                       sx={{
-                        fontSize: "19px",
+                        fontSize: "18px",
                         fontWeight: 550,
                         // lineHeight: 0.7,
                         color:
@@ -728,74 +749,6 @@ const CustomRoomFilters = memo(function ({
     </Box>
   );
 });
-
-// const CustomFloorSelectSection = memo(function ({
-//   floorDetails,
-//   isSelectedFloor,
-//   handleFloorSelect,
-// }) {
-//   const handleFloorSelectOnClick = useCallback(
-//     (floorValue) => {
-//       handleFloorSelect(floorValue);
-//     },
-//     [handleFloorSelect]
-//   );
-//   return (
-//     <>
-//       {Boolean(floorDetails?.id) ? (
-//         <Box
-//           id={floorDetails?.id}
-//           sx={{
-//             minHeight: "40px",
-//             // maxHeight: "60px",
-//             display: "flex",
-//             justifyContent: "center",
-//             alignItems: "center",
-//             fontWeight: 600,
-//             backgroundColor: isSelectedFloor ? "#accdee" : "#e2e6ff",
-//             color: isSelectedFloor ? "#00459D" : "#000000",
-//             userSelect: "none",
-//             cursor: "pointer",
-//             paddingX: "15px",
-//             // borderRight: "2px solid #A9A9A9",
-//             whiteSpace: "nowrap",
-//             boxShadow: isSelectedFloor
-//               ? "inset 0 -3px 0 hsla(221, 100%, 56%, 0.99)"
-//               : "none",
-//           }}
-//           onClick={() => handleFloorSelectOnClick(floorDetails)}
-//         >
-//           {`Floor ${floorDetails?.floorNumber}`}
-//         </Box>
-//       ) : (
-//         <Box
-//           id={floorDetails?.id}
-//           sx={{
-//             minHeight: "40px",
-//             // maxHeight: "60px",
-//             display: "flex",
-//             justifyContent: "center",
-//             alignItems: "center",
-//             fontWeight: 600,
-//             backgroundColor: isSelectedFloor ? "#accdee" : "#e2e6ff",
-//             color: isSelectedFloor ? "#00459D" : "#000000",
-//             userSelect: "none",
-//             cursor: "pointer",
-//             paddingX: "15px",
-//             // borderRight: "2px solid #A9A9A9",
-//             whiteSpace: "nowrap",
-//             boxShadow: isSelectedFloor
-//               ? "inset 0 -3px 0 hsla(221, 100%, 56%, 0.99)"
-//               : "none",
-//           }}
-//           onClick={() => handleFloorSelectOnClick(floorDetails)}
-//         >
-//           {"All"}
-//         </Box>
-//       )}
-//     </>
-//   );
-// });
 
 const CustomFloorAccordion = memo(function ({
   floorData,
@@ -832,8 +785,8 @@ const CustomFloorAccordion = memo(function ({
                         roomFilters?.selectedRoomStatus
                       : true;
 
-                  const matchesRoomStyle = roomFilters?.roomStyle
-                    ? room?.roomStyle === roomFilters?.roomStyle
+                  const matchesRoomType = roomFilters?.roomType
+                    ? room?.roomType?.id === roomFilters?.roomType?.id
                     : true;
 
                   const matchesSearchKey = roomFilters?.searchKey
@@ -852,7 +805,7 @@ const CustomFloorAccordion = memo(function ({
 
                   return (
                     matchesRoomStatus &&
-                    matchesRoomStyle &&
+                    matchesRoomType &&
                     matchesSearchKey &&
                     matchesDate
                   );
@@ -949,15 +902,11 @@ const CustomRoomCard = memo(function ({
         <Typography sx={{ fontSize: "19px", fontWeight: 550 }}>
           {roomDetails?.roomNo}
         </Typography>
-        <Typography sx={{ fontSize: "17px" }}>
-          {[
-            STANDARD_ROOM,
-            DELUXE_ROOM,
-            FAMILY_SUITE_ROOM,
-            BUSINESS_SUITE_ROOM,
-            KING_ROOM,
-          ]?.find((type) => type?.key === roomDetails?.roomType?.type)?.name ||
-            "NA"}
+        <Typography sx={{ fontSize: "17px", textAlign: "center" }}>
+          {roomDetails?.roomType?.type
+            ?.replace(/_/g, " ")
+            ?.replace(/([a-z])([A-Z])/g, "$1 $2")
+            ?.replace(/\b\w/g, (char) => char.toUpperCase()) || ""}
         </Typography>
         <Typography sx={{ fontWeight: 550 }}>
           {roomDetails?.occupier}
@@ -1255,16 +1204,12 @@ const RoomServiceCard = memo(function ({
                                 // fontWeight: 600,
                               }}
                             >
-                              {[
-                                STANDARD_ROOM,
-                                DELUXE_ROOM,
-                                FAMILY_SUITE_ROOM,
-                                BUSINESS_SUITE_ROOM,
-                                KING_ROOM,
-                              ]?.find(
-                                (type) =>
-                                  type?.key === isSelectedRoom?.roomType?.type
-                              )?.name || "NA"}
+                              {isSelectedRoom?.roomType?.type
+                                ?.replace(/_/g, " ")
+                                ?.replace(/([a-z])([A-Z])/g, "$1 $2")
+                                ?.replace(/\b\w/g, (char) =>
+                                  char.toUpperCase()
+                                ) || ""}
                             </Typography>
                           </Typography>
                         </Grid>
@@ -1928,16 +1873,12 @@ const RoomServiceCard = memo(function ({
                                 // fontWeight: 600,
                               }}
                             >
-                              {[
-                                STANDARD_ROOM,
-                                DELUXE_ROOM,
-                                FAMILY_SUITE_ROOM,
-                                BUSINESS_SUITE_ROOM,
-                                KING_ROOM,
-                              ]?.find(
-                                (type) =>
-                                  type?.key === isSelectedRoom?.roomType?.type
-                              )?.name || "NA"}
+                              {isSelectedRoom?.roomType?.type
+                                ?.replace(/_/g, " ")
+                                ?.replace(/([a-z])([A-Z])/g, "$1 $2")
+                                ?.replace(/\b\w/g, (char) =>
+                                  char.toUpperCase()
+                                ) || ""}
                             </Typography>
                           </Typography>
                         </Grid>
@@ -2274,16 +2215,12 @@ const RoomServiceCard = memo(function ({
                                 // fontWeight: 600,
                               }}
                             >
-                              {[
-                                STANDARD_ROOM,
-                                DELUXE_ROOM,
-                                FAMILY_SUITE_ROOM,
-                                BUSINESS_SUITE_ROOM,
-                                KING_ROOM,
-                              ]?.find(
-                                (type) =>
-                                  type?.key === isSelectedRoom?.roomType?.type
-                              )?.name || "NA"}
+                              {isSelectedRoom?.roomType?.type
+                                ?.replace(/_/g, " ")
+                                ?.replace(/([a-z])([A-Z])/g, "$1 $2")
+                                ?.replace(/\b\w/g, (char) =>
+                                  char.toUpperCase()
+                                ) || ""}
                             </Typography>
                           </Typography>
                         </Grid>
@@ -2547,6 +2484,7 @@ const CustomFormDrawer = memo(function ({
           </IconButton>
         </Box>
         {/* <Divider /> */}
+        <Divider sx={{ mb: 1 }} />
         <Box sx={{ px: 2 }}>
           {type === "checkIn" && (
             <Grid container size={12} spacing={1}>
@@ -4037,9 +3975,10 @@ const Dashboard = () => {
     roomStatus: null,
     searchKey: "",
     toDate: null,
-    roomStyle: null,
     floor: null,
     floorInputVal: "",
+    roomType: null,
+    roomTypeInputVal: "",
     selectedRoomStatus: null,
   });
   console.log("roomFilters : ", roomFilters);
@@ -4094,12 +4033,33 @@ const Dashboard = () => {
   );
   console.log("apiRoomData : ", apiRoomData);
 
-  const { data: allGovtIdsData = { data: [] } } = useGetAllGovtIdsQuery();
+  const {
+    data: allGovtIdsData = { data: [] },
+    isFetching: isAllGovtIdsDataFetching,
+  } = useGetAllGovtIdsQuery();
   console.log("allGovtIdsData : ", allGovtIdsData);
 
-  const { data: allPaymentMethods = { data: [] } } =
-    useGetAllPaymentMethodsQuery();
+  const {
+    data: allPaymentMethods = { data: [] },
+    isFetching: isAllPaymentMethodsFetching,
+  } = useGetAllPaymentMethodsQuery();
   console.log("allPaymentMethods : ", allPaymentMethods);
+
+  const {
+    data: roomtypeByHotelIdData = {
+      data: [],
+    },
+    isFetching: isRoomtypeByHotelIdDataFetching,
+  } = useRoomtypeByHotelIdQuery(
+    {
+      hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId,
+    },
+    {
+      refetchOnMountOrArgChange: true,
+      skip: !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId),
+    }
+  );
+  console.log("roomtypeByHotelIdData : ", roomtypeByHotelIdData);
 
   const floorOptions = React.useMemo(
     () =>
@@ -4245,47 +4205,6 @@ const Dashboard = () => {
           console.log("filteredFloorsss : ", filteredFloors);
           return filteredFloors;
         });
-        // ?.map((floor) => {
-        //   const filteredRooms = floor?.roomDto?.filter((room) => {
-        //     console.log("somya room : ", room);
-        //     const matchesRoomStatus =
-        //       roomFilters?.selectedRoomStatus &&
-        //       !Boolean(roomFilters?.selectedRoomStatus === "All")
-        //         ? checkRoomStatusType(room)?.key ===
-        //           roomFilters?.selectedRoomStatus
-        //         : true;
-
-        //     const matchesRoomStyle = roomFilters?.roomStyle
-        //       ? room?.roomStyle === roomFilters?.roomStyle
-        //       : true;
-
-        //     const matchesSearchKey = roomFilters?.searchKey
-        //       ? room?.roomNumber
-        //           ?.toString()
-        //           ?.includes(roomFilters?.searchKey) ||
-        //         room?.occupier
-        //           ?.toLowerCase()
-        //           ?.includes(roomFilters?.searchKey?.toLowerCase())
-        //       : true;
-
-        //     const matchesDate = roomFilters?.toDate
-        //       ? new Date(room?.availableDate) <= new Date(roomFilters?.toDate)
-        //       : true;
-
-        //     return (
-        //       matchesRoomStatus &&
-        //       matchesRoomStyle &&
-        //       matchesSearchKey &&
-        //       matchesDate
-        //     );
-        //   });
-
-        //   return {
-        //     ...floor,
-        //     roomDto: filteredRooms,
-        //   };
-        // })
-        // ?.filter((floor) => floor?.roomDto?.length > 0); // Exclude floors with no matching rooms
       });
     },
     [apiRoomData?.data?.floorRoomMapData]
@@ -4950,7 +4869,9 @@ const Dashboard = () => {
                 { id: 0, floorNumber: null, key: "all", name: "All Floors" },
                 ...floorOptions,
               ]}
+              roomTypes={roomtypeByHotelIdData?.data || []}
               roomData={roomData}
+              handleOpenCustomFormDrawer={handleOpenCustomFormDrawer}
             />
           </Box>
           {/* <Box
@@ -5088,16 +5009,17 @@ const Dashboard = () => {
       />
       <LoadingComponent
         open={
-          true
-            ? false
-            : isApiRoomDataFetching ||
-              saveCustomerCheckInRes?.isLoading ||
-              cancelReservtionRes?.isLoading ||
-              isApiTodayCheckoutRoomDataFetching ||
-              requestRoomCheckoutRes?.isLoading ||
-              finalRoomCheckOutRes?.isLoading ||
-              roomCleanRequestRes?.isLoading ||
-              false
+          isApiRoomDataFetching ||
+          saveCustomerCheckInRes?.isLoading ||
+          cancelReservtionRes?.isLoading ||
+          isApiTodayCheckoutRoomDataFetching ||
+          requestRoomCheckoutRes?.isLoading ||
+          finalRoomCheckOutRes?.isLoading ||
+          roomCleanRequestRes?.isLoading ||
+          isRoomtypeByHotelIdDataFetching ||
+          isAllGovtIdsDataFetching ||
+          isAllPaymentMethodsFetching ||
+          false
         }
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
