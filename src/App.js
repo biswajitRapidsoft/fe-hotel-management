@@ -21,6 +21,9 @@ const EmployeeList = React.lazy(() => import("./features/employee/Employee"));
 const HouseKeeperDashboard = React.lazy(() =>
   import("./features/dashboard/HouseKeeperDashboard")
 );
+const FrontdeskBookingHistory = React.lazy(() =>
+  import("./features/frontdeskBookingHistory/FrontdeskBookingHistory")
+);
 
 function App() {
   return (
@@ -41,6 +44,10 @@ function App() {
             <Route
               path="/housekeeper-dashboard"
               element={<HouseKeeperDashboard />}
+            />
+            <Route
+              path="/frontdeskBookingHistory"
+              element={<FrontdeskBookingHistory />}
             />
           </Route>
         </Routes>

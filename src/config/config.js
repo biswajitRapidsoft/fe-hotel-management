@@ -1,6 +1,6 @@
 const config = Object.freeze({
-  // baseUrl: "http://192.168.12.41:9000/",
-  baseUrl: "http://192.168.12.43:8080/be-hms/",
+  baseUrl: "http://192.168.12.41:9000/",
+  // baseUrl: "http://192.168.12.43:8080/be-hms/",
   apiName: {
     loginAsCustomer: "login/as/customer",
     loginAsStaff: "login",
@@ -27,6 +27,11 @@ const config = Object.freeze({
     requestRoomCheckout: "api/room/checkout/request",
     finalRoomCheckOut: "api/customer/checkout",
     roomCleanRequest: "api/room/clean/request",
+    roomtypeByHotelId: "api/roomtype/by/hotelId",
+
+    //FRONTDESK BOOKING HISTORY
+    roomBookingHistoryByHotelId: "api/booking/history",
+    getAllBookingStatusType: "api/get/all/booking/status/type",
 
     // GUEST DASHBOARD API ENDPOINTS
     getAllHotels: "public/hotels/list",
