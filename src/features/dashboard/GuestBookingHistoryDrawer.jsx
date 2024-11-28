@@ -25,6 +25,7 @@ import { useCancelHotelRoomMutation } from "../../services/dashboard";
 
 import SnackAlert from "../../components/Alert";
 import LoadingComponent from "../../components/LoadingComponent";
+import { useNavigate } from "react-router-dom";
 
 // import Swal from "sweetalert2";
 
@@ -36,6 +37,8 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
   const [cancelBookingOpen, setCancelBookingOpen] = React.useState(false);
   const [selectedBookingRefNumber, setSelectedBookingRefNumber] =
     React.useState(null);
+
+  const navigate = useNavigate();
 
   // api for cancelling booking
 
@@ -234,6 +237,31 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                               }}
                             >
                               Cancel
+                            </Button>
+                          )}
+                          {booking.bookingStatus === "Checked_In" && (
+                            <Button
+                              variant="contained"
+                              sx={{
+                                // backgroundImage:
+                                //   "linear-gradient(to right, #56ab2f 0%, #a8e063 100%)",
+                                // color: "white",
+                                // "&:hover": {
+                                //   backgroundImage:
+                                //     "linear-gradient(to right, #56ab2f 10%, #a8e063 90%)",
+                                // },
+                                textTransform: "none",
+                                backgroundColor: "#17B169",
+                              }}
+                              onClick={() => {
+                                sessionStorage.setItem(
+                                  "bookingRefNumber",
+                                  booking.bookingRefNumber
+                                );
+                                navigate("/order-food");
+                              }}
+                            >
+                              Order Food
                             </Button>
                           )}
                         </Box>

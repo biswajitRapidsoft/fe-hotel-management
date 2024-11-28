@@ -16,6 +16,7 @@ import {
   useGetAllHotelsQuery,
   useReserveHotelRoomMutation,
   useGetAllBookingDetailsQuery,
+  useGetUserDetailsForBookingQuery,
 } from "../../services/dashboard";
 import TextField from "@mui/material/TextField";
 import { CUSTOMER } from "../../helper/constants";
@@ -46,13 +47,24 @@ const GuestDashboard = () => {
       data: [],
     },
   } = useGetAllBookingDetailsQuery(
-    JSON.parse(sessionStorage.getItem("data")).email ||
-      JSON.parse(sessionStorage.getItem("data")).phoneNo,
+    JSON.parse(sessionStorage.getItem("data"))?.email ||
+      JSON.parse(sessionStorage.getItem("data"))?.phoneNo,
     {
-      skip: !JSON.parse(sessionStorage.getItem("data")).roleType === CUSTOMER,
+      skip: !JSON.parse(sessionStorage.getItem("data"))?.roleType === CUSTOMER,
     }
   );
-
+  const {
+    data: userDetails = {
+      data: [],
+    },
+  } = useGetUserDetailsForBookingQuery(
+    JSON.parse(sessionStorage.getItem("data"))?.email ||
+      JSON.parse(sessionStorage.getItem("data"))?.phoneNo,
+    {
+      skip: !JSON.parse(sessionStorage.getItem("data"))?.roleType === CUSTOMER,
+    }
+  );
+  console.log("userDetails", userDetails);
   return (
     <>
       <Box sx={{ width: "100%", px: 2, py: 3 }}>
@@ -78,6 +90,8 @@ const GuestDashboard = () => {
             <Box
               sx={{
                 width: "100%",
+                // border: "2px solid black",
+                // p: 1.8,
               }}
             >
               <Grid container size={12} spacing={2}>
@@ -87,7 +101,10 @@ const GuestDashboard = () => {
                       key={`hotel${index}`}
                       size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 3 }}
                     >
-                      <CustomHotelCard hotelDetails={item} />
+                      <CustomHotelCard
+                        hotelDetails={item}
+                        userDetails={userDetails}
+                      />
                     </Grid>
                   );
                 })}
@@ -106,7 +123,7 @@ const GuestDashboard = () => {
   );
 };
 
-const CustomHotelCard = memo(function ({ hotelDetails }) {
+const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [formData, setFormData] = React.useState({
     firstName: "",
@@ -150,12 +167,23 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
       advancePayment: "",
     });
   }, []);
+
+  const calculateNumberOfDays = React.useMemo(() => {
+    if (formData.fromDate && formData.toDate) {
+      const startDate = dayjs(formData.fromDate);
+      const endDate = dayjs(formData.toDate);
+      return endDate.diff(startDate, "day") + 1;
+    }
+    return 0;
+  }, [formData.fromDate, formData.toDate]);
   const isFormValid = React.useCallback(() => {
     const isAdvanceValid =
       !hotelDetails?.isAdvanceRequired ||
       (formData.advancePayment &&
-        Number(formData.advancePayment) >= Number(hotelDetails.advanceAmount) &&
-        Number(formData.advancePayment) <= Number(hotelDetails.basePrice));
+        Number(formData.advancePayment) >=
+          Number(hotelDetails.advanceAmount) * calculateNumberOfDays &&
+        Number(formData.advancePayment) <=
+          Number(hotelDetails.basePrice) * calculateNumberOfDays);
 
     return Boolean(
       formData.firstName.trim() &&
@@ -165,7 +193,7 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
         formData.noOfPeoples &&
         isAdvanceValid
     );
-  }, [formData, hotelDetails]);
+  }, [formData, hotelDetails, calculateNumberOfDays]);
 
   // add reservation function
   const handleSubmit = React.useCallback(
@@ -262,35 +290,47 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
       [field]: date,
     }));
   };
-
   React.useEffect(() => {
     const sessionData = JSON.parse(sessionStorage.getItem("data"));
-    if (sessionData && sessionData.phoneNo) {
+
+    if (userDetails?.data) {
       setFormData((prevData) => ({
         ...prevData,
-        phoneNumber: sessionData.phoneNo,
+        firstName: userDetails?.data?.firstName || "",
+        middleName: userDetails?.data?.middleName || "",
+        lastName: userDetails?.data?.lastName || "",
+        email: userDetails?.data?.email || "",
+        address: userDetails?.data?.address || "",
+        phoneNumber:
+          sessionData?.phoneNo || userDetails?.data?.phoneNumber || "",
+      }));
+    } else if (sessionData && sessionData?.phoneNo) {
+      setFormData((prevData) => ({
+        ...prevData,
+        phoneNumber: sessionData?.phoneNo,
       }));
     }
-  }, []);
+  }, [userDetails]);
+
   return (
-    <Box
-      sx={{
-        boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
-        backgroundColor: "#fff",
-      }}
-    >
+    <>
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
+          boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
+          backgroundColor: "#fff",
+          height: "100%",
+          overflow: "hidden",
+          borderRadius: "8px",
         }}
       >
+        {/* ---image box--- */}
         <Box
           sx={{
             width: "100%",
             height: "15rem",
-            // maxHeight: "15rem",
-            // minHeight: "15rem",
+            borderRadius: "8px",
           }}
         >
           {hotelDetails?.images?.[0] && (
@@ -306,7 +346,9 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
             />
           )}
         </Box>
+        {/* ------- */}
 
+        {/* hotel details box */}
         <Box
           sx={{
             px: 1,
@@ -315,7 +357,15 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
             justifyContent: "space-between",
           }}
         >
-          <Box>
+          {/* Box for hotel details */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              // border: "1px solid black",
+              // width: "70%",
+            }}
+          >
             <Typography sx={{ fontWeight: "bold" }}>
               {hotelDetails?.hotelDto?.name}
             </Typography>
@@ -331,6 +381,10 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
 
             <Typography>₹{hotelDetails?.basePrice}</Typography>
           </Box>
+
+          {/* -------- */}
+
+          {/* Box for book now button */}
           <Box sx={{ display: "flex", marginY: "auto" }}>
             <Button
               variant="contained"
@@ -348,7 +402,10 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
               Book Now
             </Button>
           </Box>
+          {/* -------- */}
         </Box>
+
+        {/* ---------- */}
       </Box>
 
       {/* Drawer for booking details */}
@@ -413,7 +470,7 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
                   variant="outlined"
                   value={formData.phoneNumber}
                   onChange={handleChangeInput}
-                  // disabled
+                  disabled
                 />
               </Grid>
               <Grid size={{ xs: 6 }}>
@@ -436,6 +493,7 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
                   variant="outlined"
                   value={formData.noOfPeoples}
                   onChange={handleChangeInput}
+                  required
                   inputProps={{ maxLength: 2 }}
                 />
               </Grid>
@@ -447,6 +505,11 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
                     format="DD-MM-YYYY"
                     value={formData.fromDate}
                     onChange={handleDateChange("fromDate")}
+                    slotProps={{
+                      textField: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </LocalizationProvider>
               </Grid>
@@ -464,6 +527,11 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
                         : // .add(1, "day")
                           undefined
                     }
+                    slotProps={{
+                      textField: {
+                        readOnly: true,
+                      },
+                    }}
                   />
                 </LocalizationProvider>
               </Grid>
@@ -496,14 +564,20 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
                     fullWidth
                     helperText={
                       hotelDetails?.isAdvanceRequired &&
-                      Number(formData.advancePayment) <
-                        Number(hotelDetails.advanceAmount)
-                        ? `Please pay  ₹${hotelDetails.advanceAmount} in advance`
-                        : // `Advance must be at least ₹${hotelDetails.advanceAmount}`
-                        hotelDetails?.isAdvanceRequired &&
-                          Number(formData.advancePayment) >
-                            Number(hotelDetails.basePrice)
-                        ? `Advance amount cannot exceed ₹${hotelDetails.basePrice}`
+                      calculateNumberOfDays > 0
+                        ? Number(formData.advancePayment) <
+                          Number(hotelDetails.advanceAmount) *
+                            calculateNumberOfDays
+                          ? `Please pay ₹${
+                              hotelDetails.advanceAmount * calculateNumberOfDays
+                            } in advance`
+                          : Number(formData.advancePayment) >
+                            Number(hotelDetails.basePrice) *
+                              calculateNumberOfDays
+                          ? `Advance amount cannot exceed ₹${
+                              hotelDetails.basePrice * calculateNumberOfDays
+                            }`
+                          : ""
                         : ""
                     }
                   />
@@ -539,7 +613,7 @@ const CustomHotelCard = memo(function ({ hotelDetails }) {
       </Drawer>
       <LoadingComponent open={reserveHotelRoomRes.isLoading} />
       <SnackAlert snack={snack} setSnack={setSnack} />
-    </Box>
+    </>
   );
 });
 

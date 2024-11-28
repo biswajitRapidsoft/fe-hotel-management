@@ -39,6 +39,7 @@ const config = Object.freeze({
     reserveHotelRoom: "book/new/room",
     getAllBookingDetails: "public/booking/data",
     cancelHotelRoom: "public/cancel/booking",
+    getUserDetailsForBooking: "public/customer/details",
 
     // HOUSE-KEEPER DASHBOARD API ENDPOINTS
     getServiceableRoomData: "api/get/service/requested/rooms",
