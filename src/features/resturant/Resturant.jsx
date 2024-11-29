@@ -92,6 +92,8 @@ const getFilterdMenuList = (menuList, mealType, foodType) => {
 const Resturant = () => {
   const [foodType, setFoodType] = React.useState("ALL");
   const [mealType, setMealType] = React.useState("ALL");
+  const [cartItems, setCartItems] = React.useState([]);
+
   const {
     data: menuList = {
       data: [],
@@ -107,10 +109,14 @@ const Resturant = () => {
     setFoodType(e.target.value);
   }, []);
 
+  const handleAddItemToCart = React.useCallback((item) => {
+    setCartItems((preVal) => [...preVal, item]);
+  }, []);
+
   return (
     <React.Fragment>
       <Box sx={{ display: "flex" }}>
-        <Main open={true}>
+        <Main open={cartItems.length}>
           <Box
             sx={{
               borderBottom: 1,
@@ -166,7 +172,13 @@ const Resturant = () => {
           <Grid container spacing={2}>
             {getFilterdMenuList(menuList.data, mealType, foodType).map(
               (foodItem) => {
-                return <CustomFoodCard foodItem={foodItem} key={foodItem.id} />;
+                return (
+                  <CustomFoodCard
+                    foodItem={foodItem}
+                    key={foodItem.id}
+                    handleAddItemToCart={handleAddItemToCart}
+                  />
+                );
               }
             )}
           </Grid>
@@ -182,7 +194,7 @@ const Resturant = () => {
           }}
           variant="persistent"
           anchor="right"
-          open={true}
+          open={cartItems.length}
         >
           <DrawerHeader>
             <Typography
@@ -200,54 +212,45 @@ const Resturant = () => {
             >
               My Order
             </Typography>
-            <Grid container spacing={2}>
-              <Grid size={12}>
-                <Box sx={{ display: "flex", gap: 2 }}>
-                  <Box
-                    component="img"
-                    src="https://www.foodiesfeed.com/wp-content/uploads/2023/06/burger-with-melted-cheese.jpg"
-                    alt="food item"
-                    sx={{ width: 50 }}
-                  />
-                  <Box
-                    sx={{
-                      flexGrow: 1,
-                      display: "flex",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Box>
-                      <Typography>Cheese Burger</Typography>
-                      <Typography>x1</Typography>
-                    </Box>
-                    <Typography sx={{ fontWeight: 600 }}>$54.35</Typography>
-                  </Box>
-                </Box>
+            <Box
+              sx={{
+                maxHeight: 400,
+                overflowY: "auto",
+                backgroundColor: "#f7f0ff",
+                px: 0.75,
+              }}
+            >
+              <Grid container spacing={2}>
+                {cartItems.map((cartItem) => {
+                  return (
+                    <Grid size={12}>
+                      <Box sx={{ display: "flex", gap: 2 }}>
+                        <Box
+                          component="img"
+                          src={cartItem.image}
+                          sx={{ width: 50 }}
+                        />
+                        <Box
+                          sx={{
+                            flexGrow: 1,
+                            display: "flex",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <Box>
+                            <Typography>{cartItem.itemName}</Typography>
+                            <Typography>x1</Typography>
+                          </Box>
+                          <Typography
+                            sx={{ fontWeight: 600 }}
+                          >{`Rs. ${cartItem.perUnitPrice}`}</Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                  );
+                })}
               </Grid>
-              <Grid size={12}>
-                <Box sx={{ display: "flex", gap: 2 }}>
-                  <Box
-                    component="img"
-                    src="https://www.foodiesfeed.com/wp-content/uploads/2023/06/burger-with-melted-cheese.jpg"
-                    alt="food item"
-                    sx={{ width: 50 }}
-                  />
-                  <Box
-                    sx={{
-                      flexGrow: 1,
-                      display: "flex",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Box>
-                      <Typography>Cheese Burger</Typography>
-                      <Typography>x1</Typography>
-                    </Box>
-                    <Typography sx={{ fontWeight: 600 }}>$54.35</Typography>
-                  </Box>
-                </Box>
-              </Grid>
-            </Grid>
+            </Box>
             <Divider sx={{ mt: 2 }} />
             <Box
               sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}
@@ -278,7 +281,9 @@ const Resturant = () => {
                 variant="h6"
                 sx={{ fontWeight: "bold", letterSpacing: 1 }}
               >
-                $238.70
+                {`${cartItems.reduce((prev, curr) => {
+                  return prev + curr.perUnitPrice;
+                }, 0)}`}
               </Typography>
             </Box>
           </Box>
@@ -305,7 +310,7 @@ const Resturant = () => {
   );
 };
 
-const CustomFoodCard = React.memo(function ({ foodItem }) {
+const CustomFoodCard = React.memo(function ({ foodItem, handleAddItemToCart }) {
   return (
     <Grid
       size={{ xs: 6, md: 3, xl: 3 }}
@@ -340,6 +345,7 @@ const CustomFoodCard = React.memo(function ({ foodItem }) {
               size="small"
               color="secondary"
               sx={{ color: "white", fontWeight: 600, letterSpacing: 1 }}
+              onClick={() => handleAddItemToCart(foodItem)}
             >
               Add
             </Button>
