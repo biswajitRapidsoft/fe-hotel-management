@@ -26,6 +26,14 @@ const frontdeskBookingHistoryApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["getAllBookingStatusType"],
     }),
+    conFirmBooking: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.conFirmBooking,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["roomBookingHistoryByHotelId"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -33,4 +41,5 @@ const frontdeskBookingHistoryApi = apiSlice.injectEndpoints({
 export const {
   useRoomBookingHistoryByHotelIdQuery,
   useGetAllBookingStatusTypeQuery,
+  useConFirmBookingMutation,
 } = frontdeskBookingHistoryApi;
