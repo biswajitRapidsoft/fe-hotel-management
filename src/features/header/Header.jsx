@@ -42,6 +42,20 @@ import logo from "../../img/logo.svg";
 import { useChangePasswordMutation } from "../../services/login";
 import LoadingComponent from "../../components/LoadingComponent";
 
+const StyledHeaderBox = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "open",
+})(({ theme, open }) => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  background: `linear-gradient(to right, white, ${theme.palette.primary.main})`,
+  boxShadow: theme.shadows[2],
+  position: "sticky",
+  top: 0,
+  zIndex: theme.zIndex.modal,
+  px: 1,
+}));
+
 const Header = () => {
   const navigate = useNavigate();
 
@@ -102,19 +116,19 @@ const Header = () => {
   }, [navigate]);
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        background: (theme) =>
-          `linear-gradient(to right, white, ${theme.palette.primary.main})`,
-        boxShadow: (theme) => theme.shadows[2],
-        position: "sticky",
-        top: 0,
-        zIndex: 1000,
-        px: 1,
-      }}
+    <StyledHeaderBox
+    // sx={{
+    //   display: "flex",
+    //   alignItems: "center",
+    //   justifyContent: "space-between",
+    //   background: (theme) =>
+    //     `linear-gradient(to right, white, ${theme.palette.primary.main})`,
+    //   boxShadow: (theme) => theme.shadows[2],
+    //   position: "sticky",
+    //   top: 0,
+    //   zIndex: 10000,
+    //   px: 1,
+    // }}
     >
       <img
         src={logo}
@@ -305,7 +319,7 @@ const Header = () => {
         setSnack={setSnack}
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
-    </Box>
+    </StyledHeaderBox>
   );
 };
 

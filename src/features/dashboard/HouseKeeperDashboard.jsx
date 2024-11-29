@@ -69,7 +69,6 @@ export const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 const HouseKeeperDashboard = () => {
   const [currentFilter, setCurrentFilter] = React.useState("All Rooms");
-  console.log("currentFilter", currentFilter);
   const [roomServiceDialogOpen, setRoomServiceDialogOpen] =
     React.useState(false);
   const [selectedRoom, setSelectedRoom] = React.useState("");
@@ -122,8 +121,8 @@ const HouseKeeperDashboard = () => {
   };
   const houseKeepingFilterButtons = [
     { id: 1, icon: <HouseIcon />, name: "All Rooms", color: "" },
-    { id: 1, icon: <CleaningServicesIcon />, name: "Service", color: "" },
-    { id: 1, icon: <WavingHandIcon />, name: "Checkout", color: "" },
+    { id: 2, icon: <CleaningServicesIcon />, name: "Service", color: "" },
+    { id: 3, icon: <WavingHandIcon />, name: "Checkout", color: "" },
   ];
 
   return (
@@ -172,7 +171,12 @@ const HouseKeeperDashboard = () => {
                     <Box
                       sx={{
                         width: "100%",
-                        backgroundColor: "green",
+                        backgroundColor:
+                          item?.serviceTypeStatus === "Checkout_Request"
+                            ? "#00A9E0"
+                            : item?.serviceTypeStatus === "Room_Cleaning"
+                            ? "#280071"
+                            : "gray",
                         height: "1.5rem",
                       }}
                     ></Box>
@@ -186,7 +190,7 @@ const HouseKeeperDashboard = () => {
                       <Typography>{item?.roomNo}</Typography>
                       <Typography>{item?.roomType?.type}</Typography>
                       <Typography sx={{ color: "gray" }}>
-                        {item?.serviceTypeStatus}
+                        {item?.serviceTypeStatus.replace(/_/g, " ")}
                       </Typography>
                     </Box>
                   </Box>
@@ -331,10 +335,10 @@ const HouseKeepingDialog = ({
           <Typography
             sx={{ fontWeight: "bold", fontSize: "1.4rem", color: "" }}
           >
-            House Keeping Details{" "}
-            <Typography sx={{ color: "gray" }}>
-              (Room No:{selectedRoom?.roomNo})
-            </Typography>
+            House Keeping Details
+          </Typography>
+          <Typography sx={{ color: "gray" }}>
+            (Room No:{selectedRoom?.roomNo})
           </Typography>
         </DialogTitle>
         <DialogContent dividers>
