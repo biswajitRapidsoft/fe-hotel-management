@@ -14,10 +14,15 @@ import {
   FormGroup,
 } from "@mui/material";
 import { TabContext, TabList } from "@mui/lab";
-import { useGetAllFoodQuery } from "../../services/restaurant";
+import {
+  useGetAllFoodQuery,
+  useGetDineTypeQuery,
+  useOrderFoodMutation,
+} from "../../services/restaurant";
 import LoadingComponent from "../../components/LoadingComponent";
+import SnackAlert from "../../components/Alert";
 
-const drawerWidth = 340;
+const drawerWidth = 399;
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -90,16 +95,28 @@ const getFilterdMenuList = (menuList, mealType, foodType) => {
 };
 
 const Resturant = () => {
+  const [orderFood, orderFoodRes] = useOrderFoodMutation();
+  const {
+    data: dineTypes = {
+      data: [],
+    },
+  } = useGetDineTypeQuery();
   const [foodType, setFoodType] = React.useState("ALL");
   const [mealType, setMealType] = React.useState("ALL");
+  const [dineType, setDineType] = React.useState("");
   const [cartItems, setCartItems] = React.useState([]);
+  const [snack, setSnack] = React.useState({
+    open: true,
+    message: "",
+    severity: "",
+  });
 
   const {
     data: menuList = {
       data: [],
     },
     isLoading,
-  } = useGetAllFoodQuery(JSON.parse(sessionStorage.getItem("data")).hotelId);
+  } = useGetAllFoodQuery(sessionStorage.getItem("hotelId"));
 
   const handleTabChange = React.useCallback((e, value) => {
     setMealType(value);
@@ -109,14 +126,67 @@ const Resturant = () => {
     setFoodType(e.target.value);
   }, []);
 
-  const handleAddItemToCart = React.useCallback((item) => {
-    setCartItems((preVal) => [...preVal, item]);
+  const handleAddItemToCart = React.useCallback(
+    (item) => {
+      if (Boolean(cartItems.find((val) => val.id === item.id))) {
+        const cartItemsToSet = [];
+        cartItems.forEach((cartItem) => {
+          if (item.id === cartItem.id) {
+            cartItemsToSet.push({
+              ...cartItem,
+              quantity: cartItem.quantity + 1,
+            });
+          } else {
+            cartItemsToSet.push(cartItem);
+          }
+        });
+        setCartItems(cartItemsToSet);
+      } else {
+        setCartItems((preVal) => [...preVal, { ...item, quantity: 1 }]);
+      }
+    },
+    [cartItems]
+  );
+
+  const calculateTotalAmountOfCartItems = React.useCallback(() => {
+    return cartItems.reduce((prev, curr) => {
+      return prev + curr.perUnitPrice * curr.quantity;
+    }, 0);
+  }, [cartItems]);
+
+  const handleChangeRadioForDineType = React.useCallback((e) => {
+    setDineType(e.target.value);
   }, []);
+
+  const handlePlaceOrder = React.useCallback(() => {
+    orderFood({
+      bookingRefNo: sessionStorage.getItem("bookingRefNumber"),
+      dinningType: dineType,
+      itemsList: cartItems.map((item) => ({
+        itemId: item.id,
+        noOfItems: item.quantity,
+      })),
+      totalGstPrice: (calculateTotalAmountOfCartItems() * 0.18).toFixed(2),
+      totalPrice: calculateTotalAmountOfCartItems(),
+    })
+      .unwrap()
+      .then((res) => {
+        setSnack({ open: true, message: res.message, severity: "success" });
+        setCartItems([]);
+      })
+      .catch((err) => {
+        setSnack({
+          open: true,
+          message: err.data?.message || err.data,
+          severity: "error",
+        });
+      });
+  }, [cartItems, orderFood, dineType]);
 
   return (
     <React.Fragment>
       <Box sx={{ display: "flex" }}>
-        <Main open={cartItems.length}>
+        <Main open={Boolean(cartItems.length)}>
           <Box
             sx={{
               borderBottom: 1,
@@ -191,10 +261,11 @@ const Resturant = () => {
             "& .MuiDrawer-paper": {
               width: drawerWidth,
             },
+            pointerEvents: Boolean(cartItems.length) ? "auto" : "none",
           }}
           variant="persistent"
           anchor="right"
-          open={cartItems.length}
+          open={Boolean(cartItems.length)}
         >
           <DrawerHeader>
             <Typography
@@ -212,18 +283,19 @@ const Resturant = () => {
             >
               My Order
             </Typography>
+            <Divider />
             <Box
               sx={{
-                maxHeight: 400,
+                height: 350,
                 overflowY: "auto",
-                backgroundColor: "#f7f0ff",
-                px: 0.75,
+                // backgroundColor: "#f7f0ff",
+                p: 0.75,
               }}
             >
               <Grid container spacing={2}>
                 {cartItems.map((cartItem) => {
                   return (
-                    <Grid size={12}>
+                    <Grid size={12} key={cartItem.id}>
                       <Box sx={{ display: "flex", gap: 2 }}>
                         <Box
                           component="img"
@@ -239,11 +311,11 @@ const Resturant = () => {
                         >
                           <Box>
                             <Typography>{cartItem.itemName}</Typography>
-                            <Typography>x1</Typography>
+                            <Typography>{`x${cartItem.quantity}`}</Typography>
                           </Box>
-                          <Typography
-                            sx={{ fontWeight: 600 }}
-                          >{`Rs. ${cartItem.perUnitPrice}`}</Typography>
+                          <Typography sx={{ fontWeight: 600 }}>{`Rs. ${
+                            cartItem.perUnitPrice * cartItem.quantity
+                          }`}</Typography>
                         </Box>
                       </Box>
                     </Grid>
@@ -252,20 +324,28 @@ const Resturant = () => {
               </Grid>
             </Box>
             <Divider sx={{ mt: 2 }} />
-            <Box
-              sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}
-            >
+          </Box>
+          <Box
+            sx={{
+              position: "absolute",
+              bottom: 20,
+              display: "flex",
+              flexDirection: "column",
+              p: 2,
+            }}
+          >
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
               <Typography
                 variant="body2"
                 sx={{ fontWeight: "bold", letterSpacing: 1 }}
               >
-                Service
+                GST (18%)
               </Typography>
               <Typography
                 variant="body2"
                 sx={{ fontWeight: "bold", letterSpacing: 1 }}
               >
-                $2.00
+                {`Rs. ${(calculateTotalAmountOfCartItems() * 0.18).toFixed(2)}`}
               </Typography>
             </Box>
             <Box
@@ -281,31 +361,54 @@ const Resturant = () => {
                 variant="h6"
                 sx={{ fontWeight: "bold", letterSpacing: 1 }}
               >
-                {`${cartItems.reduce((prev, curr) => {
-                  return prev + curr.perUnitPrice;
-                }, 0)}`}
+                {`Rs. ${(
+                  calculateTotalAmountOfCartItems() +
+                  calculateTotalAmountOfCartItems() * 0.18
+                ).toFixed(2)}`}
               </Typography>
             </Box>
-          </Box>
-          <Box
-            sx={{
-              position: "absolute",
-              bottom: 20,
-              left: "50%",
-              transform: "translateX(-50%)",
-            }}
-          >
+            <FormGroup row>
+              {dineTypes.data.map((option) => {
+                return (
+                  <FormControlLabel
+                    key={option}
+                    control={
+                      <Checkbox
+                        checked={dineType === option}
+                        onChange={handleChangeRadioForDineType}
+                        size="small"
+                        value={option}
+                      />
+                    }
+                    label={option.replace("_", " ")}
+                  />
+                );
+              })}
+            </FormGroup>
             <Button
-              variant="contained"
               color="secondary"
-              sx={{ color: "#fff", fontWeight: "bold" }}
+              variant="contained"
+              sx={{
+                color: "#fff",
+                fontWeight: 600,
+                textTransform: "none",
+                fontSize: 18,
+                "&.Mui-disabled": {
+                  background: "#B2E5F6",
+                  color: "#FFFFFF",
+                },
+              }}
+              type="submit"
+              disabled={!Boolean(cartItems.length && dineType)}
+              onClick={handlePlaceOrder}
             >
               Place Order
             </Button>
           </Box>
         </Drawer>
       </Box>
-      <LoadingComponent open={isLoading} />
+      <LoadingComponent open={isLoading || orderFoodRes.isLoading} />
+      <SnackAlert snack={snack} setSnack={setSnack} />
     </React.Fragment>
   );
 };

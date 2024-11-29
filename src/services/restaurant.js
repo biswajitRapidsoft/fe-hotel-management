@@ -12,8 +12,22 @@ const restaurantApi = apiSlice.injectEndpoints({
         },
       }),
     }),
+    orderFood: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.orderFood,
+        method: "POST",
+        data: payload,
+      }),
+    }),
+    getDineType: build.query({
+      query: () => ({
+        url: config.apiName.getDineType,
+        method: "GET",
+      }),
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useGetAllFoodQuery } = restaurantApi;
+export const { useGetAllFoodQuery, useOrderFoodMutation, useGetDineTypeQuery } =
+  restaurantApi;

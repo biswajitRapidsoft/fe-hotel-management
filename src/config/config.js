@@ -19,6 +19,8 @@ const config = Object.freeze({
     saveUser: "user/registration",
     getMasterDataList: "api/get/master/data/list",
     getAllFood: "public/get/all/food",
+    orderFood: "public/order/food",
+    getDineType: "public/get/all/dinning/type",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",
