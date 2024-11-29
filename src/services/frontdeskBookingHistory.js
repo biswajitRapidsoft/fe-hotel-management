@@ -34,6 +34,17 @@ const frontdeskBookingHistoryApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["roomBookingHistoryByHotelId"],
     }),
+    getRoomsByRoomType: build.query({
+      query: (payload) => ({
+        url: config.apiName.getRoomsByRoomType,
+        method: "GET",
+        params: {
+          hotelId: payload?.hotelId,
+          roomTypeId: payload?.roomTypeId,
+        },
+      }),
+      providesTags: ["getRoomsByRoomType"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -42,4 +53,5 @@ export const {
   useRoomBookingHistoryByHotelIdQuery,
   useGetAllBookingStatusTypeQuery,
   useConFirmBookingMutation,
+  useGetRoomsByRoomTypeQuery,
 } = frontdeskBookingHistoryApi;

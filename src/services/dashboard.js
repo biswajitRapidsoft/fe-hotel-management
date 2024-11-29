@@ -45,7 +45,7 @@ const dashboardApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
-      invalidatesTags: ["getAllBookingDetails"],
+      invalidatesTags: ["getAllBookingDetails", "roomBookingHistoryByHotelId"],
     }),
     getUserDetailsForBooking: build.query({
       query: (payload) => ({

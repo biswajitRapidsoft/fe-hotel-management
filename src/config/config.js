@@ -25,15 +25,16 @@ const config = Object.freeze({
     getAllPaymentMethods: "api/get/all/payment/methods",
     saveCustomerCheckIn: "api/customer/checkin",
     getTodayCheckoutRoomsByHotelId: "api/get/today/checkout/rooms",
-    requestRoomCheckout: "api/room/checkout/request",
+    requestRoomCheckout: "public/room/checkout/request",
     finalRoomCheckOut: "api/customer/checkout",
-    roomCleanRequest: "api/room/clean/request",
+    roomCleanRequest: "public/room/clean/request",
     roomtypeByHotelId: "api/roomtype/by/hotelId",
 
     //FRONTDESK BOOKING HISTORY
     roomBookingHistoryByHotelId: "api/booking/history",
     getAllBookingStatusType: "api/get/all/booking/status/type",
     conFirmBooking: "api/confirm/booking",
+    getRoomsByRoomType: "api/get/room/by/roomtype",
 
     // GUEST DASHBOARD API ENDPOINTS
     getAllHotels: "public/hotels/list",

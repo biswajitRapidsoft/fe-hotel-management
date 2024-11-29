@@ -8,6 +8,10 @@ body {
   background-color: #f7f0ff;
 }
 
+.swal2-container {
+  z-index: 9999;
+}
+
 ::-webkit-file-upload-button {
   display: none;
 }

@@ -2353,7 +2353,7 @@ const RoomServiceCard = memo(function ({
                 onClick={() => {
                   if (
                     Boolean(
-                      isSelectedRoom?.bookingDto?.isCheckoutProceed === true &&
+                      isSelectedRoom?.bookingDto?.isCheckoutProceed === false &&
                         isSelectedRoom?.bookingDto?.isCheckedByKeepingStaff ===
                           null
                     )
@@ -2372,7 +2372,7 @@ const RoomServiceCard = memo(function ({
               >
                 {Boolean(
                   Boolean(
-                    isSelectedRoom?.bookingDto?.isCheckoutProceed === true
+                    isSelectedRoom?.bookingDto?.isCheckoutProceed === false
                   ) &&
                     Boolean(
                       isSelectedRoom?.bookingDto?.isCheckedByKeepingStaff ===
@@ -2461,12 +2461,7 @@ const CustomFormDrawer = memo(function ({
       anchor="right"
       open={customDrawerOpen}
       onClose={() => handleToggleCustomFormDrawerOnChange()}
-      // BackdropProps={{
-      //   sx: {
-      //     backdropFilter: "blur(1.3px)",
-      //     backgroundColor: "rgba(0, 0, 0, 0.5)",
-      //   },
-      // }}
+      sx={{ zIndex: 1300 }}
     >
       <Box sx={{ width: 500 }} role="presentation">
         <Box
