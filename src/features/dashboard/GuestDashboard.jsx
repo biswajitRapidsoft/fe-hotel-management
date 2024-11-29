@@ -64,10 +64,15 @@ const GuestDashboard = () => {
       skip: !JSON.parse(sessionStorage.getItem("data"))?.roleType === CUSTOMER,
     }
   );
-  console.log("userDetails", userDetails);
   return (
     <>
-      <Box sx={{ width: "100%", px: 2, py: 3 }}>
+      <Box
+        sx={{
+          width: "100%",
+          //  px: 2,
+          py: 3,
+        }}
+      >
         <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
           <Button
             variant="contained"
@@ -90,8 +95,6 @@ const GuestDashboard = () => {
             <Box
               sx={{
                 width: "100%",
-                // border: "2px solid black",
-                // p: 1.8,
               }}
             >
               <Grid container size={12} spacing={2}>
@@ -99,6 +102,7 @@ const GuestDashboard = () => {
                   return (
                     <Grid
                       key={`hotel${index}`}
+                      // size={{ xs: 12, sm: 6, md: 4, lg: 4, xl: 4 }}
                       size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 3 }}
                     >
                       <CustomHotelCard
@@ -410,7 +414,12 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
 
       {/* Drawer for booking details */}
 
-      <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
+      <Drawer
+        anchor="right"
+        open={drawerOpen}
+        onClose={toggleDrawer(false)}
+        sx={{ zIndex: 1300 }}
+      >
         <Box sx={{ width: 500 }} role="presentation">
           <Box
             sx={{
@@ -548,7 +557,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                   value={formData.address}
                   onChange={handleChangeInput}
                   fullWidth
-                  inputProps={{ maxLength: 30 }}
+                  inputProps={{ maxLength: 50 }}
                 />
               </Grid>
 

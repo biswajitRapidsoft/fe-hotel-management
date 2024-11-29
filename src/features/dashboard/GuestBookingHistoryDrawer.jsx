@@ -288,7 +288,12 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
 
   return (
     <div>
-      <Drawer open={open} onClose={toggleDrawer(false)} anchor="right">
+      <Drawer
+        open={open}
+        onClose={toggleDrawer(false)}
+        anchor="right"
+        sx={{ zIndex: 1300 }}
+      >
         {DrawerList}
       </Drawer>
     </div>
