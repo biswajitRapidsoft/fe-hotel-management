@@ -18,6 +18,7 @@ const restaurantApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
+      invalidatesTags: ["getCustomerOrdeHistory"],
     }),
     getDineType: build.query({
       query: () => ({
@@ -25,9 +26,33 @@ const restaurantApi = apiSlice.injectEndpoints({
         method: "GET",
       }),
     }),
+    getCustomerOrdeHistory: build.query({
+      query: (payload) => ({
+        url: config.apiName.getCustomerOrdeHistory,
+        method: "GET",
+        params: {
+          refId: payload,
+        },
+      }),
+      providesTags: ["getCustomerOrdeHistory"],
+    }),
+
+    updateFoodOrderStatus: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.updateFoodOrderStatus,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getCustomerOrdeHistory"],
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useGetAllFoodQuery, useOrderFoodMutation, useGetDineTypeQuery } =
-  restaurantApi;
+export const {
+  useGetAllFoodQuery,
+  useOrderFoodMutation,
+  useGetDineTypeQuery,
+  useGetCustomerOrdeHistoryQuery,
+  useUpdateFoodOrderStatusMutation,
+} = restaurantApi;

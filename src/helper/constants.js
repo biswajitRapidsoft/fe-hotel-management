@@ -1,3 +1,10 @@
+//FOOD ORDER STATUSES
+export const ORDER_PLACED = "Order_Placed";
+export const FOOD_PREPARING = "Food Preparing";
+export const DELIVERED = "Delivered";
+export const CANCELLED = "Cancelled";
+export const REJECTED = "Rejected";
+
 // ROLES
 export const SUPER_ADMIN = "SUPER_ADMIN";
 export const ADMIN = "Admin";

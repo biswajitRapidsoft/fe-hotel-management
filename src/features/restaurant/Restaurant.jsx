@@ -16,15 +16,17 @@ import {
 import { TabContext, TabList } from "@mui/lab";
 import {
   useGetAllFoodQuery,
+  useGetCustomerOrdeHistoryQuery,
   useGetDineTypeQuery,
   useOrderFoodMutation,
 } from "../../services/restaurant";
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
+import OrderHistoryDrawer from "./OrderHistoryDrawer";
 
 const drawerWidth = 399;
 
-const DrawerHeader = styled("div")(({ theme }) => ({
+export const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   padding: theme.spacing(0, 1),
@@ -95,6 +97,7 @@ const getFilterdMenuList = (menuList, mealType, foodType) => {
 };
 
 const Restaurant = () => {
+  const [isOrderHistoryDrawer, setIsOrderHistoryDrawer] = React.useState(false);
   const [orderFood, orderFoodRes] = useOrderFoodMutation();
   const {
     data: dineTypes = {
@@ -106,7 +109,7 @@ const Restaurant = () => {
   const [dineType, setDineType] = React.useState("");
   const [cartItems, setCartItems] = React.useState([]);
   const [snack, setSnack] = React.useState({
-    open: true,
+    open: false,
     message: "",
     severity: "",
   });
@@ -117,7 +120,13 @@ const Restaurant = () => {
     },
     isLoading,
   } = useGetAllFoodQuery(sessionStorage.getItem("hotelId"));
-
+  const {
+    data: orderHistory = {
+      data: [],
+    },
+  } = useGetCustomerOrdeHistoryQuery(
+    sessionStorage.getItem("bookingRefNumber")
+  );
   const handleTabChange = React.useCallback((e, value) => {
     setMealType(value);
   }, []);
@@ -187,6 +196,21 @@ const Restaurant = () => {
     <React.Fragment>
       <Box sx={{ display: "flex" }}>
         <Main open={Boolean(cartItems.length)}>
+          <Button
+            variant="contained"
+            size="small"
+            color="secondary"
+            sx={{
+              color: "white",
+              fontWeight: 600,
+              letterSpacing: 1,
+              display: "block",
+              ml: "auto",
+            }}
+            onClick={() => setIsOrderHistoryDrawer(true)}
+          >
+            Order History
+          </Button>
           <Box
             sx={{
               borderBottom: 1,
@@ -406,6 +430,11 @@ const Restaurant = () => {
             </Button>
           </Box>
         </Drawer>
+        <OrderHistoryDrawer
+          open={isOrderHistoryDrawer}
+          handleClose={() => setIsOrderHistoryDrawer(false)}
+          orderHistory={orderHistory.data}
+        />
       </Box>
       <LoadingComponent open={isLoading || orderFoodRes.isLoading} />
       <SnackAlert snack={snack} setSnack={setSnack} />

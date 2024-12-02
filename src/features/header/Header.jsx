@@ -52,7 +52,7 @@ const StyledHeaderBox = styled(Box, {
   boxShadow: theme.shadows[2],
   position: "sticky",
   top: 0,
-  zIndex: theme.zIndex.modal,
+  zIndex: theme.zIndex.appBar,
   px: 1,
 }));
 

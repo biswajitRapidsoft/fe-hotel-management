@@ -1,6 +1,6 @@
 const config = Object.freeze({
-  // baseUrl: "http://192.168.12.41:9000/",
-  baseUrl: "http://192.168.30.44:9000/",
+  baseUrl: "http://192.168.12.37:9000/",
+  // baseUrl: "http://192.168.30.44:9000/",
   apiName: {
     loginAsCustomer: "login/as/customer",
     loginAsStaff: "login",
@@ -21,6 +21,8 @@ const config = Object.freeze({
     getAllFood: "public/get/all/food",
     orderFood: "public/order/food",
     getDineType: "public/get/all/dinning/type",
+    getCustomerOrdeHistory: "public/get/individual/customer/food/history",
+    updateFoodOrderStatus: "public/change/food/order/status",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",
