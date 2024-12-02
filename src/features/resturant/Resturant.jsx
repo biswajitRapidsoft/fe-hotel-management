@@ -181,7 +181,7 @@ const Resturant = () => {
           severity: "error",
         });
       });
-  }, [cartItems, orderFood, dineType]);
+  }, [cartItems, orderFood, dineType, calculateTotalAmountOfCartItems]);
 
   return (
     <React.Fragment>
