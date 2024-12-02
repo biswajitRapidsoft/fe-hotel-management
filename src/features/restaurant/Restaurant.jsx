@@ -94,7 +94,7 @@ const getFilterdMenuList = (menuList, mealType, foodType) => {
   return filterdMenuList;
 };
 
-const Resturant = () => {
+const Restaurant = () => {
   const [orderFood, orderFoodRes] = useOrderFoodMutation();
   const {
     data: dineTypes = {
@@ -459,4 +459,4 @@ const CustomFoodCard = React.memo(function ({ foodItem, handleAddItemToCart }) {
   );
 });
 
-export default Resturant;
+export default Restaurant;
