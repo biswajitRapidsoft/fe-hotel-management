@@ -25,7 +25,6 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import SnackAlert from "../../components/Alert";
 import LoadingComponent from "../../components/LoadingComponent";
-
 import GuestBookingHistoryDrawer from "./GuestBookingHistoryDrawer";
 
 const GuestDashboard = () => {
@@ -447,6 +446,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                   value={formData.firstName}
                   onChange={handleChangeInput}
                   inputProps={{ maxLength: 25 }}
+                  required
                 />
               </Grid>
               <Grid size={{ xs: 6 }}>
@@ -458,6 +458,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                   value={formData.middleName}
                   onChange={handleChangeInput}
                   inputProps={{ maxLength: 25 }}
+                  required
                 />
               </Grid>
               <Grid size={{ xs: 6 }}>
@@ -469,6 +470,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                   value={formData.lastName}
                   onChange={handleChangeInput}
                   inputProps={{ maxLength: 25 }}
+                  required
                 />
               </Grid>
               <Grid size={{ xs: 6 }}>
@@ -480,6 +482,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                   value={formData.phoneNumber}
                   onChange={handleChangeInput}
                   disabled
+                  required
                 />
               </Grid>
               <Grid size={{ xs: 6 }}>
@@ -490,7 +493,8 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                   variant="outlined"
                   value={formData.email}
                   onChange={handleChangeInput}
-                  inputProps={{ maxLength: 25 }}
+                  inputProps={{ maxLength: 50 }}
+                  required
                 />
               </Grid>
 
@@ -558,6 +562,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                   onChange={handleChangeInput}
                   fullWidth
                   inputProps={{ maxLength: 50 }}
+                  required
                 />
               </Grid>
 

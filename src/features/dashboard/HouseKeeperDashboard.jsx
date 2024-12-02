@@ -120,9 +120,19 @@ const HouseKeeperDashboard = () => {
     setSelectedRoom(null);
   };
   const houseKeepingFilterButtons = [
-    { id: 1, icon: <HouseIcon />, name: "All Rooms", color: "" },
-    { id: 2, icon: <CleaningServicesIcon />, name: "Service", color: "" },
-    { id: 3, icon: <WavingHandIcon />, name: "Checkout", color: "" },
+    { id: 1, icon: <HouseIcon />, name: "All Rooms", color: "gray" },
+    {
+      id: 2,
+      icon: <CleaningServicesIcon sx={{ color: "#280071" }} />,
+      name: "Service",
+      color: "#280071",
+    },
+    {
+      id: 3,
+      icon: <WavingHandIcon sx={{ color: "#00A9E0" }} />,
+      name: "Checkout",
+      color: "00A9E0",
+    },
   ];
 
   return (
@@ -221,7 +231,7 @@ const HouseKeepingFilters = ({ houseKeepingFilterButtons, onFilterClick }) => {
         alignItems: "center",
       }}
     >
-      {houseKeepingFilterButtons.map((filter, index) => (
+      {houseKeepingFilterButtons?.map((filter, index) => (
         <React.Fragment key={filter.id}>
           {index !== 0 && (
             <Box
@@ -288,7 +298,7 @@ const HouseKeepingDialog = ({
     const extraItemsList =
       selectedRoom?.serviceTypeStatus === "Room_Cleaning"
         ? []
-        : selectedRoom.extraItemsList.map((item) => ({
+        : selectedRoom.extraItemsList?.map((item) => ({
             id: item.id,
             noOfItemsRequired: item.noOfItemsRequired || 1,
             noOfItems: Number(itemCounts[item.id]) || 0,
@@ -372,37 +382,45 @@ const HouseKeepingDialog = ({
                   </StyledTableRow>
                 </TableHead>
                 <TableBody>
-                  {selectedRoom?.extraItemsList?.map((row, index) => (
-                    <TableRow key={row.id}>
-                      <TableCell>{index + 1}</TableCell>
-                      <TableCell>{row.itemName}</TableCell>
-                      <TableCell>
-                        <Checkbox
-                          checked={!checkboxStates[row.id]}
-                          onChange={() => handleCheckboxChange(row.id, false)}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Checkbox
-                          checked={checkboxStates[row.id] || false}
-                          onChange={() => handleCheckboxChange(row.id, true)}
-                        />
-                      </TableCell>
-                      <TableCell>{row.noOfItems}</TableCell>
-                      <TableCell>
-                        <TextField
-                          id="available-items"
-                          variant="standard"
-                          size="small"
-                          disabled={!checkboxStates[row.id]}
-                          value={itemCounts[row.id] || ""}
-                          onChange={(e) =>
-                            handleItemCountChange(row.id, e.target.value)
-                          }
-                        />
+                  {selectedRoom?.extraItemsList ? (
+                    selectedRoom?.extraItemsList?.map((row, index) => (
+                      <TableRow key={row.id}>
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell>{row.itemName}</TableCell>
+                        <TableCell>
+                          <Checkbox
+                            checked={!checkboxStates[row.id]}
+                            onChange={() => handleCheckboxChange(row.id, false)}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Checkbox
+                            checked={checkboxStates[row.id] || false}
+                            onChange={() => handleCheckboxChange(row.id, true)}
+                          />
+                        </TableCell>
+                        <TableCell>{row.noOfItems}</TableCell>
+                        <TableCell>
+                          <TextField
+                            id="available-items"
+                            variant="standard"
+                            size="small"
+                            disabled={!checkboxStates[row.id]}
+                            value={itemCounts[row.id] || ""}
+                            onChange={(e) =>
+                              handleItemCountChange(row.id, e.target.value)
+                            }
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={6} align="center">
+                        No data available
                       </TableCell>
                     </TableRow>
-                  ))}
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>

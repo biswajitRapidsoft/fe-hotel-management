@@ -1,5 +1,6 @@
 const config = Object.freeze({
-  baseUrl: "http://192.168.12.41:9000/",
+  // baseUrl: "http://192.168.12.41:9000/",
+  baseUrl: "http://192.168.30.44:9000/",
   // baseUrl: "http://192.168.12.43:8080/be-hms/",
   apiName: {
     loginAsCustomer: "login/as/customer",
@@ -25,9 +26,9 @@ const config = Object.freeze({
     getAllPaymentMethods: "api/get/all/payment/methods",
     saveCustomerCheckIn: "api/customer/checkin",
     getTodayCheckoutRoomsByHotelId: "api/get/today/checkout/rooms",
-    requestRoomCheckout: "api/room/checkout/request",
+    requestRoomCheckout: "public/room/checkout/request",
     finalRoomCheckOut: "api/customer/checkout",
-    roomCleanRequest: "api/room/clean/request",
+    roomCleanRequest: "public/room/clean/request",
     roomtypeByHotelId: "api/roomtype/by/hotelId",
 
     //FRONTDESK BOOKING HISTORY
