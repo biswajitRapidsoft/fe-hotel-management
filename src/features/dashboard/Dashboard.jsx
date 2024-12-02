@@ -2,10 +2,12 @@ import {
   Autocomplete,
   Box,
   Button,
+  Checkbox,
   DialogContent,
   DialogTitle,
   Divider,
   Drawer,
+  FormControlLabel,
   IconButton,
   Paper,
   TextField,
@@ -34,6 +36,7 @@ import { BsFillBuildingFill } from "react-icons/bs";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ClearIcon from "@mui/icons-material/Clear";
 import {
+  // useBookingByFrontDeskStaffMutation,
   useCancelHotelRoomMutation,
   useFinalRoomCheckOutMutation,
   useGetAllGovtIdsQuery,
@@ -393,8 +396,8 @@ const CustomRoomFilters = memo(function ({
         width: "100%",
       }}
     >
-      <Grid container size={12} spacing={1}>
-        <Grid size={{ lg: 2, xl: 1.5 }}>
+      <Grid container size={12} columnSpacing={0.5}>
+        <Grid>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               disablePast
@@ -410,6 +413,8 @@ const CustomRoomFilters = memo(function ({
                   sx: {
                     "& .MuiOutlinedInput-root": {
                       borderRadius: 2,
+                      width: 200,
+                      height: 35,
                       backgroundColor: "rgba(255, 255, 255, 0.25)",
                       color: "#B4B4B4",
                     },
@@ -432,7 +437,7 @@ const CustomRoomFilters = memo(function ({
             />
           </LocalizationProvider>
         </Grid>
-        <Grid size={{ lg: 2, xl: 1.5 }}>
+        <Grid>
           <Box
             sx={{
               ".MuiTextField-root": {
@@ -516,6 +521,8 @@ const CustomRoomFilters = memo(function ({
                   sx={{
                     "& .MuiOutlinedInput-root": {
                       borderRadius: 2,
+                      width: 200,
+                      height: 35,
                     },
                   }}
                 />
@@ -523,7 +530,7 @@ const CustomRoomFilters = memo(function ({
             />
           </Box>
         </Grid>
-        <Grid size={{ lg: 2, xl: 1.5 }}>
+        <Grid>
           <Box
             sx={{
               ".MuiTextField-root": {
@@ -537,7 +544,8 @@ const CustomRoomFilters = memo(function ({
               ".MuiFormLabel-root": {
                 color: (theme) => theme.palette.primary.main,
                 fontWeight: 600,
-                fontSize: 18,
+                fontSize: 16,
+                marginTop: "-3px",
               },
               ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
                 borderBottom: (theme) =>
@@ -606,6 +614,8 @@ const CustomRoomFilters = memo(function ({
                   sx={{
                     "& .MuiOutlinedInput-root": {
                       borderRadius: 2,
+                      width: 200,
+                      height: 35,
                     },
                   }}
                 />
@@ -613,7 +623,7 @@ const CustomRoomFilters = memo(function ({
             />
           </Box>
         </Grid>
-        <Grid size={{ lg: 2, xl: 1.5 }}>
+        <Grid size={1}>
           <Button
             variant="contained"
             size="small"
@@ -623,11 +633,12 @@ const CustomRoomFilters = memo(function ({
             Booking History
           </Button>
         </Grid>
-        <Grid size={{ xs: 0, xl: 1 }} />
-        <Grid size={{ xs: 12, xl: 5 }}>
+        {/* <Grid size={{ xs: 0, xl: 1 }} /> */}
+        <Grid xs={12} lg="auto" md={12}>
           <Box
             sx={{
               width: "100%",
+              bgcolor: { sm: "red", md: "orange", lg: "cyan", xl: "red" },
               display: "flex",
               flexDirection: "row",
               justifyContent: "flex-end",
@@ -643,7 +654,7 @@ const CustomRoomFilters = memo(function ({
                     display: "flex",
                     fontWeight: 600,
                     userSelect: "none",
-                    paddingX: "10px",
+                    paddingX: "7px",
                     whiteSpace: "nowrap",
                     borderLeft: "1px solid #A9A9A9",
                     gap: "5px",
@@ -651,17 +662,17 @@ const CustomRoomFilters = memo(function ({
                       item?.name === "All"
                         ? ""
                         : roomFilters?.selectedRoomStatus === item?.name
-                        ? "#a6f0ff"
+                        ? "#eedeff"
                         : "",
                     height: "100%",
                     "&:hover": {
                       cursor: "pointer",
                       bgcolor:
                         item?.name === "All"
-                          ? "#c2f5ff"
+                          ? "#f1e4ff"
                           : roomFilters?.selectedRoomStatus === item?.name
-                          ? "#a6f0ff"
-                          : "#c2f5ff",
+                          ? "#eedeff"
+                          : "#f1e4ff",
                       userSelect: "none",
                     },
                   }}
@@ -721,7 +732,7 @@ const CustomRoomFilters = memo(function ({
                       sx={{
                         fontSize: "18px",
                         fontWeight: 550,
-                        // lineHeight: 0.7,
+                        lineHeight: 0.8,
                         color:
                           item?.name === AVAILABLE.key
                             ? "hsla(202, 100%, 73%, 0.99)"
@@ -764,15 +775,18 @@ const CustomFloorAccordion = memo(function ({
           sx={{
             borderBottom: "2px solid #ccc",
             bgcolor: "#e3e3e3",
-            py: 0.5,
+            py: 0.2,
             px: 1,
           }}
         >
-          <Typography variant="h6" sx={{ fontWeight: 550, letterSpacing: 1 }}>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 550, letterSpacing: 1, fontSize: "18px" }}
+          >
             {`Floor ${floorData?.floorNo}`}
           </Typography>
         </Box>
-        <Box sx={{ width: "100%", mt: 2 }}>
+        <Box sx={{ width: "100%", mt: 1 }}>
           <Grid container size={12} spacing={2}>
             {Boolean(floorData?.roomDto?.length) &&
               floorData?.roomDto
@@ -812,10 +826,7 @@ const CustomFloorAccordion = memo(function ({
                 })
                 ?.map((roomDetailsItem, index) => {
                   return (
-                    <Grid
-                      key={`room ${index}`}
-                      size={{ xs: 6, sm: 4, md: 3, xl: 2.4 }}
-                    >
+                    <Grid key={`room ${index}`} size={{ xs: 6, md: 2 }}>
                       <CustomRoomCard
                         roomDetails={roomDetailsItem}
                         isSelectedRoom={
@@ -854,7 +865,7 @@ const CustomRoomCard = memo(function ({
         display: "flex",
         flexDirection: "column",
         flexGrow: 1,
-        height: 170,
+        height: 110,
         position: "relative",
         overflow: "hidden",
         boxShadow: isSelectedRoom
@@ -899,10 +910,10 @@ const CustomRoomCard = memo(function ({
           gap: 0.5,
         }}
       >
-        <Typography sx={{ fontSize: "19px", fontWeight: 550 }}>
+        <Typography sx={{ fontSize: "17px", fontWeight: 550 }}>
           {roomDetails?.roomNo}
         </Typography>
-        <Typography sx={{ fontSize: "17px", textAlign: "center" }}>
+        <Typography sx={{ fontSize: "14.5px", textAlign: "center" }}>
           {roomDetails?.roomType?.type
             ?.replace(/_/g, " ")
             ?.replace(/([a-z])([A-Z])/g, "$1 $2")
@@ -968,15 +979,18 @@ const DayCheckoutCard = memo(function ({
           sx={{
             borderBottom: "2px solid #ccc",
             bgcolor: "#e3e3e3",
-            py: 0.5,
+            py: 0.2,
             px: 1,
           }}
         >
-          <Typography variant="h6" sx={{ fontWeight: 550, letterSpacing: 1 }}>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 550, letterSpacing: 1, fontSize: "18px" }}
+          >
             {`Checkout (Today)`}
           </Typography>
         </Box>
-        <Box sx={{ width: "100%", mt: 2, height: "130px", overflowY: "auto" }}>
+        <Box sx={{ width: "100%", height: "90px", overflowY: "auto" }}>
           <Grid container size={12} rowSpacing={1}>
             {Boolean(dayCheckoutData?.length) &&
               dayCheckoutData?.map((dayCheckoutItem, index) => {
@@ -1077,11 +1091,14 @@ const RoomServiceCard = memo(function ({
           sx={{
             borderBottom: "2px solid #ccc",
             bgcolor: "#e3e3e3",
-            py: 0.5,
+            py: 0.2,
             px: 1,
           }}
         >
-          <Typography variant="h6" sx={{ fontWeight: 550, letterSpacing: 1 }}>
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 550, letterSpacing: 1, fontSize: "18px" }}
+          >
             {`Room Details`}
           </Typography>
         </Box>
@@ -1102,7 +1119,7 @@ const RoomServiceCard = memo(function ({
                     <Grid size={12}>
                       <Typography
                         sx={{
-                          fontSize: "18px",
+                          fontSize: "16.5px",
                           // color: "#707070",
                           fontWeight: 600,
                           width: "100%",
@@ -1119,7 +1136,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={5}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1130,7 +1147,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={7}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1138,7 +1155,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
                                 marginRight: "5px",
@@ -1149,7 +1166,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 // fontWeight: 600,
                               }}
@@ -1169,7 +1186,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={5}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1180,7 +1197,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={7}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1188,7 +1205,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
                                 marginRight: "5px",
@@ -1199,7 +1216,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 // fontWeight: 600,
                               }}
@@ -1218,7 +1235,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={5}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1229,7 +1246,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={7}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1237,7 +1254,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
                                 marginRight: "5px",
@@ -1248,7 +1265,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 // fontWeight: 600,
                               }}
@@ -1264,7 +1281,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={5}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1275,7 +1292,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={7}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1283,7 +1300,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
                                 marginRight: "5px",
@@ -1294,7 +1311,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 // fontWeight: 600,
                               }}
@@ -1308,7 +1325,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={5}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1319,7 +1336,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={7}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1327,7 +1344,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
                                 marginRight: "5px",
@@ -1338,7 +1355,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 // fontWeight: 600,
                               }}
@@ -1352,7 +1369,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={5}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1363,7 +1380,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={7}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1371,7 +1388,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
                                 marginRight: "5px",
@@ -1382,7 +1399,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 // fontWeight: 600,
                               }}
@@ -1396,7 +1413,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={5}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1407,7 +1424,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={7}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1415,7 +1432,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
                                 marginRight: "5px",
@@ -1426,7 +1443,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 // fontWeight: 600,
                               }}
@@ -1440,7 +1457,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={5}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1451,7 +1468,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={7}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1459,7 +1476,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
                                 marginRight: "5px",
@@ -1470,7 +1487,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 // fontWeight: 600,
                               }}
@@ -1501,7 +1518,7 @@ const RoomServiceCard = memo(function ({
                     <Grid size={12}>
                       <Typography
                         sx={{
-                          fontSize: "18px",
+                          fontSize: "16.5px",
                           // color: "#707070",
                           fontWeight: 600,
                           width: "100%",
@@ -1519,7 +1536,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={3.8}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1538,7 +1555,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
                                 marginRight: "5px",
@@ -1574,7 +1591,7 @@ const RoomServiceCard = memo(function ({
                     <Grid size={12}>
                       <Typography
                         sx={{
-                          fontSize: "18px",
+                          fontSize: "16.5px",
                           // color: "#707070",
                           fontWeight: 600,
                           width: "100%",
@@ -1592,7 +1609,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={3.8}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1603,7 +1620,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={8.2}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1611,7 +1628,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
                                 marginRight: "5px",
@@ -1622,7 +1639,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 // fontWeight: 600,
                               }}
@@ -1771,7 +1788,7 @@ const RoomServiceCard = memo(function ({
                     <Grid size={12}>
                       <Typography
                         sx={{
-                          fontSize: "18px",
+                          fontSize: "16.5px",
                           // color: "#707070",
                           fontWeight: 600,
                           width: "100%",
@@ -1788,7 +1805,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={5}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1799,7 +1816,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={7}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1807,7 +1824,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
                                 marginRight: "5px",
@@ -1818,7 +1835,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 // fontWeight: 600,
                               }}
@@ -1838,7 +1855,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={5}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1849,7 +1866,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={7}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1857,7 +1874,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
                                 marginRight: "5px",
@@ -1868,7 +1885,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 // fontWeight: 600,
                               }}
@@ -1887,7 +1904,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={5}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1898,7 +1915,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={7}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1906,7 +1923,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
                                 marginRight: "5px",
@@ -1917,7 +1934,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 // fontWeight: 600,
                               }}
@@ -1933,7 +1950,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={5}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1944,7 +1961,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={7}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1952,7 +1969,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
                                 marginRight: "5px",
@@ -1963,7 +1980,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 // fontWeight: 600,
                               }}
@@ -1977,7 +1994,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={5}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1988,7 +2005,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={7}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -1996,7 +2013,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
                                 marginRight: "5px",
@@ -2007,7 +2024,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 // fontWeight: 600,
                               }}
@@ -2021,7 +2038,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={5}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -2032,7 +2049,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={7}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -2040,7 +2057,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
                                 marginRight: "5px",
@@ -2051,7 +2068,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 // fontWeight: 600,
                               }}
@@ -2092,7 +2109,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={3.5}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -2103,7 +2120,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={8.5}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -2111,7 +2128,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
                                 marginRight: "5px",
@@ -2122,7 +2139,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 // fontWeight: 600,
                               }}
@@ -2136,7 +2153,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={3.5}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -2147,7 +2164,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={8.5}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -2155,7 +2172,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
                                 marginRight: "5px",
@@ -2166,7 +2183,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 // fontWeight: 600,
                               }}
@@ -2180,7 +2197,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={3.5}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -2191,7 +2208,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={8.5}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -2199,7 +2216,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
                                 marginRight: "5px",
@@ -2210,7 +2227,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 // fontWeight: 600,
                               }}
@@ -2229,7 +2246,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={3.5}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -2240,7 +2257,7 @@ const RoomServiceCard = memo(function ({
                         <Grid size={8.5}>
                           <Typography
                             sx={{
-                              fontSize: "18px",
+                              fontSize: "15.5px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -2248,7 +2265,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
                                 marginRight: "5px",
@@ -2259,7 +2276,7 @@ const RoomServiceCard = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 // fontWeight: 600,
                               }}
@@ -2291,7 +2308,13 @@ const RoomServiceCard = memo(function ({
         >
           {/* AVAILABLE ROOM CASE */}
           {selectedRoomStatusType?.key === AVAILABLE?.key && (
-            <Button variant="contained" size="small">
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() =>
+                handleOpenCustomFormDrawerOnClick(true, "Booking", "booking")
+              }
+            >
               BOOK NOW
             </Button>
           )}
@@ -2422,6 +2445,7 @@ const CustomFormDrawer = memo(function ({
   allPaymentMethods,
   handleSubmitRoomCheckIn,
   handleSubmitRoomBookingCanelation,
+  handleSubmitBookingForGuestByFrontDesk,
 }) {
   console.log("CustomFormDrawer customDrawerOpen : ", customDrawerOpen, type);
   const handleToggleCustomFormDrawerOnChange = useCallback(() => {
@@ -2446,14 +2470,34 @@ const CustomFormDrawer = memo(function ({
     handleSubmitRoomBookingCanelation();
   }, [handleSubmitRoomBookingCanelation]);
 
+  const handleChangeCustomFormDrawerDataForBookingOnOpen = useCallback(() => {
+    handleChangeCustomFormDrawerData("fullBooking", isSelectedRoom);
+  }, [handleChangeCustomFormDrawerData, isSelectedRoom]);
+
+  const handleSubmitBookingForGuestByFrontDeskOnClick = useCallback(() => {
+    handleSubmitBookingForGuestByFrontDesk();
+  }, [handleSubmitBookingForGuestByFrontDesk]);
+
   useEffect(() => {
-    if (customDrawerOpen && isSelectedRoom) {
+    if (customDrawerOpen && isSelectedRoom && type === "checkIn") {
       handleChangeCustomFormDrawerDataOnOpen();
     }
   }, [
     isSelectedRoom,
     handleChangeCustomFormDrawerDataOnOpen,
     customDrawerOpen,
+    type,
+  ]);
+
+  useEffect(() => {
+    if (customDrawerOpen && isSelectedRoom && type === "booking") {
+      handleChangeCustomFormDrawerDataForBookingOnOpen();
+    }
+  }, [
+    isSelectedRoom,
+    handleChangeCustomFormDrawerDataForBookingOnOpen,
+    customDrawerOpen,
+    type,
   ]);
 
   return (
@@ -3233,6 +3277,424 @@ const CustomFormDrawer = memo(function ({
               </Grid>
             </Grid>
           )}
+
+          {type === "booking" && (
+            <Grid container size={12} spacing={1}>
+              <Grid size={12}>
+                <Grid container size={12} columnSpacing={1}>
+                  <Grid size={{ xs: 6 }}>
+                    <TextField
+                      margin="normal"
+                      required
+                      fullWidth
+                      id="firstName"
+                      label="First Name"
+                      name="firstName"
+                      // autoComplete="firstName"
+                      variant="standard"
+                      value={customFormDrawerData?.firstName || ""}
+                      onChange={(e) =>
+                        handleChangeCustomFormDrawerDataOnChange(
+                          "firstName",
+                          e?.target?.value
+                        )
+                      }
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 6 }}>
+                    <TextField
+                      margin="normal"
+                      required
+                      fullWidth
+                      id="middleName"
+                      label="Middle Name"
+                      name="middleName"
+                      // autoComplete="middleName"
+                      variant="standard"
+                      value={customFormDrawerData?.middleName || ""}
+                      onChange={(e) =>
+                        handleChangeCustomFormDrawerDataOnChange(
+                          "middleName",
+                          e?.target?.value
+                        )
+                      }
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 6 }}>
+                    <TextField
+                      margin="normal"
+                      required
+                      fullWidth
+                      id="lastName"
+                      label="Last Name"
+                      name="lastName"
+                      // autoComplete="lastName"
+                      variant="standard"
+                      value={customFormDrawerData?.lastName || ""}
+                      onChange={(e) =>
+                        handleChangeCustomFormDrawerDataOnChange(
+                          "lastName",
+                          e?.target?.value
+                        )
+                      }
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 6 }}>
+                    <TextField
+                      margin="normal"
+                      required
+                      fullWidth
+                      id="phoneNumber"
+                      label="Phone No."
+                      name="phoneNumber"
+                      // autoComplete="phoneNumber"
+                      variant="standard"
+                      value={customFormDrawerData?.phoneNumber || ""}
+                      onChange={(e) =>
+                        handleChangeCustomFormDrawerDataOnChange(
+                          "phoneNumber",
+                          e?.target?.value
+                        )
+                      }
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 6 }}>
+                    <TextField
+                      margin="normal"
+                      required
+                      fullWidth
+                      id="email"
+                      label="Email"
+                      name="email"
+                      // autoComplete="email"
+                      variant="standard"
+                      value={customFormDrawerData?.email || ""}
+                      onChange={(e) =>
+                        handleChangeCustomFormDrawerDataOnChange(
+                          "email",
+                          e?.target?.value
+                        )
+                      }
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 6 }}>
+                    <TextField
+                      margin="normal"
+                      required
+                      fullWidth
+                      id="address"
+                      label="Address"
+                      name="address"
+                      // autoComplete="address"
+                      variant="standard"
+                      value={customFormDrawerData?.address || ""}
+                      onChange={(e) =>
+                        handleChangeCustomFormDrawerDataOnChange(
+                          "address",
+                          e?.target?.value
+                        )
+                      }
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 6 }}>
+                    <TextField
+                      margin="normal"
+                      required
+                      fullWidth
+                      id="noOfPeoples"
+                      label="Stayer"
+                      name="noOfPeoples"
+                      // autoComplete="noOfPeoples"
+                      variant="standard"
+                      value={customFormDrawerData?.noOfPeoples || ""}
+                      onChange={(e) =>
+                        handleChangeCustomFormDrawerDataOnChange(
+                          "noOfPeoples",
+                          e?.target?.value
+                        )
+                      }
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 6 }}>
+                    <Box
+                      sx={{
+                        width: "100%",
+                        height: "100%",
+                        position: "relative",
+                      }}
+                    >
+                      <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DatePicker
+                          disablePast
+                          value={customFormDrawerData?.checkOutDate || null}
+                          onChange={(newVal) =>
+                            handleChangeCustomFormDrawerDataOnChange(
+                              "checkOutDate",
+                              newVal
+                            )
+                          }
+                          slotProps={{
+                            textField: {
+                              variant: "standard",
+                              size: "small",
+                              readOnly: true,
+                              label: "Check-Out Date",
+                              sx: {
+                                position: "absolute",
+                                bottom: 7.7,
+                                "& .MuiOutlinedInput-root": {
+                                  borderRadius: 2,
+                                  backgroundColor: "rgba(255, 255, 255, 0.25)",
+                                  color: "#B4B4B4",
+                                },
+                                "& .MuiTextField-root": {
+                                  width: "100%",
+                                  backgroundColor: "transparent",
+                                },
+                                // "& .MuiFormLabel-root": {
+                                //   color: (theme) => theme.palette.primary.main,
+                                //   fontWeight: 600,
+                                //   fontSize: 18,
+                                // },
+                              },
+                            },
+                          }}
+                          slots={{
+                            openPickerIcon: StyledCalendarIcon,
+                          }}
+                          format="DD-MM-YYYY"
+                        />
+                      </LocalizationProvider>
+                    </Box>
+                  </Grid>
+                  <Grid size={{ xs: 6 }}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={customFormDrawerData?.isBookingForToday}
+                          onChange={(e) =>
+                            handleChangeCustomFormDrawerDataOnChange(
+                              "isBookingForToday",
+                              e?.target?.checked
+                            )
+                          }
+                        />
+                      }
+                      label="Book For Today"
+                      labelPlacement="start"
+                    />
+                  </Grid>
+                  <Grid size={{ xs: 12 }}>
+                    <Box
+                      sx={{
+                        width: "100%",
+                        maxHeight: "calc(100vh - 600px)",
+                        overflowX: "hidden",
+                        overflowY: "auto",
+                      }}
+                    >
+                      {customFormDrawerData?.bookingMapDatas?.map(
+                        (item, index) => {
+                          return (
+                            <Box
+                              key={`verification-${index}`}
+                              sx={{ width: "100%", marginBottom: "10px" }}
+                            >
+                              <Grid container size={12} spacing={2}>
+                                <Grid size={12}>
+                                  <Typography
+                                    sx={{
+                                      fontSize: "16px",
+                                      // color: "#707070",
+                                      fontWeight: 600,
+                                      width: "100%",
+                                      bgcolor: "#e8e8e8",
+                                    }}
+                                  >
+                                    Customer {index + 1} :
+                                  </Typography>
+                                </Grid>
+                                <Grid size={6}>
+                                  <TextField
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    id={`customerName${index}`}
+                                    label="Guest Name"
+                                    name="customerName"
+                                    // autoComplete="noOfPeoples"
+                                    variant="standard"
+                                    value={item?.customerName || ""}
+                                    onChange={(e) =>
+                                      handleChangeCustomFormDrawerDataOnChange(
+                                        "customerName",
+                                        e?.target?.value,
+                                        index
+                                      )
+                                    }
+                                  />
+                                </Grid>
+                                <Grid size={6}>
+                                  <Box
+                                    sx={{
+                                      height: "100%",
+                                      position: "relative",
+                                      ".MuiTextField-root": {
+                                        width: "100%",
+                                        backgroundColor: "transparent",
+                                        ".MuiInputBase-root": {
+                                          color: "#B4B4B4",
+                                          background:
+                                            "rgba(255, 255, 255, 0.25)",
+                                        },
+                                      },
+                                      // ".MuiFormLabel-root": {
+                                      //   color: (theme) => theme.palette.primary.main,
+                                      //   fontWeight: 600,
+                                      //   fontSize: 18,
+                                      // },
+                                      ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before":
+                                        {
+                                          borderBottom: (theme) =>
+                                            `1px solid ${theme.palette.primary.main}`,
+                                        },
+                                      ".css-iwadjf-MuiInputBase-root-MuiInput-root:before":
+                                        {
+                                          borderBottom: (theme) =>
+                                            `1px solid ${theme.palette.primary.main}`,
+                                        },
+                                    }}
+                                  >
+                                    <Autocomplete
+                                      fullWidth
+                                      options={
+                                        allGovtIdsData?.data?.map((item) => ({
+                                          key: item,
+                                          name: item.replace(/_/g, " "),
+                                        })) || []
+                                      }
+                                      disableClearable
+                                      value={item?.govtIdType || null}
+                                      onChange={(e, newVal) =>
+                                        handleChangeCustomFormDrawerDataOnChange(
+                                          "govtIdType",
+                                          newVal,
+                                          index
+                                        )
+                                      }
+                                      inputValue={item?.govtIdTypeInputValue}
+                                      onInputChange={(e, newVal) =>
+                                        handleChangeCustomFormDrawerDataOnChange(
+                                          "govtIdTypeInputValue",
+                                          newVal,
+                                          index
+                                        )
+                                      }
+                                      getOptionLabel={(option) => option?.name}
+                                      clearOnEscape
+                                      disablePortal
+                                      popupIcon={
+                                        <KeyboardArrowDownIcon color="primary" />
+                                      }
+                                      sx={{
+                                        // width: 200,
+                                        position: "absolute",
+                                        bottom: 7,
+                                        ".MuiInputBase-root": {
+                                          color: "#fff",
+                                        },
+                                        "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover":
+                                          {
+                                            backgroundColor: "#E9E5F1",
+                                            color: "#280071",
+                                            fontWeight: 600,
+                                          },
+                                        "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                                          {
+                                            backgroundColor: "#E9E5F1",
+                                            color: "#280071",
+                                            fontWeight: 600,
+                                          },
+                                      }}
+                                      size="small"
+                                      clearIcon={<ClearIcon color="primary" />}
+                                      PaperComponent={(props) => (
+                                        <Paper
+                                          sx={{
+                                            background: "#fff",
+                                            color: "#B4B4B4",
+                                            // borderRadius: "10px",
+                                          }}
+                                          {...props}
+                                        />
+                                      )}
+                                      renderInput={(params) => (
+                                        <TextField
+                                          {...params}
+                                          label="Govt. ID Type"
+                                          variant="standard"
+                                          // sx={{
+                                          //   "& .MuiOutlinedInput-root": {
+                                          //     borderRadius: 2,
+                                          //   },
+                                          // }}
+                                        />
+                                      )}
+                                    />
+                                  </Box>
+                                </Grid>
+                                <Grid size={6}>
+                                  <TextField
+                                    margin="normal"
+                                    required
+                                    fullWidth
+                                    disabled={!Boolean(item?.govtIdType)}
+                                    id={`govtIdNo${index}`}
+                                    label="Govt. Id"
+                                    name="govtIdNo"
+                                    autoComplete="govtIdNo"
+                                    variant="standard"
+                                    value={item?.govtIdNo || ""}
+                                    onChange={(e) =>
+                                      handleChangeCustomFormDrawerDataOnChange(
+                                        "govtIdNo",
+                                        e?.target?.value,
+                                        index
+                                      )
+                                    }
+                                  />
+                                </Grid>
+                              </Grid>
+                            </Box>
+                          );
+                        }
+                      )}
+                      {/* <Grid size={{ xs: 12 }}></Grid> */}
+                    </Box>
+                  </Grid>
+                  <Grid size={{ xs: 12 }}>
+                    <Button
+                      variant="contained"
+                      sx={{
+                        backgroundImage:
+                          "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
+                        color: "white",
+                        "&:hover": {
+                          backgroundImage:
+                            "linear-gradient(to right, #0acffe 10%, #495aff 90%)", // Optional hover adjustment
+                        },
+                      }}
+                      onClick={() =>
+                        handleSubmitBookingForGuestByFrontDeskOnClick()
+                      }
+                    >
+                      Book Now
+                    </Button>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+          )}
         </Box>
       </Box>
     </Drawer>
@@ -3985,6 +4447,8 @@ const Dashboard = () => {
   const [finalRoomCheckOut, finalRoomCheckOutRes] =
     useFinalRoomCheckOutMutation();
   const [roomCleanRequest, roomCleanRequestRes] = useRoomCleanRequestMutation();
+  // const [bookingByFrontDeskStaff, bookingByFrontDeskStaffRes] =
+  //   useBookingByFrontDeskStaffMutation();
   const [roomListCacheBuster, setRoomListCacheBuster] = useState(false);
   const {
     data: apiTodayCheckoutRoomData = {
@@ -4083,7 +4547,7 @@ const Dashboard = () => {
       fromDate: null,
       toDate: null,
       checkOutDate: null,
-      noOfPeoples: null,
+      noOfPeoples: "1",
       bookingRefNumber: "",
       bookingMapDatas: [],
       paymentMethod: null,
@@ -4092,6 +4556,14 @@ const Dashboard = () => {
       paidAmount: "",
       remarks: "",
       cancelBookingReason: "",
+      firstName: "",
+      middleName: "",
+      lastName: "",
+      phoneNumber: "",
+      email: "",
+      address: "",
+      roomDto: null,
+      isBookingForToday: false,
     }),
     []
   );
@@ -4435,6 +4907,32 @@ const Dashboard = () => {
               transactionReferenceNo: "",
               paidAmount: "",
               remarks: "",
+            }));
+          }
+
+          // else if (name === "clearUp") {
+          //   setCustomFormDrawerData(initialCustomFormDrawerData);
+          // } else {
+          //   setCustomFormDrawerData((prevData) => ({
+          //     ...prevData,
+          //     [name]: inputValue,
+          //   }));
+          // }
+        } else if (name === "fullBooking") {
+          if (inputValue) {
+            setCustomFormDrawerData((prevData) => ({
+              ...prevData,
+              bookingMapDatas: Boolean(
+                prevData?.noOfPeoples && Number(prevData?.noOfPeoples)
+              )
+                ? Array.from({ length: Number(prevData?.noOfPeoples) }, () => ({
+                    customerName: "",
+                    govtIdType: null,
+                    govtIdTypeInputValue: "",
+                    govtIdNo: "",
+                  }))
+                : [],
+              roomDto: inputValue,
             }));
           }
 
@@ -4831,6 +5329,36 @@ const Dashboard = () => {
     ]
   );
 
+  const handleSubmitBookingForGuestByFrontDesk = useCallback(() => {
+    const payload = {
+      roomTypeId: customFormDrawerData?.roomDto?.roomType?.id,
+      isBookingForToday: customFormDrawerData?.isBookingForToday,
+      firstName: customFormDrawerData?.firstName,
+      middleName: customFormDrawerData?.middleName,
+      lastName: customFormDrawerData?.lastName,
+      phoneNumber: customFormDrawerData?.phoneNumber,
+      email: customFormDrawerData?.email,
+      address: customFormDrawerData?.address,
+      checkOutDate: customFormDrawerData?.checkOutDate
+        ? moment(customFormDrawerData?.checkOutDate.$d).format("DD-MM-YYYY")
+        : null,
+      noOfPeoples: customFormDrawerData?.noOfPeoples,
+      hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId,
+      roomDto: {
+        id: customFormDrawerData?.roomDto?.id,
+      },
+      bookingMapDatas: customFormDrawerData?.bookingMapDatas?.map((item) => {
+        return {
+          customerName: item?.customerName,
+          govtIdType: item?.govtIdType?.key,
+          govtIdNo: item?.govtIdNo,
+        };
+      }),
+    };
+
+    console.log("handleSubmitBookingForGuestByFrontDesk payload : ", payload);
+  }, [customFormDrawerData]);
+
   useEffect(() => {
     if (Boolean(apiRoomData?.data?.floorRoomMapData?.length)) {
       handleUpdateRoomDataByFloor(roomFilters);
@@ -5001,6 +5529,9 @@ const Dashboard = () => {
         allPaymentMethods={allPaymentMethods}
         handleSubmitRoomCheckIn={handleSubmitRoomCheckIn}
         handleSubmitRoomBookingCanelation={handleSubmitRoomBookingCanelation}
+        handleSubmitBookingForGuestByFrontDesk={
+          handleSubmitBookingForGuestByFrontDesk
+        }
       />
       <LoadingComponent
         open={
@@ -5014,6 +5545,7 @@ const Dashboard = () => {
           isRoomtypeByHotelIdDataFetching ||
           isAllGovtIdsDataFetching ||
           isAllPaymentMethodsFetching ||
+          // bookingByFrontDeskStaffRes?.isLoading ||
           false
         }
       />

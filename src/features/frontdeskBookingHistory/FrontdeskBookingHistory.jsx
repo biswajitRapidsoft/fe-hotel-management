@@ -57,6 +57,10 @@ const filterBookingRooms = (
   bookingRoomsTableData,
   bookingConfirmationFormData
 ) => {
+  // console.log(
+  //   "filterBookingRooms bookingRoomsTableData; ",
+  //   bookingRoomsTableData
+  // );
   // If no date filters are set, return all data
   if (!bookingConfirmationFormData?.from || !bookingConfirmationFormData?.to) {
     return bookingRoomsTableData;
@@ -64,7 +68,9 @@ const filterBookingRooms = (
 
   // Convert date filters to Date objects for comparison
   const startDate = dayjs(bookingConfirmationFormData.from).startOf("day");
-  const endDate = dayjs(bookingConfirmationFormData.to).endOf("day");
+  const endDate = dayjs(bookingConfirmationFormData.to).startOf("day");
+
+  console.log("filterBookingRooms startDate; ", startDate);
 
   return bookingRoomsTableData.filter((item) => {
     // If no bookingList, skip this item
@@ -78,6 +84,7 @@ const filterBookingRooms = (
         booking.bookingStatus === "Booked" ||
         booking.bookingStatus === "Checked_In"
     );
+    // console.log("filterBookingRooms relevantBookings; ", relevantBookings);
 
     // If no relevant bookings, skip this item
     if (relevantBookings.length === 0) {
@@ -87,17 +94,25 @@ const filterBookingRooms = (
     // Parse dates for each booking
     const bookingDates = relevantBookings.map((booking) => ({
       startDate: dayjs(
-        booking.fromDate || booking.checkInDate,
+        booking.bookingStatus === "Booked"
+          ? booking.fromDate
+          : booking.checkInDate,
         "DD-MM-YYYY"
       ).startOf("day"),
       endDate: dayjs(
-        booking.toDate || booking.checkOutDate,
+        booking.bookingStatus === "Booked"
+          ? booking.toDate
+          : booking.checkOutDate,
         "DD-MM-YYYY"
-      ).endOf("day"),
+      ).startOf("day"),
     }));
+
+    // console.log("filterBookingRooms bookingDates; ", bookingDates);
 
     // Sort booking dates by endDate
     bookingDates.sort((a, b) => a.endDate.diff(b.endDate));
+
+    console.log("filterBookingRooms bookingDates; ", bookingDates);
 
     // Check if startDate is less than or equal to ANY endDate
     const isStartDateBeforeOrEqualAnyEndDate = bookingDates.some((date) =>
@@ -106,8 +121,17 @@ const filterBookingRooms = (
 
     // Check if startDate is greater than ALL endDates
     const isStartDateAfterAllEndDates = bookingDates.every((date) =>
-      startDate.isAfter(date.endDate)
+      startDate.isSameOrAfter(date.endDate)
     );
+    // const isStartDateAfterAllEndDates = startDate.isSameOrAfter(
+    //   bookingDates[bookingDates.length - 1].endDate
+    // );
+
+    // console.log(
+    //   "filterBookingRooms isStartDateBeforeOrEqualAnyEndDate & ; ",
+    //   isStartDateBeforeOrEqualAnyEndDate,
+    //   isStartDateAfterAllEndDates
+    // );
 
     if (isStartDateAfterAllEndDates) {
       return true; // Include the item if startDate is after all booking end dates
@@ -119,6 +143,11 @@ const filterBookingRooms = (
         startDate.isSameOrBefore(date.endDate)
       );
 
+      // console.log(
+      //   "filterBookingRooms closestEndDateBooking ; ",
+      //   closestEndDateBooking
+      // );
+
       if (closestEndDateBooking) {
         // Find the next booking's start date after the closest end date
         const nextBookingStartDate = bookingDates
@@ -127,6 +156,10 @@ const filterBookingRooms = (
           )
           .sort((a, b) => a.startDate.diff(b.startDate))[0]?.startDate;
 
+        // console.log(
+        //   "filterBookingRooms nextBookingStartDate ; ",
+        //   nextBookingStartDate
+        // );
         // Check if the next booking's start date exists and is greater than or equal to endDate
         if (
           nextBookingStartDate &&
@@ -140,6 +173,12 @@ const filterBookingRooms = (
           endDate.isSameOrBefore(date.startDate)
         );
 
+        // console.log(
+        //   "filterBookingRooms compatibleStartDate ; ",
+        //   compatibleStartDate,
+        //   !!compatibleStartDate
+        // );
+
         return !!compatibleStartDate;
       }
     }
@@ -148,157 +187,157 @@ const filterBookingRooms = (
   });
 };
 
-function generateBookingHistoryResponse(totalRecords, rowsPerPage, pageNo) {
-  const startIndex = pageNo * rowsPerPage;
-  const endIndex = startIndex + rowsPerPage;
+// function generateBookingHistoryResponse(totalRecords, rowsPerPage, pageNo) {
+//   const startIndex = pageNo * rowsPerPage;
+//   const endIndex = startIndex + rowsPerPage;
 
-  const totalPages = Math.ceil(totalRecords / rowsPerPage);
+//   const totalPages = Math.ceil(totalRecords / rowsPerPage);
 
-  const data = Array.from({ length: totalRecords }, (_, i) => ({
-    roomTypeId: null,
-    firstName: `FirstName${i + 1}`,
-    middleName: `MiddleName${i + 1}`,
-    lastName: `LastName${i + 1}`,
-    phoneNumber: `900000000${i}`,
-    email: `user${i + 1}@example.com`,
-    address: `Address${i + 1}`,
-    fromDate: "27-11-2024",
-    toDate: "30-11-2024",
-    noOfPeoples: Math.floor(Math.random() * 5) + 1,
-    hotelId: null,
-    bookingStatus: [
-      "Pending_Confirmation",
-      "Booked",
-      "Checked_In",
-      "Checked_Out",
-      "Cancelled",
-    ][Math.floor(Math.random() * 5)],
-    bookedOn: new Date().toISOString(),
-    id: i + 1,
-    roomType: {
-      id: i + 1,
-      type: `RoomType${i + 1}`,
-      description: null,
-      capacity: Math.floor(Math.random() * 5) + 1,
-      basePrice: 5500 + i * 100,
-      images: [
-        `http://example.com/image${i + 1}-1.jpg`,
-        `http://example.com/image${i + 1}-2.jpg`,
-      ],
-      roomTypeData: null,
-      hotelId: null,
-      companyId: null,
-      hotelDto: null,
-      extraItemsList: null,
-      imageUrl: null,
-      isAdvanceRequired: true,
-      advanceAmount: 2000,
-      extraItem: null,
-    },
-    hotel: {
-      id: i + 2,
-      name: `Hotel${i + 1}`,
-      city: {
-        id: 800 + i,
-        name: `City${i + 1}`,
-        state: {
-          id: 20 + i,
-          name: `State${i + 1}`,
-        },
-      },
-      state: {
-        id: 20 + i,
-        name: `State${i + 1}`,
-      },
-      isActive: true,
-      createdAt: new Date().toISOString(),
-      createdBy: `User${i + 1}`,
-      address: `HotelAddress${i + 1}`,
-      noOfFloors: null,
-      floorRoomMapData: null,
-      company: null,
-      createdByUser: null,
-      logoUrl: null,
-      email: `hotel${i + 1}@example.com`,
-      contactNo: null,
-      contactNos: [`180037600${i}`, `98776000${i}`],
-    },
-    bookingAmount: null,
-    bookingRefNumber: `REF-2024-${i + 1}`,
-    rejectionReason: null,
-    bookingMapDatas: null,
-    checkOutDate: "29-11-2024",
-    paidAmount: null,
-    paymentMethod: null,
-    transactionReferenceNo: null,
-    remarks: null,
-    transactionDetails: null,
-    isCheckoutProceed: null,
-    isCheckedByKeepingStaff: null,
-    isRoomCleaningRequested: null,
-    roomDto: {
-      id: i + 1,
-      floorNo: Math.floor(Math.random() * 10) + 1,
-      roomNo: `Room${i + 1}`,
-      isActive: true,
-      isAvailable: Math.random() > 0.5,
-      roomType: {
-        id: i + 1,
-        type: `RoomType${i + 1}`,
-        description: null,
-        capacity: Math.floor(Math.random() * 5) + 1,
-        basePrice: 5500 + i * 100,
-        images: [
-          `http://example.com/image${i + 1}-1.jpg`,
-          `http://example.com/image${i + 1}-2.jpg`,
-        ],
-        roomTypeData: null,
-        hotelId: null,
-        companyId: null,
-        hotelDto: null,
-        extraItemsList: null,
-        imageUrl: null,
-        isAdvanceRequired: true,
-        advanceAmount: 2000,
-        extraItem: null,
-      },
-      createdAt: new Date().toISOString(),
-      createdBy: `Creator${i + 1}`,
-      createdUserName: `User${i + 1}`,
-      isBooked: true,
-      isServiceGoingOn: Math.random() > 0.5,
-      bookingDto: null,
-      isCheckoutProceed: null,
-      isCheckedByKeepingStaff: null,
-      isRoomCleaningRequested: Math.random() > 0.5,
-      serviceTypeStatus: null,
-      extraItemsList: null,
-      hotelId: null,
-      keyData: null,
-      bookingList: null,
-    },
-    isForCheckoutRequest: null,
-    extraItemsList: null,
-    checkInDate: "27-11-2024",
-    amountPaidVia: null,
-    isBookingForToday: null,
-    groupBookingList: null,
-    isBookingConfirmed: Math.random() > 0.5,
-    pageSize: rowsPerPage,
-  }));
+//   const data = Array.from({ length: totalRecords }, (_, i) => ({
+//     roomTypeId: null,
+//     firstName: `FirstName${i + 1}`,
+//     middleName: `MiddleName${i + 1}`,
+//     lastName: `LastName${i + 1}`,
+//     phoneNumber: `900000000${i}`,
+//     email: `user${i + 1}@example.com`,
+//     address: `Address${i + 1}`,
+//     fromDate: "27-11-2024",
+//     toDate: "30-11-2024",
+//     noOfPeoples: Math.floor(Math.random() * 5) + 1,
+//     hotelId: null,
+//     bookingStatus: [
+//       "Pending_Confirmation",
+//       "Booked",
+//       "Checked_In",
+//       "Checked_Out",
+//       "Cancelled",
+//     ][Math.floor(Math.random() * 5)],
+//     bookedOn: new Date().toISOString(),
+//     id: i + 1,
+//     roomType: {
+//       id: i + 1,
+//       type: `RoomType${i + 1}`,
+//       description: null,
+//       capacity: Math.floor(Math.random() * 5) + 1,
+//       basePrice: 5500 + i * 100,
+//       images: [
+//         `http://example.com/image${i + 1}-1.jpg`,
+//         `http://example.com/image${i + 1}-2.jpg`,
+//       ],
+//       roomTypeData: null,
+//       hotelId: null,
+//       companyId: null,
+//       hotelDto: null,
+//       extraItemsList: null,
+//       imageUrl: null,
+//       isAdvanceRequired: true,
+//       advanceAmount: 2000,
+//       extraItem: null,
+//     },
+//     hotel: {
+//       id: i + 2,
+//       name: `Hotel${i + 1}`,
+//       city: {
+//         id: 800 + i,
+//         name: `City${i + 1}`,
+//         state: {
+//           id: 20 + i,
+//           name: `State${i + 1}`,
+//         },
+//       },
+//       state: {
+//         id: 20 + i,
+//         name: `State${i + 1}`,
+//       },
+//       isActive: true,
+//       createdAt: new Date().toISOString(),
+//       createdBy: `User${i + 1}`,
+//       address: `HotelAddress${i + 1}`,
+//       noOfFloors: null,
+//       floorRoomMapData: null,
+//       company: null,
+//       createdByUser: null,
+//       logoUrl: null,
+//       email: `hotel${i + 1}@example.com`,
+//       contactNo: null,
+//       contactNos: [`180037600${i}`, `98776000${i}`],
+//     },
+//     bookingAmount: null,
+//     bookingRefNumber: `REF-2024-${i + 1}`,
+//     rejectionReason: null,
+//     bookingMapDatas: null,
+//     checkOutDate: "29-11-2024",
+//     paidAmount: null,
+//     paymentMethod: null,
+//     transactionReferenceNo: null,
+//     remarks: null,
+//     transactionDetails: null,
+//     isCheckoutProceed: null,
+//     isCheckedByKeepingStaff: null,
+//     isRoomCleaningRequested: null,
+//     roomDto: {
+//       id: i + 1,
+//       floorNo: Math.floor(Math.random() * 10) + 1,
+//       roomNo: `Room${i + 1}`,
+//       isActive: true,
+//       isAvailable: Math.random() > 0.5,
+//       roomType: {
+//         id: i + 1,
+//         type: `RoomType${i + 1}`,
+//         description: null,
+//         capacity: Math.floor(Math.random() * 5) + 1,
+//         basePrice: 5500 + i * 100,
+//         images: [
+//           `http://example.com/image${i + 1}-1.jpg`,
+//           `http://example.com/image${i + 1}-2.jpg`,
+//         ],
+//         roomTypeData: null,
+//         hotelId: null,
+//         companyId: null,
+//         hotelDto: null,
+//         extraItemsList: null,
+//         imageUrl: null,
+//         isAdvanceRequired: true,
+//         advanceAmount: 2000,
+//         extraItem: null,
+//       },
+//       createdAt: new Date().toISOString(),
+//       createdBy: `Creator${i + 1}`,
+//       createdUserName: `User${i + 1}`,
+//       isBooked: true,
+//       isServiceGoingOn: Math.random() > 0.5,
+//       bookingDto: null,
+//       isCheckoutProceed: null,
+//       isCheckedByKeepingStaff: null,
+//       isRoomCleaningRequested: Math.random() > 0.5,
+//       serviceTypeStatus: null,
+//       extraItemsList: null,
+//       hotelId: null,
+//       keyData: null,
+//       bookingList: null,
+//     },
+//     isForCheckoutRequest: null,
+//     extraItemsList: null,
+//     checkInDate: "27-11-2024",
+//     amountPaidVia: null,
+//     isBookingForToday: null,
+//     groupBookingList: null,
+//     isBookingConfirmed: Math.random() > 0.5,
+//     pageSize: rowsPerPage,
+//   }));
 
-  console.log("generateBookingHistoryResponse inline data : ", data);
+//   console.log("generateBookingHistoryResponse inline data : ", data);
 
-  return {
-    responseCode: 200,
-    paginationData: {
-      totalPages,
-      numberOfElements: rowsPerPage,
-      totalElements: totalRecords,
-      data: data.slice(startIndex, endIndex),
-    },
-  };
-}
+//   return {
+//     responseCode: 200,
+//     paginationData: {
+//       totalPages,
+//       numberOfElements: rowsPerPage,
+//       totalElements: totalRecords,
+//       data: data.slice(startIndex, endIndex),
+//     },
+//   };
+// }
 
 export const CustomHeader = memo(function ({
   backNavigate = false,
@@ -1550,7 +1589,19 @@ const CustomBookingHistoryDrawer = memo(function ({
                     >
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
-                          disablePast
+                          disabled={!bookingConfirmationFormData?.from}
+                          disablePast={!bookingConfirmationFormData?.from}
+                          shouldDisableDate={(date) => {
+                            // Disable dates before 'from' date if it exists
+                            if (bookingConfirmationFormData?.from) {
+                              return date.isBefore(
+                                dayjs(bookingConfirmationFormData.from).startOf(
+                                  "day"
+                                )
+                              );
+                            }
+                            return false; // Allow all dates if 'from' is not set
+                          }}
                           value={bookingConfirmationFormData?.to}
                           onChange={(newVal) =>
                             handleChangeBookingConfirmationFormDataOnChange(
@@ -1784,7 +1835,7 @@ const FrontdeskBookingHistory = () => {
       },
     },
     isLoading: isRoomBookingHistoryByHotelIdLoading,
-    // isSuccess: isRoomBookingHistoryByHotelIdSuccess,
+    isSuccess: isRoomBookingHistoryByHotelIdSuccess,
   } = useRoomBookingHistoryByHotelIdQuery(
     {
       hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId,
@@ -2077,24 +2128,24 @@ const FrontdeskBookingHistory = () => {
     ]
   );
 
-  // useEffect(() => {
-  //   if (isRoomBookingHistoryByHotelIdSuccess) {
-  //     setBookingHistoryTableData(
-  //       roomBookingHistoryByHotelIdData?.paginationData?.data || []
-  //     );
-  //   }
-  // }, [isRoomBookingHistoryByHotelIdSuccess, roomBookingHistoryByHotelIdData]);
-
   useEffect(() => {
-    const response = generateBookingHistoryResponse(
-      50,
-      bookingHistoryTableRowsPerPage,
-      bookingHistoryTablePageNo
-    );
+    if (isRoomBookingHistoryByHotelIdSuccess) {
+      setBookingHistoryTableData(
+        roomBookingHistoryByHotelIdData?.paginationData?.data || []
+      );
+    }
+  }, [isRoomBookingHistoryByHotelIdSuccess, roomBookingHistoryByHotelIdData]);
 
-    console.log("generateBookingHistoryResponse response : ", response);
-    setBookingHistoryTableData(response?.paginationData);
-  }, [bookingHistoryTableRowsPerPage, bookingHistoryTablePageNo]);
+  // useEffect(() => {
+  //   const response = generateBookingHistoryResponse(
+  //     50,
+  //     bookingHistoryTableRowsPerPage,
+  //     bookingHistoryTablePageNo
+  //   );
+
+  //   console.log("generateBookingHistoryResponse response : ", response);
+  //   setBookingHistoryTableData(response?.paginationData);
+  // }, [bookingHistoryTableRowsPerPage, bookingHistoryTablePageNo]);
   return (
     <>
       <Box

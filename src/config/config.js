@@ -1,6 +1,8 @@
 const config = Object.freeze({
   baseUrl: "http://192.168.12.41:9000/",
   // baseUrl: "http://192.168.12.43:8080/be-hms/",
+  // baseUrl: "http://192.168.30.44:9000/",
+
   apiName: {
     loginAsCustomer: "login/as/customer",
     loginAsStaff: "login",
@@ -35,6 +37,7 @@ const config = Object.freeze({
     getAllBookingStatusType: "api/get/all/booking/status/type",
     conFirmBooking: "api/confirm/booking",
     getRoomsByRoomType: "api/get/room/by/roomtype",
+    bookingByFrontDeskStaff: "api/booking/by/frontdesk/staff",
 
     // GUEST DASHBOARD API ENDPOINTS
     getAllHotels: "public/hotels/list",
