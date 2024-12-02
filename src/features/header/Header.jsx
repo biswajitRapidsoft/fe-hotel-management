@@ -110,7 +110,7 @@ const Header = () => {
   }, []);
 
   const handleLogout = React.useCallback(() => {
-    //  sessionStorage.clear();
+    sessionStorage.clear();
     setOpenDialog(false);
     navigate("/");
   }, [navigate]);
@@ -290,13 +290,21 @@ const Header = () => {
               onClose={handleClose}
               onClick={handleClose}
             >
-              <MenuItem onClick={handleClickOpenPasswordChangeDialog}>
-                <ListItemIcon>
-                  <LockResetIcon fontSize="small" />
-                </ListItemIcon>
-                Change Password
-              </MenuItem>
-              <Divider />
+              {!Boolean(
+                JSON.parse(sessionStorage.getItem("data"))?.roleType ===
+                  CUSTOMER
+              ) && (
+                <>
+                  <MenuItem onClick={handleClickOpenPasswordChangeDialog}>
+                    <ListItemIcon>
+                      <LockResetIcon fontSize="small" />
+                    </ListItemIcon>
+                    Change Password
+                  </MenuItem>
+                  <Divider />
+                </>
+              )}
+
               <MenuItem onClick={handleClickOpenDialog}>
                 <ListItemIcon>
                   <Logout fontSize="small" />
