@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Checkbox,
+  Collapse,
   DialogContent,
   DialogTitle,
   Divider,
@@ -10,6 +11,12 @@ import {
   FormControlLabel,
   IconButton,
   Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   TextField,
   Tooltip,
   Typography,
@@ -36,7 +43,7 @@ import { BsFillBuildingFill } from "react-icons/bs";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ClearIcon from "@mui/icons-material/Clear";
 import {
-  // useBookingByFrontDeskStaffMutation,
+  useBookingByFrontDeskStaffMutation,
   useCancelHotelRoomMutation,
   useFinalRoomCheckOutMutation,
   useGetAllGovtIdsQuery,
@@ -60,35 +67,36 @@ import SnackAlert from "../../components/Alert";
 import Swal from "sweetalert2";
 import CleaningServicesIcon from "@mui/icons-material/CleaningServices";
 import { useNavigate } from "react-router-dom";
+import InfoIcon from "@mui/icons-material/Info";
 
 export const StyledCalendarIcon = styled(CalendarMonthIcon)({
   color: "#9380B8",
 });
 
-const tempInventoryData = Array.from({ length: 4 }, (_, index) => {
-  return {
-    id: index + 1,
-    date: `${14 + index}th-Nov-2024`,
-    items: [
-      {
-        productName: "Tooth Brush",
-        quantity: Math.floor(Math.random() * (9 - 1 + 1)) + 1,
-      },
-      {
-        productName: "Soap",
-        quantity: Math.floor(Math.random() * (9 - 1 + 1)) + 1,
-      },
-      {
-        productName: "Sugar Sachet",
-        quantity: Math.floor(Math.random() * (9 - 1 + 1)) + 1,
-      },
-      {
-        productName: "Water Bottle",
-        quantity: Math.floor(Math.random() * (9 - 1 + 1)) + 1,
-      },
-    ],
-  };
-});
+// const tempInventoryData = Array.from({ length: 4 }, (_, index) => {
+//   return {
+//     id: index + 1,
+//     date: `${14 + index}th-Nov-2024`,
+//     items: [
+//       {
+//         productName: "Tooth Brush",
+//         quantity: Math.floor(Math.random() * (9 - 1 + 1)) + 1,
+//       },
+//       {
+//         productName: "Soap",
+//         quantity: Math.floor(Math.random() * (9 - 1 + 1)) + 1,
+//       },
+//       {
+//         productName: "Sugar Sachet",
+//         quantity: Math.floor(Math.random() * (9 - 1 + 1)) + 1,
+//       },
+//       {
+//         productName: "Water Bottle",
+//         quantity: Math.floor(Math.random() * (9 - 1 + 1)) + 1,
+//       },
+//     ],
+//   };
+// });
 
 // const tempFoodData = Array.from({ length: 4 }, (_, index) => {
 //   return {
@@ -135,215 +143,225 @@ const tempRoomFilterVisibleButtonData = [
 
 const CustomInventoryTable = memo(function ({ inventoryData }) {
   return (
-    <table
-      style={{
-        width: "100%",
-        borderCollapse: "collapse",
-        position: "relative",
+    <TableContainer
+      component={Paper}
+      sx={{
+        overflow: "auto",
+        maxHeight: {
+          xs: "135px",
+          // xl: "calc(100vh - 280px)",
+          "&::-webkit-scrollbar": {
+            // height: "14px",
+          },
+          "&::-webkit-scrollbar-track": {
+            backgroundColor: "#ffffff00",
+            width: "none",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#280071",
+            borderRadius: "4px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: "#3b0b92",
+          },
+        },
       }}
     >
-      <thead>
-        <tr>
-          <th
-            style={{
-              position: "sticky",
-              top: 0,
-              background: "#e8e8e8",
-              zIndex: 1,
-            }}
-          >
-            <Typography
+      <Table aria-label="simple table" stickyHeader size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell
+              align="center"
               sx={{
-                width: "100%",
-                textAlign: "center",
-                fontSize: "15px",
-                fontWeight: 600,
+                color: "white",
+                backgroundColor: "primary.main",
               }}
             >
-              Sl No.
-            </Typography>
-          </th>
-          <th
-            style={{
-              position: "sticky",
-              top: 0,
-              zIndex: 1,
-              background: "#e8e8e8",
-            }}
-          >
-            <Typography
+              <Typography
+                sx={{
+                  fontWeight: "bold",
+                  fontSize: "13px",
+                }}
+              >
+                Sl No.
+              </Typography>
+            </TableCell>
+            <TableCell
+              align="center"
               sx={{
-                width: "100%",
-                textAlign: "center",
-                fontSize: "15px",
-                fontWeight: 600,
+                color: "white",
+                backgroundColor: "primary.main",
               }}
             >
-              Product
-            </Typography>
-          </th>
-          <th
-            style={{
-              position: "sticky",
-              top: 0,
-              background: "#e8e8e8",
-              zIndex: 1,
-            }}
-          >
-            <Typography
+              <Typography
+                sx={{
+                  fontWeight: "bold",
+                  fontSize: "13px",
+                }}
+              >
+                Product
+              </Typography>
+            </TableCell>
+            <TableCell
+              align="center"
               sx={{
-                width: "100%",
-                textAlign: "center",
-                fontSize: "15px",
-                fontWeight: 600,
+                color: "white",
+                backgroundColor: "primary.main",
               }}
             >
-              Quantity
-            </Typography>
-          </th>
-          <th
-            style={{
-              position: "sticky",
-              top: 0,
-              background: "#e8e8e8",
-              zIndex: 1,
-            }}
-          >
-            <Typography
+              <Typography
+                sx={{
+                  fontWeight: "bold",
+                  fontSize: "13px",
+                }}
+              >
+                Quantity
+              </Typography>
+            </TableCell>
+            <TableCell
+              align="center"
               sx={{
-                width: "100%",
-                textAlign: "center",
-                fontSize: "15px",
-                fontWeight: 600,
+                color: "white",
+                backgroundColor: "primary.main",
               }}
             >
-              Price
-            </Typography>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {inventoryData?.map((item, index) => {
-          return (
-            <tr key={`tr-${index}`}>
-              <td>
-                <Typography
-                  sx={{
-                    width: "100%",
-                    textAlign: "center",
-                    fontSize: "14.4px",
-                  }}
-                >
-                  {index + 1}
-                </Typography>
-              </td>
-              <td>
-                <Typography
-                  sx={{
-                    width: "100%",
-                    textAlign: "center",
-                    fontSize: "14.4px",
-                  }}
-                >
-                  {item?.itemName || ""}
-                </Typography>
-              </td>
-              <td>
-                <Typography
-                  sx={{
-                    width: "100%",
-                    textAlign: "center",
-                    fontSize: "14.4px",
-                  }}
-                >
-                  {item?.noOfItems || 0}
-                </Typography>
-              </td>
-              <td>
-                <Typography
-                  sx={{
-                    width: "100%",
-                    textAlign: "center",
-                    fontSize: "14.4px",
-                  }}
-                >
-                  {item?.totalPrice || 0}
-                </Typography>
-              </td>
-            </tr>
-          );
-        })}
-        <tr>
-          <td
-            colSpan={2}
-            style={{
-              position: "sticky",
-              bottom: 0,
-              zIndex: 1,
-              background: "white",
-              minHeight: "100%",
-            }}
-          >
-            <Typography
-              sx={{
-                width: "100%",
-                textAlign: "center",
-                fontSize: "16px",
-                fontWeight: 600,
-                borderTop: "1px solid #ccc",
-                minHeight: "24.9px",
-              }}
-            >
-              {" "}
-            </Typography>
-          </td>
-          <td
-            style={{
-              position: "sticky",
-              bottom: 0,
-              zIndex: 1,
-              background: "white",
-            }}
-            colSpan={1}
-          >
-            <Typography
-              sx={{
-                width: "100%",
-                textAlign: "center",
-                fontSize: "16px",
-                fontWeight: 600,
+              <Typography
+                sx={{
+                  fontWeight: "bold",
+                  fontSize: "13px",
+                }}
+              >
+                Price
+              </Typography>
+            </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {inventoryData?.map((item, index) => {
+            return (
+              <TableRow key={`tr-${index}`}>
+                <TableCell align="center">
+                  <Typography
+                    sx={{
+                      width: "100%",
+                      textAlign: "center",
+                      fontSize: "12px",
+                    }}
+                  >
+                    {index + 1}
+                  </Typography>
+                </TableCell>
+                <TableCell align="center">
+                  <Typography
+                    sx={{
+                      width: "100%",
+                      textAlign: "center",
+                      fontSize: "12px",
+                    }}
+                  >
+                    {item?.itemName || ""}
+                  </Typography>
+                </TableCell>
+                <TableCell align="center">
+                  <Typography
+                    sx={{
+                      width: "100%",
+                      textAlign: "center",
+                      fontSize: "12px",
+                    }}
+                  >
+                    {item?.noOfItems || 0}
+                  </Typography>
+                </TableCell>
+                <TableCell align="center">
+                  <Typography
+                    sx={{
+                      width: "100%",
+                      textAlign: "center",
+                      fontSize: "12px",
+                    }}
+                  >
+                    {item?.totalPrice || 0}
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+          <TableRow>
+            <TableCell
+              colSpan={2}
+              style={{
+                position: "sticky",
+                bottom: 0,
+                zIndex: 1,
+                background: "white",
+                minHeight: "100%",
                 borderTop: "1px solid #ccc",
               }}
             >
-              Total
-            </Typography>
-          </td>
-          <td
-            style={{
-              position: "sticky",
-              bottom: 0,
-              zIndex: 1,
-              background: "white",
-            }}
-            colSpan={1}
-          >
-            <Typography
-              sx={{
-                width: "100%",
-                textAlign: "center",
-                fontSize: "16px",
+              <Typography
+                sx={{
+                  width: "100%",
+                  textAlign: "center",
+                  fontSize: "16px",
+                  fontWeight: 600,
+                  // borderTop: "1px solid #ccc",
+                  minHeight: "24.9px",
+                }}
+              >
+                {" "}
+              </Typography>
+            </TableCell>
+            <TableCell
+              style={{
+                position: "sticky",
+                bottom: 0,
+                zIndex: 1,
+                background: "white",
                 borderTop: "1px solid #ccc",
               }}
+              colSpan={1}
             >
-              {inventoryData?.reduce(
-                (sum, item) => sum + (item?.totalPrice || 0),
-                0
-              )}
-            </Typography>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+              <Typography
+                sx={{
+                  width: "100%",
+                  textAlign: "center",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  // borderTop: "1px solid #ccc",
+                }}
+              >
+                Total
+              </Typography>
+            </TableCell>
+            <TableCell
+              style={{
+                position: "sticky",
+                bottom: 0,
+                zIndex: 1,
+                background: "white",
+                borderTop: "1px solid #ccc",
+              }}
+              colSpan={1}
+            >
+              <Typography
+                sx={{
+                  width: "100%",
+                  textAlign: "center",
+                  fontSize: "13px",
+                  // borderTop: "1px solid #ccc",
+                }}
+              >
+                {inventoryData?.reduce(
+                  (sum, item) => sum + (item?.totalPrice || 0),
+                  0
+                )}
+              </Typography>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 });
 
@@ -628,17 +646,31 @@ const CustomRoomFilters = memo(function ({
             variant="contained"
             size="small"
             onClick={() => navigate("/frontdeskBookingHistory")}
-            sx={{ fontSize: "10px" }}
+            sx={{
+              fontSize: "10px",
+              wordWrap: "break-word",
+              wordBreak: "break-all",
+              whiteSpace: "none",
+              paddingX: "0.65px",
+              paddingY: "8px",
+              backgroundImage:
+                "linear-gradient(to right, #a4508b 0%, #5f0a87 100%)",
+              color: "white",
+              "&:hover": {
+                backgroundImage:
+                  "linear-gradient(to right, #a4508b 10%, #5f0a87 90%)",
+              },
+            }}
           >
             Booking History
           </Button>
         </Grid>
-        {/* <Grid size={{ xs: 0, xl: 1 }} /> */}
+        <Grid size={{ xs: 0, xl: 2.3 }} />
         <Grid xs={12} lg="auto" md={12}>
           <Box
             sx={{
               width: "100%",
-              bgcolor: { sm: "red", md: "orange", lg: "cyan", xl: "red" },
+              // bgcolor: { sm: "red", md: "orange", lg: "cyan", xl: "red" },
               display: "flex",
               flexDirection: "row",
               justifyContent: "flex-end",
@@ -991,11 +1023,11 @@ const DayCheckoutCard = memo(function ({
           </Typography>
         </Box>
         <Box sx={{ width: "100%", height: "90px", overflowY: "auto" }}>
-          <Grid container size={12} rowSpacing={1}>
+          <Grid container size={12} spacing={1}>
             {Boolean(dayCheckoutData?.length) &&
               dayCheckoutData?.map((dayCheckoutItem, index) => {
                 return (
-                  <Grid key={`Day-Checkout-${index}`} size={2.4}>
+                  <Grid key={`Day-Checkout-${index}`}>
                     <Button
                       variant="contained"
                       size="small"
@@ -1031,29 +1063,19 @@ const RoomServiceCard = memo(function ({
   console.log("RoomServiceCard isSelectedRoom : ", isSelectedRoom);
   const selectedRoomStatusType = checkRoomStatusType(isSelectedRoom);
 
-  const flatMappedInventoryItems = tempInventoryData?.flatMap(
-    (item) => item?.items
+  const handleOpenShowcaseModalForInventoryOnClick = useCallback(
+    (inventoryList) => {
+      handleOpenShowcaseModalForInventory(inventoryList);
+    },
+    [handleOpenShowcaseModalForInventory]
   );
 
-  const displayedInventoryItems = flatMappedInventoryItems?.slice(0, 3);
-
-  const remainingInventoryItemsCount =
-    flatMappedInventoryItems?.length - displayedInventoryItems?.length || 0;
-
-  // const flatMappedFoodItems = tempFoodData?.flatMap((item) => item?.items);
-
-  // const displayedFoodItems = flatMappedFoodItems?.slice(0, 3);
-
-  // const remainingFoodItemsCount =
-  //   flatMappedFoodItems?.length - displayedFoodItems?.length || 0;
-
-  const handleOpenShowcaseModalForInventoryOnClick = useCallback(() => {
-    handleOpenShowcaseModalForInventory(tempInventoryData);
-  }, [handleOpenShowcaseModalForInventory]);
-
-  // const handleOpenShowcaseModalForFoodOnClick = useCallback(() => {
-  //   handleOpenShowcaseModalForFood(tempFoodData);
-  // }, [handleOpenShowcaseModalForFood]);
+  const handleOpenShowcaseModalForFoodOnClick = useCallback(
+    (foodData) => {
+      handleOpenShowcaseModalForFood(foodData);
+    },
+    [handleOpenShowcaseModalForFood]
+  );
 
   const handleOpenCustomFormDrawerOnClick = useCallback(
     (open = true, title = "", type = null) => {
@@ -1075,6 +1097,52 @@ const RoomServiceCard = memo(function ({
       handleRoomCleanRequest(roomId);
     },
     [handleRoomCleanRequest]
+  );
+
+  const getUniqueFoodItems = useCallback((foodDataList = []) => {
+    if (!foodDataList || foodDataList.length === 0) {
+      return [];
+    }
+
+    const allItems = foodDataList.flatMap((item) => item.itemsList || []);
+    const uniqueItems = Array.from(
+      new Set(
+        allItems.filter((item) => item?.itemName).map((item) => item.itemName)
+      )
+    );
+
+    return uniqueItems;
+  }, []);
+
+  const getUniqueExtraItems = useCallback((extraInventoryList = []) => {
+    if (!extraInventoryList || extraInventoryList.length === 0) {
+      return [];
+    }
+
+    const uniqueItems = Array.from(
+      new Set(
+        extraInventoryList
+          .filter((item) => item?.itemName)
+          .map((item) => item.itemName)
+      )
+    );
+
+    return uniqueItems;
+  }, []);
+
+  const uniqueFoodItems = useMemo(
+    () =>
+      getUniqueFoodItems(isSelectedRoom?.bookingDto?.foodDataList).slice(0, 2),
+    [isSelectedRoom?.bookingDto?.foodDataList, getUniqueFoodItems]
+  );
+
+  const uniqueInventoryItems = useMemo(
+    () =>
+      getUniqueExtraItems(isSelectedRoom?.bookingDto?.extraItemsList).slice(
+        0,
+        2
+      ),
+    [isSelectedRoom?.bookingDto?.extraItemsList, getUniqueExtraItems]
   );
 
   return (
@@ -1585,195 +1653,210 @@ const RoomServiceCard = memo(function ({
                   </Grid>
                 </Box>
 
-                {/* INVENTORY DETAILS */}
-                <Box sx={{ width: "100%", mt: 1 }}>
-                  <Grid container size={12}>
-                    <Grid size={12}>
-                      <Typography
-                        sx={{
-                          fontSize: "16.5px",
-                          // color: "#707070",
-                          fontWeight: 600,
-                          width: "100%",
-                          borderBottom: "2px solid #ccc",
-                          marginBottom: "5px",
-                        }}
-                      >
-                        Inventory Details :
-                      </Typography>
-                    </Grid>
-
-                    <Grid size={12}>
-                      <Grid container size={12}>
-                        {/* Used Items */}
-                        <Grid size={3.8}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            Used Items
-                          </Typography>
-                        </Grid>
-                        <Grid size={8.2}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            <Typography
-                              component="span"
-                              sx={{
-                                fontSize: "15.5px",
-                                // color: "#707070",
-                                fontWeight: 600,
-                                marginRight: "5px",
-                              }}
-                            >
-                              :
-                            </Typography>
-                            <Typography
-                              component="span"
-                              sx={{
-                                fontSize: "15.5px",
-                                // color: "#707070",
-                                // fontWeight: 600,
-                              }}
-                            >
-                              {displayedInventoryItems?.map((item, index) => (
-                                <React.Fragment key={`inventory-${index}`}>
-                                  <span>{item?.productName}</span>
-                                  {index !==
-                                    displayedInventoryItems?.length - 1 && (
-                                    <span>, </span>
-                                  )}
-                                </React.Fragment>
-                              ))}
-
-                              {remainingInventoryItemsCount > 0 && (
-                                <>
-                                  &nbsp; &
-                                  <span
-                                    style={{
-                                      cursor: "pointer",
-                                      marginLeft: "8px",
-                                      background: "#cbcbcb",
-                                      lineHeight: 1.7,
-                                      borderRadius: "5px",
-                                    }}
-                                    onClick={() =>
-                                      handleOpenShowcaseModalForInventoryOnClick()
-                                    }
-                                  >
-                                    &nbsp; +{remainingInventoryItemsCount} more
-                                    &nbsp;
-                                  </span>
-                                </>
-                              )}
-                            </Typography>
-                          </Typography>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                </Box>
-
                 {/* FOOD DETAILS */}
-                {/* <Box sx={{ width: "100%", mt: 1 }}>
-                  <Grid container size={12}>
-                    <Grid size={12}>
-                      <Typography
-                        sx={{
-                          fontSize: "18px",
-                          fontWeight: 600,
-                          width: "100%",
-                          borderBottom: "2px solid #ccc",
-                          marginBottom: "5px",
-                        }}
-                      >
-                        Food Details :
-                      </Typography>
-                    </Grid>
+                {Boolean(uniqueFoodItems?.length) && (
+                  <Box sx={{ width: "100%", mt: 1 }}>
+                    <Grid container size={12}>
+                      <Grid size={12}>
+                        <Typography
+                          sx={{
+                            fontSize: "16.5px",
+                            // color: "#707070",
+                            fontWeight: 600,
+                            width: "100%",
+                            borderBottom: "2px solid #ccc",
+                            marginBottom: "5px",
+                          }}
+                        >
+                          Food Details :
+                        </Typography>
+                      </Grid>
 
-                    <Grid size={12}>
-                      <Grid container size={12}>
-                   
-                        <Grid size={3.8}>
-                          <Typography
-                            sx={{
-                              fontSize: "18px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            Food Items
-                          </Typography>
-                        </Grid>
-                        <Grid size={8.2}>
-                          <Typography
-                            sx={{
-                              fontSize: "18px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
+                      <Grid size={12}>
+                        <Grid container size={12}>
+                          {/* Used Items */}
+                          <Grid size={3.8}>
                             <Typography
-                              component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
-                                marginRight: "5px",
                               }}
                             >
-                              :
+                              Ordered Foods
                             </Typography>
+                          </Grid>
+                          <Grid size={8.2}>
                             <Typography
-                              component="span"
                               sx={{
-                                fontSize: "18px",
+                                fontSize: "15.5px",
+                                // color: "#707070",
+                                fontWeight: 600,
                               }}
                             >
-                              {displayedFoodItems?.map((item, index) => (
-                                <React.Fragment key={`inventory-${index}`}>
-                                  <span>{item?.foodName}</span>
-                                  {index !== displayedFoodItems?.length - 1 && (
-                                    <span>, </span>
-                                  )}
-                                </React.Fragment>
-                              ))}
-
-                              {remainingFoodItemsCount > 0 && (
-                                <>
-                                  &nbsp; &
-                                  <span
-                                    style={{
-                                      cursor: "pointer",
-                                      marginLeft: "8px",
-                                      background: "#cbcbcb",
-                                      lineHeight: 1.7,
-                                      borderRadius: "5px",
-                                    }}
-                                    onClick={() =>
-                                      handleOpenShowcaseModalForFoodOnClick()
-                                    }
-                                  >
-                                    &nbsp; +{remainingFoodItemsCount} more
-                                    &nbsp;
-                                  </span>
-                                </>
-                              )}
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                  marginRight: "5px",
+                                }}
+                              >
+                                :
+                              </Typography>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  // fontWeight: 600,
+                                }}
+                              >
+                                {uniqueFoodItems.map((item, index) => (
+                                  <React.Fragment key={`food-item-${index}`}>
+                                    <span>{item}</span>
+                                    {index !== uniqueFoodItems.length - 1 && (
+                                      <span>, </span>
+                                    )}
+                                  </React.Fragment>
+                                ))}
+                                {uniqueFoodItems.length > 0 && (
+                                  <>
+                                    <span> &nbsp;</span>
+                                    <span
+                                      style={{
+                                        cursor: "pointer",
+                                        position: "relative",
+                                      }}
+                                      onClick={() =>
+                                        handleOpenShowcaseModalForFoodOnClick(
+                                          isSelectedRoom?.bookingDto
+                                            ?.foodDataList
+                                        )
+                                      }
+                                    >
+                                      <InfoIcon
+                                        sx={{
+                                          fontSize: 16,
+                                          position: "absolute",
+                                          top: 1,
+                                        }}
+                                      />
+                                    </span>
+                                  </>
+                                )}
+                              </Typography>
                             </Typography>
-                          </Typography>
+                          </Grid>
                         </Grid>
                       </Grid>
                     </Grid>
-                  </Grid>
-                </Box> */}
+                  </Box>
+                )}
+
+                {/* EXTRA ITEMS DETAILS */}
+                {Boolean(uniqueInventoryItems?.length) && (
+                  <Box sx={{ width: "100%", mt: 1 }}>
+                    <Grid container size={12}>
+                      <Grid size={12}>
+                        <Typography
+                          sx={{
+                            fontSize: "16.5px",
+                            // color: "#707070",
+                            fontWeight: 600,
+                            width: "100%",
+                            borderBottom: "2px solid #ccc",
+                            marginBottom: "5px",
+                          }}
+                        >
+                          Inventory Details :
+                        </Typography>
+                      </Grid>
+
+                      <Grid size={12}>
+                        <Grid container size={12}>
+                          {/* Used Items */}
+                          <Grid size={3.8}>
+                            <Typography
+                              sx={{
+                                fontSize: "15.5px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                              }}
+                            >
+                              Extra Items
+                            </Typography>
+                          </Grid>
+                          <Grid size={8.2}>
+                            <Typography
+                              sx={{
+                                fontSize: "15.5px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                              }}
+                            >
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                  marginRight: "5px",
+                                }}
+                              >
+                                :
+                              </Typography>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  // fontWeight: 600,
+                                }}
+                              >
+                                {uniqueInventoryItems.map((item, index) => (
+                                  <React.Fragment key={`food-item-${index}`}>
+                                    <span>{item}</span>
+                                    {index !==
+                                      uniqueInventoryItems.length - 1 && (
+                                      <span>, </span>
+                                    )}
+                                  </React.Fragment>
+                                ))}
+                                {uniqueInventoryItems.length > 0 && (
+                                  <>
+                                    <span> &nbsp;</span>
+                                    <span
+                                      style={{
+                                        cursor: "pointer",
+                                        position: "relative",
+                                      }}
+                                      onClick={() =>
+                                        handleOpenShowcaseModalForInventoryOnClick(
+                                          isSelectedRoom?.bookingDto
+                                            ?.extraItemsList
+                                        )
+                                      }
+                                    >
+                                      <InfoIcon
+                                        sx={{
+                                          fontSize: 16,
+                                          position: "absolute",
+                                          top: 1,
+                                        }}
+                                      />
+                                    </span>
+                                  </>
+                                )}
+                              </Typography>
+                            </Typography>
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </Box>
+                )}
               </Box>
             </>
           )}
@@ -2304,6 +2387,7 @@ const RoomServiceCard = memo(function ({
             // bgcolor: "white",
             bottom: 0,
             gap: 2,
+            mt: 1,
           }}
         >
           {/* AVAILABLE ROOM CASE */}
@@ -2314,6 +2398,15 @@ const RoomServiceCard = memo(function ({
               onClick={() =>
                 handleOpenCustomFormDrawerOnClick(true, "Booking", "booking")
               }
+              sx={{
+                backgroundImage:
+                  "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
+                color: "white",
+                "&:hover": {
+                  backgroundImage:
+                    "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
+                },
+              }}
             >
               BOOK NOW
             </Button>
@@ -2328,6 +2421,15 @@ const RoomServiceCard = memo(function ({
                 onClick={() =>
                   handleOpenCustomFormDrawerOnClick(true, "Check-In", "checkIn")
                 }
+                sx={{
+                  backgroundImage:
+                    "linear-gradient(to right, #2ba409, #4fb009, #6dbc0b, #88c810, #a3d417)", // Multi-tone gradient
+                  color: "white",
+                  "&:hover": {
+                    backgroundImage:
+                      "linear-gradient(to right, #2ba409, #4fb009, #6dbc0b, #88c810, #a3d417)", // Same gradient for hover
+                  },
+                }}
               >
                 CHECK-IN
               </Button>
@@ -2425,6 +2527,22 @@ const RoomServiceCard = memo(function ({
                   ? "Checkout Requsted"
                   : ""}
               </Button>
+
+              <Button
+                variant="contained"
+                size="small"
+                sx={{
+                  backgroundImage:
+                    "linear-gradient(to right, #009688, #00897b, #00796b, #00695c)", // Lighter to darker teal
+                  color: "white",
+                  "&:hover": {
+                    backgroundImage:
+                      "linear-gradient(to right, #00796b, #00695c, #005b50)", // Slightly darker shades on hover
+                  },
+                }}
+              >
+                View Invoice
+              </Button>
             </>
           )}
         </Box>
@@ -2510,7 +2628,8 @@ const CustomFormDrawer = memo(function ({
       <Box sx={{ width: 500 }} role="presentation">
         <Box
           sx={{
-            p: 2,
+            px: 2,
+
             display: "flex",
             justifyContent: "space-between",
           }}
@@ -2669,6 +2788,7 @@ const CustomFormDrawer = memo(function ({
                   label="Stayer"
                   name="noOfPeoples"
                   // autoComplete="noOfPeoples"
+                  inputProps={{ maxLength: 3 }}
                   variant="standard"
                   value={customFormDrawerData?.noOfPeoples || ""}
                   onChange={(e) =>
@@ -2782,6 +2902,7 @@ const CustomFormDrawer = memo(function ({
                               id={`customerName${index}`}
                               label="Guest Name"
                               name="customerName"
+                              inputProps={{ maxLength: 100 }}
                               // autoComplete="noOfPeoples"
                               variant="standard"
                               value={item?.customerName || ""}
@@ -2913,6 +3034,7 @@ const CustomFormDrawer = memo(function ({
                               name="govtIdNo"
                               autoComplete="govtIdNo"
                               variant="standard"
+                              inputProps={{ maxLength: 50 }}
                               value={item?.govtIdNo || ""}
                               onChange={(e) =>
                                 handleChangeCustomFormDrawerDataOnChange(
@@ -3115,6 +3237,7 @@ const CustomFormDrawer = memo(function ({
                           value={
                             customFormDrawerData?.transactionReferenceNo || ""
                           }
+                          inputProps={{ maxLength: 80 }}
                           onChange={(e) =>
                             handleChangeCustomFormDrawerDataOnChange(
                               "transactionReferenceNo",
@@ -3135,6 +3258,7 @@ const CustomFormDrawer = memo(function ({
                       name="paidAmount"
                       autoComplete="paidAmount"
                       variant="standard"
+                      inputProps={{ maxLength: 20 }}
                       value={customFormDrawerData?.paidAmount || ""}
                       onChange={(e) =>
                         handleChangeCustomFormDrawerDataOnChange(
@@ -3155,6 +3279,7 @@ const CustomFormDrawer = memo(function ({
                       name="remarks"
                       autoComplete="remarks"
                       variant="standard"
+                      inputProps={{ maxLength: 120 }}
                       value={customFormDrawerData?.remarks || ""}
                       onChange={(e) =>
                         handleChangeCustomFormDrawerDataOnChange(
@@ -3172,11 +3297,11 @@ const CustomFormDrawer = memo(function ({
                   variant="contained"
                   sx={{
                     backgroundImage:
-                      "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
+                      "linear-gradient(to right, #2ba409, #4fb009, #6dbc0b, #88c810, #a3d417)", // Multi-tone gradient
                     color: "white",
                     "&:hover": {
                       backgroundImage:
-                        "linear-gradient(to right, #0acffe 10%, #495aff 90%)", // Optional hover adjustment
+                        "linear-gradient(to right, #2ba409, #4fb009, #6dbc0b, #88c810, #a3d417)", // Same gradient for hover
                     },
                   }}
                   onClick={() => handleSubmitRoomCheckInOnClick()}
@@ -3292,6 +3417,7 @@ const CustomFormDrawer = memo(function ({
                       name="firstName"
                       // autoComplete="firstName"
                       variant="standard"
+                      inputProps={{ maxLength: 30 }}
                       value={customFormDrawerData?.firstName || ""}
                       onChange={(e) =>
                         handleChangeCustomFormDrawerDataOnChange(
@@ -3304,12 +3430,13 @@ const CustomFormDrawer = memo(function ({
                   <Grid size={{ xs: 6 }}>
                     <TextField
                       margin="normal"
-                      required
+                      // required
                       fullWidth
                       id="middleName"
                       label="Middle Name"
                       name="middleName"
                       // autoComplete="middleName"
+                      inputProps={{ maxLength: 30 }}
                       variant="standard"
                       value={customFormDrawerData?.middleName || ""}
                       onChange={(e) =>
@@ -3323,13 +3450,14 @@ const CustomFormDrawer = memo(function ({
                   <Grid size={{ xs: 6 }}>
                     <TextField
                       margin="normal"
-                      required
+                      // required
                       fullWidth
                       id="lastName"
                       label="Last Name"
                       name="lastName"
                       // autoComplete="lastName"
                       variant="standard"
+                      inputProps={{ maxLength: 30 }}
                       value={customFormDrawerData?.lastName || ""}
                       onChange={(e) =>
                         handleChangeCustomFormDrawerDataOnChange(
@@ -3347,6 +3475,7 @@ const CustomFormDrawer = memo(function ({
                       id="phoneNumber"
                       label="Phone No."
                       name="phoneNumber"
+                      inputProps={{ maxLength: 10 }}
                       // autoComplete="phoneNumber"
                       variant="standard"
                       value={customFormDrawerData?.phoneNumber || ""}
@@ -3368,6 +3497,7 @@ const CustomFormDrawer = memo(function ({
                       name="email"
                       // autoComplete="email"
                       variant="standard"
+                      inputProps={{ maxLength: 120 }}
                       value={customFormDrawerData?.email || ""}
                       onChange={(e) =>
                         handleChangeCustomFormDrawerDataOnChange(
@@ -3387,6 +3517,7 @@ const CustomFormDrawer = memo(function ({
                       name="address"
                       // autoComplete="address"
                       variant="standard"
+                      inputProps={{ maxLength: 150 }}
                       value={customFormDrawerData?.address || ""}
                       onChange={(e) =>
                         handleChangeCustomFormDrawerDataOnChange(
@@ -3406,6 +3537,7 @@ const CustomFormDrawer = memo(function ({
                       name="noOfPeoples"
                       // autoComplete="noOfPeoples"
                       variant="standard"
+                      inputProps={{ maxLength: 3 }}
                       value={customFormDrawerData?.noOfPeoples || ""}
                       onChange={(e) =>
                         handleChangeCustomFormDrawerDataOnChange(
@@ -3522,6 +3654,7 @@ const CustomFormDrawer = memo(function ({
                                     id={`customerName${index}`}
                                     label="Guest Name"
                                     name="customerName"
+                                    inputProps={{ maxLength: 90 }}
                                     // autoComplete="noOfPeoples"
                                     variant="standard"
                                     value={item?.customerName || ""}
@@ -3654,6 +3787,7 @@ const CustomFormDrawer = memo(function ({
                                     name="govtIdNo"
                                     autoComplete="govtIdNo"
                                     variant="standard"
+                                    inputProps={{ maxLength: 50 }}
                                     value={item?.govtIdNo || ""}
                                     onChange={(e) =>
                                       handleChangeCustomFormDrawerDataOnChange(
@@ -3672,25 +3806,204 @@ const CustomFormDrawer = memo(function ({
                       {/* <Grid size={{ xs: 12 }}></Grid> */}
                     </Box>
                   </Grid>
-                  <Grid size={{ xs: 12 }}>
-                    <Button
-                      variant="contained"
-                      sx={{
-                        backgroundImage:
-                          "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
-                        color: "white",
-                        "&:hover": {
-                          backgroundImage:
-                            "linear-gradient(to right, #0acffe 10%, #495aff 90%)", // Optional hover adjustment
-                        },
-                      }}
-                      onClick={() =>
-                        handleSubmitBookingForGuestByFrontDeskOnClick()
-                      }
-                    >
-                      Book Now
-                    </Button>
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                  <Grid container size={12} spacing={2}>
+                    <Grid size={6}>
+                      <Box
+                        sx={{
+                          height: "100%",
+                          position: "relative",
+                          ".MuiTextField-root": {
+                            width: "100%",
+                            backgroundColor: "transparent",
+                            ".MuiInputBase-root": {
+                              color: "#B4B4B4",
+                              background: "rgba(255, 255, 255, 0.25)",
+                            },
+                          },
+                          // ".MuiFormLabel-root": {
+                          //   color: (theme) => theme.palette.primary.main,
+                          //   fontWeight: 600,
+                          //   fontSize: 18,
+                          // },
+                          ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before":
+                            {
+                              borderBottom: (theme) =>
+                                `1px solid ${theme.palette.primary.main}`,
+                            },
+                          ".css-iwadjf-MuiInputBase-root-MuiInput-root:before":
+                            {
+                              borderBottom: (theme) =>
+                                `1px solid ${theme.palette.primary.main}`,
+                            },
+                        }}
+                      >
+                        <Autocomplete
+                          fullWidth
+                          options={
+                            allPaymentMethods?.data?.map((item) => ({
+                              key: item,
+                              name: item.replace(/_/g, " "),
+                            })) || []
+                          }
+                          disableClearable
+                          value={customFormDrawerData?.paymentMethod || null}
+                          onChange={(e, newVal) =>
+                            handleChangeCustomFormDrawerDataOnChange(
+                              "paymentMethod",
+                              newVal
+                            )
+                          }
+                          inputValue={
+                            customFormDrawerData?.paymentMethodInputValue || ""
+                          }
+                          onInputChange={(e, newVal) =>
+                            handleChangeCustomFormDrawerDataOnChange(
+                              "paymentMethodInputValue",
+                              newVal
+                            )
+                          }
+                          getOptionLabel={(option) => option?.name}
+                          clearOnEscape
+                          disablePortal
+                          popupIcon={<KeyboardArrowDownIcon color="primary" />}
+                          sx={{
+                            // width: 200,
+                            position: "absolute",
+                            bottom: 7,
+                            ".MuiInputBase-root": {
+                              color: "#fff",
+                            },
+                            "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover":
+                              {
+                                backgroundColor: "#E9E5F1",
+                                color: "#280071",
+                                fontWeight: 600,
+                              },
+                            "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                              {
+                                backgroundColor: "#E9E5F1",
+                                color: "#280071",
+                                fontWeight: 600,
+                              },
+                          }}
+                          size="small"
+                          clearIcon={<ClearIcon color="primary" />}
+                          PaperComponent={(props) => (
+                            <Paper
+                              sx={{
+                                background: "#fff",
+                                color: "#B4B4B4",
+                                // borderRadius: "10px",
+                              }}
+                              {...props}
+                            />
+                          )}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="Payment Method"
+                              variant="standard"
+                              // sx={{
+                              //   "& .MuiOutlinedInput-root": {
+                              //     borderRadius: 2,
+                              //   },
+                              // }}
+                            />
+                          )}
+                        />
+                      </Box>
+                    </Grid>
+                    {customFormDrawerData?.paymentMethod &&
+                      !(
+                        customFormDrawerData?.paymentMethod?.key === "Cash"
+                      ) && (
+                        <Grid size={6}>
+                          <TextField
+                            margin="normal"
+                            required
+                            fullWidth
+                            id={`transactionReferenceNo`}
+                            label="Transaction ref. No."
+                            name="transactionReferenceNo"
+                            autoComplete="transactionReferenceNo"
+                            variant="standard"
+                            value={
+                              customFormDrawerData?.transactionReferenceNo || ""
+                            }
+                            inputProps={{ maxLength: 80 }}
+                            onChange={(e) =>
+                              handleChangeCustomFormDrawerDataOnChange(
+                                "transactionReferenceNo",
+                                e?.target?.value
+                              )
+                            }
+                          />
+                        </Grid>
+                      )}
+
+                    <Grid size={6}>
+                      <TextField
+                        margin="normal"
+                        fullWidth
+                        disabled={!Boolean(customFormDrawerData?.paymentMethod)}
+                        id={`paidAmount`}
+                        label="Amount"
+                        name="paidAmount"
+                        autoComplete="paidAmount"
+                        variant="standard"
+                        inputProps={{ maxLength: 20 }}
+                        value={customFormDrawerData?.paidAmount || ""}
+                        onChange={(e) =>
+                          handleChangeCustomFormDrawerDataOnChange(
+                            "paidAmount",
+                            e?.target?.value
+                          )
+                        }
+                      />
+                    </Grid>
+
+                    <Grid size={6}>
+                      <TextField
+                        margin="normal"
+                        required
+                        fullWidth
+                        id={`remarks`}
+                        label="Remarks"
+                        name="remarks"
+                        autoComplete="remarks"
+                        variant="standard"
+                        inputProps={{ maxLength: 120 }}
+                        value={customFormDrawerData?.remarks || ""}
+                        onChange={(e) =>
+                          handleChangeCustomFormDrawerDataOnChange(
+                            "remarks",
+                            e?.target?.value
+                          )
+                        }
+                      />
+                    </Grid>
                   </Grid>
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                  <Button
+                    variant="contained"
+                    sx={{
+                      backgroundImage:
+                        "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
+                      color: "white",
+                      "&:hover": {
+                        backgroundImage:
+                          "linear-gradient(to right, #0acffe 10%, #495aff 90%)", // Optional hover adjustment
+                      },
+                    }}
+                    onClick={() =>
+                      handleSubmitBookingForGuestByFrontDeskOnClick()
+                    }
+                  >
+                    Book Now
+                  </Button>
                 </Grid>
               </Grid>
             </Grid>
@@ -3698,6 +4011,393 @@ const CustomFormDrawer = memo(function ({
         </Box>
       </Box>
     </Drawer>
+  );
+});
+
+const getCellValue = (obj, key, fallback = "") => {
+  if (!key) return undefined;
+  return key
+    .split(".")
+    .reduce(
+      (acc, part) => (acc && acc[part] !== undefined ? acc[part] : fallback),
+      obj
+    );
+};
+
+const CustomParentCollapseTableRow = memo(function ({
+  foodListTableHeaders,
+  rowSerialNumber,
+  key,
+  row,
+  foodListItemsTableHeaders,
+  isForCheckOut = false,
+}) {
+  const [openCollapseTable, setOpenCollapseTable] = useState(
+    isForCheckOut ? false : true
+  );
+
+  const handleChangeOpenCollapseTable = useCallback(() => {
+    setOpenCollapseTable((prev) => !prev);
+  }, []);
+
+  return (
+    <>
+      <TableRow
+        hover
+        key={row?.id}
+        sx={{
+          cursor: "pointer",
+          height: 35,
+          backgroundColor: "inherit",
+          "&:hover": {
+            backgroundColor: "inherit",
+          },
+        }}
+      >
+        {foodListTableHeaders?.map((subitem, subIndex) => {
+          return (
+            <TableCell key={`table-body-cell=${subIndex}`} align="center">
+              <Typography sx={{ fontSize: "12px" }}>
+                {subitem?.key === "sno" ? (
+                  <Typography sx={{ fontSize: "12px" }}>
+                    {rowSerialNumber}
+                  </Typography>
+                ) : subitem?.key === "orderedOn" ? (
+                  <Typography
+                    sx={{
+                      fontSize: "12px",
+                      wordWrap: "break-word",
+                      whiteSpace: "none",
+                    }}
+                  >
+                    {row?.bookingDetails?.bookedOn &&
+                      moment(row?.bookingDetails?.bookedOn).format(
+                        "DD-MM-YYYY hh:mm A"
+                      )}
+                  </Typography>
+                ) : subitem?.key === "orderId" ? (
+                  <Typography
+                    sx={{
+                      fontSize: "12px",
+                      wordWrap: "break-word",
+                      wordBreak: "break-all",
+                      whiteSpace: "none",
+                    }}
+                  >
+                    {row?.bookingDetails?.orderId}
+                  </Typography>
+                ) : subitem?.key === "serving" ? (
+                  <Typography
+                    sx={{
+                      fontSize: "12px",
+                      wordWrap: "break-word",
+                      whiteSpace: "none",
+                    }}
+                  >
+                    {row?.bookingDetails?.dinningType
+                      ?.replace(/_/g, " ")
+                      ?.replace(/([a-z])([A-Z])/g, "$1 $2")
+                      ?.replace(/\b\w/g, (char) => char.toUpperCase())}
+                  </Typography>
+                ) : subitem?.key === "foodBookingStatus" ? (
+                  <Typography
+                    sx={{
+                      fontSize: "12px",
+                      wordWrap: "break-word",
+                      whiteSpace: "none",
+                    }}
+                  >
+                    {row?.bookingDetails?.foodBookingStatus
+                      ?.replace(/_/g, " ")
+                      ?.replace(/([a-z])([A-Z])/g, "$1 $2")
+                      ?.replace(/\b\w/g, (char) => char.toUpperCase())}
+                  </Typography>
+                ) : subitem?.key === "foodListAction" ? (
+                  // <Box sx={{ display: "flex", gap: 1, width: "100%" }}>
+                  <IconButton
+                    sx={{
+                      width: "20px",
+                      height: "20px",
+                      transition: "transform 0.3s ease",
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleChangeOpenCollapseTable();
+                    }}
+                  >
+                    <KeyboardArrowDownIcon
+                      sx={{
+                        fontSize: "20px",
+                        fontWeight: 600,
+                        transform: openCollapseTable
+                          ? "rotate(180deg)" // Rotated when true
+                          : "rotate(0deg)", // Default position when false
+                        transition: "transform 0.3s ease",
+                      }}
+                    />
+                  </IconButton>
+                ) : (
+                  // </Box>
+                  <Typography sx={{ fontSize: "12px", wordWrap: "break-word" }}>
+                    {getCellValue(row, subitem?.key)}
+                  </Typography>
+                )}
+              </Typography>
+            </TableCell>
+          );
+        })}
+      </TableRow>
+      <TableRow>
+        <TableCell
+          sx={{
+            paddingBottom: 0,
+            paddingTop: 0,
+            padding: "0 !important",
+          }}
+          colSpan={
+            Boolean(foodListTableHeaders?.length)
+              ? foodListTableHeaders?.length
+              : 1
+          }
+        >
+          <Collapse in={openCollapseTable} timeout="auto">
+            <Table size="small" aria-label="bookedGuests">
+              <TableHead>
+                <TableRow>
+                  {foodListItemsTableHeaders?.map((item, index) => {
+                    return (
+                      <TableCell
+                        key={`child-table-head-${index}`}
+                        align="center"
+                        sx={{
+                          color: "white",
+                          backgroundColor: "#454545",
+                          fontWeight: "bold",
+                          // paddingY: "8px",
+                          fontSize: "14px",
+                        }}
+                      >
+                        {item?.label}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {Boolean(row?.itemsList?.length) ? (
+                  row?.itemsList?.map((childItem, childIndex) => (
+                    <TableRow key={`child-row-${childIndex}`}>
+                      {foodListItemsTableHeaders?.map(
+                        (subHeaderitem, subIndex) => {
+                          return (
+                            <TableCell
+                              key={`table-body-cell=${subIndex}`}
+                              align="center"
+                            >
+                              <Typography sx={{ fontSize: "13px" }}>
+                                {subHeaderitem?.key === "sno" ? (
+                                  <Typography sx={{ fontSize: "13px" }}>
+                                    {childIndex + 1}
+                                  </Typography>
+                                ) : (
+                                  <Typography sx={{ fontSize: "13px" }}>
+                                    {getCellValue(
+                                      childItem,
+                                      subHeaderitem?.key
+                                    )}
+                                  </Typography>
+                                )}
+                              </Typography>
+                            </TableCell>
+                          );
+                        }
+                      )}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      align="center"
+                      colSpan={
+                        Boolean(foodListItemsTableHeaders?.length)
+                          ? foodListItemsTableHeaders?.length
+                          : 1
+                      }
+                    >
+                      No data available
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </>
+  );
+});
+
+const CustomFoodListTableContainer = memo(function ({
+  foodListTableHeaders,
+  foodListTableData,
+  foodListItemsTableHeaders,
+  isForCheckOut = false,
+}) {
+  console.log(
+    "CustomFoodListTableContainer foodListTableData : ",
+    foodListTableData
+  );
+  return (
+    <React.Fragment>
+      <TableContainer
+        component={Paper}
+        sx={{
+          overflow: "auto",
+          maxHeight: {
+            xs: isForCheckOut ? "220px" : "310px",
+            // xl: "calc(100vh - 280px)",
+            "&::-webkit-scrollbar": {
+              // height: "14px",
+            },
+            "&::-webkit-scrollbar-track": {
+              backgroundColor: "#ffffff00",
+              width: "none",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "#280071",
+              borderRadius: "4px",
+            },
+            "&::-webkit-scrollbar-thumb:hover": {
+              backgroundColor: "#3b0b92",
+            },
+          },
+        }}
+      >
+        <Table aria-label="simple table" stickyHeader size="small">
+          <TableHead>
+            <TableRow>
+              {foodListTableHeaders?.map((item, index) => {
+                return (
+                  <TableCell
+                    key={`room-table-head-${index}`}
+                    align="center"
+                    sx={{
+                      color: "white",
+                      backgroundColor: "primary.main",
+                      fontWeight: "bold",
+                      // paddingY: "10px",
+                      fontSize: "13px",
+                    }}
+                  >
+                    {item?.label}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {Boolean(foodListTableData?.length > 0) ? (
+              foodListTableData?.map((row, index) => (
+                <CustomParentCollapseTableRow
+                  foodListTableHeaders={foodListTableHeaders}
+                  rowSerialNumber={index + 1}
+                  key={row.id}
+                  row={row}
+                  foodListItemsTableHeaders={foodListItemsTableHeaders}
+                  isForCheckOut={isForCheckOut}
+                />
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  align="center"
+                  colSpan={
+                    Boolean(foodListTableHeaders?.length)
+                      ? foodListTableHeaders?.length
+                      : 1
+                  }
+                >
+                  No data available
+                </TableCell>
+              </TableRow>
+            )}
+            <TableRow>
+              <TableCell
+                colSpan={5}
+                style={{
+                  position: "sticky",
+                  bottom: 0,
+                  zIndex: 1,
+                  background: "white",
+                  minHeight: "100%",
+                  borderTop: "1px solid #ccc",
+                }}
+              >
+                <Typography
+                  sx={{
+                    width: "100%",
+                    textAlign: "center",
+                    fontSize: "16px",
+                    fontWeight: 600,
+                    // borderTop: "1px solid #ccc",
+                    minHeight: "24.9px",
+                  }}
+                >
+                  {" "}
+                </Typography>
+              </TableCell>
+              <TableCell
+                style={{
+                  position: "sticky",
+                  bottom: 0,
+                  zIndex: 1,
+                  background: "white",
+                  borderTop: "1px solid #ccc",
+                }}
+                colSpan={1}
+              >
+                <Typography
+                  sx={{
+                    width: "100%",
+                    textAlign: "center",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    // borderTop: "1px solid #ccc",
+                  }}
+                >
+                  Total
+                </Typography>
+              </TableCell>
+              <TableCell
+                style={{
+                  position: "sticky",
+                  bottom: 0,
+                  zIndex: 1,
+                  background: "white",
+                  borderTop: "1px solid #ccc",
+                }}
+                colSpan={1}
+              >
+                <Typography
+                  sx={{
+                    width: "100%",
+                    textAlign: "center",
+                    fontSize: "13px",
+                    // borderTop: "1px solid #ccc",
+                  }}
+                >
+                  {foodListTableData?.reduce(
+                    (sum, item) =>
+                      sum + (item?.bookingDetails?.totalPrice || 0),
+                    0
+                  )}
+                </Typography>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </React.Fragment>
   );
 });
 
@@ -3713,8 +4413,11 @@ const ShowcaseDialog = memo(function ({
   allPaymentMethods,
   handleChangeShowcaseDialogFormData,
   handleConfirmFinalCheckout,
+  foodListTableHeaders,
+  foodListItemsTableHeaders,
 }) {
-  console.log("type : ", type);
+  // console.log("type : ", type);
+  console.log("ShowcaseDialog foodData : ", foodData);
 
   const handleCloseShowcaseDialogOnClose = useCallback(() => {
     handleCloseShowcaseDialog();
@@ -3754,15 +4457,22 @@ const ShowcaseDialog = memo(function ({
         fullWidth
         sx={{
           ".MuiDialogTitle-root": {
-            px: 5,
-            py: 2,
+            px: 2,
           },
         }}
         PaperProps={{
           sx: { borderRadius: 4 },
         }}
       >
-        <DialogTitle id="password-change-dialog-title" sx={{ fontSize: 24 }}>
+        <DialogTitle
+          id="password-change-dialog-title"
+          sx={{
+            // Reduce padding (default is larger)
+            fontSize: "20px", // Adjust font size to suit smaller title
+            lineHeight: "0.2", // Reduce line-height
+            fontWeight: 600,
+          }}
+        >
           {title}
         </DialogTitle>
         <IconButton
@@ -3770,300 +4480,30 @@ const ShowcaseDialog = memo(function ({
           onClick={handleCloseShowcaseDialogOnClose}
           sx={{
             position: "absolute",
-            right: 30,
-            top: 16,
+            right: 5,
+            top: 1,
             color: "#280071",
           }}
         >
-          <CloseIcon sx={{ fontSize: 30 }} />
+          <CloseIcon sx={{ fontSize: 27 }} />
         </IconButton>
         <DialogContent>
-          <Box sx={{ width: "100%", pl: 3 }}>
+          <Box sx={{ width: "100%" }}>
             {type === "inventory" && (
               <>
                 {Boolean(inventoryData?.length) && (
-                  <Grid container size={12} rowSpacing={2}>
-                    {inventoryData?.map((inventoryItem, index) => {
-                      return (
-                        <React.Fragment key={`inv-${index}`}>
-                          {/* DATE */}
-                          <Grid size={12}>
-                            <Typography
-                              sx={{
-                                fontSize: "20.5px",
-                                // color: "#707070",
-                                fontWeight: 600,
-                                width: "100%",
-                                borderBottom: "2px solid #ccc",
-                                marginBottom: "5px",
-                              }}
-                            >
-                              Date : {inventoryItem?.date}
-                            </Typography>
-                          </Grid>
-                          {inventoryItem?.items?.map((invItems, invIndex) => {
-                            return (
-                              <React.Fragment key={`InvItem-${invIndex}`}>
-                                {/* INV NAME */}
-                                <Grid size={3}>
-                                  <Typography
-                                    sx={{
-                                      fontSize: "18px",
-                                      // color: "#707070",
-                                      fontWeight: 600,
-                                    }}
-                                  >
-                                    Product Name
-                                  </Typography>
-                                </Grid>
-                                <Grid size={9}>
-                                  <Typography
-                                    sx={{
-                                      fontSize: "18px",
-                                      // color: "#707070",
-                                      fontWeight: 600,
-                                    }}
-                                  >
-                                    <Typography
-                                      component="span"
-                                      sx={{
-                                        fontSize: "18px",
-                                        // color: "#707070",
-                                        fontWeight: 600,
-                                        marginRight: "5px",
-                                      }}
-                                    >
-                                      :
-                                    </Typography>
-                                    <Typography
-                                      component="span"
-                                      sx={{
-                                        fontSize: "18px",
-                                        // color: "#707070",
-                                        // fontWeight: 600,
-                                      }}
-                                    >
-                                      {invItems?.productName}
-                                    </Typography>
-                                  </Typography>
-                                </Grid>
-
-                                {/* QUANTITY */}
-                                <Grid size={3}>
-                                  <Typography
-                                    sx={{
-                                      fontSize: "18px",
-                                      // color: "#707070",
-                                      fontWeight: 600,
-                                    }}
-                                  >
-                                    Quantity
-                                  </Typography>
-                                </Grid>
-                                <Grid size={9}>
-                                  <Typography
-                                    sx={{
-                                      fontSize: "18px",
-                                      // color: "#707070",
-                                      fontWeight: 600,
-                                    }}
-                                  >
-                                    <Typography
-                                      component="span"
-                                      sx={{
-                                        fontSize: "18px",
-                                        // color: "#707070",
-                                        fontWeight: 600,
-                                        marginRight: "5px",
-                                      }}
-                                    >
-                                      :
-                                    </Typography>
-                                    <Typography
-                                      component="span"
-                                      sx={{
-                                        fontSize: "18px",
-                                        // color: "#707070",
-                                        // fontWeight: 600,
-                                      }}
-                                    >
-                                      {invItems?.quantity}
-                                    </Typography>
-                                  </Typography>
-                                </Grid>
-                              </React.Fragment>
-                            );
-                          })}
-                        </React.Fragment>
-                      );
-                    })}
-                  </Grid>
+                  <CustomInventoryTable inventoryData={inventoryData} />
                 )}
               </>
             )}
             {type === "food" && (
               <>
                 {Boolean(foodData?.length) && (
-                  <Grid container size={12} rowSpacing={2}>
-                    {foodData?.map((foodDataItems, index) => {
-                      return (
-                        <React.Fragment key={`inv-${index}`}>
-                          {/* DATE */}
-                          <Grid size={12}>
-                            <Typography
-                              sx={{
-                                fontSize: "20.5px",
-                                // color: "#707070",
-                                fontWeight: 600,
-                                width: "100%",
-                                borderBottom: "2px solid #ccc",
-                                marginBottom: "5px",
-                              }}
-                            >
-                              Date : {foodDataItems?.date}
-                            </Typography>
-                          </Grid>
-                          {foodDataItems?.items?.map((foodItem, foodIndex) => {
-                            return (
-                              <React.Fragment key={`foodItem-${foodIndex}`}>
-                                {/* FOOD NAME */}
-                                <Grid size={3}>
-                                  <Typography
-                                    sx={{
-                                      fontSize: "18px",
-                                      // color: "#707070",
-                                      fontWeight: 600,
-                                    }}
-                                  >
-                                    Product Name
-                                  </Typography>
-                                </Grid>
-                                <Grid size={9}>
-                                  <Typography
-                                    sx={{
-                                      fontSize: "18px",
-                                      // color: "#707070",
-                                      fontWeight: 600,
-                                    }}
-                                  >
-                                    <Typography
-                                      component="span"
-                                      sx={{
-                                        fontSize: "18px",
-                                        // color: "#707070",
-                                        fontWeight: 600,
-                                        marginRight: "5px",
-                                      }}
-                                    >
-                                      :
-                                    </Typography>
-                                    <Typography
-                                      component="span"
-                                      sx={{
-                                        fontSize: "18px",
-                                        // color: "#707070",
-                                        // fontWeight: 600,
-                                      }}
-                                    >
-                                      {foodItem?.foodName}
-                                    </Typography>
-                                  </Typography>
-                                </Grid>
-
-                                {/* FOOD PRICE */}
-                                <Grid size={3}>
-                                  <Typography
-                                    sx={{
-                                      fontSize: "18px",
-                                      // color: "#707070",
-                                      fontWeight: 600,
-                                    }}
-                                  >
-                                    Price
-                                  </Typography>
-                                </Grid>
-                                <Grid size={9}>
-                                  <Typography
-                                    sx={{
-                                      fontSize: "18px",
-                                      // color: "#707070",
-                                      fontWeight: 600,
-                                    }}
-                                  >
-                                    <Typography
-                                      component="span"
-                                      sx={{
-                                        fontSize: "18px",
-                                        // color: "#707070",
-                                        fontWeight: 600,
-                                        marginRight: "5px",
-                                      }}
-                                    >
-                                      :
-                                    </Typography>
-                                    <Typography
-                                      component="span"
-                                      sx={{
-                                        fontSize: "18px",
-                                        // color: "#707070",
-                                        // fontWeight: 600,
-                                      }}
-                                    >
-                                      {foodItem?.price}
-                                    </Typography>
-                                  </Typography>
-                                </Grid>
-
-                                {/* QUANTITY */}
-                                <Grid size={3}>
-                                  <Typography
-                                    sx={{
-                                      fontSize: "18px",
-                                      // color: "#707070",
-                                      fontWeight: 600,
-                                    }}
-                                  >
-                                    Quantity
-                                  </Typography>
-                                </Grid>
-                                <Grid size={9}>
-                                  <Typography
-                                    sx={{
-                                      fontSize: "18px",
-                                      // color: "#707070",
-                                      fontWeight: 600,
-                                    }}
-                                  >
-                                    <Typography
-                                      component="span"
-                                      sx={{
-                                        fontSize: "18px",
-                                        // color: "#707070",
-                                        fontWeight: 600,
-                                        marginRight: "5px",
-                                      }}
-                                    >
-                                      :
-                                    </Typography>
-                                    <Typography
-                                      component="span"
-                                      sx={{
-                                        fontSize: "18px",
-                                        // color: "#707070",
-                                        // fontWeight: 600,
-                                      }}
-                                    >
-                                      {foodItem?.quantity}
-                                    </Typography>
-                                  </Typography>
-                                </Grid>
-                              </React.Fragment>
-                            );
-                          })}
-                        </React.Fragment>
-                      );
-                    })}
-                  </Grid>
+                  <CustomFoodListTableContainer
+                    foodListTableHeaders={foodListTableHeaders}
+                    foodListTableData={foodData}
+                    foodListItemsTableHeaders={foodListItemsTableHeaders}
+                  />
                 )}
               </>
             )}
@@ -4071,7 +4511,7 @@ const ShowcaseDialog = memo(function ({
             {type === "checkout" && (
               <>
                 <Box sx={{ width: "100%" }}>
-                  <Grid container size={12} spacing={2}>
+                  <Grid container size={12} spacing={1}>
                     <Grid size={12}>
                       <Typography
                         sx={{
@@ -4088,7 +4528,6 @@ const ShowcaseDialog = memo(function ({
                       <Box
                         sx={{
                           width: "100%",
-                          maxHeight: "130px",
                           overflow: "auto",
                         }}
                       >
@@ -4098,13 +4537,41 @@ const ShowcaseDialog = memo(function ({
                           }
                         />
                       </Box>
+                      <Box sx={{ width: "100%" }}>
+                        <Typography
+                          sx={{
+                            fontSize: "18px",
+                            // color: "#707070",
+                            fontWeight: 600,
+                            width: "100%",
+                            borderBottom: "2px solid #ccc",
+                            marginBottom: "5px",
+                          }}
+                        >
+                          Food Details :
+                        </Typography>
+                        {Boolean(
+                          checkOutRoomData?.bookingDto?.foodDataList?.length
+                        ) && (
+                          <CustomFoodListTableContainer
+                            foodListTableHeaders={foodListTableHeaders}
+                            foodListTableData={
+                              checkOutRoomData?.bookingDto?.foodDataList
+                            }
+                            foodListItemsTableHeaders={
+                              foodListItemsTableHeaders
+                            }
+                            isForCheckOut={type === "checkout" ? true : false}
+                          />
+                        )}
+                      </Box>
                     </Grid>
                     <Grid size={12}>
-                      <Grid container size={12} spacing={1}>
+                      <Grid container size={12} columnSpacing={1}>
                         <Grid size={3.5}>
                           <Typography
                             sx={{
-                              fontSize: "16.5px",
+                              fontSize: "15px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -4115,7 +4582,7 @@ const ShowcaseDialog = memo(function ({
                         <Grid size={2.5}>
                           <Typography
                             sx={{
-                              fontSize: "16.5px",
+                              fontSize: "15px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -4123,7 +4590,7 @@ const ShowcaseDialog = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "16.5px",
+                                fontSize: "15px",
                                 // color: "#707070",
                                 fontWeight: 600,
                                 marginRight: "5px",
@@ -4134,7 +4601,7 @@ const ShowcaseDialog = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "16.5px",
+                                fontSize: "15px",
                                 // color: "#707070",
                                 // fontWeight: 600,
                               }}
@@ -4146,7 +4613,7 @@ const ShowcaseDialog = memo(function ({
                         <Grid size={1.5}>
                           <Typography
                             sx={{
-                              fontSize: "16.5px",
+                              fontSize: "15px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -4157,7 +4624,7 @@ const ShowcaseDialog = memo(function ({
                         <Grid size={4.5}>
                           <Typography
                             sx={{
-                              fontSize: "16.5px",
+                              fontSize: "15px",
                               // color: "#707070",
                               fontWeight: 600,
                             }}
@@ -4165,7 +4632,7 @@ const ShowcaseDialog = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "16.5px",
+                                fontSize: "15px",
                                 // color: "#707070",
                                 fontWeight: 600,
                                 marginRight: "5px",
@@ -4176,7 +4643,7 @@ const ShowcaseDialog = memo(function ({
                             <Typography
                               component="span"
                               sx={{
-                                fontSize: "16.5px",
+                                fontSize: "15px",
                                 // color: "#707070",
                                 // fontWeight: 600,
                               }}
@@ -4192,8 +4659,8 @@ const ShowcaseDialog = memo(function ({
                       {Boolean(
                         showcaseDialogFormData?.subTotalAmountRemaining > 0
                       ) && (
-                        <Grid container size={12} spacing={2}>
-                          <Grid size={6}>
+                        <Grid container size={12} columnSpacing={1}>
+                          <Grid size={4}>
                             <Box
                               sx={{
                                 height: "100%",
@@ -4260,7 +4727,7 @@ const ShowcaseDialog = memo(function ({
                                 sx={{
                                   // width: 200,
                                   position: "absolute",
-                                  bottom: 7,
+                                  bottom: 8,
                                   ".MuiInputBase-root": {
                                     color: "#fff",
                                   },
@@ -4309,7 +4776,7 @@ const ShowcaseDialog = memo(function ({
                               showcaseDialogFormData?.paymentMethod?.key ===
                               "Cash"
                             ) && (
-                              <Grid size={6}>
+                              <Grid size={4}>
                                 <TextField
                                   margin="normal"
                                   required
@@ -4333,7 +4800,7 @@ const ShowcaseDialog = memo(function ({
                               </Grid>
                             )}
 
-                          <Grid size={6}>
+                          <Grid size={4}>
                             <TextField
                               margin="normal"
                               fullWidth
@@ -4365,7 +4832,11 @@ const ShowcaseDialog = memo(function ({
                         showcaseDialogFormData?.subTotalAmountRemaining < 0
                       ) && (
                         <Typography>
-                          An Amount Of {"911"} Has To Be Paid To Customer.
+                          An Amount Of{" "}
+                          {Math.abs(
+                            showcaseDialogFormData?.subTotalAmountRemaining
+                          )}{" "}
+                          Has To Be Paid To Customer.
                         </Typography>
                       )}
                     </Grid>
@@ -4399,7 +4870,10 @@ const ShowcaseDialog = memo(function ({
                       >
                         <Button
                           variant="contained"
+                          size="small"
                           sx={{
+                            fontSize: "13px",
+                            paddingX: "5px",
                             backgroundImage:
                               "linear-gradient(to right, #ff416c 0%, #ff4b2b 100%)",
                             color: "white",
@@ -4447,8 +4921,8 @@ const Dashboard = () => {
   const [finalRoomCheckOut, finalRoomCheckOutRes] =
     useFinalRoomCheckOutMutation();
   const [roomCleanRequest, roomCleanRequestRes] = useRoomCleanRequestMutation();
-  // const [bookingByFrontDeskStaff, bookingByFrontDeskStaffRes] =
-  //   useBookingByFrontDeskStaffMutation();
+  const [bookingByFrontDeskStaff, bookingByFrontDeskStaffRes] =
+    useBookingByFrontDeskStaffMutation();
   const [roomListCacheBuster, setRoomListCacheBuster] = useState(false);
   const {
     data: apiTodayCheckoutRoomData = {
@@ -4580,6 +5054,28 @@ const Dashboard = () => {
       paidAmount: "",
       remarks: "",
     }),
+    []
+  );
+
+  const foodListTableHeaders = useMemo(
+    () => [
+      { label: "Sl. No.", key: "sno" },
+      { label: "Order Id", key: "orderId" },
+      { label: "Order On", key: "orderedOn" },
+      { label: "Serving", key: "serving" },
+      { label: "Status", key: "foodBookingStatus" },
+      { label: "Price", key: "bookingDetails.totalPrice" },
+      { label: "Action", key: "foodListAction" },
+    ],
+    []
+  );
+
+  const foodListItemsTableHeaders = useMemo(
+    () => [
+      { label: "Sl. No.", key: "sno" },
+      { label: "Item", key: "itemName" },
+      { label: "Quantity", key: "noOfItems" },
+    ],
     []
   );
 
@@ -4766,23 +5262,28 @@ const Dashboard = () => {
             });
           }
         } else if (name === "customerName") {
-          setCustomFormDrawerData((prevData) => {
-            return {
-              ...prevData,
-              bookingMapDatas: prevData?.bookingMapDatas?.map(
-                (subItem, index) => {
-                  if (index === subIndex) {
-                    return {
-                      ...subItem,
-                      customerName: inputValue,
-                    };
-                  } else {
-                    return subItem;
+          const modifiedCustomerName = inputValue
+            .replace(/ {2,}/g, " ")
+            .replace(/^\s+/g, "");
+          if (/^[a-zA-Z\s]*$/.test(modifiedCustomerName)) {
+            setCustomFormDrawerData((prevData) => {
+              return {
+                ...prevData,
+                bookingMapDatas: prevData?.bookingMapDatas?.map(
+                  (subItem, index) => {
+                    if (index === subIndex) {
+                      return {
+                        ...subItem,
+                        customerName: modifiedCustomerName,
+                      };
+                    } else {
+                      return subItem;
+                    }
                   }
-                }
-              ),
-            };
-          });
+                ),
+              };
+            });
+          }
         } else if (name === "govtIdType") {
           setCustomFormDrawerData((prevData) => {
             return {
@@ -4825,6 +5326,7 @@ const Dashboard = () => {
             };
           });
         } else if (name === "govtIdNo") {
+          const modifiedGovtId = inputValue?.trim();
           setCustomFormDrawerData((prevData) => {
             return {
               ...prevData,
@@ -4833,7 +5335,7 @@ const Dashboard = () => {
                   if (index === subIndex) {
                     return {
                       ...subItem,
-                      govtIdNo: inputValue,
+                      govtIdNo: modifiedGovtId,
                     };
                   } else {
                     return subItem;
@@ -4867,10 +5369,22 @@ const Dashboard = () => {
             };
           });
         } else if (name === "paidAmount") {
+          const sanitizedValue = inputValue.replace(/[^0-9.]/g, "");
+
+          const validValue =
+            sanitizedValue.split(".").length > 2
+              ? sanitizedValue.slice(0, sanitizedValue.lastIndexOf("."))
+              : sanitizedValue;
+
+          const restrictedValue = validValue.includes(".")
+            ? validValue.split(".")[0] +
+              "." +
+              validValue.split(".")[1].slice(0, 3)
+            : validValue;
           setCustomFormDrawerData((prevData) => {
             return {
               ...prevData,
-              paidAmount: inputValue,
+              paidAmount: restrictedValue,
             };
           });
         } else if (name === "remarks") {
@@ -4944,6 +5458,30 @@ const Dashboard = () => {
           //     [name]: inputValue,
           //   }));
           // }
+        } else if (
+          name === "firstName" ||
+          name === "middleName" ||
+          name === "lastName"
+        ) {
+          const modifiedName = inputValue.trim();
+          if (/^[a-zA-Z\s]*$/.test(modifiedName)) {
+            setCustomFormDrawerData((prevData) => {
+              return {
+                ...prevData,
+                [name]: modifiedName,
+              };
+            });
+          }
+        } else if (name === "phoneNumber") {
+          const numericRegex = /^[0-9]*$/;
+          if (numericRegex.test(inputValue)) {
+            setCustomFormDrawerData((prevData) => {
+              return {
+                ...prevData,
+                [name]: inputValue,
+              };
+            });
+          }
         } else {
           setCustomFormDrawerData((prevData) => ({
             ...prevData,
@@ -4964,11 +5502,11 @@ const Dashboard = () => {
         title: title || "",
         type: type || null,
       });
-      // handleChangeCustomFormDrawerData();
+      if (!open) {
+        handleChangeCustomFormDrawerData();
+      }
     },
-    [
-      // handleChangeCustomFormDrawerData
-    ]
+    [handleChangeCustomFormDrawerData]
   );
 
   const handleChangeSelectedRoomForDayCheckout = useCallback(
@@ -5031,6 +5569,13 @@ const Dashboard = () => {
       setSnack({
         open: true,
         message: "Please add a remark",
+        severity: "warning",
+      });
+      return;
+    } else if (!Boolean(customFormDrawerData?.checkOutDate)) {
+      setSnack({
+        open: true,
+        message: "Please provide a valid Checkout date",
         severity: "warning",
       });
       return;
@@ -5192,17 +5737,19 @@ const Dashboard = () => {
               ?.reduce((sum, item) => sum + (item.amount || 0), 0);
 
             const remainingAmount = totalExpense - totalAmountPaid;
+            const parsedRemainingAmount =
+              parseFloat(remainingAmount).toFixed(3);
 
             return {
               ...prevData,
               bookingRefNumber: inputValue?.bookingDto?.bookingRefNumber,
-              subTotalExpense: totalExpense,
-              subTotalAmountPaid: totalAmountPaid,
-              subTotalAmountRemaining: remainingAmount,
+              subTotalExpense: parseFloat(totalExpense).toFixed(3),
+              subTotalAmountPaid: parseFloat(totalAmountPaid).toFixed(3),
+              subTotalAmountRemaining: parsedRemainingAmount,
               paymentMethod: null,
               paymentMethodInputValue: "",
               transactionReferenceNo: "",
-              paidAmount: remainingAmount > 0 ? remainingAmount : 0,
+              paidAmount: parsedRemainingAmount > 0 ? parsedRemainingAmount : 0,
               remarks: "",
             };
           });
@@ -5330,6 +5877,114 @@ const Dashboard = () => {
   );
 
   const handleSubmitBookingForGuestByFrontDesk = useCallback(() => {
+    if (!Boolean(customFormDrawerData?.firstName)) {
+      setSnack({
+        open: true,
+        message: "First name is required!",
+        severity: "warning",
+      });
+      return;
+    } else if (!/^\d{10}$/.test(String(customFormDrawerData?.phoneNumber))) {
+      setSnack({
+        open: true,
+        message: "Please provide a valid phone number",
+        severity: "warning",
+      });
+      return;
+    } else if (!Boolean(customFormDrawerData?.email?.trim())) {
+      setSnack({
+        open: true,
+        message: "Please provide a valid email",
+        severity: "warning",
+      });
+      return;
+    } else if (!Boolean(customFormDrawerData?.address?.trim())) {
+      setSnack({
+        open: true,
+        message: "Please provide guest address",
+        severity: "warning",
+      });
+      return;
+    } else if (!Boolean(customFormDrawerData?.checkOutDate)) {
+      setSnack({
+        open: true,
+        message: "Please provide a valid Checkout date",
+        severity: "warning",
+      });
+      return;
+    } else if (!Boolean(customFormDrawerData?.noOfPeoples)) {
+      setSnack({
+        open: true,
+        message: "Atleat 1 guest is required to Check-In",
+        severity: "warning",
+      });
+      return;
+    } else if (
+      Boolean(customFormDrawerData?.isBookingForToday) &&
+      customFormDrawerData?.bookingMapDatas?.some(
+        (item) =>
+          !item?.customerName?.trim() ||
+          !item?.govtIdType?.key ||
+          !item?.govtIdNo?.trim()
+      )
+    ) {
+      setSnack({
+        open: true,
+        message: "Guest Verification Details are required",
+        severity: "warning",
+      });
+      return;
+    } else if (
+      !Boolean(customFormDrawerData?.isBookingForToday) &&
+      customFormDrawerData?.bookingMapDatas?.some((item) => {
+        const hasPartialEntry =
+          item?.customerName?.trim() ||
+          item?.govtIdType?.key ||
+          item?.govtIdNo?.trim();
+
+        const isEntryIncomplete =
+          !item?.customerName?.trim() ||
+          !item?.govtIdType?.key ||
+          !item?.govtIdNo?.trim();
+
+        return hasPartialEntry && isEntryIncomplete; // Trigger error if any key is filled but others are missing
+      })
+    ) {
+      setSnack({
+        open: true,
+        message: "Guest Verification should be completed if required.",
+        severity: "warning",
+      });
+      return;
+    } else if (!Boolean(customFormDrawerData?.paymentMethod?.key)) {
+      setSnack({
+        open: true,
+        message: "Guest select a valid payment method",
+        severity: "warning",
+      });
+      return;
+    } else if (
+      Boolean(customFormDrawerData?.paymentMethod?.key !== "Cash") &&
+      !Boolean(customFormDrawerData?.transactionReferenceNo?.trim())
+    ) {
+      setSnack({
+        open: true,
+        message: "Guest provide a valid transacion ref. no.",
+        severity: "warning",
+      });
+      return;
+    } else if (
+      isNaN(parseFloat(customFormDrawerData?.paidAmount)) ||
+      parseFloat(customFormDrawerData?.paidAmount) === 0
+    ) {
+      setSnack({
+        open: true,
+        message: "Paid amount cannot be zero or empty",
+        severity: "warning",
+      });
+      return;
+    }
+
     const payload = {
       roomTypeId: customFormDrawerData?.roomDto?.roomType?.id,
       isBookingForToday: customFormDrawerData?.isBookingForToday,
@@ -5347,17 +6002,62 @@ const Dashboard = () => {
       roomDto: {
         id: customFormDrawerData?.roomDto?.id,
       },
-      bookingMapDatas: customFormDrawerData?.bookingMapDatas?.map((item) => {
-        return {
-          customerName: item?.customerName,
-          govtIdType: item?.govtIdType?.key,
-          govtIdNo: item?.govtIdNo,
-        };
-      }),
+      bookingMapDatas: customFormDrawerData?.isBookingForToday
+        ? customFormDrawerData?.bookingMapDatas?.map((item) => {
+            return {
+              customerName: item?.customerName?.trim(),
+              govtIdType: item?.govtIdType?.key,
+              govtIdNo: item?.govtIdNo,
+            };
+          })
+        : customFormDrawerData?.bookingMapDatas?.some(
+            (item) =>
+              item?.customerName?.trim() ||
+              item?.govtIdType?.key ||
+              item?.govtIdNo?.trim()
+          )
+        ? customFormDrawerData?.bookingMapDatas?.map((item) => {
+            return {
+              customerName: item?.customerName,
+              govtIdType: item?.govtIdType?.key,
+              govtIdNo: item?.govtIdNo,
+            };
+          })
+        : [],
+      paidAmount: !Boolean(customFormDrawerData?.paidAmount)
+        ? 0
+        : Number(customFormDrawerData?.paidAmount),
+      paymentMethod: customFormDrawerData?.paymentMethod?.key,
+      transactionReferenceNo: customFormDrawerData?.transactionReferenceNo,
+      remarks: customFormDrawerData?.remarks,
     };
 
     console.log("handleSubmitBookingForGuestByFrontDesk payload : ", payload);
-  }, [customFormDrawerData]);
+
+    bookingByFrontDeskStaff(payload)
+      .unwrap()
+      .then((res) => {
+        setSnack({
+          open: true,
+          message: res?.message || "Booking Success",
+          severity: "success",
+        });
+        handleOpenCustomFormDrawer();
+        handleRoomSelect();
+      })
+      .catch((err) => {
+        setSnack({
+          open: true,
+          message: err?.data?.message || err?.data || "Booking Failed",
+          severity: "error",
+        });
+      });
+  }, [
+    customFormDrawerData,
+    bookingByFrontDeskStaff,
+    handleOpenCustomFormDrawer,
+    handleRoomSelect,
+  ]);
 
   useEffect(() => {
     if (Boolean(apiRoomData?.data?.floorRoomMapData?.length)) {
@@ -5508,14 +6208,16 @@ const Dashboard = () => {
         openShowcaseDialog={showcaseDialogData?.open}
         title={showcaseDialogData?.title}
         type={showcaseDialogData?.type}
-        inventoryData={showcaseDialogData?.inventoryData}
-        foodData={showcaseDialogData?.foodData}
+        inventoryData={showcaseDialogData?.inventoryData || []}
+        foodData={showcaseDialogData?.foodData || []}
         checkOutRoomData={isSelectedRoom}
         handleCloseShowcaseDialog={handleCloseShowcaseDialog}
         showcaseDialogFormData={showcaseDialogFormData}
         allPaymentMethods={allPaymentMethods}
         handleChangeShowcaseDialogFormData={handleChangeShowcaseDialogFormData}
         handleConfirmFinalCheckout={handleConfirmFinalCheckout}
+        foodListTableHeaders={foodListTableHeaders}
+        foodListItemsTableHeaders={foodListItemsTableHeaders}
       />
       <CustomFormDrawer
         customDrawerOpen={customFormDrawerOpen?.open}
@@ -5545,7 +6247,7 @@ const Dashboard = () => {
           isRoomtypeByHotelIdDataFetching ||
           isAllGovtIdsDataFetching ||
           isAllPaymentMethodsFetching ||
-          // bookingByFrontDeskStaffRes?.isLoading ||
+          bookingByFrontDeskStaffRes?.isLoading ||
           false
         }
       />

@@ -75,7 +75,7 @@ const filterBookingRooms = (
   return bookingRoomsTableData.filter((item) => {
     // If no bookingList, skip this item
     if (!item?.bookingList || item.bookingList.length === 0) {
-      return false;
+      return true;
     }
 
     // Filter relevant bookings (Booked or Checked_In)
@@ -1146,7 +1146,7 @@ const CustomParentCollapseTableRow = memo(function ({
                                   </Typography>
                                 ) : (
                                   <Typography sx={{ fontSize: "13px" }}>
-                                    {getCellValue(row, childItem?.key)}
+                                    {getCellValue(row, subHeaderitem?.key)}
                                   </Typography>
                                 )}
                               </Typography>
