@@ -294,7 +294,7 @@ const Header = () => {
                 JSON.parse(sessionStorage.getItem("data"))?.roleType ===
                   CUSTOMER
               ) && (
-                <>
+                <div>
                   <MenuItem onClick={handleClickOpenPasswordChangeDialog}>
                     <ListItemIcon>
                       <LockResetIcon fontSize="small" />
@@ -302,7 +302,7 @@ const Header = () => {
                     Change Password
                   </MenuItem>
                   <Divider />
-                </>
+                </div>
               )}
 
               <MenuItem onClick={handleClickOpenDialog}>

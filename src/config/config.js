@@ -51,6 +51,9 @@ const config = Object.freeze({
     // HOUSE-KEEPER DASHBOARD API ENDPOINTS
     getServiceableRoomData: "api/get/service/requested/rooms",
     approveHouseKeepingService: "api/approve/service/request",
+
+    // PARKING DASHBOARD DATA
+    getAllParkingData: "api/get/all/parking/list",
   },
 });
 

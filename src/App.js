@@ -28,6 +28,7 @@ const RestaurantAdmin = React.lazy(() =>
 const FrontdeskBookingHistory = React.lazy(() =>
   import("./features/frontdeskBookingHistory/FrontdeskBookingHistory")
 );
+const Parking = React.lazy(() => import("./features/parking/Parking"));
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function App() {
               path="/frontdeskBookingHistory"
               element={<FrontdeskBookingHistory />}
             />
+            <Route path="/Parking" element={<Parking />} />
           </Route>
         </Routes>
       </React.Suspense>
