@@ -204,7 +204,7 @@ function FormDialog({
     setRemark("");
     setSelectedStatus(order?.bookingDetails?.foodBookingStatus || null);
     setSelectedStatusInputVal(order?.bookingDetails?.foodBookingStatus || "");
-  }, [open]);
+  }, [open, order]);
 
   return (
     <React.Fragment>
