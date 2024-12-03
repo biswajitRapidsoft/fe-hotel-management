@@ -23,6 +23,8 @@ const config = Object.freeze({
     getDineType: "public/get/all/dinning/type",
     getCustomerOrdeHistory: "public/get/individual/customer/food/history",
     updateFoodOrderStatus: "public/change/food/order/status",
+    getFoodOrderListAdmin: "api/get/today/order/history",
+    getAllFoodOrderStatus: "public/get/all/dinning/status/type",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",
