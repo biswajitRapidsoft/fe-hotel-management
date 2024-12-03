@@ -13,14 +13,17 @@ import {
   Divider,
   IconButton,
   Typography,
-  // Dialog,
+  Dialog,
   // DialogActions,
-  // DialogContent,
+  DialogContent,
   // DialogTitle,
-  // Slide,
-  // TextField,
+  Slide,
+  TextField,
 } from "@mui/material";
 import moment from "moment";
+// import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import { PiWarningCircleLight } from "react-icons/pi";
+
 import CloseIcon from "@mui/icons-material/Close";
 import {
   useCancelHotelRoomMutation,
@@ -34,15 +37,16 @@ import { useNavigate } from "react-router-dom";
 import RestaurantIcon from "@mui/icons-material/Restaurant";
 import CleaningServicesIcon from "@mui/icons-material/CleaningServices";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
-import Swal from "sweetalert2";
+// import Swal from "sweetalert2";
 
-// const Transition = React.forwardRef(function Transition(props, ref) {
-//   return <Slide direction="up" ref={ref} {...props} />;
-// });
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
-  // const [cancelBookingOpen, setCancelBookingOpen] = React.useState(false);
-  // const [selectedBookingRefNumber, setSelectedBookingRefNumber] =
+  const [cancelBookingOpen, setCancelBookingOpen] = React.useState(false);
+  const [selectedBookingRefNumber, setSelectedBookingRefNumber] =
+    React.useState(null);
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
@@ -52,7 +56,7 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
   const [requestRoomCheckout, requestRoomCheckoutRes] =
     useRequestRoomCheckoutMutation();
   const [roomCleanRequest, roomCleanRequestRes] = useRoomCleanRequestMutation();
-  const [cancelBooking, cancelBookingRes] = useCancelHotelRoomMutation();
+  // const [cancelBooking, cancelBookingRes] = useCancelHotelRoomMutation();
 
   const navigate = useNavigate();
 
@@ -135,63 +139,60 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
 
   // api for cancelling booking
 
-  const handleBookingCancel = (bookingRefNumber) => {
-    Swal.fire({
-      title: "Cancel Booking!",
-      text: "Are you sure you want to cancel booking ?",
-      icon: "warning",
-      input: "text",
-      inputPlaceholder: "Enter a remark for cancellation",
-      inputValidator: (value) => {
-        if (!value || value.trim() === "") {
-          return "You need to provide a valid remark!";
-        }
-        return null;
-      },
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes",
-      customClass: {
-        popup: "custom-swal-popup",
-      },
-    }).then(
-      (result) => {
-        // if (result.isConfirmed) {
-        // const remark = result.value ? result?.value?.trim() : "";
-        const payload = {
-          bookingRefNumber: bookingRefNumber,
-          // rejectionReason: remark,
-          rejectionReason: "",
-        };
-        cancelBooking(payload)
-          .unwrap()
-          .then((res) => {
-            setSnack({
-              open: true,
-              message: res?.message || "Booking Confirmation Success",
-              severity: "success",
-            });
-          })
-          .catch((err) => {
-            setSnack({
-              open: true,
-              message:
-                err?.data?.message ||
-                err?.data ||
-                "Booking Confirmation Failed",
-              severity: "error",
-            });
-          });
-      }
-      // }
-    );
-  };
-
-  // const handleCancelClick = (bookingRefNumber) => {
-  //   setSelectedBookingRefNumber(bookingRefNumber);
-  //   setCancelBookingOpen(true);
+  // const handleBookingCancel = (bookingRefNumber) => {
+  //   Swal.fire({
+  //     title: "Cancel Booking!",
+  //     text: "Are you sure you want to cancel booking ?",
+  //     icon: "warning",
+  //     // input: "text",
+  //     // inputPlaceholder: "Enter a remark for cancellation",
+  //     // inputValidator: (value) => {
+  //     //   if (!value || value.trim() === "") {
+  //     //     return "You need to provide a valid remark!";
+  //     //   }
+  //     //   return null;
+  //     // },
+  //     showCancelButton: true,
+  //     confirmButtonColor: "#3085d6",
+  //     cancelButtonColor: "#d33",
+  //     confirmButtonText: "Yes",
+  //   }).then(
+  //     (result) => {
+  //       // if (result.isConfirmed) {
+  //       // const remark = result.value ? result?.value?.trim() : "";
+  //       const payload = {
+  //         bookingRefNumber: bookingRefNumber,
+  //         // rejectionReason: remark,
+  //         rejectionReason: "",
+  //       };
+  //       cancelBooking(payload)
+  //         .unwrap()
+  //         .then((res) => {
+  //           setSnack({
+  //             open: true,
+  //             message: res?.message || "Booking Confirmation Success",
+  //             severity: "success",
+  //           });
+  //         })
+  //         .catch((err) => {
+  //           setSnack({
+  //             open: true,
+  //             message:
+  //               err?.data?.message ||
+  //               err?.data ||
+  //               "Booking Confirmation Failed",
+  //             severity: "error",
+  //           });
+  //         });
+  //     }
+  //     // }
+  //   );
   // };
+
+  const handleCancelClick = (bookingRefNumber) => {
+    setSelectedBookingRefNumber(bookingRefNumber);
+    setCancelBookingOpen(true);
+  };
   const DrawerList = (
     <Box
       sx={{ width: 600, p: 2 }}
@@ -366,8 +367,8 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                                   textTransform: "none",
                                 }}
                                 onClick={() => {
-                                  // handleCancelClick(booking.bookingRefNumber);
-                                  handleBookingCancel(booking.bookingRefNumber);
+                                  handleCancelClick(booking.bookingRefNumber);
+                                  // handleBookingCancel(booking.bookingRefNumber);
                                 }}
                               >
                                 Cancel
@@ -459,16 +460,16 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
           </Box>
         )}
       </Timeline>
-      {/* <CancelRoomDialog
+      <CancelRoomDialog
         open={cancelBookingOpen}
         onClose={() => setCancelBookingOpen(false)}
         selectedBookingRefNumber={selectedBookingRefNumber}
-      /> */}
+      />
 
       <LoadingComponent
         open={
           requestRoomCheckoutRes.isLoading ||
-          cancelBookingRes.isLoading ||
+          // cancelBookingRes.isLoading ||
           roomCleanRequestRes.isLoading
         }
       />
@@ -491,100 +492,200 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
 };
 
 // dialog for confirmation of cancelling room
-// const CancelRoomDialog = ({ open, onClose, selectedBookingRefNumber }) => {
-//   const [rejectionReason, setRejectionReason] = React.useState("");
-//   const [cancelBooking, cancelBookingRes] = useCancelHotelRoomMutation();
-//   const [snack, setSnack] = React.useState({
-//     open: false,
-//     message: "",
-//     severity: "",
-//   });
+const CancelRoomDialog = ({ open, onClose, selectedBookingRefNumber }) => {
+  const [rejectionReason, setRejectionReason] = React.useState("");
+  const [cancelBooking, cancelBookingRes] = useCancelHotelRoomMutation();
+  const [snack, setSnack] = React.useState({
+    open: false,
+    message: "",
+    severity: "",
+  });
 
-//   const handleDialogClose = () => {
-//     setRejectionReason("");
-//     onClose();
-//   };
-//   const handleSubmit = () => {
-//     cancelBooking({
-//       bookingRefNumber: selectedBookingRefNumber,
-//       rejectionReason: rejectionReason,
-//     })
-//       .unwrap()
-//       .then((res) => {
-//         handleDialogClose();
-//         setSnack({
-//           open: true,
-//           message: res.message,
-//           severity: "success",
-//         });
-//         setRejectionReason("");
-//       })
-//       .catch((err) => {
-//         setSnack({
-//           open: true,
-//           message: err.data?.message || err.data || "Something Went Wrong",
-//           severity: "error",
-//         });
-//       });
-//   };
-
-//   return (
-//     <>
-//       <Dialog
-//         TransitionComponent={Transition}
-//         open={open}
-//         onClose={handleDialogClose}
-//         maxWidth="sm"
-//         fullWidth
-//       >
-//         <DialogTitle>
-//           <Typography
-//             sx={{ fontWeight: "bold", fontSize: "1.5rem", color: "#A52A2A" }}
-//           >
-//             Confirm cancellation
-//           </Typography>
-//         </DialogTitle>
-//         <DialogContent dividers>
-//           {/* <Box sx={{ p: 2 }}>hello</Box> */}
-//           <Typography sx={{ mb: 1, fontWeight: "bold" }}>
-//             Are you sure you want to cancel the booking?
-//           </Typography>
-//           <TextField
-//             id="outlined-basic"
-//             name="firstName"
-//             label="Reason"
-//             variant="outlined"
-//             value={rejectionReason}
-//             onChange={(e) => setRejectionReason(e.target.value)}
-//             inputProps={{ maxLength: 25 }}
-//             required
-//             size="small"
-//             sx={{ mb: 2 }}
-//           />
-//         </DialogContent>
-//         <DialogActions>
-//           <Button
-//             variant="contained"
-//             // onClick={onClose}
-//             onClick={handleDialogClose}
-//             sx={{ backgroundColor: "#E31837" }}
-//           >
-//             No
-//           </Button>
-//           <Button
-//             variant="contained"
-//             onClick={handleSubmit}
-//             sx={{ backgroundColor: "#228B22" }}
-//             disabled={Boolean(rejectionReason) ? "" : true}
-//           >
-//             Yes
-//           </Button>
-//         </DialogActions>
-//       </Dialog>
-//       <LoadingComponent open={cancelBookingRes.isLoading} />
-//       <SnackAlert snack={snack} setSnack={setSnack} />
-//     </>
-//   );
-// };
+  const handleDialogClose = () => {
+    setRejectionReason("");
+    onClose();
+  };
+  const handleSubmit = () => {
+    if (Boolean(!rejectionReason || rejectionReason.trim() === "")) {
+      return setSnack({
+        open: true,
+        message: "Please provide reason for booking cancellation",
+        severity: "error",
+      });
+    }
+    cancelBooking({
+      bookingRefNumber: selectedBookingRefNumber,
+      rejectionReason: rejectionReason,
+    })
+      .unwrap()
+      .then((res) => {
+        handleDialogClose();
+        setSnack({
+          open: true,
+          message: res.message,
+          severity: "success",
+        });
+        setRejectionReason("");
+      })
+      .catch((err) => {
+        setSnack({
+          open: true,
+          message: err.data?.message || err.data || "Something Went Wrong",
+          severity: "error",
+        });
+      });
+  };
+  // console.log("hello");
+  return (
+    <>
+      <Dialog
+        TransitionComponent={Transition}
+        open={open}
+        onClose={handleDialogClose}
+        maxWidth="sm"
+        fullWidth
+        sx={{ "& .MuiDialog-paper": { minHeight: "430px" } }}
+      >
+        {/* <DialogTitle>
+          <Typography
+            sx={{ fontWeight: "bold", fontSize: "1.5rem", color: "#A52A2A" }}
+          >
+            Confirm cancellation
+          </Typography>
+        </DialogTitle>
+        <DialogContent dividers>
+          <Typography sx={{ mb: 1, fontWeight: "bold" }}>
+            Are you sure you want to cancel the booking?
+          </Typography>
+          <TextField
+            id="outlined-basic"
+            name="firstName"
+            label="Reason"
+            variant="outlined"
+            value={rejectionReason}
+            onChange={(e) => setRejectionReason(e.target.value)}
+            inputProps={{ maxLength: 25 }}
+            required
+            size="small"
+            sx={{ mb: 2 }}
+          />
+        </DialogContent> */}
+        {/* <DialogActions>
+          <Button
+            variant="contained"
+            // onClick={onClose}
+            onClick={handleDialogClose}
+            sx={{ backgroundColor: "#E31837" }}
+          >
+            No
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleSubmit}
+            sx={{ backgroundColor: "#228B22" }}
+            disabled={Boolean(rejectionReason) ? "" : true}
+          >
+            Yes
+          </Button>
+        </DialogActions> */}
+        <DialogContent>
+          <Box
+            sx={{
+              width: "100%",
+              // backgroundColor: "red",
+              display: "flex",
+              gap: 1,
+              flexDirection: "column",
+            }}
+          >
+            <Box sx={{ margin: "auto", mt: 3 }}>
+              {/* <ErrorOutlineIcon sx={{ fontSize: "6rem", color: "orange" }} /> */}
+              <PiWarningCircleLight
+                style={{ fontSize: "6.9rem", color: "#FAD5A5" }}
+              />
+            </Box>
+            <Box sx={{ margin: "auto" }}>
+              <Typography
+                sx={{
+                  fontSize: "2.3rem",
+                  fontFamily: "'Times New Roman', Times, serif",
+                  fontWeight: "bold",
+                  color: "#606470",
+                }}
+              >
+                Cancel Booking!
+              </Typography>
+            </Box>
+            <Box sx={{ margin: "auto" }}>
+              <Typography
+                sx={{
+                  fontFamily: "'Times New Roman', Times, serif",
+                  fontSize: "1.2rem",
+                  color: "#606470",
+                }}
+              >
+                Are you sure you want to cancel booking ?
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                // backgroundColor: "green",
+                // border: "1px solid black",
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                mt: 2,
+              }}
+            >
+              <TextField
+                id="outlined-basic"
+                name="firstName"
+                // label="Reason"
+                placeholder="Enter a remark for cancellation"
+                variant="outlined"
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                inputProps={{ maxLength: 25 }}
+                required
+                size="small"
+                sx={{ mb: 2, width: 500 }}
+                InputProps={{
+                  style: { height: "45px" },
+                }}
+              />
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                gap: 2,
+                mt: 1.7,
+              }}
+            >
+              <Button
+                variant="contained"
+                onClick={handleSubmit}
+                sx={{ backgroundColor: "#318CE7", textTransform: "none" }}
+                // disabled={Boolean(rejectionReason) ? "" : true}
+              >
+                Yes
+              </Button>
+              <Button
+                variant="contained"
+                // onClick={onClose}
+                onClick={handleDialogClose}
+                sx={{ backgroundColor: "#E31837", textTransform: "none" }}
+              >
+                Cancel
+              </Button>
+            </Box>
+          </Box>
+        </DialogContent>
+      </Dialog>
+      <LoadingComponent open={cancelBookingRes.isLoading} />
+      <SnackAlert snack={snack} setSnack={setSnack} />
+    </>
+  );
+};
 
 export default GuestBookingHistoryDrawer;

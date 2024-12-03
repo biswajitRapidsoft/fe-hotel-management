@@ -161,7 +161,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
       firstName: "",
       middleName: "",
       lastName: "",
-      phoneNumber: "",
+      // phoneNumber: "",
       email: "",
       address: "",
       fromDate: null,
@@ -179,29 +179,109 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
     }
     return 0;
   }, [formData.fromDate, formData.toDate]);
-  const isFormValid = React.useCallback(() => {
-    const isAdvanceValid =
-      !hotelDetails?.isAdvanceRequired ||
-      (formData.advancePayment &&
-        Number(formData.advancePayment) >=
-          Number(hotelDetails.advanceAmount) * calculateNumberOfDays &&
-        Number(formData.advancePayment) <=
-          Number(hotelDetails.basePrice) * calculateNumberOfDays);
+  // const isFormValid = React.useCallback(() => {
+  //   const isAdvanceValid =
+  //     !hotelDetails?.isAdvanceRequired ||
+  //     (formData.advancePayment &&
+  //       Number(formData.advancePayment) >=
+  //         Number(hotelDetails.advanceAmount) * calculateNumberOfDays &&
+  //       Number(formData.advancePayment) <=
+  //         Number(hotelDetails.basePrice) * calculateNumberOfDays);
 
-    return Boolean(
-      formData.firstName.trim() &&
-        formData.phoneNumber.length === 10 &&
-        formData.fromDate &&
-        formData.toDate &&
-        formData.noOfPeoples &&
-        isAdvanceValid
-    );
-  }, [formData, hotelDetails, calculateNumberOfDays]);
+  //   return Boolean(
+  //     formData.firstName.trim() &&
+  //       formData.phoneNumber.length === 10 &&
+  //       formData.fromDate &&
+  //       formData.toDate &&
+  //       // formData.noOfPeoples &&
+  //       isAdvanceValid
+  //   );
+  // }, [formData, hotelDetails, calculateNumberOfDays]);
 
   // add reservation function
   const handleSubmit = React.useCallback(
     (e) => {
       e.preventDefault();
+
+      const isAdvanceValid =
+        !hotelDetails?.isAdvanceRequired ||
+        (formData.advancePayment &&
+          Number(formData.advancePayment) >=
+            Number(hotelDetails.advanceAmount) * calculateNumberOfDays &&
+          Number(formData.advancePayment) <=
+            Number(hotelDetails.basePrice) * calculateNumberOfDays);
+
+      if (!Boolean(formData.noOfPeoples)) {
+        return setSnack({
+          open: true,
+          message: "Please provide number of people",
+          severity: "error",
+        });
+      } else if (!Boolean(formData.firstName)) {
+        return setSnack({
+          open: true,
+          message: "Please provide first name",
+          severity: "error",
+        });
+      } else if (!Boolean(formData.middleName)) {
+        return setSnack({
+          open: true,
+          message: "Please provide middle name",
+          severity: "error",
+        });
+      } else if (!Boolean(formData.lastName)) {
+        return setSnack({
+          open: true,
+          message: "Please provide middle name",
+          severity: "error",
+        });
+      } else if (!Boolean(formData.email)) {
+        return setSnack({
+          open: true,
+          message: "Please provide email",
+          severity: "error",
+        });
+      } else if (!Boolean(formData.address)) {
+        return setSnack({
+          open: true,
+          message: "Please provide address",
+          severity: "error",
+        });
+      } else if (!Boolean(formData.fromDate)) {
+        return setSnack({
+          open: true,
+          message: "Please provide fromDate",
+          severity: "error",
+        });
+      } else if (!Boolean(formData.toDate)) {
+        return setSnack({
+          open: true,
+          message: "Please provide toDate",
+          severity: "error",
+        });
+      } else if (!Boolean(formData.noOfPeoples)) {
+        return setSnack({
+          open: true,
+          message: "Please provide number of people",
+          severity: "error",
+        });
+      } else if (!isAdvanceValid) {
+        return setSnack({
+          open: true,
+          message:
+            calculateNumberOfDays > 0
+              ? Number(formData.advancePayment) <
+                Number(hotelDetails.advanceAmount) * calculateNumberOfDays
+                ? `Please pay ₹${
+                    hotelDetails.advanceAmount * calculateNumberOfDays
+                  } in advance`
+                : `Advance amount cannot exceed ₹${
+                    hotelDetails.basePrice * calculateNumberOfDays
+                  }`
+              : "Invalid advance payment",
+          severity: "error",
+        });
+      }
       reserveHotelRoom({
         firstName: formData.firstName,
         middleName: formData.middleName,
@@ -234,7 +314,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
             firstName: "",
             middleName: "",
             lastName: "",
-            phoneNumber: "",
+            // phoneNumber: "",
             email: "",
             address: "",
             fromDate: null,
@@ -602,20 +682,29 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                   <Button
                     variant="contained"
                     sx={{
-                      backgroundImage: isFormValid()
-                        ? "linear-gradient(to right, #0acffe 0%, #495aff 100%)"
-                        : "none",
-                      backgroundColor: isFormValid() ? "inherit" : "gray",
-                      color: isFormValid() ? "white" : "black",
-                      "&:hover": isFormValid()
-                        ? {
-                            backgroundImage:
-                              "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
-                          }
-                        : {},
+                      backgroundImage:
+                        //  isFormValid()?
+                        "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
+                      // : "none"
+                      backgroundColor:
+                        // isFormValid() ?
+                        "inherit",
+                      // : "gray",
+                      color:
+                        //  isFormValid() ?
+                        "white",
+                      //  : "black",
+                      "&:hover":
+                        //  isFormValid()
+                        //   ?
+                        {
+                          backgroundImage:
+                            "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
+                        },
+                      // : {},
                     }}
                     type="submit"
-                    disabled={!isFormValid()}
+                    // disabled={!isFormValid()}
                   >
                     Reserve
                   </Button>
