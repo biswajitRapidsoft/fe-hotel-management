@@ -22,6 +22,9 @@ const HouseKeeperDashboard = React.lazy(() =>
   import("./features/dashboard/HouseKeeperDashboard")
 );
 const Restaurant = React.lazy(() => import("./features/restaurant/Restaurant"));
+const RestaurantAdmin = React.lazy(() =>
+  import("./features/restaurant/RestaurantAdmin")
+);
 const FrontdeskBookingHistory = React.lazy(() =>
   import("./features/frontdeskBookingHistory/FrontdeskBookingHistory")
 );
@@ -47,6 +50,7 @@ function App() {
               element={<HouseKeeperDashboard />}
             />
             <Route path="/resturant" element={<Restaurant />} />
+            <Route path="/restaurant-admin" element={<RestaurantAdmin />} />
             <Route
               path="/frontdeskBookingHistory"
               element={<FrontdeskBookingHistory />}
