@@ -111,9 +111,18 @@ const dashboardApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["getAllLaundryStatus"],
     }),
+
     changeLaundryStatus: build.mutation({
       query: (payload) => ({
         url: config.apiName.changeLaundryStatus,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllLaundryHistory"],
+    }),
+    addRatingForLaundry: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.addRatingForLaundry,
         method: "POST",
         data: payload,
       }),
@@ -247,4 +256,5 @@ export const {
   useLaundryRequestMutation,
   useGetAllLaundryStatusQuery,
   useChangeLaundryStatusMutation,
+  useAddRatingForLaundryMutation,
 } = dashboardApi;

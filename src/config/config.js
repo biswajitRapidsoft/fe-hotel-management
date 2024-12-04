@@ -61,6 +61,7 @@ const config = Object.freeze({
     laundryRequest: "public/request/for/laundry/service",
     getAllLaundryStatus: "api/get/all/laundry/status",
     changeLaundryStatus: "api/change/laundry/service/status",
+    addRatingForLaundry: "public/rate/laundry/service",
 
     // PARKING DASHBOARD DATA
     getAllParkingData: "api/get/all/parking/list",
