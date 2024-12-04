@@ -21,6 +21,7 @@ import {
   TextField,
   Autocomplete,
   Grid2 as Grid,
+  Rating,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
@@ -93,6 +94,19 @@ const Row = ({ order, index, setUpdateStatusDialog }) => {
         <TableCell sx={{ p: 0 }} colSpan={8}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ p: 2, backgroundColor: "#f4f4f4" }}>
+              {order.bookingDetails.isRated && (
+                <Box sx={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <Box>
+                    <Typography component="legend">Rating</Typography>
+                    <Rating
+                      size="large"
+                      value={order.bookingDetails.ratingPoints}
+                      disabled
+                    />
+                  </Box>
+                  <Typography>{order.bookingDetails.ratingMessage}</Typography>
+                </Box>
+              )}
               <Table size="small">
                 <TableHead>
                   <TableRow

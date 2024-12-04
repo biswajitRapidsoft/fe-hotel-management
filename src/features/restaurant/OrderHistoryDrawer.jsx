@@ -8,13 +8,17 @@ import {
   Typography,
   Grid2 as Grid,
   Button,
+  Rating,
 } from "@mui/material";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import { useUpdateFoodOrderStatusMutation } from "../../services/restaurant";
+import {
+  useUpdateFoodOrderStatusMutation,
+  useRateFoodMutation,
+} from "../../services/restaurant";
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 import {
@@ -23,6 +27,7 @@ import {
   ORDER_PLACED,
   REJECTED,
 } from "../../helper/constants";
+
 const drawerWidth = 430;
 
 const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
@@ -32,7 +37,9 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
     severity: "",
   });
   const [cancelFoodDialog, setCancelFoodDialog] = React.useState(null);
+  const [reviewDialog, setReviewDialog] = React.useState(null);
   const [cancelFood, cancelFoodRes] = useUpdateFoodOrderStatusMutation();
+  const [rateFood, rateFoodRes] = useRateFoodMutation();
 
   return (
     <Drawer
@@ -148,11 +155,49 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
                         mx: "auto",
                         mt: 1,
                         width: "100%",
+                        textTransform: "none",
+                        fontSize: 18,
                       }}
                       onClick={() => setCancelFoodDialog(order)}
                     >
                       Cancel Order
                     </Button>
+                  )}
+                  {DELIVERED === order.bookingDetails.foodBookingStatus &&
+                    order.bookingDetails.isRated !== true && (
+                      <Button
+                        color="secondary"
+                        variant="contained"
+                        sx={{
+                          color: "#fff",
+                          display: "block",
+                          width: "100%",
+                          letterSpacing: 1,
+                          fontWeight: 600,
+                          textTransform: "none",
+                          fontSize: 18,
+                          "&.Mui-disabled": {
+                            background: "#B2E5F6",
+                            color: "#FFFFFF",
+                          },
+                        }}
+                        onClick={() => setReviewDialog(order)}
+                      >
+                        Review Your Order
+                      </Button>
+                    )}
+                  {order.bookingDetails.isRated && (
+                    <Rating
+                      value={order.bookingDetails.ratingPoints}
+                      disabled
+                      size="large"
+                      sx={{
+                        mt: 1,
+                        mx: "auto",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                      }}
+                    />
                   )}
                 </Box>
               </Grid>
@@ -167,7 +212,16 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
         orderObj={cancelFoodDialog}
         setSnack={setSnack}
       />
-      <LoadingComponent open={cancelFoodRes.isLoading} />
+      <ReviewDialog
+        open={Boolean(reviewDialog)}
+        handleClose={() => setReviewDialog(null)}
+        rateFood={rateFood}
+        setSnack={setSnack}
+        orderObj={reviewDialog}
+      />
+      <LoadingComponent
+        open={cancelFoodRes.isLoading || rateFoodRes.isLoading}
+      />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </Drawer>
   );
@@ -250,6 +304,107 @@ function FormDialog({ open, handleClose, cancelFood, orderObj, setSnack }) {
             disabled={!Boolean(remark.trim())}
           >
             Cancel Order
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </React.Fragment>
+  );
+}
+
+function ReviewDialog({ open, handleClose, rateFood, setSnack, orderObj }) {
+  const [rating, setRating] = React.useState(0);
+  const [review, setReview] = React.useState("");
+
+  const handleSubmitReview = React.useCallback(
+    (event) => {
+      event.preventDefault();
+      rateFood({
+        id: orderObj.id,
+        ratingPoints: rating,
+        ratingMessage: review,
+      })
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            severity: "success",
+          });
+          setRating(0);
+          setReview("");
+          handleClose();
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data,
+            severity: "error",
+          });
+        });
+    },
+    [rateFood, setSnack, rating, review, handleClose, orderObj]
+  );
+
+  return (
+    <React.Fragment>
+      <Dialog
+        maxWidth="sm"
+        fullWidth
+        open={open}
+        onClose={handleClose}
+        PaperProps={{
+          component: "form",
+          onSubmit: handleSubmitReview,
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 600, fontSize: 24 }}>
+          Review Your Order
+        </DialogTitle>
+        <DialogContent>
+          <Grid container>
+            <Grid size={12}>
+              <Typography component="legend">Rating</Typography>
+              <Rating
+                value={rating}
+                onChange={(e, newVal) => setRating(newVal)}
+                size="large"
+              />
+            </Grid>
+            <Grid size={12}>
+              <TextField
+                autoFocus
+                margin="dense"
+                name="review"
+                label="Review Message"
+                fullWidth
+                variant="standard"
+                value={review}
+                onChange={(e) => setReview(e.target.value)}
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            color="secondary"
+            variant="contained"
+            sx={{
+              color: "#fff",
+              display: "block",
+              mx: "auto",
+              letterSpacing: 1,
+              fontWeight: 600,
+              textTransform: "none",
+              fontSize: 18,
+              "&.Mui-disabled": {
+                background: "#B2E5F6",
+                color: "#FFFFFF",
+              },
+            }}
+            disabled={!Boolean(rating)}
+            type="submit"
+          >
+            Submit
           </Button>
         </DialogActions>
       </Dialog>

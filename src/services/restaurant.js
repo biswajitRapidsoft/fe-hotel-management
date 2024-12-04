@@ -61,6 +61,14 @@ const restaurantApi = apiSlice.injectEndpoints({
         method: "GET",
       }),
     }),
+    rateFood: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.rateFood,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getCustomerOrdeHistory"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -73,4 +81,5 @@ export const {
   useUpdateFoodOrderStatusMutation,
   useGetFoodOrderListAdminQuery,
   useGetAllFoodOrderStatusQuery,
+  useRateFoodMutation,
 } = restaurantApi;
