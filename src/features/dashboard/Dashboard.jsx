@@ -2703,31 +2703,31 @@ const RoomServiceCard = memo(function ({
                   : ""}
               </Button>
 
-              {/* {Boolean(
+              {Boolean(
                 Boolean(
                   isSelectedRoom?.bookingDto?.isCheckoutProceed === false
                 ) &&
                   Boolean(
                     isSelectedRoom?.bookingDto?.isCheckedByKeepingStaff === true
                   )
-              ) && ( */}
-              <Button
-                variant="contained"
-                size="small"
-                sx={{
-                  backgroundImage:
-                    "linear-gradient(to right, #009688, #00897b, #00796b, #00695c)", // Lighter to darker teal
-                  color: "white",
-                  "&:hover": {
+              ) && (
+                <Button
+                  variant="contained"
+                  size="small"
+                  sx={{
                     backgroundImage:
-                      "linear-gradient(to right, #00796b, #00695c, #005b50)", // Slightly darker shades on hover
-                  },
-                }}
-                onClick={() => handleViewHotelBillInvoice(isSelectedRoom)}
-              >
-                View Invoice
-              </Button>
-              {/* )} */}
+                      "linear-gradient(to right, #009688, #00897b, #00796b, #00695c)", // Lighter to darker teal
+                    color: "white",
+                    "&:hover": {
+                      backgroundImage:
+                        "linear-gradient(to right, #00796b, #00695c, #005b50)", // Slightly darker shades on hover
+                    },
+                  }}
+                  onClick={() => handleViewHotelBillInvoice(isSelectedRoom)}
+                >
+                  View Invoice
+                </Button>
+              )}
             </>
           )}
         </Box>
@@ -3667,7 +3667,7 @@ const CustomFormDrawer = memo(function ({
                   <Grid size={{ xs: 6, md: 4 }}>
                     <TextField
                       margin="normal"
-                      required
+                      // required
                       fullWidth
                       id={`remarks`}
                       label="Remarks"
@@ -4963,7 +4963,7 @@ const CustomFormDrawer = memo(function ({
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         margin="normal"
-                        required
+                        // required
                         fullWidth
                         id={`remarks`}
                         label="Remarks"
@@ -6057,6 +6057,51 @@ const ShowcaseDialog = memo(function ({
                             </Typography>
                           </Typography>
                         </Grid>
+                        <Grid size={3.5}>
+                          <Typography
+                            sx={{
+                              fontSize: "15px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            Due Amount
+                          </Typography>
+                        </Grid>
+                        <Grid size={2.5}>
+                          <Typography
+                            sx={{
+                              fontSize: "15px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "15px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                                marginRight: "5px",
+                              }}
+                            >
+                              :
+                            </Typography>
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "15px",
+                                // color: "#707070",
+                                // fontWeight: 600,
+                              }}
+                            >
+                              {showcaseDialogFormData?.subTotalAmountRemaining >
+                              0
+                                ? showcaseDialogFormData?.subTotalAmountRemaining
+                                : 0}
+                            </Typography>
+                          </Typography>
+                        </Grid>
                       </Grid>
                     </Grid>
 
@@ -6209,9 +6254,10 @@ const ShowcaseDialog = memo(function ({
                             <TextField
                               margin="normal"
                               fullWidth
-                              disabled={
-                                !Boolean(showcaseDialogFormData?.paymentMethod)
-                              }
+                              // disabled={
+                              //   !Boolean(showcaseDialogFormData?.paymentMethod)
+                              // }
+                              disabled
                               id={`paidAmount`}
                               label="Amount"
                               name="paidAmount"
@@ -7076,17 +7122,43 @@ const Dashboard = () => {
         severity: "warning",
       });
       return;
-    } else if (!Boolean(customFormDrawerData?.remarks?.trim())) {
-      setSnack({
-        open: true,
-        message: "Please add a remark",
-        severity: "warning",
-      });
-      return;
-    } else if (!Boolean(customFormDrawerData?.checkOutDate)) {
+    }
+    // else if (!Boolean(customFormDrawerData?.remarks?.trim())) {
+    //   setSnack({
+    //     open: true,
+    //     message: "Please add a remark",
+    //     severity: "warning",
+    //   });
+    //   return;
+    // }
+    else if (!Boolean(customFormDrawerData?.checkOutDate)) {
       setSnack({
         open: true,
         message: "Please provide a valid Checkout date",
+        severity: "warning",
+      });
+      return;
+    } else if (
+      customFormDrawerData?.paymentMethod?.key &&
+      customFormDrawerData?.paymentMethod?.key !== "Cash" &&
+      customFormDrawerData?.paymentMethod?.key.trim() !== "" &&
+      !customFormDrawerData?.transactionReferenceNo?.trim()
+    ) {
+      setSnack({
+        open: true,
+        message:
+          "Please provide a valid transaction reference for the selected payment method.",
+        severity: "warning",
+      });
+      return;
+    } else if (
+      Boolean(customFormDrawerData?.paymentMethod?.key) !==
+      Boolean(parseFloat(customFormDrawerData?.paidAmount))
+    ) {
+      setSnack({
+        open: true,
+        message:
+          "Please provide both payment method and advance amount to proceed.",
         severity: "warning",
       });
       return;
@@ -7285,6 +7357,43 @@ const Dashboard = () => {
       setSnack({
         open: true,
         message: "Please Select A Payment Method",
+        severity: "warning",
+      });
+      return;
+    } else if (
+      showcaseDialogFormData?.paymentMethod?.key &&
+      showcaseDialogFormData?.paymentMethod?.key !== "Cash" &&
+      showcaseDialogFormData?.paymentMethod?.key.trim() !== "" &&
+      !showcaseDialogFormData?.transactionReferenceNo?.trim()
+    ) {
+      setSnack({
+        open: true,
+        message:
+          "Please provide a valid transaction reference for the selected payment method.",
+        severity: "warning",
+      });
+      return;
+    } else if (
+      Boolean(showcaseDialogFormData?.subTotalAmountRemaining > 0) &&
+      Boolean(showcaseDialogFormData?.paymentMethod?.key) !==
+        Boolean(parseFloat(showcaseDialogFormData?.paidAmount))
+    ) {
+      setSnack({
+        open: true,
+        message: "Please provide both payment method and amount to proceed.",
+        severity: "warning",
+      });
+      return;
+    } else if (
+      Boolean(showcaseDialogFormData?.subTotalAmountRemaining > 0) &&
+      Boolean(
+        parseFloat(showcaseDialogFormData?.paidAmount) !==
+          showcaseDialogFormData?.subTotalAmountRemaining
+      )
+    ) {
+      setSnack({
+        open: true,
+        message: "please provide remaining amount.",
         severity: "warning",
       });
       return;
@@ -7492,20 +7601,24 @@ const Dashboard = () => {
         severity: "warning",
       });
       return;
-    } else if (!Boolean(customFormDrawerData?.paymentMethod?.key)) {
+    } else if (
+      Boolean(customFormDrawerData?.isAdvanceRequired) &&
+      !Boolean(customFormDrawerData?.paymentMethod?.key)
+    ) {
       setSnack({
         open: true,
-        message: "Guest select a valid payment method",
+        message: "Please select a valid payment method",
         severity: "warning",
       });
       return;
     } else if (
+      Boolean(customFormDrawerData?.isAdvanceRequired) &&
       Boolean(customFormDrawerData?.paymentMethod?.key !== "Cash") &&
       !Boolean(customFormDrawerData?.transactionReferenceNo?.trim())
     ) {
       setSnack({
         open: true,
-        message: "Guest provide a valid transacion ref. no.",
+        message: "Please provide a valid transacion ref. no.",
         severity: "warning",
       });
       return;
@@ -7521,8 +7634,31 @@ const Dashboard = () => {
         severity: "warning",
       });
       return;
+    } else if (
+      customFormDrawerData?.paymentMethod?.key &&
+      customFormDrawerData?.paymentMethod?.key !== "Cash" &&
+      customFormDrawerData?.paymentMethod?.key.trim() !== "" &&
+      !customFormDrawerData?.transactionReferenceNo?.trim()
+    ) {
+      setSnack({
+        open: true,
+        message:
+          "Please provide a valid transaction reference for the selected payment method.",
+        severity: "warning",
+      });
+      return;
+    } else if (
+      Boolean(customFormDrawerData?.paymentMethod?.key) !==
+      Boolean(parseFloat(customFormDrawerData?.paidAmount))
+    ) {
+      setSnack({
+        open: true,
+        message:
+          "Please provide both payment method and advance amount to proceed.",
+        severity: "warning",
+      });
+      return;
     }
-
     const payload = {
       roomTypeId: customFormDrawerData?.roomDto?.roomType?.id,
       isBookingForToday: customFormDrawerData?.isBookingForToday,
