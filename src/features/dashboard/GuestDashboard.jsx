@@ -331,7 +331,13 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
           });
         });
     },
-    [formData, hotelDetails, reserveHotelRoom, handleResetForm]
+    [
+      formData,
+      hotelDetails,
+      reserveHotelRoom,
+      handleResetForm,
+      calculateNumberOfDays,
+    ]
   );
 
   // const handleChangeInput = (e) => {

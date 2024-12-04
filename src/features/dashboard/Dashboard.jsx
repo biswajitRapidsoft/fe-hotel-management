@@ -73,64 +73,25 @@ export const StyledCalendarIcon = styled(CalendarMonthIcon)({
   color: "#9380B8",
 });
 
-// const tempInventoryData = Array.from({ length: 4 }, (_, index) => {
-//   return {
-//     id: index + 1,
-//     date: `${14 + index}th-Nov-2024`,
-//     items: [
-//       {
-//         productName: "Tooth Brush",
-//         quantity: Math.floor(Math.random() * (9 - 1 + 1)) + 1,
-//       },
-//       {
-//         productName: "Soap",
-//         quantity: Math.floor(Math.random() * (9 - 1 + 1)) + 1,
-//       },
-//       {
-//         productName: "Sugar Sachet",
-//         quantity: Math.floor(Math.random() * (9 - 1 + 1)) + 1,
-//       },
-//       {
-//         productName: "Water Bottle",
-//         quantity: Math.floor(Math.random() * (9 - 1 + 1)) + 1,
-//       },
-//     ],
-//   };
-// });
+function calculateNumberOfDaysOfStay({ checkOutDate, fromDate, toDate }) {
+  if (checkOutDate) {
+    const startDate = dayjs().startOf("day");
+    const endDate = dayjs(checkOutDate).startOf("day");
+    const diff = endDate.diff(startDate, "day") + 1;
+    return diff > 0 ? diff : 0;
+  } else if (fromDate && toDate) {
+    const startDate = dayjs(fromDate).startOf("day");
+    const endDate = dayjs(toDate).startOf("day");
+    const diff = endDate.diff(startDate, "day") + 1;
+    return diff > 0 ? diff : 0;
+  }
+  return 0;
+}
 
-// const tempFoodData = Array.from({ length: 4 }, (_, index) => {
-//   return {
-//     id: index + 1,
-//     date: `${14 + index}th-Nov-2024`,
-//     items: [
-//       {
-//         foodName: "Coffee",
-//         price: 110.0,
-//         quantity: Math.floor(Math.random() * (9 - 1 + 1)) + 1,
-//       },
-//       {
-//         foodName: "Pasta",
-//         price: 250.0,
-//         quantity: Math.floor(Math.random() * (9 - 1 + 1)) + 1,
-//       },
-//       {
-//         foodName: "Kabab",
-//         price: 359.0,
-//         quantity: Math.floor(Math.random() * (9 - 1 + 1)) + 1,
-//       },
-//       {
-//         foodName: "Fruit Salad",
-//         price: 190.0,
-//         quantity: Math.floor(Math.random() * (9 - 1 + 1)) + 1,
-//       },
-//       {
-//         foodName: "Sweets",
-//         price: 120.0,
-//         quantity: Math.floor(Math.random() * (9 - 1 + 1)) + 1,
-//       },
-//     ],
-//   };
-// });
+function calculateAccumulatedRoomCharge({ basePrice, daysOfStay }) {
+  const finalBasePrice = basePrice || 0;
+  return finalBasePrice * daysOfStay;
+}
 
 const tempRoomFilterVisibleButtonData = [
   { id: 6, icon: <BsFillBuildingFill />, name: "All" },
@@ -371,7 +332,6 @@ const CustomRoomFilters = memo(function ({
   floorData,
   roomTypes,
   roomData,
-  handleOpenCustomFormDrawer,
 }) {
   const navigate = useNavigate();
   const handleChangeRoomFiltersOnChange = useCallback(
@@ -427,7 +387,11 @@ const CustomRoomFilters = memo(function ({
                 textField: {
                   variant: "outlined",
                   size: "small",
-                  readOnly: true,
+                  // readOnly: true,
+                  clearable: true,
+                  onKeyDown: (e) => {
+                    e.preventDefault();
+                  },
                   sx: {
                     "& .MuiOutlinedInput-root": {
                       borderRadius: 2,
@@ -469,7 +433,7 @@ const CustomRoomFilters = memo(function ({
               ".MuiFormLabel-root": {
                 color: (theme) => theme.palette.primary.main,
                 fontWeight: 600,
-                fontSize: 18,
+                fontSize: 14,
               },
               ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
                 borderBottom: (theme) =>
@@ -478,6 +442,16 @@ const CustomRoomFilters = memo(function ({
               ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
                 borderBottom: (theme) =>
                   `1px solid ${theme.palette.primary.main}`,
+              },
+              "& .MuiOutlinedInput-root": {
+                height: "35px",
+                minHeight: "35px",
+              },
+              "& .MuiInputBase-input": {
+                padding: "13px",
+                height: "100%",
+                boxSizing: "border-box",
+                fontSize: "13px",
               },
             }}
           >
@@ -521,6 +495,19 @@ const CustomRoomFilters = memo(function ({
                     fontWeight: 600,
                   },
               }}
+              componentsProps={{
+                popper: {
+                  sx: {
+                    "& .MuiAutocomplete-listbox": {
+                      maxHeight: "150px",
+                      overflow: "auto",
+                    },
+                    "& .MuiAutocomplete-option": {
+                      fontSize: "13px",
+                    },
+                  },
+                },
+              }}
               size="small"
               clearIcon={<ClearIcon color="primary" />}
               PaperComponent={(props) => (
@@ -562,8 +549,7 @@ const CustomRoomFilters = memo(function ({
               ".MuiFormLabel-root": {
                 color: (theme) => theme.palette.primary.main,
                 fontWeight: 600,
-                fontSize: 16,
-                marginTop: "-3px",
+                fontSize: 14,
               },
               ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
                 borderBottom: (theme) =>
@@ -572,6 +558,16 @@ const CustomRoomFilters = memo(function ({
               ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
                 borderBottom: (theme) =>
                   `1px solid ${theme.palette.primary.main}`,
+              },
+              "& .MuiOutlinedInput-root": {
+                height: "35px",
+                minHeight: "35px",
+              },
+              "& .MuiInputBase-input": {
+                padding: "13px",
+                height: "100%",
+                boxSizing: "border-box",
+                fontSize: "13px",
               },
             }}
           >
@@ -613,6 +609,19 @@ const CustomRoomFilters = memo(function ({
                     fontWeight: 600,
                   },
               }}
+              componentsProps={{
+                popper: {
+                  sx: {
+                    "& .MuiAutocomplete-listbox": {
+                      maxHeight: "150px",
+                      overflow: "auto",
+                    },
+                    "& .MuiAutocomplete-option": {
+                      fontSize: "13px",
+                    },
+                  },
+                },
+              }}
               size="small"
               clearIcon={<ClearIcon color="primary" />}
               PaperComponent={(props) => (
@@ -641,17 +650,17 @@ const CustomRoomFilters = memo(function ({
             />
           </Box>
         </Grid>
-        <Grid size={1}>
+        <Grid size={1.5}>
           <Button
             variant="contained"
             size="small"
             onClick={() => navigate("/frontdeskBookingHistory")}
             sx={{
               fontSize: "10px",
-              wordWrap: "break-word",
-              wordBreak: "break-all",
-              whiteSpace: "none",
-              paddingX: "0.65px",
+              // wordWrap: "break-word",
+              // wordBreak: "break-all",
+              // whiteSpace: "none",
+              // paddingX: "0.65px",
               paddingY: "8px",
               backgroundImage:
                 "linear-gradient(to right, #a4508b 0%, #5f0a87 100%)",
@@ -665,8 +674,8 @@ const CustomRoomFilters = memo(function ({
             Booking History
           </Button>
         </Grid>
-        <Grid size={{ xs: 0, xl: 2.3 }} />
-        <Grid xs={12} lg="auto" md={12}>
+        <Grid size={{ xs: 0, xl: 1 }} />
+        <Grid size={12}>
           <Box
             sx={{
               width: "100%",
@@ -858,7 +867,10 @@ const CustomFloorAccordion = memo(function ({
                 })
                 ?.map((roomDetailsItem, index) => {
                   return (
-                    <Grid key={`room ${index}`} size={{ xs: 6, md: 2 }}>
+                    <Grid
+                      key={`room ${index}`}
+                      size={{ xs: 6, sm: 4, md: 2.5, lg: 2 }}
+                    >
                       <CustomRoomCard
                         roomDetails={roomDetailsItem}
                         isSelectedRoom={
@@ -945,15 +957,22 @@ const CustomRoomCard = memo(function ({
         <Typography sx={{ fontSize: "17px", fontWeight: 550 }}>
           {roomDetails?.roomNo}
         </Typography>
-        <Typography sx={{ fontSize: "14.5px", textAlign: "center" }}>
+        <Typography
+          sx={{
+            fontSize: "14.5px",
+            textAlign: "center",
+            lineHeight: 1.2, // This will reduce the vertical spacing
+            letterSpacing: "normal",
+          }}
+        >
           {roomDetails?.roomType?.type
             ?.replace(/_/g, " ")
             ?.replace(/([a-z])([A-Z])/g, "$1 $2")
             ?.replace(/\b\w/g, (char) => char.toUpperCase()) || ""}
         </Typography>
-        <Typography sx={{ fontWeight: 550 }}>
+        {/* <Typography sx={{ fontWeight: 550 }}>
           {roomDetails?.occupier}
-        </Typography>
+        </Typography> */}
       </Box>
     </Paper>
   );
@@ -1059,6 +1078,7 @@ const RoomServiceCard = memo(function ({
   handleOpenShowcaseModalForCheckout,
   handleRequestRoomCheckout,
   handleRoomCleanRequest,
+  handleOpenShowcaseModalForLaundry,
 }) {
   console.log("RoomServiceCard isSelectedRoom : ", isSelectedRoom);
   const selectedRoomStatusType = checkRoomStatusType(isSelectedRoom);
@@ -1075,6 +1095,13 @@ const RoomServiceCard = memo(function ({
       handleOpenShowcaseModalForFood(foodData);
     },
     [handleOpenShowcaseModalForFood]
+  );
+
+  const handleOpenShowcaseModalForLaundryOnClick = useCallback(
+    (laundryData) => {
+      handleOpenShowcaseModalForLaundry(laundryData);
+    },
+    [handleOpenShowcaseModalForLaundry]
   );
 
   const handleOpenCustomFormDrawerOnClick = useCallback(
@@ -1130,6 +1157,19 @@ const RoomServiceCard = memo(function ({
     return uniqueItems;
   }, []);
 
+  const getUniqueLaudryItems = useCallback((laundryList = []) => {
+    if (!laundryList || laundryList.length === 0) {
+      return [];
+    }
+
+    const allItems = laundryList.flatMap((item) => item.itemsDto || []);
+    const uniqueItems = Array.from(
+      new Set(allItems.filter((item) => item?.name).map((item) => item.name))
+    );
+
+    return uniqueItems;
+  }, []);
+
   const uniqueFoodItems = useMemo(
     () =>
       getUniqueFoodItems(isSelectedRoom?.bookingDto?.foodDataList).slice(0, 2),
@@ -1144,6 +1184,28 @@ const RoomServiceCard = memo(function ({
       ),
     [isSelectedRoom?.bookingDto?.extraItemsList, getUniqueExtraItems]
   );
+
+  const uniqueLaundryItems = useMemo(
+    () =>
+      getUniqueLaudryItems(isSelectedRoom?.bookingDto?.laundryDataList).slice(
+        0,
+        2
+      ),
+    [isSelectedRoom?.bookingDto?.laundryDataList, getUniqueLaudryItems]
+  );
+
+  const handleViewHotelBillInvoice = useCallback((roomData) => {
+    const bookingRefNumber = roomData?.bookingDto?.bookingRefNumber;
+
+    if (bookingRefNumber) {
+      sessionStorage.setItem(
+        `hotelBillInvoice-${bookingRefNumber}`,
+        JSON.stringify(roomData)
+      );
+
+      window.open(`/hotelBillInvoice/${bookingRefNumber}`, "_blank");
+    }
+  }, []);
 
   return (
     <>
@@ -1581,77 +1643,87 @@ const RoomServiceCard = memo(function ({
                 </Box>
 
                 {/* ROOM OPERATIONS */}
-                <Box sx={{ width: "100%", mt: 1 }}>
-                  <Grid container size={12}>
-                    <Grid size={12}>
-                      <Typography
-                        sx={{
-                          fontSize: "16.5px",
-                          // color: "#707070",
-                          fontWeight: 600,
-                          width: "100%",
-                          borderBottom: "2px solid #ccc",
-                          marginBottom: "5px",
-                        }}
-                      >
-                        Room Operations :
-                      </Typography>
-                    </Grid>
+                {Boolean(
+                  Boolean(
+                    isSelectedRoom?.bookingDto?.isCheckoutProceed === false
+                  ) &&
+                    Boolean(
+                      isSelectedRoom?.bookingDto?.isCheckedByKeepingStaff ===
+                        null
+                    )
+                ) && (
+                  <Box sx={{ width: "100%", mt: 1 }}>
+                    <Grid container size={12}>
+                      <Grid size={12}>
+                        <Typography
+                          sx={{
+                            fontSize: "16.5px",
+                            // color: "#707070",
+                            fontWeight: 600,
+                            width: "100%",
+                            borderBottom: "2px solid #ccc",
+                            marginBottom: "5px",
+                          }}
+                        >
+                          Room Operations :
+                        </Typography>
+                      </Grid>
 
-                    <Grid size={12}>
-                      <Grid container size={12}>
-                        {/* Services */}
-                        <Grid size={3.8}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            Services
-                          </Typography>
-                        </Grid>
-                        <Grid size={8.2}>
-                          <Box
-                            sx={{
-                              width: "100%",
-                              display: "flex",
-                              flexWrap: "wrap",
-                            }}
-                          >
+                      <Grid size={12}>
+                        <Grid container size={12}>
+                          {/* Services */}
+                          <Grid size={3.8}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
-                                marginRight: "5px",
                               }}
                             >
-                              :
+                              Services
                             </Typography>
-                            <Tooltip title={"Request Room Cleaning"} arrow>
-                              <Button
-                                variant="contained"
-                                sx={{ minWidth: "unset", width: "15px" }}
-                                onClick={() =>
-                                  handleRoomCleanRequestOnClick(
-                                    isSelectedRoom?.id
-                                  )
-                                }
+                          </Grid>
+                          <Grid size={8.2}>
+                            <Box
+                              sx={{
+                                width: "100%",
+                                display: "flex",
+                                flexWrap: "wrap",
+                              }}
+                            >
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                  marginRight: "5px",
+                                }}
                               >
-                                <CleaningServicesIcon
-                                  sx={{ fontSize: "17px" }}
-                                />
-                              </Button>
-                            </Tooltip>
-                          </Box>
+                                :
+                              </Typography>
+                              <Tooltip title={"Request Room Cleaning"} arrow>
+                                <Button
+                                  variant="contained"
+                                  sx={{ minWidth: "unset", width: "15px" }}
+                                  onClick={() =>
+                                    handleRoomCleanRequestOnClick(
+                                      isSelectedRoom?.id
+                                    )
+                                  }
+                                >
+                                  <CleaningServicesIcon
+                                    sx={{ fontSize: "17px" }}
+                                  />
+                                </Button>
+                              </Tooltip>
+                            </Box>
+                          </Grid>
                         </Grid>
                       </Grid>
                     </Grid>
-                  </Grid>
-                </Box>
+                  </Box>
+                )}
 
                 {/* FOOD DETAILS */}
                 {Boolean(uniqueFoodItems?.length) && (
@@ -1733,6 +1805,109 @@ const RoomServiceCard = memo(function ({
                                         handleOpenShowcaseModalForFoodOnClick(
                                           isSelectedRoom?.bookingDto
                                             ?.foodDataList
+                                        )
+                                      }
+                                    >
+                                      <InfoIcon
+                                        sx={{
+                                          fontSize: 16,
+                                          position: "absolute",
+                                          top: 1,
+                                        }}
+                                      />
+                                    </span>
+                                  </>
+                                )}
+                              </Typography>
+                            </Typography>
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  </Box>
+                )}
+
+                {/* LAUNDRY DETAILS */}
+                {Boolean(uniqueLaundryItems?.length) && (
+                  <Box sx={{ width: "100%", mt: 1 }}>
+                    <Grid container size={12}>
+                      <Grid size={12}>
+                        <Typography
+                          sx={{
+                            fontSize: "16.5px",
+                            // color: "#707070",
+                            fontWeight: 600,
+                            width: "100%",
+                            borderBottom: "2px solid #ccc",
+                            marginBottom: "5px",
+                          }}
+                        >
+                          LaundryDetails :
+                        </Typography>
+                      </Grid>
+
+                      <Grid size={12}>
+                        <Grid container size={12}>
+                          {/* Used Items */}
+                          <Grid size={3.8}>
+                            <Typography
+                              sx={{
+                                fontSize: "15.5px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                              }}
+                            >
+                              Items
+                            </Typography>
+                          </Grid>
+                          <Grid size={8.2}>
+                            <Typography
+                              sx={{
+                                fontSize: "15.5px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                              }}
+                            >
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                  marginRight: "5px",
+                                }}
+                              >
+                                :
+                              </Typography>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  // fontWeight: 600,
+                                }}
+                              >
+                                {uniqueLaundryItems.map((item, index) => (
+                                  <React.Fragment key={`food-item-${index}`}>
+                                    <span>{item}</span>
+                                    {index !==
+                                      uniqueLaundryItems.length - 1 && (
+                                      <span>, </span>
+                                    )}
+                                  </React.Fragment>
+                                ))}
+                                {uniqueLaundryItems.length > 0 && (
+                                  <>
+                                    <span> &nbsp;</span>
+                                    <span
+                                      style={{
+                                        cursor: "pointer",
+                                        position: "relative",
+                                      }}
+                                      onClick={() =>
+                                        handleOpenShowcaseModalForLaundryOnClick(
+                                          isSelectedRoom?.bookingDto
+                                            ?.laundryDataList
                                         )
                                       }
                                     >
@@ -2528,6 +2703,14 @@ const RoomServiceCard = memo(function ({
                   : ""}
               </Button>
 
+              {/* {Boolean(
+                Boolean(
+                  isSelectedRoom?.bookingDto?.isCheckoutProceed === false
+                ) &&
+                  Boolean(
+                    isSelectedRoom?.bookingDto?.isCheckedByKeepingStaff === true
+                  )
+              ) && ( */}
               <Button
                 variant="contained"
                 size="small"
@@ -2540,9 +2723,11 @@ const RoomServiceCard = memo(function ({
                       "linear-gradient(to right, #00796b, #00695c, #005b50)", // Slightly darker shades on hover
                   },
                 }}
+                onClick={() => handleViewHotelBillInvoice(isSelectedRoom)}
               >
                 View Invoice
               </Button>
+              {/* )} */}
             </>
           )}
         </Box>
@@ -2566,6 +2751,31 @@ const CustomFormDrawer = memo(function ({
   handleSubmitBookingForGuestByFrontDesk,
 }) {
   console.log("CustomFormDrawer customDrawerOpen : ", customDrawerOpen, type);
+
+  // const numberOfDaysOfStay = useMemo(() => {
+  //   if (customFormDrawerData?.checkOutDate) {
+  //     const startDate = dayjs().startOf("day");
+  //     const endDate = dayjs(customFormDrawerData.checkOutDate).startOf("day");
+  //     const diff = endDate.diff(startDate, "day") + 1;
+  //     return diff > 0 ? diff : 0;
+  //   } else if (customFormDrawerData?.fromDate && customFormDrawerData?.toDate) {
+  //     const startDate = dayjs(customFormDrawerData.fromDate).startOf("day");
+  //     const endDate = dayjs(customFormDrawerData.toDate).startOf("day");
+  //     const diff = endDate.diff(startDate, "day") + 1;
+  //     return diff > 0 ? diff : 0;
+  //   }
+  //   return 0;
+  // }, [
+  //   customFormDrawerData?.checkOutDate,
+  //   customFormDrawerData?.fromDate,
+  //   customFormDrawerData?.toDate,
+  // ]);
+
+  // const accumulatedRoomCharge = useMemo(() => {
+  //   const basePrice = isSelectedRoom?.roomType?.basePrice || 0;
+  //   return basePrice * numberOfDaysOfStay;
+  // }, [isSelectedRoom, numberOfDaysOfStay]);
+
   const handleToggleCustomFormDrawerOnChange = useCallback(() => {
     handleToggleCustomFormDrawer();
   }, [handleToggleCustomFormDrawer]);
@@ -2648,22 +2858,21 @@ const CustomFormDrawer = memo(function ({
             <Grid container size={12} spacing={1}>
               <Grid size={12}>
                 <Grid container size={12}>
-                  {/* STAYERS */}
-                  <Grid size={2}>
+                  <Grid size={4}>
                     <Typography
                       sx={{
-                        fontSize: "18px",
+                        fontSize: "15.5px",
                         // color: "#707070",
                         fontWeight: 600,
                       }}
                     >
-                      Stayers
+                      Booking Ref. No.
                     </Typography>
                   </Grid>
-                  <Grid size={10}>
+                  <Grid size={8}>
                     <Typography
                       sx={{
-                        fontSize: "18px",
+                        fontSize: "15.5px",
                         // color: "#707070",
                         fontWeight: 600,
                       }}
@@ -2671,7 +2880,7 @@ const CustomFormDrawer = memo(function ({
                       <Typography
                         component="span"
                         sx={{
-                          fontSize: "18px",
+                          fontSize: "15.5px",
                           // color: "#707070",
                           fontWeight: 600,
                           marginRight: "5px",
@@ -2682,19 +2891,19 @@ const CustomFormDrawer = memo(function ({
                       <Typography
                         component="span"
                         sx={{
-                          fontSize: "18px",
+                          fontSize: "15.5px",
                           // color: "#707070",
                           // fontWeight: 600,
                         }}
                       >
-                        {isSelectedRoom?.bookingDto?.noOfPeoples || 0}
+                        {isSelectedRoom?.bookingDto?.bookingRefNumber || ""}
                       </Typography>
                     </Typography>
                   </Grid>
                   <Grid size={2}>
                     <Typography
                       sx={{
-                        fontSize: "18px",
+                        fontSize: "15.5px",
                         // color: "#707070",
                         fontWeight: 600,
                       }}
@@ -2702,10 +2911,10 @@ const CustomFormDrawer = memo(function ({
                       From
                     </Typography>
                   </Grid>
-                  <Grid size={4}>
+                  <Grid size={3}>
                     <Typography
                       sx={{
-                        fontSize: "18px",
+                        fontSize: "15.5px",
                         // color: "#707070",
                         fontWeight: 600,
                       }}
@@ -2713,7 +2922,7 @@ const CustomFormDrawer = memo(function ({
                       <Typography
                         component="span"
                         sx={{
-                          fontSize: "18px",
+                          fontSize: "15.5px",
                           // color: "#707070",
                           fontWeight: 600,
                           marginRight: "5px",
@@ -2724,7 +2933,7 @@ const CustomFormDrawer = memo(function ({
                       <Typography
                         component="span"
                         sx={{
-                          fontSize: "18px",
+                          fontSize: "15.5px",
                           // color: "#707070",
                           // fontWeight: 600,
                         }}
@@ -2734,10 +2943,10 @@ const CustomFormDrawer = memo(function ({
                     </Typography>
                   </Grid>
 
-                  <Grid size={2}>
+                  <Grid size={1}>
                     <Typography
                       sx={{
-                        fontSize: "18px",
+                        fontSize: "15.5px",
                         // color: "#707070",
                         fontWeight: 600,
                       }}
@@ -2746,10 +2955,10 @@ const CustomFormDrawer = memo(function ({
                     </Typography>
                   </Grid>
 
-                  <Grid size={4}>
+                  <Grid size={3}>
                     <Typography
                       sx={{
-                        fontSize: "18px",
+                        fontSize: "15.5px",
                         // color: "#707070",
                         fontWeight: 600,
                       }}
@@ -2757,7 +2966,7 @@ const CustomFormDrawer = memo(function ({
                       <Typography
                         component="span"
                         sx={{
-                          fontSize: "18px",
+                          fontSize: "15.5px",
                           // color: "#707070",
                           fontWeight: 600,
                           marginRight: "5px",
@@ -2768,12 +2977,56 @@ const CustomFormDrawer = memo(function ({
                       <Typography
                         component="span"
                         sx={{
-                          fontSize: "18px",
+                          fontSize: "15.5px",
                           // color: "#707070",
                           // fontWeight: 600,
                         }}
                       >
                         {isSelectedRoom?.bookingDto?.toDate || ""}
+                      </Typography>
+                    </Typography>
+                  </Grid>
+                  <Grid size={12}></Grid>
+                  {/* STAYERS */}
+                  <Grid size={2}>
+                    <Typography
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                      }}
+                    >
+                      Stayers
+                    </Typography>
+                  </Grid>
+                  <Grid size={1}>
+                    <Typography
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                      }}
+                    >
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontSize: "15.5px",
+                          // color: "#707070",
+                          fontWeight: 600,
+                          marginRight: "5px",
+                        }}
+                      >
+                        :
+                      </Typography>
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontSize: "15.5px",
+                          // color: "#707070",
+                          // fontWeight: 600,
+                        }}
+                      >
+                        {isSelectedRoom?.bookingDto?.noOfPeoples || 0}
                       </Typography>
                     </Typography>
                   </Grid>
@@ -2788,7 +3041,26 @@ const CustomFormDrawer = memo(function ({
                   label="Stayer"
                   name="noOfPeoples"
                   // autoComplete="noOfPeoples"
-                  inputProps={{ maxLength: 3 }}
+                  inputProps={{
+                    maxLength: 3,
+                    style: {
+                      fontSize: "14px",
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontSize: "13px",
+                    },
+                  }}
+                  sx={{
+                    "& .MuiInputBase-root": {
+                      height: "23px",
+                    },
+                    "& .MuiTextField-root": {
+                      maxHeight: "30px",
+                      backgroundColor: "transparent",
+                    },
+                  }}
                   variant="standard"
                   value={customFormDrawerData?.noOfPeoples || ""}
                   onChange={(e) =>
@@ -2801,7 +3073,13 @@ const CustomFormDrawer = memo(function ({
               </Grid>
               <Grid size={{ xs: 6 }}>
                 <Box
-                  sx={{ width: "100%", height: "100%", position: "relative" }}
+                  sx={{
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    alignItems: "end",
+                    paddingBottom: "7px",
+                  }}
                 >
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
@@ -2820,8 +3098,6 @@ const CustomFormDrawer = memo(function ({
                           readOnly: true,
                           label: "Check-Out Date",
                           sx: {
-                            position: "absolute",
-                            bottom: 7,
                             "& .MuiOutlinedInput-root": {
                               borderRadius: 2,
                               backgroundColor: "rgba(255, 255, 255, 0.25)",
@@ -2831,11 +3107,13 @@ const CustomFormDrawer = memo(function ({
                               width: "100%",
                               backgroundColor: "transparent",
                             },
-                            // "& .MuiFormLabel-root": {
-                            //   color: (theme) => theme.palette.primary.main,
-                            //   fontWeight: 600,
-                            //   fontSize: 18,
-                            // },
+                            "& .MuiFormLabel-root": {
+                              fontSize: 15,
+                              mt: 0.5,
+                            },
+                            "& input": {
+                              fontSize: "13px",
+                            },
                           },
                         },
                       }}
@@ -2854,12 +3132,12 @@ const CustomFormDrawer = memo(function ({
                   <Grid size={12}>
                     <Typography
                       sx={{
-                        fontSize: "18px",
+                        fontSize: "15.5px",
                         // color: "#707070",
                         fontWeight: 600,
                       }}
                     >
-                      Guests Details :
+                      Guests Verification Details :
                     </Typography>
                   </Grid>
                 </Grid>
@@ -2869,7 +3147,7 @@ const CustomFormDrawer = memo(function ({
                 <Box
                   sx={{
                     width: "100%",
-                    maxHeight: "calc(100vh - 600px)",
+                    maxHeight: "calc(100vh - 550px)",
                     overflowX: "hidden",
                     overflowY: "auto",
                   }}
@@ -2880,11 +3158,11 @@ const CustomFormDrawer = memo(function ({
                         key={`verification-${index}`}
                         sx={{ width: "100%", marginBottom: "10px" }}
                       >
-                        <Grid container size={12} spacing={2}>
+                        <Grid container size={12} columnSpacing={1}>
                           <Grid size={12}>
                             <Typography
                               sx={{
-                                fontSize: "16px",
+                                fontSize: "15px",
                                 // color: "#707070",
                                 fontWeight: 600,
                                 width: "100%",
@@ -2894,7 +3172,7 @@ const CustomFormDrawer = memo(function ({
                               Customer {index + 1} :
                             </Typography>
                           </Grid>
-                          <Grid size={6}>
+                          <Grid size={{ xs: 6, md: 4 }}>
                             <TextField
                               margin="normal"
                               required
@@ -2902,7 +3180,26 @@ const CustomFormDrawer = memo(function ({
                               id={`customerName${index}`}
                               label="Guest Name"
                               name="customerName"
-                              inputProps={{ maxLength: 100 }}
+                              inputProps={{
+                                maxLength: 100,
+                                style: {
+                                  fontSize: "14px",
+                                },
+                              }}
+                              InputLabelProps={{
+                                style: {
+                                  fontSize: "13px",
+                                },
+                              }}
+                              sx={{
+                                "& .MuiInputBase-root": {
+                                  height: "23px",
+                                },
+                                "& .MuiTextField-root": {
+                                  maxHeight: "30px",
+                                  backgroundColor: "transparent",
+                                },
+                              }}
                               // autoComplete="noOfPeoples"
                               variant="standard"
                               value={item?.customerName || ""}
@@ -2915,11 +3212,13 @@ const CustomFormDrawer = memo(function ({
                               }
                             />
                           </Grid>
-                          <Grid size={6}>
+                          <Grid size={{ xs: 6, md: 4 }}>
                             <Box
                               sx={{
                                 height: "100%",
-                                position: "relative",
+                                display: "flex",
+                                alignItems: "end",
+                                paddingBottom: "7px",
                                 ".MuiTextField-root": {
                                   width: "100%",
                                   backgroundColor: "transparent",
@@ -2928,11 +3227,6 @@ const CustomFormDrawer = memo(function ({
                                     background: "rgba(255, 255, 255, 0.25)",
                                   },
                                 },
-                                // ".MuiFormLabel-root": {
-                                //   color: (theme) => theme.palette.primary.main,
-                                //   fontWeight: 600,
-                                //   fontSize: 18,
-                                // },
                                 ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before":
                                   {
                                     borderBottom: (theme) =>
@@ -2943,6 +3237,19 @@ const CustomFormDrawer = memo(function ({
                                     borderBottom: (theme) =>
                                       `1px solid ${theme.palette.primary.main}`,
                                   },
+                                "& .MuiInputLabel-root": {
+                                  fontSize: "13px",
+                                },
+                                "& .MuiOutlinedInput-root": {
+                                  height: "35px",
+                                  minHeight: "35px",
+                                },
+                                "& .MuiInputBase-input": {
+                                  padding: "13px",
+                                  height: "100%",
+                                  boxSizing: "border-box",
+                                  fontSize: "13px",
+                                },
                               }}
                             >
                               <Autocomplete
@@ -2972,29 +3279,40 @@ const CustomFormDrawer = memo(function ({
                                 }
                                 getOptionLabel={(option) => option?.name}
                                 clearOnEscape
-                                disablePortal
+                                // disablePortal
                                 popupIcon={
                                   <KeyboardArrowDownIcon color="primary" />
                                 }
                                 sx={{
                                   // width: 200,
-                                  position: "absolute",
-                                  bottom: 7,
                                   ".MuiInputBase-root": {
                                     color: "#fff",
                                   },
-                                  "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover":
-                                    {
-                                      backgroundColor: "#E9E5F1",
-                                      color: "#280071",
-                                      fontWeight: 600,
+                                }}
+                                componentsProps={{
+                                  popper: {
+                                    sx: {
+                                      "& .MuiAutocomplete-listbox": {
+                                        maxHeight: "150px",
+                                        overflow: "auto",
+                                      },
+                                      "& .MuiAutocomplete-option": {
+                                        fontSize: "13px", // Specifically targeting individual options
+                                      },
+                                      "& .MuiAutocomplete-listbox .MuiAutocomplete-option:hover":
+                                        {
+                                          backgroundColor: "#E9E5F1 !important",
+                                          color: "#280071 !important",
+                                          fontWeight: 600,
+                                        },
+                                      "& .MuiAutocomplete-listbox .MuiAutocomplete-option[aria-selected='true']":
+                                        {
+                                          backgroundColor: "#E9E5F1 !important",
+                                          color: "#280071 !important",
+                                          fontWeight: 600,
+                                        },
                                     },
-                                  "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
-                                    {
-                                      backgroundColor: "#E9E5F1",
-                                      color: "#280071",
-                                      fontWeight: 600,
-                                    },
+                                  },
                                 }}
                                 size="small"
                                 clearIcon={<ClearIcon color="primary" />}
@@ -3023,7 +3341,7 @@ const CustomFormDrawer = memo(function ({
                               />
                             </Box>
                           </Grid>
-                          <Grid size={6}>
+                          <Grid size={{ xs: 6, md: 4 }}>
                             <TextField
                               margin="normal"
                               required
@@ -3034,7 +3352,26 @@ const CustomFormDrawer = memo(function ({
                               name="govtIdNo"
                               autoComplete="govtIdNo"
                               variant="standard"
-                              inputProps={{ maxLength: 50 }}
+                              inputProps={{
+                                maxLength: 50,
+                                style: {
+                                  fontSize: "14px",
+                                },
+                              }}
+                              InputLabelProps={{
+                                style: {
+                                  fontSize: "13px",
+                                },
+                              }}
+                              sx={{
+                                "& .MuiInputBase-root": {
+                                  height: "23px",
+                                },
+                                "& .MuiTextField-root": {
+                                  maxHeight: "30px",
+                                  backgroundColor: "transparent",
+                                },
+                              }}
                               value={item?.govtIdNo || ""}
                               onChange={(e) =>
                                 handleChangeCustomFormDrawerDataOnChange(
@@ -3060,7 +3397,7 @@ const CustomFormDrawer = memo(function ({
                   <Grid size={12}>
                     <Typography
                       sx={{
-                        fontSize: "18px",
+                        fontSize: "15.5px",
                         // color: "#707070",
                         fontWeight: 600,
                       }}
@@ -3071,7 +3408,7 @@ const CustomFormDrawer = memo(function ({
                   <Grid size={4}>
                     <Typography
                       sx={{
-                        fontSize: "17px",
+                        fontSize: "14px",
                         // color: "#707070",
                         fontWeight: 600,
                       }}
@@ -3083,7 +3420,7 @@ const CustomFormDrawer = memo(function ({
                   <Grid size={8}>
                     <Typography
                       sx={{
-                        fontSize: "17px",
+                        fontSize: "14px",
                         // color: "#707070",
                         fontWeight: 600,
                       }}
@@ -3091,7 +3428,7 @@ const CustomFormDrawer = memo(function ({
                       <Typography
                         component="span"
                         sx={{
-                          fontSize: "17px",
+                          fontSize: "14px",
                           // color: "#707070",
                           fontWeight: 600,
                           marginRight: "5px",
@@ -3102,15 +3439,14 @@ const CustomFormDrawer = memo(function ({
                       <Typography
                         component="span"
                         sx={{
-                          fontSize: "17px",
+                          fontSize: "14px",
                           // color: "#707070",
                           // fontWeight: 600,
                         }}
                       >
-                        {isSelectedRoom?.bookingDto?.transactionDetails?.reduce(
-                          (sum, item) => sum + (item?.amount || 0),
-                          0
-                        )}
+                        {isSelectedRoom?.bookingDto?.transactionDetails
+                          ?.filter((item) => Boolean(item?.isCredit))
+                          ?.reduce((sum, item) => sum + (item?.amount || 0), 0)}
                       </Typography>
                     </Typography>
                   </Grid>
@@ -3118,11 +3454,13 @@ const CustomFormDrawer = memo(function ({
               </Grid>
               <Grid size={{ xs: 12 }}>
                 <Grid container size={12} spacing={2}>
-                  <Grid size={6}>
+                  <Grid size={{ xs: 6, md: 4 }}>
                     <Box
                       sx={{
                         height: "100%",
-                        position: "relative",
+                        display: "flex",
+                        alignItems: "end",
+                        paddingBottom: "8px",
                         ".MuiTextField-root": {
                           width: "100%",
                           backgroundColor: "transparent",
@@ -3131,11 +3469,6 @@ const CustomFormDrawer = memo(function ({
                             background: "rgba(255, 255, 255, 0.25)",
                           },
                         },
-                        // ".MuiFormLabel-root": {
-                        //   color: (theme) => theme.palette.primary.main,
-                        //   fontWeight: 600,
-                        //   fontSize: 18,
-                        // },
                         ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
                           borderBottom: (theme) =>
                             `1px solid ${theme.palette.primary.main}`,
@@ -3143,6 +3476,19 @@ const CustomFormDrawer = memo(function ({
                         ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
                           borderBottom: (theme) =>
                             `1px solid ${theme.palette.primary.main}`,
+                        },
+                        "& .MuiInputLabel-root": {
+                          fontSize: "13px",
+                        },
+                        "& .MuiOutlinedInput-root": {
+                          height: "35px",
+                          minHeight: "35px",
+                        },
+                        "& .MuiInputBase-input": {
+                          padding: "13px",
+                          height: "100%",
+                          boxSizing: "border-box",
+                          fontSize: "13px",
                         },
                       }}
                     >
@@ -3154,7 +3500,7 @@ const CustomFormDrawer = memo(function ({
                             name: item.replace(/_/g, " "),
                           })) || []
                         }
-                        disableClearable
+                        // disableClearable
                         value={customFormDrawerData?.paymentMethod || null}
                         onChange={(e, newVal) =>
                           handleChangeCustomFormDrawerDataOnChange(
@@ -3177,8 +3523,6 @@ const CustomFormDrawer = memo(function ({
                         popupIcon={<KeyboardArrowDownIcon color="primary" />}
                         sx={{
                           // width: 200,
-                          position: "absolute",
-                          bottom: 7,
                           ".MuiInputBase-root": {
                             color: "#fff",
                           },
@@ -3194,6 +3538,19 @@ const CustomFormDrawer = memo(function ({
                               color: "#280071",
                               fontWeight: 600,
                             },
+                        }}
+                        componentsProps={{
+                          popper: {
+                            sx: {
+                              "& .MuiAutocomplete-listbox": {
+                                maxHeight: "150px",
+                                overflow: "auto",
+                              },
+                              "& .MuiAutocomplete-option": {
+                                fontSize: "13px", // Specifically targeting individual options
+                              },
+                            },
+                          },
                         }}
                         size="small"
                         clearIcon={<ClearIcon color="primary" />}
@@ -3224,7 +3581,7 @@ const CustomFormDrawer = memo(function ({
                   </Grid>
                   {customFormDrawerData?.paymentMethod &&
                     !(customFormDrawerData?.paymentMethod?.key === "Cash") && (
-                      <Grid size={6}>
+                      <Grid size={{ xs: 6, md: 4 }}>
                         <TextField
                           margin="normal"
                           required
@@ -3237,7 +3594,26 @@ const CustomFormDrawer = memo(function ({
                           value={
                             customFormDrawerData?.transactionReferenceNo || ""
                           }
-                          inputProps={{ maxLength: 80 }}
+                          inputProps={{
+                            maxLength: 80,
+                            style: {
+                              fontSize: "14px",
+                            },
+                          }}
+                          InputLabelProps={{
+                            style: {
+                              fontSize: "13px",
+                            },
+                          }}
+                          sx={{
+                            "& .MuiInputBase-root": {
+                              height: "23px",
+                            },
+                            "& .MuiTextField-root": {
+                              maxHeight: "30px",
+                              backgroundColor: "transparent",
+                            },
+                          }}
                           onChange={(e) =>
                             handleChangeCustomFormDrawerDataOnChange(
                               "transactionReferenceNo",
@@ -3248,7 +3624,7 @@ const CustomFormDrawer = memo(function ({
                       </Grid>
                     )}
 
-                  <Grid size={6}>
+                  <Grid size={{ xs: 6, md: 4 }}>
                     <TextField
                       margin="normal"
                       fullWidth
@@ -3258,7 +3634,26 @@ const CustomFormDrawer = memo(function ({
                       name="paidAmount"
                       autoComplete="paidAmount"
                       variant="standard"
-                      inputProps={{ maxLength: 20 }}
+                      inputProps={{
+                        maxLength: 20,
+                        style: {
+                          fontSize: "14px",
+                        },
+                      }}
+                      InputLabelProps={{
+                        style: {
+                          fontSize: "13px",
+                        },
+                      }}
+                      sx={{
+                        "& .MuiInputBase-root": {
+                          height: "23px",
+                        },
+                        "& .MuiTextField-root": {
+                          maxHeight: "30px",
+                          backgroundColor: "transparent",
+                        },
+                      }}
                       value={customFormDrawerData?.paidAmount || ""}
                       onChange={(e) =>
                         handleChangeCustomFormDrawerDataOnChange(
@@ -3269,7 +3664,7 @@ const CustomFormDrawer = memo(function ({
                     />
                   </Grid>
 
-                  <Grid size={6}>
+                  <Grid size={{ xs: 6, md: 4 }}>
                     <TextField
                       margin="normal"
                       required
@@ -3279,7 +3674,26 @@ const CustomFormDrawer = memo(function ({
                       name="remarks"
                       autoComplete="remarks"
                       variant="standard"
-                      inputProps={{ maxLength: 120 }}
+                      inputProps={{
+                        maxLength: 120,
+                        style: {
+                          fontSize: "14px",
+                        },
+                      }}
+                      InputLabelProps={{
+                        style: {
+                          fontSize: "13px",
+                        },
+                      }}
+                      sx={{
+                        "& .MuiInputBase-root": {
+                          height: "23px",
+                        },
+                        "& .MuiTextField-root": {
+                          maxHeight: "30px",
+                          backgroundColor: "transparent",
+                        },
+                      }}
                       value={customFormDrawerData?.remarks || ""}
                       onChange={(e) =>
                         handleChangeCustomFormDrawerDataOnChange(
@@ -3407,7 +3821,7 @@ const CustomFormDrawer = memo(function ({
             <Grid container size={12} spacing={1}>
               <Grid size={12}>
                 <Grid container size={12} columnSpacing={1}>
-                  <Grid size={{ xs: 6 }}>
+                  <Grid size={{ xs: 4 }}>
                     <TextField
                       margin="normal"
                       required
@@ -3417,7 +3831,17 @@ const CustomFormDrawer = memo(function ({
                       name="firstName"
                       // autoComplete="firstName"
                       variant="standard"
-                      inputProps={{ maxLength: 30 }}
+                      inputProps={{
+                        maxLength: 30,
+                        style: {
+                          fontSize: "14px",
+                        },
+                      }}
+                      InputLabelProps={{
+                        style: {
+                          fontSize: "13px",
+                        },
+                      }}
                       value={customFormDrawerData?.firstName || ""}
                       onChange={(e) =>
                         handleChangeCustomFormDrawerDataOnChange(
@@ -3425,9 +3849,18 @@ const CustomFormDrawer = memo(function ({
                           e?.target?.value
                         )
                       }
+                      sx={{
+                        "& .MuiInputBase-root": {
+                          height: "23px",
+                        },
+                        "& .MuiTextField-root": {
+                          maxHeight: "30px",
+                          backgroundColor: "transparent",
+                        },
+                      }}
                     />
                   </Grid>
-                  <Grid size={{ xs: 6 }}>
+                  <Grid size={{ xs: 4 }}>
                     <TextField
                       margin="normal"
                       // required
@@ -3436,7 +3869,17 @@ const CustomFormDrawer = memo(function ({
                       label="Middle Name"
                       name="middleName"
                       // autoComplete="middleName"
-                      inputProps={{ maxLength: 30 }}
+                      inputProps={{
+                        maxLength: 30,
+                        style: {
+                          fontSize: "14px",
+                        },
+                      }}
+                      InputLabelProps={{
+                        style: {
+                          fontSize: "13px",
+                        },
+                      }}
                       variant="standard"
                       value={customFormDrawerData?.middleName || ""}
                       onChange={(e) =>
@@ -3445,9 +3888,18 @@ const CustomFormDrawer = memo(function ({
                           e?.target?.value
                         )
                       }
+                      sx={{
+                        "& .MuiInputBase-root": {
+                          height: "23px",
+                        },
+                        "& .MuiTextField-root": {
+                          maxHeight: "30px",
+                          backgroundColor: "transparent",
+                        },
+                      }}
                     />
                   </Grid>
-                  <Grid size={{ xs: 6 }}>
+                  <Grid size={{ xs: 4 }}>
                     <TextField
                       margin="normal"
                       // required
@@ -3457,7 +3909,17 @@ const CustomFormDrawer = memo(function ({
                       name="lastName"
                       // autoComplete="lastName"
                       variant="standard"
-                      inputProps={{ maxLength: 30 }}
+                      inputProps={{
+                        maxLength: 30,
+                        style: {
+                          fontSize: "14px",
+                        },
+                      }}
+                      InputLabelProps={{
+                        style: {
+                          fontSize: "13px",
+                        },
+                      }}
                       value={customFormDrawerData?.lastName || ""}
                       onChange={(e) =>
                         handleChangeCustomFormDrawerDataOnChange(
@@ -3465,9 +3927,18 @@ const CustomFormDrawer = memo(function ({
                           e?.target?.value
                         )
                       }
+                      sx={{
+                        "& .MuiInputBase-root": {
+                          height: "23px",
+                        },
+                        "& .MuiTextField-root": {
+                          maxHeight: "30px",
+                          backgroundColor: "transparent",
+                        },
+                      }}
                     />
                   </Grid>
-                  <Grid size={{ xs: 6 }}>
+                  <Grid size={{ xs: 4 }}>
                     <TextField
                       margin="normal"
                       required
@@ -3475,7 +3946,17 @@ const CustomFormDrawer = memo(function ({
                       id="phoneNumber"
                       label="Phone No."
                       name="phoneNumber"
-                      inputProps={{ maxLength: 10 }}
+                      inputProps={{
+                        maxLength: 10,
+                        style: {
+                          fontSize: "14px",
+                        },
+                      }}
+                      InputLabelProps={{
+                        style: {
+                          fontSize: "13px",
+                        },
+                      }}
                       // autoComplete="phoneNumber"
                       variant="standard"
                       value={customFormDrawerData?.phoneNumber || ""}
@@ -3485,19 +3966,37 @@ const CustomFormDrawer = memo(function ({
                           e?.target?.value
                         )
                       }
+                      sx={{
+                        "& .MuiInputBase-root": {
+                          height: "23px",
+                        },
+                        "& .MuiTextField-root": {
+                          maxHeight: "30px",
+                          backgroundColor: "transparent",
+                        },
+                      }}
                     />
                   </Grid>
-                  <Grid size={{ xs: 6 }}>
+                  <Grid size={{ xs: 4 }}>
                     <TextField
                       margin="normal"
-                      required
                       fullWidth
                       id="email"
                       label="Email"
                       name="email"
                       // autoComplete="email"
                       variant="standard"
-                      inputProps={{ maxLength: 120 }}
+                      inputProps={{
+                        maxLength: 120,
+                        style: {
+                          fontSize: "14px",
+                        },
+                      }}
+                      InputLabelProps={{
+                        style: {
+                          fontSize: "13px",
+                        },
+                      }}
                       value={customFormDrawerData?.email || ""}
                       onChange={(e) =>
                         handleChangeCustomFormDrawerDataOnChange(
@@ -3505,9 +4004,18 @@ const CustomFormDrawer = memo(function ({
                           e?.target?.value
                         )
                       }
+                      sx={{
+                        "& .MuiInputBase-root": {
+                          height: "23px",
+                        },
+                        "& .MuiTextField-root": {
+                          maxHeight: "30px",
+                          backgroundColor: "transparent",
+                        },
+                      }}
                     />
                   </Grid>
-                  <Grid size={{ xs: 6 }}>
+                  <Grid size={{ xs: 4 }}>
                     <TextField
                       margin="normal"
                       required
@@ -3517,7 +4025,17 @@ const CustomFormDrawer = memo(function ({
                       name="address"
                       // autoComplete="address"
                       variant="standard"
-                      inputProps={{ maxLength: 150 }}
+                      inputProps={{
+                        maxLength: 150,
+                        style: {
+                          fontSize: "14px",
+                        },
+                      }}
+                      InputLabelProps={{
+                        style: {
+                          fontSize: "13px",
+                        },
+                      }}
                       value={customFormDrawerData?.address || ""}
                       onChange={(e) =>
                         handleChangeCustomFormDrawerDataOnChange(
@@ -3525,9 +4043,18 @@ const CustomFormDrawer = memo(function ({
                           e?.target?.value
                         )
                       }
+                      sx={{
+                        "& .MuiInputBase-root": {
+                          height: "23px",
+                        },
+                        "& .MuiTextField-root": {
+                          maxHeight: "30px",
+                          backgroundColor: "transparent",
+                        },
+                      }}
                     />
                   </Grid>
-                  <Grid size={{ xs: 6 }}>
+                  <Grid size={{ xs: 4 }}>
                     <TextField
                       margin="normal"
                       required
@@ -3537,7 +4064,17 @@ const CustomFormDrawer = memo(function ({
                       name="noOfPeoples"
                       // autoComplete="noOfPeoples"
                       variant="standard"
-                      inputProps={{ maxLength: 3 }}
+                      inputProps={{
+                        maxLength: 3,
+                        style: {
+                          fontSize: "14px",
+                        },
+                      }}
+                      InputLabelProps={{
+                        style: {
+                          fontSize: "13px",
+                        },
+                      }}
                       value={customFormDrawerData?.noOfPeoples || ""}
                       onChange={(e) =>
                         handleChangeCustomFormDrawerDataOnChange(
@@ -3545,84 +4082,258 @@ const CustomFormDrawer = memo(function ({
                           e?.target?.value
                         )
                       }
+                      sx={{
+                        "& .MuiInputBase-root": {
+                          height: "23px",
+                        },
+                        "& .MuiTextField-root": {
+                          maxHeight: "30px",
+                          backgroundColor: "transparent",
+                        },
+                      }}
                     />
                   </Grid>
-                  <Grid size={{ xs: 6 }}>
+                  <Grid size={{ xs: 4 }}>
                     <Box
                       sx={{
                         width: "100%",
-                        height: "100%",
-                        position: "relative",
+                        paddingTop: "17px",
                       }}
                     >
-                      <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DatePicker
-                          disablePast
-                          value={customFormDrawerData?.checkOutDate || null}
-                          onChange={(newVal) =>
-                            handleChangeCustomFormDrawerDataOnChange(
-                              "checkOutDate",
-                              newVal
-                            )
-                          }
-                          slotProps={{
-                            textField: {
-                              variant: "standard",
-                              size: "small",
-                              readOnly: true,
-                              label: "Check-Out Date",
-                              sx: {
-                                position: "absolute",
-                                bottom: 7.7,
-                                "& .MuiOutlinedInput-root": {
-                                  borderRadius: 2,
-                                  backgroundColor: "rgba(255, 255, 255, 0.25)",
-                                  color: "#B4B4B4",
-                                },
-                                "& .MuiTextField-root": {
-                                  width: "100%",
-                                  backgroundColor: "transparent",
-                                },
-                                // "& .MuiFormLabel-root": {
-                                //   color: (theme) => theme.palette.primary.main,
-                                //   fontWeight: 600,
-                                //   fontSize: 18,
-                                // },
-                              },
-                            },
-                          }}
-                          slots={{
-                            openPickerIcon: StyledCalendarIcon,
-                          }}
-                          format="DD-MM-YYYY"
-                        />
-                      </LocalizationProvider>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={customFormDrawerData?.isBookingForToday}
+                            onChange={(e) =>
+                              handleChangeCustomFormDrawerDataOnChange(
+                                "isBookingForToday",
+                                e?.target?.checked
+                              )
+                            }
+                          />
+                        }
+                        label={
+                          <Typography
+                            sx={{ fontSize: "14px", color: "#666666" }}
+                          >
+                            Book For Today
+                          </Typography>
+                        }
+                        labelPlacement="start"
+                      />
                     </Box>
                   </Grid>
-                  <Grid size={{ xs: 6 }}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={customFormDrawerData?.isBookingForToday}
-                          onChange={(e) =>
-                            handleChangeCustomFormDrawerDataOnChange(
-                              "isBookingForToday",
-                              e?.target?.checked
-                            )
-                          }
-                        />
-                      }
-                      label="Book For Today"
-                      labelPlacement="start"
-                    />
+
+                  {Boolean(customFormDrawerData?.isBookingForToday) && (
+                    <Grid size={{ xs: 4 }}>
+                      <Box
+                        sx={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "end",
+                          paddingBottom: "8px",
+                        }}
+                      >
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            disablePast
+                            value={customFormDrawerData?.checkOutDate || null}
+                            onChange={(newVal) =>
+                              handleChangeCustomFormDrawerDataOnChange(
+                                "checkOutDate",
+                                newVal
+                              )
+                            }
+                            slotProps={{
+                              textField: {
+                                variant: "standard",
+                                size: "small",
+                                readOnly: true,
+                                label: "Check-Out Date",
+                                sx: {
+                                  "& .MuiOutlinedInput-root": {
+                                    borderRadius: 2,
+                                    backgroundColor:
+                                      "rgba(255, 255, 255, 0.25)",
+                                    color: "#B4B4B4",
+                                  },
+                                  "& .MuiTextField-root": {
+                                    width: "100%",
+                                    backgroundColor: "transparent",
+                                  },
+                                  "& .MuiFormLabel-root": {
+                                    fontSize: 15,
+                                    mt: 0.5,
+                                  },
+                                  "& input": {
+                                    fontSize: "13px", // Date font size
+                                  },
+                                },
+                              },
+                            }}
+                            slots={{
+                              openPickerIcon: StyledCalendarIcon,
+                            }}
+                            format="DD-MM-YYYY"
+                          />
+                        </LocalizationProvider>
+                      </Box>
+                    </Grid>
+                  )}
+
+                  {!Boolean(customFormDrawerData?.isBookingForToday) && (
+                    <Grid size={{ xs: 4 }}>
+                      <Box
+                        sx={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "end",
+                          paddingBottom: "8px",
+                        }}
+                      >
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            disablePast
+                            value={customFormDrawerData?.fromDate || null}
+                            onChange={(newVal) =>
+                              handleChangeCustomFormDrawerDataOnChange(
+                                "fromDate",
+                                newVal
+                              )
+                            }
+                            slotProps={{
+                              textField: {
+                                variant: "standard",
+                                size: "small",
+                                readOnly: true,
+                                label: "From Date",
+                                sx: {
+                                  "& .MuiOutlinedInput-root": {
+                                    borderRadius: 2,
+                                    backgroundColor:
+                                      "rgba(255, 255, 255, 0.25)",
+                                    color: "#B4B4B4",
+                                  },
+                                  "& .MuiTextField-root": {
+                                    width: "100%",
+                                    backgroundColor: "transparent",
+                                  },
+                                  "& .MuiFormLabel-root": {
+                                    fontSize: 15,
+                                    mt: 0.5,
+                                  },
+                                  "& input": {
+                                    fontSize: "13px", // Date font size
+                                  },
+                                },
+                              },
+                            }}
+                            slots={{
+                              openPickerIcon: StyledCalendarIcon,
+                            }}
+                            format="DD-MM-YYYY"
+                          />
+                        </LocalizationProvider>
+                      </Box>
+                    </Grid>
+                  )}
+
+                  {!Boolean(customFormDrawerData?.isBookingForToday) && (
+                    <Grid size={{ xs: 4 }}>
+                      <Box
+                        sx={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "end",
+                          paddingBottom: "8px",
+                        }}
+                      >
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          <DatePicker
+                            disablePast
+                            value={customFormDrawerData?.toDate || null}
+                            shouldDisableDate={(date) => {
+                              if (customFormDrawerData?.fromDate) {
+                                return date.isBefore(
+                                  dayjs(customFormDrawerData.fromDate).startOf(
+                                    "day"
+                                  )
+                                );
+                              }
+                              return false;
+                            }}
+                            onChange={(newVal) =>
+                              handleChangeCustomFormDrawerDataOnChange(
+                                "toDate",
+                                newVal
+                              )
+                            }
+                            slotProps={{
+                              textField: {
+                                variant: "standard",
+                                size: "small",
+                                readOnly: true,
+                                label: "To Date",
+                                sx: {
+                                  "& .MuiOutlinedInput-root": {
+                                    borderRadius: 2,
+                                    backgroundColor:
+                                      "rgba(255, 255, 255, 0.25)",
+                                    color: "#B4B4B4",
+                                  },
+                                  "& .MuiTextField-root": {
+                                    width: "100%",
+                                    backgroundColor: "transparent",
+                                  },
+                                  "& .MuiFormLabel-root": {
+                                    fontSize: 15,
+                                    mt: 0.5,
+                                  },
+                                  "& input": {
+                                    fontSize: "13px", // Date font size
+                                  },
+                                },
+                              },
+                            }}
+                            slots={{
+                              openPickerIcon: StyledCalendarIcon,
+                            }}
+                            format="DD-MM-YYYY"
+                          />
+                        </LocalizationProvider>
+                      </Box>
+                    </Grid>
+                  )}
+
+                  <Grid size={12}>
+                    <Grid container size={12}>
+                      {/* STAYERS */}
+                      <Grid size={12}>
+                        <Typography
+                          sx={{
+                            fontSize: "16px",
+                            // color: "#707070",
+                            fontWeight: 600,
+                            marginTop: "5px",
+                          }}
+                        >
+                          Guests Verification Details :
+                        </Typography>
+                        <Divider />
+                      </Grid>
+                    </Grid>
                   </Grid>
                   <Grid size={{ xs: 12 }}>
                     <Box
                       sx={{
                         width: "100%",
-                        maxHeight: "calc(100vh - 600px)",
+                        maxHeight: "calc(100vh - 550px)",
                         overflowX: "hidden",
                         overflowY: "auto",
+                        marginTop: "10px",
                       }}
                     >
                       {customFormDrawerData?.bookingMapDatas?.map(
@@ -3632,11 +4343,11 @@ const CustomFormDrawer = memo(function ({
                               key={`verification-${index}`}
                               sx={{ width: "100%", marginBottom: "10px" }}
                             >
-                              <Grid container size={12} spacing={2}>
+                              <Grid container size={12} columnSpacing={1}>
                                 <Grid size={12}>
                                   <Typography
                                     sx={{
-                                      fontSize: "16px",
+                                      fontSize: "15px",
                                       // color: "#707070",
                                       fontWeight: 600,
                                       width: "100%",
@@ -3646,7 +4357,7 @@ const CustomFormDrawer = memo(function ({
                                     Customer {index + 1} :
                                   </Typography>
                                 </Grid>
-                                <Grid size={6}>
+                                <Grid size={{ xs: 6, md: 4 }}>
                                   <TextField
                                     margin="normal"
                                     required
@@ -3654,7 +4365,17 @@ const CustomFormDrawer = memo(function ({
                                     id={`customerName${index}`}
                                     label="Guest Name"
                                     name="customerName"
-                                    inputProps={{ maxLength: 90 }}
+                                    inputProps={{
+                                      maxLength: 90,
+                                      style: {
+                                        fontSize: "14px",
+                                      },
+                                    }}
+                                    InputLabelProps={{
+                                      style: {
+                                        fontSize: "13px",
+                                      },
+                                    }}
                                     // autoComplete="noOfPeoples"
                                     variant="standard"
                                     value={item?.customerName || ""}
@@ -3665,13 +4386,24 @@ const CustomFormDrawer = memo(function ({
                                         index
                                       )
                                     }
+                                    sx={{
+                                      "& .MuiInputBase-root": {
+                                        height: "23px",
+                                      },
+                                      "& .MuiTextField-root": {
+                                        maxHeight: "30px",
+                                        backgroundColor: "transparent",
+                                      },
+                                    }}
                                   />
                                 </Grid>
-                                <Grid size={6}>
+                                <Grid size={{ xs: 6, md: 4 }}>
                                   <Box
                                     sx={{
                                       height: "100%",
-                                      position: "relative",
+                                      display: "flex",
+                                      alignItems: "end",
+                                      paddingBottom: "7px",
                                       ".MuiTextField-root": {
                                         width: "100%",
                                         backgroundColor: "transparent",
@@ -3681,11 +4413,6 @@ const CustomFormDrawer = memo(function ({
                                             "rgba(255, 255, 255, 0.25)",
                                         },
                                       },
-                                      // ".MuiFormLabel-root": {
-                                      //   color: (theme) => theme.palette.primary.main,
-                                      //   fontWeight: 600,
-                                      //   fontSize: 18,
-                                      // },
                                       ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before":
                                         {
                                           borderBottom: (theme) =>
@@ -3696,6 +4423,19 @@ const CustomFormDrawer = memo(function ({
                                           borderBottom: (theme) =>
                                             `1px solid ${theme.palette.primary.main}`,
                                         },
+                                      "& .MuiInputLabel-root": {
+                                        fontSize: "13px",
+                                      },
+                                      "& .MuiOutlinedInput-root": {
+                                        height: "35px",
+                                        minHeight: "35px",
+                                      },
+                                      "& .MuiInputBase-input": {
+                                        padding: "13px",
+                                        height: "100%",
+                                        boxSizing: "border-box",
+                                        fontSize: "13px",
+                                      },
                                     }}
                                   >
                                     <Autocomplete
@@ -3725,29 +4465,42 @@ const CustomFormDrawer = memo(function ({
                                       }
                                       getOptionLabel={(option) => option?.name}
                                       clearOnEscape
-                                      disablePortal
+                                      // disablePortal
                                       popupIcon={
                                         <KeyboardArrowDownIcon color="primary" />
                                       }
                                       sx={{
                                         // width: 200,
-                                        position: "absolute",
-                                        bottom: 7,
                                         ".MuiInputBase-root": {
                                           color: "#fff",
                                         },
-                                        "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover":
-                                          {
-                                            backgroundColor: "#E9E5F1",
-                                            color: "#280071",
-                                            fontWeight: 600,
+                                      }}
+                                      componentsProps={{
+                                        popper: {
+                                          sx: {
+                                            "& .MuiAutocomplete-listbox": {
+                                              maxHeight: "150px",
+                                              overflow: "auto",
+                                            },
+                                            "& .MuiAutocomplete-option": {
+                                              fontSize: "13px", // Specifically targeting individual options
+                                            },
+                                            "& .MuiAutocomplete-listbox .MuiAutocomplete-option:hover":
+                                              {
+                                                backgroundColor:
+                                                  "#E9E5F1 !important",
+                                                color: "#280071 !important",
+                                                fontWeight: 600,
+                                              },
+                                            "& .MuiAutocomplete-listbox .MuiAutocomplete-option[aria-selected='true']":
+                                              {
+                                                backgroundColor:
+                                                  "#E9E5F1 !important",
+                                                color: "#280071 !important",
+                                                fontWeight: 600,
+                                              },
                                           },
-                                        "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
-                                          {
-                                            backgroundColor: "#E9E5F1",
-                                            color: "#280071",
-                                            fontWeight: 600,
-                                          },
+                                        },
                                       }}
                                       size="small"
                                       clearIcon={<ClearIcon color="primary" />}
@@ -3766,17 +4519,12 @@ const CustomFormDrawer = memo(function ({
                                           {...params}
                                           label="Govt. ID Type"
                                           variant="standard"
-                                          // sx={{
-                                          //   "& .MuiOutlinedInput-root": {
-                                          //     borderRadius: 2,
-                                          //   },
-                                          // }}
                                         />
                                       )}
                                     />
                                   </Box>
                                 </Grid>
-                                <Grid size={6}>
+                                <Grid size={{ xs: 6, md: 4 }}>
                                   <TextField
                                     margin="normal"
                                     required
@@ -3787,7 +4535,17 @@ const CustomFormDrawer = memo(function ({
                                     name="govtIdNo"
                                     autoComplete="govtIdNo"
                                     variant="standard"
-                                    inputProps={{ maxLength: 50 }}
+                                    inputProps={{
+                                      maxLength: 50,
+                                      style: {
+                                        fontSize: "14px",
+                                      },
+                                    }}
+                                    InputLabelProps={{
+                                      style: {
+                                        fontSize: "13px",
+                                      },
+                                    }}
                                     value={item?.govtIdNo || ""}
                                     onChange={(e) =>
                                       handleChangeCustomFormDrawerDataOnChange(
@@ -3796,6 +4554,15 @@ const CustomFormDrawer = memo(function ({
                                         index
                                       )
                                     }
+                                    sx={{
+                                      "& .MuiInputBase-root": {
+                                        height: "23px",
+                                      },
+                                      "& .MuiTextField-root": {
+                                        maxHeight: "30px",
+                                        backgroundColor: "transparent",
+                                      },
+                                    }}
                                   />
                                 </Grid>
                               </Grid>
@@ -3807,13 +4574,182 @@ const CustomFormDrawer = memo(function ({
                     </Box>
                   </Grid>
                 </Grid>
+
+                <Grid size={12}>
+                  <Grid container size={12}>
+                    <Grid size={12}>
+                      <Typography
+                        sx={{
+                          fontSize: "15.5px",
+                          // color: "#707070",
+                          fontWeight: 600,
+                          marginTop: "5px",
+                        }}
+                      >
+                        Room Charges Details :
+                      </Typography>
+                      <Divider />
+                    </Grid>
+                  </Grid>
+                </Grid>
+
+                {/* ROOM CHARGES */}
+                <Grid size={{ xs: 12 }}>
+                  <Grid container size={12} rowSpacing={0.5}>
+                    <Grid size={5}>
+                      <Typography
+                        sx={{
+                          fontSize: "14px",
+                          // color: "#707070",
+                          fontWeight: 600,
+                        }}
+                      >
+                        Room Base Price
+                      </Typography>
+                    </Grid>
+                    <Grid size={7}>
+                      <Typography
+                        sx={{
+                          fontSize: "14px",
+                          // color: "#707070",
+                          fontWeight: 600,
+                        }}
+                      >
+                        <Typography
+                          component="span"
+                          sx={{
+                            fontSize: "14px",
+                            // color: "#707070",
+                            fontWeight: 600,
+                            marginRight: "5px",
+                          }}
+                        >
+                          :
+                        </Typography>
+                        <Typography
+                          component="span"
+                          sx={{
+                            fontSize: "14px",
+                            // color: "#707070",
+                            // fontWeight: 600,
+                          }}
+                        >
+                          {customFormDrawerData?.roomBasePrice || 0}
+                        </Typography>
+                      </Typography>
+                    </Grid>
+
+                    <Grid size={5}>
+                      <Typography
+                        sx={{
+                          fontSize: "14px",
+                          // color: "#707070",
+                          fontWeight: 600,
+                        }}
+                      >
+                        Accumulate Charge
+                      </Typography>
+                    </Grid>
+                    <Grid size={7}>
+                      <Typography
+                        sx={{
+                          fontSize: "14px",
+                          // color: "#707070",
+                          fontWeight: 600,
+                        }}
+                      >
+                        <Typography
+                          component="span"
+                          sx={{
+                            fontSize: "14px",
+                            // color: "#707070",
+                            fontWeight: 600,
+                            marginRight: "5px",
+                          }}
+                        >
+                          :
+                        </Typography>
+                        <Typography
+                          component="span"
+                          sx={{
+                            fontSize: "14px",
+                            // color: "#707070",
+                            // fontWeight: 600,
+                          }}
+                        >
+                          {customFormDrawerData?.accumulatedRoomCharge}{" "}
+                          {Boolean(customFormDrawerData?.numberOfDaysOfStay) &&
+                            `(${customFormDrawerData?.numberOfDaysOfStay} day${
+                              Boolean(
+                                customFormDrawerData?.numberOfDaysOfStay > 1
+                              )
+                                ? "s"
+                                : ""
+                            } of stay)`}
+                        </Typography>
+                      </Typography>
+                    </Grid>
+                    <Grid size={5}>
+                      <Typography
+                        sx={{
+                          fontSize: "14px",
+                          // color: "#707070",
+                          fontWeight: 600,
+                        }}
+                      >
+                        Advance Required
+                      </Typography>
+                    </Grid>
+                    <Grid size={7}>
+                      <Typography
+                        sx={{
+                          fontSize: "14px",
+                          // color: "#707070",
+                          fontWeight: 600,
+                        }}
+                      >
+                        <Typography
+                          component="span"
+                          sx={{
+                            fontSize: "14px",
+                            // color: "#707070",
+                            fontWeight: 600,
+                            marginRight: "5px",
+                          }}
+                        >
+                          :
+                        </Typography>
+                        <Typography
+                          component="span"
+                          sx={{
+                            fontSize: "14px",
+                            // color: "#707070",
+                            // fontWeight: 600,
+                          }}
+                        >
+                          {Boolean(customFormDrawerData?.isAdvanceRequired)
+                            ? customFormDrawerData?.accumulatedAdvanceRequired ||
+                              0
+                            : 0}{" "}
+                          {!Boolean(customFormDrawerData?.isAdvanceRequired)
+                            ? "(No advance is required.)"
+                            : ""}
+                        </Typography>
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </Grid>
+
+                {/* PAYMENTS */}
                 <Grid size={{ xs: 12 }}>
                   <Grid container size={12} spacing={2}>
-                    <Grid size={6}>
+                    <Grid size={{ xs: 6, md: 4 }}>
                       <Box
                         sx={{
                           height: "100%",
-                          position: "relative",
+                          display: "flex",
+                          alignItems: "end",
+                          paddingBottom: "7px",
                           ".MuiTextField-root": {
                             width: "100%",
                             backgroundColor: "transparent",
@@ -3822,11 +4758,6 @@ const CustomFormDrawer = memo(function ({
                               background: "rgba(255, 255, 255, 0.25)",
                             },
                           },
-                          // ".MuiFormLabel-root": {
-                          //   color: (theme) => theme.palette.primary.main,
-                          //   fontWeight: 600,
-                          //   fontSize: 18,
-                          // },
                           ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before":
                             {
                               borderBottom: (theme) =>
@@ -3837,6 +4768,19 @@ const CustomFormDrawer = memo(function ({
                               borderBottom: (theme) =>
                                 `1px solid ${theme.palette.primary.main}`,
                             },
+                          "& .MuiInputLabel-root": {
+                            fontSize: "13px",
+                          },
+                          "& .MuiOutlinedInput-root": {
+                            height: "35px",
+                            minHeight: "35px",
+                          },
+                          "& .MuiInputBase-input": {
+                            padding: "13px",
+                            height: "100%",
+                            boxSizing: "border-box",
+                            fontSize: "13px",
+                          },
                         }}
                       >
                         <Autocomplete
@@ -3847,7 +4791,7 @@ const CustomFormDrawer = memo(function ({
                               name: item.replace(/_/g, " "),
                             })) || []
                           }
-                          disableClearable
+                          // disableClearable
                           value={customFormDrawerData?.paymentMethod || null}
                           onChange={(e, newVal) =>
                             handleChangeCustomFormDrawerDataOnChange(
@@ -3870,8 +4814,6 @@ const CustomFormDrawer = memo(function ({
                           popupIcon={<KeyboardArrowDownIcon color="primary" />}
                           sx={{
                             // width: 200,
-                            position: "absolute",
-                            bottom: 7,
                             ".MuiInputBase-root": {
                               color: "#fff",
                             },
@@ -3887,6 +4829,19 @@ const CustomFormDrawer = memo(function ({
                                 color: "#280071",
                                 fontWeight: 600,
                               },
+                          }}
+                          componentsProps={{
+                            popper: {
+                              sx: {
+                                "& .MuiAutocomplete-listbox": {
+                                  maxHeight: "150px",
+                                  overflow: "auto",
+                                },
+                                "& .MuiAutocomplete-option": {
+                                  fontSize: "13px", // Specifically targeting individual options
+                                },
+                              },
+                            },
                           }}
                           size="small"
                           clearIcon={<ClearIcon color="primary" />}
@@ -3919,7 +4874,7 @@ const CustomFormDrawer = memo(function ({
                       !(
                         customFormDrawerData?.paymentMethod?.key === "Cash"
                       ) && (
-                        <Grid size={6}>
+                        <Grid size={{ xs: 6, md: 4 }}>
                           <TextField
                             margin="normal"
                             required
@@ -3932,28 +4887,60 @@ const CustomFormDrawer = memo(function ({
                             value={
                               customFormDrawerData?.transactionReferenceNo || ""
                             }
-                            inputProps={{ maxLength: 80 }}
+                            inputProps={{
+                              maxLength: 80,
+                              style: {
+                                fontSize: "14px",
+                              },
+                            }}
+                            InputLabelProps={{
+                              style: {
+                                fontSize: "13px",
+                              },
+                            }}
                             onChange={(e) =>
                               handleChangeCustomFormDrawerDataOnChange(
                                 "transactionReferenceNo",
                                 e?.target?.value
                               )
                             }
+                            sx={{
+                              "& .MuiInputBase-root": {
+                                height: "23px",
+                              },
+                              "& .MuiTextField-root": {
+                                maxHeight: "30px",
+                                backgroundColor: "transparent",
+                              },
+                            }}
                           />
                         </Grid>
                       )}
 
-                    <Grid size={6}>
+                    <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         margin="normal"
                         fullWidth
+                        required={
+                          customFormDrawerData?.isAdvanceRequired || false
+                        }
                         disabled={!Boolean(customFormDrawerData?.paymentMethod)}
                         id={`paidAmount`}
                         label="Amount"
                         name="paidAmount"
                         autoComplete="paidAmount"
                         variant="standard"
-                        inputProps={{ maxLength: 20 }}
+                        inputProps={{
+                          maxLength: 20,
+                          style: {
+                            fontSize: "14px",
+                          },
+                        }}
+                        InputLabelProps={{
+                          style: {
+                            fontSize: "13px",
+                          },
+                        }}
                         value={customFormDrawerData?.paidAmount || ""}
                         onChange={(e) =>
                           handleChangeCustomFormDrawerDataOnChange(
@@ -3961,10 +4948,19 @@ const CustomFormDrawer = memo(function ({
                             e?.target?.value
                           )
                         }
+                        sx={{
+                          "& .MuiInputBase-root": {
+                            height: "23px",
+                          },
+                          "& .MuiTextField-root": {
+                            maxHeight: "30px",
+                            backgroundColor: "transparent",
+                          },
+                        }}
                       />
                     </Grid>
 
-                    <Grid size={6}>
+                    <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         margin="normal"
                         required
@@ -3974,7 +4970,17 @@ const CustomFormDrawer = memo(function ({
                         name="remarks"
                         autoComplete="remarks"
                         variant="standard"
-                        inputProps={{ maxLength: 120 }}
+                        inputProps={{
+                          maxLength: 120,
+                          style: {
+                            fontSize: "14px",
+                          },
+                        }}
+                        InputLabelProps={{
+                          style: {
+                            fontSize: "13px",
+                          },
+                        }}
                         value={customFormDrawerData?.remarks || ""}
                         onChange={(e) =>
                           handleChangeCustomFormDrawerDataOnChange(
@@ -3982,6 +4988,15 @@ const CustomFormDrawer = memo(function ({
                             e?.target?.value
                           )
                         }
+                        sx={{
+                          "& .MuiInputBase-root": {
+                            height: "23px",
+                          },
+                          "& .MuiTextField-root": {
+                            maxHeight: "30px",
+                            backgroundColor: "transparent",
+                          },
+                        }}
                       />
                     </Grid>
                   </Grid>
@@ -4401,6 +5416,352 @@ const CustomFoodListTableContainer = memo(function ({
   );
 });
 
+const CustomParentCollapseTableRowForLaundry = memo(function ({
+  laundryListTableHeaders,
+  rowSerialNumber,
+  key,
+  row,
+  laundryListItemsTableHeaders,
+  isForCheckOut = false,
+}) {
+  const [openCollapseTable, setOpenCollapseTable] = useState(
+    isForCheckOut ? false : true
+  );
+
+  const handleChangeOpenCollapseTable = useCallback(() => {
+    setOpenCollapseTable((prev) => !prev);
+  }, []);
+
+  return (
+    <>
+      <TableRow
+        hover
+        key={row?.id}
+        sx={{
+          cursor: "pointer",
+          height: 35,
+          backgroundColor: "inherit",
+          "&:hover": {
+            backgroundColor: "inherit",
+          },
+        }}
+      >
+        {laundryListTableHeaders?.map((subitem, subIndex) => {
+          return (
+            <TableCell key={`table-body-cell=${subIndex}`} align="center">
+              <Typography sx={{ fontSize: "12px" }}>
+                {subitem?.key === "sno" ? (
+                  <Typography sx={{ fontSize: "12px" }}>
+                    {rowSerialNumber}
+                  </Typography>
+                ) : subitem?.key === "createdAt" ? (
+                  <Typography
+                    sx={{
+                      fontSize: "12px",
+                      wordWrap: "break-word",
+                      whiteSpace: "none",
+                    }}
+                  >
+                    {row?.createdAt &&
+                      moment(row?.createdAt).format("DD-MM-YYYY hh:mm A")}
+                  </Typography>
+                ) : subitem?.key === "laundryStatus" ? (
+                  <Typography
+                    sx={{
+                      fontSize: "12px",
+                      wordWrap: "break-word",
+                      whiteSpace: "none",
+                    }}
+                  >
+                    {row?.laundryStatus
+                      ?.replace(/_/g, " ")
+                      ?.replace(/([a-z])([A-Z])/g, "$1 $2")
+                      ?.replace(/\b\w/g, (char) => char.toUpperCase())}
+                  </Typography>
+                ) : subitem?.key === "laundryListAction" ? (
+                  // <Box sx={{ display: "flex", gap: 1, width: "100%" }}>
+                  <IconButton
+                    sx={{
+                      width: "20px",
+                      height: "20px",
+                      transition: "transform 0.3s ease",
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleChangeOpenCollapseTable();
+                    }}
+                  >
+                    <KeyboardArrowDownIcon
+                      sx={{
+                        fontSize: "20px",
+                        fontWeight: 600,
+                        transform: openCollapseTable
+                          ? "rotate(180deg)" // Rotated when true
+                          : "rotate(0deg)", // Default position when false
+                        transition: "transform 0.3s ease",
+                      }}
+                    />
+                  </IconButton>
+                ) : (
+                  // </Box>
+                  <Typography sx={{ fontSize: "12px", wordWrap: "break-word" }}>
+                    {getCellValue(row, subitem?.key)}
+                  </Typography>
+                )}
+              </Typography>
+            </TableCell>
+          );
+        })}
+      </TableRow>
+      <TableRow>
+        <TableCell
+          sx={{
+            paddingBottom: 0,
+            paddingTop: 0,
+            padding: "0 !important",
+          }}
+          colSpan={
+            Boolean(laundryListTableHeaders?.length)
+              ? laundryListTableHeaders?.length
+              : 1
+          }
+        >
+          <Collapse in={openCollapseTable} timeout="auto">
+            <Table size="small" aria-label="bookedGuests">
+              <TableHead>
+                <TableRow>
+                  {laundryListItemsTableHeaders?.map((item, index) => {
+                    return (
+                      <TableCell
+                        key={`child-table-head-${index}`}
+                        align="center"
+                        sx={{
+                          color: "white",
+                          backgroundColor: "#454545",
+                          fontWeight: "bold",
+                          // paddingY: "8px",
+                          fontSize: "14px",
+                        }}
+                      >
+                        {item?.label}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {Boolean(row?.itemsDto?.length) ? (
+                  row?.itemsDto?.map((childItem, childIndex) => (
+                    <TableRow key={`child-row-${childIndex}`}>
+                      {laundryListItemsTableHeaders?.map(
+                        (subHeaderitem, subIndex) => {
+                          return (
+                            <TableCell
+                              key={`table-body-cell=${subIndex}`}
+                              align="center"
+                            >
+                              <Typography sx={{ fontSize: "13px" }}>
+                                {subHeaderitem?.key === "sno" ? (
+                                  <Typography sx={{ fontSize: "13px" }}>
+                                    {childIndex + 1}
+                                  </Typography>
+                                ) : (
+                                  <Typography sx={{ fontSize: "13px" }}>
+                                    {getCellValue(
+                                      childItem,
+                                      subHeaderitem?.key
+                                    )}
+                                  </Typography>
+                                )}
+                              </Typography>
+                            </TableCell>
+                          );
+                        }
+                      )}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      align="center"
+                      colSpan={
+                        Boolean(laundryListItemsTableHeaders?.length)
+                          ? laundryListItemsTableHeaders?.length
+                          : 1
+                      }
+                    >
+                      No data available
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </>
+  );
+});
+
+const CustomLaundryListTableContainer = memo(function ({
+  laundryListTableHeaders,
+  laundryListTableData,
+  laundryListItemsTableHeaders,
+  isForCheckOut = false,
+}) {
+  return (
+    <React.Fragment>
+      <TableContainer
+        component={Paper}
+        sx={{
+          overflow: "auto",
+          maxHeight: {
+            xs: isForCheckOut ? "220px" : "310px",
+            // xl: "calc(100vh - 280px)",
+            "&::-webkit-scrollbar": {
+              // height: "14px",
+            },
+            "&::-webkit-scrollbar-track": {
+              backgroundColor: "#ffffff00",
+              width: "none",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "#280071",
+              borderRadius: "4px",
+            },
+            "&::-webkit-scrollbar-thumb:hover": {
+              backgroundColor: "#3b0b92",
+            },
+          },
+        }}
+      >
+        <Table aria-label="simple table" stickyHeader size="small">
+          <TableHead>
+            <TableRow>
+              {laundryListTableHeaders?.map((item, index) => {
+                return (
+                  <TableCell
+                    key={`room-table-head-${index}`}
+                    align="center"
+                    sx={{
+                      color: "white",
+                      backgroundColor: "primary.main",
+                      fontWeight: "bold",
+                      // paddingY: "10px",
+                      fontSize: "13px",
+                    }}
+                  >
+                    {item?.label}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {Boolean(laundryListTableData?.length > 0) ? (
+              laundryListTableData?.map((row, index) => (
+                <CustomParentCollapseTableRowForLaundry
+                  laundryListTableHeaders={laundryListTableHeaders}
+                  rowSerialNumber={index + 1}
+                  key={row.id}
+                  row={row}
+                  laundryListItemsTableHeaders={laundryListItemsTableHeaders}
+                  isForCheckOut={isForCheckOut}
+                />
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  align="center"
+                  colSpan={
+                    Boolean(laundryListTableHeaders?.length)
+                      ? laundryListTableHeaders?.length
+                      : 1
+                  }
+                >
+                  No data available
+                </TableCell>
+              </TableRow>
+            )}
+            <TableRow>
+              <TableCell
+                colSpan={3}
+                style={{
+                  position: "sticky",
+                  bottom: 0,
+                  zIndex: 1,
+                  background: "white",
+                  minHeight: "100%",
+                  borderTop: "1px solid #ccc",
+                }}
+              >
+                <Typography
+                  sx={{
+                    width: "100%",
+                    textAlign: "center",
+                    fontSize: "16px",
+                    fontWeight: 600,
+                    // borderTop: "1px solid #ccc",
+                    minHeight: "24.9px",
+                  }}
+                >
+                  {" "}
+                </Typography>
+              </TableCell>
+              <TableCell
+                style={{
+                  position: "sticky",
+                  bottom: 0,
+                  zIndex: 1,
+                  background: "white",
+                  borderTop: "1px solid #ccc",
+                }}
+                colSpan={1}
+              >
+                <Typography
+                  sx={{
+                    width: "100%",
+                    textAlign: "center",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    // borderTop: "1px solid #ccc",
+                  }}
+                >
+                  Total
+                </Typography>
+              </TableCell>
+              <TableCell
+                style={{
+                  position: "sticky",
+                  bottom: 0,
+                  zIndex: 1,
+                  background: "white",
+                  borderTop: "1px solid #ccc",
+                }}
+                colSpan={1}
+              >
+                <Typography
+                  sx={{
+                    width: "100%",
+                    textAlign: "center",
+                    fontSize: "13px",
+                    // borderTop: "1px solid #ccc",
+                  }}
+                >
+                  {laundryListTableData?.reduce(
+                    (sum, item) => sum + (item?.totalPrice || 0),
+                    0
+                  )}
+                </Typography>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </React.Fragment>
+  );
+});
+
 const ShowcaseDialog = memo(function ({
   openShowcaseDialog,
   handleCloseShowcaseDialog,
@@ -4408,6 +5769,7 @@ const ShowcaseDialog = memo(function ({
   type,
   inventoryData = [],
   foodData = [],
+  laundryData = [],
   checkOutRoomData,
   showcaseDialogFormData,
   allPaymentMethods,
@@ -4415,6 +5777,8 @@ const ShowcaseDialog = memo(function ({
   handleConfirmFinalCheckout,
   foodListTableHeaders,
   foodListItemsTableHeaders,
+  laundryListTableHeaders,
+  laundryListItemsTableHeaders,
 }) {
   // console.log("type : ", type);
   console.log("ShowcaseDialog foodData : ", foodData);
@@ -4508,6 +5872,18 @@ const ShowcaseDialog = memo(function ({
               </>
             )}
 
+            {type === "laundry" && (
+              <>
+                {Boolean(laundryData?.length) && (
+                  <CustomLaundryListTableContainer
+                    laundryListTableHeaders={laundryListTableHeaders}
+                    laundryListTableData={laundryData}
+                    laundryListItemsTableHeaders={laundryListItemsTableHeaders}
+                  />
+                )}
+              </>
+            )}
+
             {type === "checkout" && (
               <>
                 <Box sx={{ width: "100%" }}>
@@ -4537,22 +5913,22 @@ const ShowcaseDialog = memo(function ({
                           }
                         />
                       </Box>
-                      <Box sx={{ width: "100%" }}>
-                        <Typography
-                          sx={{
-                            fontSize: "18px",
-                            // color: "#707070",
-                            fontWeight: 600,
-                            width: "100%",
-                            borderBottom: "2px solid #ccc",
-                            marginBottom: "5px",
-                          }}
-                        >
-                          Food Details :
-                        </Typography>
-                        {Boolean(
-                          checkOutRoomData?.bookingDto?.foodDataList?.length
-                        ) && (
+                      {Boolean(
+                        checkOutRoomData?.bookingDto?.foodDataList?.length
+                      ) && (
+                        <Box sx={{ width: "100%" }}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                              width: "100%",
+                              borderBottom: "2px solid #ccc",
+                              marginBottom: "5px",
+                            }}
+                          >
+                            Food Details :
+                          </Typography>
                           <CustomFoodListTableContainer
                             foodListTableHeaders={foodListTableHeaders}
                             foodListTableData={
@@ -4563,8 +5939,37 @@ const ShowcaseDialog = memo(function ({
                             }
                             isForCheckOut={type === "checkout" ? true : false}
                           />
-                        )}
-                      </Box>
+                        </Box>
+                      )}
+
+                      {Boolean(
+                        checkOutRoomData?.bookingDto?.laundryDataList?.length
+                      ) && (
+                        <Box sx={{ width: "100%" }}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                              width: "100%",
+                              borderBottom: "2px solid #ccc",
+                              marginBottom: "5px",
+                            }}
+                          >
+                            Laundry Details :
+                          </Typography>
+                          <CustomLaundryListTableContainer
+                            laundryListTableHeaders={laundryListTableHeaders}
+                            laundryListTableData={
+                              checkOutRoomData?.bookingDto?.laundryDataList
+                            }
+                            laundryListItemsTableHeaders={
+                              laundryListItemsTableHeaders
+                            }
+                            isForCheckOut={type === "checkout" ? true : false}
+                          />
+                        </Box>
+                      )}
                     </Grid>
                     <Grid size={12}>
                       <Grid container size={12} columnSpacing={1}>
@@ -4664,7 +6069,9 @@ const ShowcaseDialog = memo(function ({
                             <Box
                               sx={{
                                 height: "100%",
-                                position: "relative",
+                                display: "flex",
+                                alignItems: "end",
+                                paddingBottom: "7px",
                                 ".MuiTextField-root": {
                                   width: "100%",
                                   backgroundColor: "transparent",
@@ -4726,8 +6133,6 @@ const ShowcaseDialog = memo(function ({
                                 }
                                 sx={{
                                   // width: 200,
-                                  position: "absolute",
-                                  bottom: 8,
                                   ".MuiInputBase-root": {
                                     color: "#fff",
                                   },
@@ -5038,6 +6443,13 @@ const Dashboard = () => {
       address: "",
       roomDto: null,
       isBookingForToday: false,
+      roomBasePrice: 0,
+      advanceAmount: 0,
+      amountReceived: 0,
+      numberOfDaysOfStay: 0,
+      accumulatedRoomCharge: 0,
+      accumulatedAdvanceRequired: 0,
+      isAdvanceRequired: false,
     }),
     []
   );
@@ -5075,6 +6487,27 @@ const Dashboard = () => {
       { label: "Sl. No.", key: "sno" },
       { label: "Item", key: "itemName" },
       { label: "Quantity", key: "noOfItems" },
+    ],
+    []
+  );
+
+  const laundryListTableHeaders = useMemo(
+    () => [
+      { label: "Sl. No.", key: "sno" },
+      { label: "Order On", key: "createdAt" },
+      { label: "Status", key: "laundryStatus" },
+      { label: "Charges", key: "totalPrice" },
+      { label: "Action", key: "laundryListAction" },
+    ],
+    []
+  );
+
+  const laundryListItemsTableHeaders = useMemo(
+    () => [
+      { label: "Sl. No.", key: "sno" },
+      { label: "Item", key: "name" },
+      { label: "Quantity", key: "qty" },
+      { label: "Price", key: "price" },
     ],
     []
   );
@@ -5193,6 +6626,16 @@ const Dashboard = () => {
     }));
   }, []);
 
+  const handleOpenShowcaseModalForLaundry = useCallback((laundryData) => {
+    setShowcaseDialogData((prevData) => ({
+      ...prevData,
+      open: true,
+      title: "Laundry",
+      type: "laundry",
+      laundryData: laundryData,
+    }));
+  }, []);
+
   const handleOpenShowcaseModalForCheckout = useCallback(() => {
     setShowcaseDialogData((prevData) => ({
       ...prevData,
@@ -5201,6 +6644,7 @@ const Dashboard = () => {
       type: "checkout",
       inventoryData: [],
       foodData: [],
+      laundryData: [],
     }));
   }, []);
 
@@ -5394,6 +6838,69 @@ const Dashboard = () => {
               remarks: inputValue,
             };
           });
+        } else if (name === "fromDate") {
+          setCustomFormDrawerData((prevData) => {
+            return {
+              ...prevData,
+              [name]: inputValue,
+              toDate: null,
+              numberOfDaysOfStay: 0,
+              accumulatedRoomCharge: 0,
+              accumulatedAdvanceRequired: 0,
+            };
+          });
+        } else if (name === "toDate") {
+          setCustomFormDrawerData((prevData) => {
+            const dayResult = calculateNumberOfDaysOfStay({
+              fromDate: prevData?.fromDate,
+              toDate: inputValue,
+            });
+            return {
+              ...prevData,
+              [name]: inputValue,
+              numberOfDaysOfStay: dayResult,
+              accumulatedRoomCharge: calculateAccumulatedRoomCharge({
+                basePrice: prevData?.roomBasePrice,
+                daysOfStay: dayResult,
+              }),
+              accumulatedAdvanceRequired: calculateAccumulatedRoomCharge({
+                basePrice: prevData?.advanceAmount,
+                daysOfStay: dayResult,
+              }),
+            };
+          });
+        } else if (name === "checkOutDate") {
+          setCustomFormDrawerData((prevData) => {
+            const dayResult = calculateNumberOfDaysOfStay({
+              checkOutDate: inputValue,
+            });
+            return {
+              ...prevData,
+              [name]: inputValue,
+              numberOfDaysOfStay: dayResult,
+              accumulatedRoomCharge: calculateAccumulatedRoomCharge({
+                basePrice: prevData?.roomBasePrice,
+                daysOfStay: dayResult,
+              }),
+              accumulatedAdvanceRequired: calculateAccumulatedRoomCharge({
+                basePrice: prevData?.advanceAmount,
+                daysOfStay: dayResult,
+              }),
+            };
+          });
+        } else if (name === "isBookingForToday") {
+          setCustomFormDrawerData((prevData) => {
+            return {
+              ...prevData,
+              [name]: inputValue,
+              fromDate: null,
+              toDate: null,
+              checkOutDate: null,
+              numberOfDaysOfStay: 0,
+              accumulatedRoomCharge: 0,
+              accumulatedAdvanceRequired: 0,
+            };
+          });
         } else if (name === "fullCheckIn") {
           if (inputValue) {
             setCustomFormDrawerData((prevData) => ({
@@ -5447,6 +6954,10 @@ const Dashboard = () => {
                   }))
                 : [],
               roomDto: inputValue,
+              isAdvanceRequired:
+                inputValue?.roomType?.isAdvanceRequired || false,
+              roomBasePrice: inputValue?.roomType?.basePrice || 0,
+              advanceAmount: inputValue?.roomType?.advanceAmount || 0,
             }));
           }
 
@@ -5891,24 +7402,49 @@ const Dashboard = () => {
         severity: "warning",
       });
       return;
-    } else if (!Boolean(customFormDrawerData?.email?.trim())) {
-      setSnack({
-        open: true,
-        message: "Please provide a valid email",
-        severity: "warning",
-      });
-      return;
-    } else if (!Boolean(customFormDrawerData?.address?.trim())) {
+    }
+    //  else if (!Boolean(customFormDrawerData?.email?.trim())) {
+    //   setSnack({
+    //     open: true,
+    //     message: "Please provide a valid email",
+    //     severity: "warning",
+    //   });
+    //   return;
+    // }
+    else if (!Boolean(customFormDrawerData?.address?.trim())) {
       setSnack({
         open: true,
         message: "Please provide guest address",
         severity: "warning",
       });
       return;
-    } else if (!Boolean(customFormDrawerData?.checkOutDate)) {
+    } else if (
+      Boolean(customFormDrawerData?.isBookingForToday) &&
+      !Boolean(customFormDrawerData?.checkOutDate)
+    ) {
       setSnack({
         open: true,
         message: "Please provide a valid Checkout date",
+        severity: "warning",
+      });
+      return;
+    } else if (
+      !Boolean(customFormDrawerData?.isBookingForToday) &&
+      !Boolean(customFormDrawerData?.fromDate)
+    ) {
+      setSnack({
+        open: true,
+        message: "Please provide a valid From date",
+        severity: "warning",
+      });
+      return;
+    } else if (
+      !Boolean(customFormDrawerData?.isBookingForToday) &&
+      !Boolean(customFormDrawerData?.toDate)
+    ) {
+      setSnack({
+        open: true,
+        message: "Please provide a valid To date",
         severity: "warning",
       });
       return;
@@ -5974,12 +7510,14 @@ const Dashboard = () => {
       });
       return;
     } else if (
-      isNaN(parseFloat(customFormDrawerData?.paidAmount)) ||
-      parseFloat(customFormDrawerData?.paidAmount) === 0
+      Boolean(customFormDrawerData?.isAdvanceRequired) &&
+      (isNaN(parseFloat(customFormDrawerData?.paidAmount)) ||
+        parseFloat(customFormDrawerData?.paidAmount) <
+          parseFloat(customFormDrawerData?.accumulatedAdvanceRequired))
     ) {
       setSnack({
         open: true,
-        message: "Paid amount cannot be zero or empty",
+        message: "please proceed with required advance amount",
         severity: "warning",
       });
       return;
@@ -5994,9 +7532,25 @@ const Dashboard = () => {
       phoneNumber: customFormDrawerData?.phoneNumber,
       email: customFormDrawerData?.email,
       address: customFormDrawerData?.address,
-      checkOutDate: customFormDrawerData?.checkOutDate
-        ? moment(customFormDrawerData?.checkOutDate.$d).format("DD-MM-YYYY")
-        : null,
+      // checkOutDate: customFormDrawerData?.checkOutDate
+      //   ? moment(customFormDrawerData?.checkOutDate.$d).format("DD-MM-YYYY")
+      //   : null,
+      ...(customFormDrawerData?.isBookingForToday
+        ? {
+            checkOutDate: customFormDrawerData?.checkOutDate
+              ? moment(customFormDrawerData?.checkOutDate.$d).format(
+                  "DD-MM-YYYY"
+                )
+              : null,
+          }
+        : {
+            fromDate: customFormDrawerData?.fromDate
+              ? moment(customFormDrawerData?.fromDate.$d).format("DD-MM-YYYY")
+              : null,
+            toDate: customFormDrawerData?.toDate
+              ? moment(customFormDrawerData?.toDate.$d).format("DD-MM-YYYY")
+              : null,
+          }),
       noOfPeoples: customFormDrawerData?.noOfPeoples,
       hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId,
       roomDto: {
@@ -6029,6 +7583,7 @@ const Dashboard = () => {
         : Number(customFormDrawerData?.paidAmount),
       paymentMethod: customFormDrawerData?.paymentMethod?.key,
       transactionReferenceNo: customFormDrawerData?.transactionReferenceNo,
+      bookingAmount: customFormDrawerData?.accumulatedRoomCharge,
       remarks: customFormDrawerData?.remarks,
     };
 
@@ -6094,7 +7649,6 @@ const Dashboard = () => {
               ]}
               roomTypes={roomtypeByHotelIdData?.data || []}
               roomData={roomData}
-              handleOpenCustomFormDrawer={handleOpenCustomFormDrawer}
             />
           </Box>
           {/* <Box
@@ -6125,13 +7679,13 @@ const Dashboard = () => {
         <Grid container size={12} columnSpacing={1.5} rowSpacing={2}>
           {/* ROOM LIST  */}
 
-          <Grid size={{ md: 9, xs: 12 }}>
+          <Grid size={{ md: 9, sm: 7, xs: 12 }}>
             <Box
               sx={{
                 width: "100%",
                 height: {
                   xs: "calc(100vh - 220px)",
-                  xl: "calc(100vh - 180px)",
+                  xl: "calc(100vh - 190px)",
                 },
                 overflowX: "hidden",
                 overflowY: "auto",
@@ -6156,13 +7710,13 @@ const Dashboard = () => {
 
           {/* EXTRA DETAILS COLUMN */}
 
-          <Grid size={{ md: 3, xs: 12 }}>
+          <Grid size={{ md: 3, sm: 5, xs: 12 }}>
             <Box
               sx={{
                 width: "100%",
                 height: {
                   xs: "calc(100vh - 220px)",
-                  xl: "calc(100vh - 180px)",
+                  xl: "calc(100vh - 190px)",
                 },
                 overflowX: "hidden",
                 overflowY: "auto",
@@ -6196,6 +7750,9 @@ const Dashboard = () => {
                       }
                       handleRequestRoomCheckout={handleRequestRoomCheckout}
                       handleRoomCleanRequest={handleRoomCleanRequest}
+                      handleOpenShowcaseModalForLaundry={
+                        handleOpenShowcaseModalForLaundry
+                      }
                     />
                   </Grid>
                 )}
@@ -6210,6 +7767,7 @@ const Dashboard = () => {
         type={showcaseDialogData?.type}
         inventoryData={showcaseDialogData?.inventoryData || []}
         foodData={showcaseDialogData?.foodData || []}
+        laundryData={showcaseDialogData?.laundryData || []}
         checkOutRoomData={isSelectedRoom}
         handleCloseShowcaseDialog={handleCloseShowcaseDialog}
         showcaseDialogFormData={showcaseDialogFormData}
@@ -6218,6 +7776,8 @@ const Dashboard = () => {
         handleConfirmFinalCheckout={handleConfirmFinalCheckout}
         foodListTableHeaders={foodListTableHeaders}
         foodListItemsTableHeaders={foodListItemsTableHeaders}
+        laundryListTableHeaders={laundryListTableHeaders}
+        laundryListItemsTableHeaders={laundryListItemsTableHeaders}
       />
       <CustomFormDrawer
         customDrawerOpen={customFormDrawerOpen?.open}

@@ -28,6 +28,9 @@ const RestaurantAdmin = React.lazy(() =>
 const FrontdeskBookingHistory = React.lazy(() =>
   import("./features/frontdeskBookingHistory/FrontdeskBookingHistory")
 );
+const HotelBillInvoice = React.lazy(() =>
+  import("./features/HotelBillInvoice/HotelBillInvoice")
+);
 const Parking = React.lazy(() => import("./features/parking/Parking"));
 
 function App() {
@@ -38,6 +41,10 @@ function App() {
           <Route path="/" element={<Navigate to="/guest-login" />} />
           <Route path="/guest-login" element={<Login key="guest-login" />} />
           <Route path="/staff-login" element={<Login key="staff-login" />} />
+          <Route
+            path="/hotelBillInvoice/:bookingRefNo"
+            element={<HotelBillInvoice key="hotel-bill" />}
+          />
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />

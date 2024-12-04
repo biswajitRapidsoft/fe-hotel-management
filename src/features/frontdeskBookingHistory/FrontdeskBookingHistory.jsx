@@ -390,7 +390,7 @@ const CustomBookingHistoryTableFIlters = memo(function ({
       }}
     >
       <Grid container size={12} spacing={1}>
-        <Grid size={{ xs: 4, lg: 2, xl: 1.5 }}>
+        <Grid size={{ xs: 4, lg: 1.7, xl: 1.5 }}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               disablePast
@@ -405,11 +405,17 @@ const CustomBookingHistoryTableFIlters = memo(function ({
                 textField: {
                   variant: "outlined",
                   size: "small",
-                  readOnly: true,
+                  // readOnly: true,
+                  clearable: true,
+                  onKeyDown: (e) => {
+                    e.preventDefault();
+                  },
                   label: "From",
                   sx: {
                     "& .MuiOutlinedInput-root": {
                       borderRadius: 2,
+                      width: 200,
+                      height: 35,
                       backgroundColor: "rgba(255, 255, 255, 0.25)",
                       color: "#B4B4B4",
                     },
@@ -420,7 +426,7 @@ const CustomBookingHistoryTableFIlters = memo(function ({
                     "& .MuiFormLabel-root": {
                       color: (theme) => theme.palette.primary.main,
                       fontWeight: 600,
-                      fontSize: 18,
+                      fontSize: 14,
                     },
                   },
                 },
@@ -433,34 +439,43 @@ const CustomBookingHistoryTableFIlters = memo(function ({
           </LocalizationProvider>
         </Grid>
 
-        <Grid size={{ xs: 4, lg: 2, xl: 1.5 }}>
+        <Grid size={{ xs: 4, lg: 1.7, xl: 1.5 }}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               disablePast
               value={bookingHistoryTableFilters?.toDate}
+              shouldDisableDate={(date) => {
+                if (bookingHistoryTableFilters?.fromDate) {
+                  return date.isBefore(
+                    dayjs(bookingHistoryTableFilters.fromDate).startOf("day")
+                  );
+                }
+                return false;
+              }}
               onChange={(newVal) =>
                 handleChangeBookingHistoryTableFiltersOnChange("toDate", newVal)
               }
               slotProps={{
-                textField: {
+                field: {
                   variant: "outlined",
                   size: "small",
-                  readOnly: true,
                   label: "To",
+                  clearable: true,
+                  onKeyDown: (e) => {
+                    e.preventDefault();
+                  },
                   sx: {
                     "& .MuiOutlinedInput-root": {
                       borderRadius: 2,
                       backgroundColor: "rgba(255, 255, 255, 0.25)",
                       color: "#B4B4B4",
-                    },
-                    "& .MuiTextField-root": {
-                      width: "100%",
-                      backgroundColor: "transparent",
+                      width: 200,
+                      height: 35,
                     },
                     "& .MuiFormLabel-root": {
                       color: (theme) => theme.palette.primary.main,
                       fontWeight: 600,
-                      fontSize: 18,
+                      fontSize: 14,
                     },
                   },
                 },
@@ -471,6 +486,47 @@ const CustomBookingHistoryTableFIlters = memo(function ({
               format="DD/MM/YYYY"
             />
           </LocalizationProvider>
+        </Grid>
+        <Grid size={{ xs: 4, lg: 1.7, xl: 1.5 }}>
+          <TextField
+            fullWidth
+            size="small"
+            id="bookingRefNumber"
+            label="Booking Ref. No."
+            name="bookingRefNumber"
+            variant="outlined"
+            value={bookingHistoryTableFilters?.bookingRefNumber || ""}
+            onChange={(e) =>
+              handleChangeBookingHistoryTableFiltersOnChange(
+                "bookingRefNumber",
+                e?.target?.value
+              )
+            }
+            inputProps={{
+              maxLength: 120,
+              style: {
+                fontSize: "14px",
+              },
+            }}
+            InputLabelProps={{
+              style: {
+                fontSize: "13px",
+              },
+            }}
+            sx={{
+              bgcolor: "#F9F4FF",
+              "& .MuiInputBase-root": {
+                height: "35px",
+              },
+              "& .MuiOutlinedInput-root": {
+                borderRadius: 2,
+              },
+              "& .MuiTextField-root": {
+                maxHeight: "35px",
+                backgroundColor: "transparent",
+              },
+            }}
+          />
         </Grid>
         <Grid size={{ xs: 4, lg: 2, xl: 1.5 }}>
           <Box
@@ -486,7 +542,7 @@ const CustomBookingHistoryTableFIlters = memo(function ({
               ".MuiFormLabel-root": {
                 color: (theme) => theme.palette.primary.main,
                 fontWeight: 600,
-                fontSize: 18,
+                fontSize: 14,
               },
               ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
                 borderBottom: (theme) =>
@@ -495,6 +551,16 @@ const CustomBookingHistoryTableFIlters = memo(function ({
               ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
                 borderBottom: (theme) =>
                   `1px solid ${theme.palette.primary.main}`,
+              },
+              "& .MuiOutlinedInput-root": {
+                height: "35px",
+                minHeight: "35px",
+              },
+              "& .MuiInputBase-input": {
+                padding: "13px",
+                height: "100%",
+                boxSizing: "border-box",
+                fontSize: "13px",
               },
             }}
           >
@@ -541,6 +607,19 @@ const CustomBookingHistoryTableFIlters = memo(function ({
                     fontWeight: 600,
                   },
               }}
+              componentsProps={{
+                popper: {
+                  sx: {
+                    "& .MuiAutocomplete-listbox": {
+                      maxHeight: "150px",
+                      overflow: "auto",
+                    },
+                    "& .MuiAutocomplete-option": {
+                      fontSize: "13px",
+                    },
+                  },
+                },
+              }}
               size="small"
               clearIcon={<ClearIcon color="primary" />}
               PaperComponent={(props) => (
@@ -566,29 +645,6 @@ const CustomBookingHistoryTableFIlters = memo(function ({
               )}
             />
           </Box>
-        </Grid>
-        <Grid size={{ xs: 4, lg: 2, xl: 1.5 }}>
-          <TextField
-            fullWidth
-            size="small"
-            id="bookingRefNumber"
-            label="Booking Ref. No."
-            name="bookingRefNumber"
-            variant="outlined"
-            value={bookingHistoryTableFilters?.bookingRefNumber || ""}
-            onChange={(e) =>
-              handleChangeBookingHistoryTableFiltersOnChange(
-                "bookingRefNumber",
-                e?.target?.value
-              )
-            }
-            sx={{
-              bgcolor: "#F9F4FF",
-              "& .MuiOutlinedInput-root": {
-                borderRadius: 2,
-              },
-            }}
-          />
         </Grid>
       </Grid>
     </Box>
@@ -649,7 +705,7 @@ const CustomRow = memo(function ({
       key={row?.id}
       sx={{
         cursor: "pointer",
-        height: 60,
+        height: 50,
         backgroundColor: "inherit",
         "&:hover": {
           backgroundColor: "inherit",
@@ -807,7 +863,7 @@ const CustomBookingHistoryTableContainer = memo(function ({
                       color: "white",
                       backgroundColor: "primary.main",
                       fontWeight: "bold",
-                      paddingY: item?.key === "sno" ? "15px" : "auto",
+                      paddingY: "5px",
 
                       fontSize: "14px",
                     }}
@@ -1415,11 +1471,12 @@ const CustomBookingHistoryDrawer = memo(function ({
               </Grid>
               <Grid size={12}>
                 <Grid container size={12} spacing={1}>
-                  <Grid size={5.5}>
+                  <Grid size={4.5}>
                     <Box
                       sx={{
                         height: "100%",
-                        position: "relative",
+                        display: "flex",
+                        alignItems: "end",
                         ".MuiTextField-root": {
                           width: "100%",
                           backgroundColor: "transparent",
@@ -1475,8 +1532,6 @@ const CustomBookingHistoryDrawer = memo(function ({
                         popupIcon={<KeyboardArrowDownIcon color="primary" />}
                         sx={{
                           // width: 200,
-                          // position: "absolute",
-                          // bottom: 7,
                           ".MuiInputBase-root": {
                             color: "#fff",
                           },
@@ -1492,6 +1547,19 @@ const CustomBookingHistoryDrawer = memo(function ({
                               color: "#280071",
                               fontWeight: 600,
                             },
+                        }}
+                        componentsProps={{
+                          popper: {
+                            sx: {
+                              "& .MuiAutocomplete-listbox": {
+                                maxHeight: "150px",
+                                overflow: "auto",
+                              },
+                              "& .MuiAutocomplete-option": {
+                                fontSize: "13px", // Specifically targeting individual options
+                              },
+                            },
+                          },
                         }}
                         size="small"
                         clearIcon={<ClearIcon color="primary" />}
@@ -1523,12 +1591,13 @@ const CustomBookingHistoryDrawer = memo(function ({
                       />
                     </Box>
                   </Grid>
-                  <Grid size={3.25}>
+                  <Grid size={3.75}>
                     <Box
                       sx={{
                         width: "100%",
                         height: "100%",
-                        position: "relative",
+                        display: "flex",
+                        alignItems: "end",
                       }}
                     >
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -1546,10 +1615,12 @@ const CustomBookingHistoryDrawer = memo(function ({
                               variant: "standard",
                               size: "small",
                               readOnly: true,
+                              // clearable: true,
+                              // onKeyDown: (e) => {
+                              //   e.preventDefault();
+                              // },
                               label: "From",
                               sx: {
-                                position: "absolute",
-                                bottom: 0,
                                 "& .MuiOutlinedInput-root": {
                                   borderRadius: 2,
                                   backgroundColor: "rgba(255, 255, 255, 0.25)",
@@ -1579,12 +1650,13 @@ const CustomBookingHistoryDrawer = memo(function ({
                       </LocalizationProvider>
                     </Box>
                   </Grid>
-                  <Grid size={3.25}>
+                  <Grid size={3.75}>
                     <Box
                       sx={{
                         width: "100%",
                         height: "100%",
-                        position: "relative",
+                        display: "flex",
+                        alignItems: "end",
                       }}
                     >
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -1614,10 +1686,12 @@ const CustomBookingHistoryDrawer = memo(function ({
                               variant: "standard",
                               size: "small",
                               readOnly: true,
+                              // clearable: true,
+                              // onKeyDown: (e) => {
+                              //   e.preventDefault();
+                              // },
                               label: "To",
                               sx: {
-                                position: "absolute",
-                                bottom: 0,
                                 "& .MuiOutlinedInput-root": {
                                   borderRadius: 2,
                                   backgroundColor: "rgba(255, 255, 255, 0.25)",
@@ -1775,6 +1849,7 @@ const FrontdeskBookingHistory = () => {
       { label: "To", key: "toDate" },
       { label: "Stayers", key: "noOfPeoples" },
       { label: "Room Type", key: "roomType.type" },
+      { label: "Room No.", key: "roomDto.roomNo" },
       { label: "Booking Status", key: "bookingStatus" },
       { label: "Action", key: "bookingAction" },
     ],
@@ -1813,6 +1888,17 @@ const FrontdeskBookingHistory = () => {
   const [bookingHistoryTableFilters, setBookingHistoryTableFilters] = useState(
     initialBookingHistoryTableFilters
   );
+  console.log("bookingHistoryTableFilters : ", bookingHistoryTableFilters);
+  const [bookingHistoryTablePageNo, setBookingHistoryTablePageNo] = useState(0);
+  console.log(" bookingHistoryTablePageNo : ", bookingHistoryTablePageNo);
+  const [bookingHistoryTableRowsPerPage, setBookingHistoryTableRowsPerPage] =
+    useState(10);
+  console.log(
+    " bookingHistoryTableRowsPerPage : ",
+    bookingHistoryTableRowsPerPage
+  );
+  const [debouncedBookingRefNoSearch, setDebouncedBookingRefNoSearch] =
+    useState("");
   const [bookingConfirmationFormData, setBookingConfirmationFormData] =
     useState(initialBookingConfirmationFormData);
 
@@ -1839,7 +1925,7 @@ const FrontdeskBookingHistory = () => {
   } = useRoomBookingHistoryByHotelIdQuery(
     {
       hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId,
-      bookingRefNumber: bookingHistoryTableFilters?.bookingRefNumber || null,
+      bookingRefNumber: debouncedBookingRefNoSearch || null,
       bookingStatus: bookingHistoryTableFilters?.bookingStatus?.key || null,
       fromDate: bookingHistoryTableFilters?.fromDate
         ? moment(bookingHistoryTableFilters?.fromDate?.$d).format("DD-MM-YYYY")
@@ -1847,8 +1933,10 @@ const FrontdeskBookingHistory = () => {
       toDate: bookingHistoryTableFilters?.toDate
         ? moment(bookingHistoryTableFilters?.toDate?.$d).format("DD-MM-YYYY")
         : null,
-      pageNo: bookingHistoryTableFilters?.pageNo,
-      pageSize: bookingHistoryTableFilters?.pageSize,
+      // pageNo: bookingHistoryTableFilters?.pageNo,
+      pageNo: bookingHistoryTablePageNo,
+      // pageSize: bookingHistoryTableFilters?.pageSize,
+      pageSize: bookingHistoryTableRowsPerPage,
     },
     {
       refetchOnMountOrArgChange: true,
@@ -1923,15 +2011,6 @@ const FrontdeskBookingHistory = () => {
     totalPages: 0,
     data: [],
   });
-  console.log("bookingHistoryTableData : ", bookingHistoryTableData);
-  const [bookingHistoryTablePageNo, setBookingHistoryTablePageNo] = useState(0);
-  console.log(" bookingHistoryTablePageNo : ", bookingHistoryTablePageNo);
-  const [bookingHistoryTableRowsPerPage, setBookingHistoryTableRowsPerPage] =
-    useState(10);
-  console.log(
-    " bookingHistoryTableRowsPerPage : ",
-    bookingHistoryTableRowsPerPage
-  );
 
   const [customBookingHistoryDrawerOpen, setCustomBookingHistoryDrawerOpen] =
     useState({
@@ -1940,13 +2019,19 @@ const FrontdeskBookingHistory = () => {
       type: null,
     });
 
+  console.log("bookingHistoryTableData : ", bookingHistoryTableData);
   const [selectedBookingHistory, setSelectedBookingHistory] = useState(null);
   console.log("selectedBookingHistory : ", selectedBookingHistory);
 
   const handleChangeBookingHistoryTableFilters = useCallback(
     (name, inputValue) => {
       if (name) {
-        if (name === "temp") {
+        if (name === "fromDate") {
+          setBookingHistoryTableFilters((prevData) => ({
+            ...prevData,
+            [name]: inputValue,
+            toDate: null,
+          }));
         } else {
           setBookingHistoryTableFilters((prevData) => ({
             ...prevData,
@@ -1962,6 +2047,11 @@ const FrontdeskBookingHistory = () => {
 
   const handleChangeBookingHistoryTablePageNo = useCallback(
     (event, newpage) => {
+      console.log(
+        "handleChangeBookingHistoryTablePageNo event & newPage : ",
+        event,
+        newpage
+      );
       setBookingHistoryTablePageNo(newpage);
     },
     []
@@ -1997,6 +2087,12 @@ const FrontdeskBookingHistory = () => {
             ...prevData,
             roomDto:
               inputValue?.id === prevData?.roomDto?.id ? null : inputValue,
+          }));
+        } else if (name === "from") {
+          setBookingConfirmationFormData((prevData) => ({
+            ...prevData,
+            [name]: inputValue,
+            to: null,
           }));
         } else {
           setBookingConfirmationFormData((prevData) => ({
@@ -2135,6 +2231,18 @@ const FrontdeskBookingHistory = () => {
       );
     }
   }, [isRoomBookingHistoryByHotelIdSuccess, roomBookingHistoryByHotelIdData]);
+
+  useEffect(() => {
+    const timerId = setTimeout(() => {
+      setDebouncedBookingRefNoSearch(
+        bookingHistoryTableFilters?.bookingRefNumber
+      );
+    }, 700);
+
+    return () => {
+      clearTimeout(timerId);
+    };
+  }, [bookingHistoryTableFilters?.bookingRefNumber]);
 
   // useEffect(() => {
   //   const response = generateBookingHistoryResponse(
