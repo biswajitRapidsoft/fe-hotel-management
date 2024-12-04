@@ -37,6 +37,7 @@ import { useNavigate } from "react-router-dom";
 import RestaurantIcon from "@mui/icons-material/Restaurant";
 import CleaningServicesIcon from "@mui/icons-material/CleaningServices";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import DryCleaningIcon from "@mui/icons-material/DryCleaning";
 // import Swal from "sweetalert2";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -56,6 +57,7 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
   const [requestRoomCheckout, requestRoomCheckoutRes] =
     useRequestRoomCheckoutMutation();
   const [roomCleanRequest, roomCleanRequestRes] = useRoomCleanRequestMutation();
+
   // const [cancelBooking, cancelBookingRes] = useCancelHotelRoomMutation();
 
   const navigate = useNavigate();
@@ -107,6 +109,7 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
     },
     [requestRoomCheckout]
   );
+
   // api call for room cleaning
   const handleRoomCleanRequest = React.useCallback(
     (roomId, hotelId) => {
@@ -423,7 +426,7 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                                       Room Clean
                                     </Button>
                                   </Grid>
-                                  <Grid size={{ xs: 12 }}>
+                                  <Grid size={{ xs: 6 }}>
                                     <Button
                                       variant="outlined"
                                       sx={{
@@ -439,7 +442,33 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                                         )
                                       }
                                     >
-                                      Request Checkout
+                                      Checkout
+                                    </Button>
+                                  </Grid>
+                                  <Grid size={{ xs: 6 }}>
+                                    <Button
+                                      variant="outlined"
+                                      sx={{
+                                        textTransform: "none",
+                                        width: "100%",
+                                        color: "#757a79",
+                                        borderColor: "#757a79",
+                                      }}
+                                      startIcon={<DryCleaningIcon />}
+                                      onClick={() =>
+                                        // handleRequestLaundryService(
+                                        //   booking.bookingRefNumber
+                                        // )
+                                        {
+                                          sessionStorage.setItem(
+                                            "bookingRefNumberForLaundry",
+                                            booking?.bookingRefNumber
+                                          );
+                                          navigate("/LaundryHistory");
+                                        }
+                                      }
+                                    >
+                                      Laundry
                                     </Button>
                                   </Grid>
                                 </Grid>
@@ -469,7 +498,7 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
       <LoadingComponent
         open={
           requestRoomCheckoutRes.isLoading ||
-          // cancelBookingRes.isLoading ||
+          // laundryRequestRes.isLoading ||
           roomCleanRequestRes.isLoading
         }
       />

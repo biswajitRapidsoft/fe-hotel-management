@@ -69,7 +69,7 @@ const dashboardApi = apiSlice.injectEndpoints({
         params: {
           hotelId: payload.hotelId,
           // ...(payload.isService !== undefined && {
-          isService: payload.isService,
+          serviceType: payload.serviceType,
           // }),
         },
       }),
@@ -82,6 +82,42 @@ const dashboardApi = apiSlice.injectEndpoints({
         data: payload,
       }),
       invalidatesTags: ["getServiceableRoomData"],
+    }),
+    laundryRequest: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.laundryRequest,
+        method: "POST",
+        data: payload,
+      }),
+    }),
+    getAllLaundryHistory: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllLaundryHistory,
+        method: "GET",
+        params: {
+          hotelId: payload?.hotelId,
+          pageNo: payload?.pageNo,
+          pageSize: payload?.pageSize,
+          bookingRefNo: payload?.bookingRefNo,
+        },
+      }),
+      providesTags: ["getAllLaundryHistory"],
+    }),
+
+    getAllLaundryStatus: build.query({
+      query: () => ({
+        url: config.apiName.getAllLaundryStatus,
+        method: "GET",
+      }),
+      providesTags: ["getAllLaundryStatus"],
+    }),
+    changeLaundryStatus: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.changeLaundryStatus,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllLaundryHistory"],
     }),
 
     // FRONT-DESK DASHBOARD
@@ -207,4 +243,8 @@ export const {
   useRoomtypeByHotelIdQuery,
   useGetUserDetailsForBookingQuery,
   useBookingByFrontDeskStaffMutation,
+  useGetAllLaundryHistoryQuery,
+  useLaundryRequestMutation,
+  useGetAllLaundryStatusQuery,
+  useChangeLaundryStatusMutation,
 } = dashboardApi;

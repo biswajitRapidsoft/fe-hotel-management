@@ -24,11 +24,12 @@ import styled from "@emotion/styled";
 import { HOUSEKEEPER } from "../../helper/constants";
 import SnackAlert from "../../components/Alert";
 import LoadingComponent from "../../components/LoadingComponent";
-
+import DryCleaningIcon from "@mui/icons-material/DryCleaning";
 import {
   useGetServiceableRoomDataQuery,
   useApproveHouseKeepingServiceMutation,
 } from "../../services/dashboard";
+import { useNavigate } from "react-router-dom";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -79,24 +80,32 @@ const HouseKeeperDashboard = () => {
     severity: "",
   });
 
+  const navigate = useNavigate();
   const {
     data: serviceableRoomData = {
       data: [],
     },
     isLoading,
+    isFetching: isServiceFetching,
   } = useGetServiceableRoomDataQuery(
     currentFilter === "Service"
       ? {
           hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
-          isService: true,
+          serviceType: "Room_Cleaning",
         }
       : currentFilter === "Checkout"
       ? {
           hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
-          isService: false,
+          serviceType: "Checkout_Request",
+        }
+      : currentFilter === "Laundry"
+      ? {
+          hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
+          serviceType: "Laundry_Service",
         }
       : {
           hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
+          serviceType: "",
         },
     {
       refetchOnMountOrArgChange: true,
@@ -133,6 +142,12 @@ const HouseKeeperDashboard = () => {
       name: "Checkout",
       color: "00A9E0",
     },
+    {
+      id: 3,
+      icon: <DryCleaningIcon sx={{ color: "gray" }} />,
+      name: "Laundry",
+      // color: "gray",
+    },
   ];
 
   return (
@@ -147,8 +162,25 @@ const HouseKeeperDashboard = () => {
       <Box
         sx={{
           width: "100%",
+          display: "flex",
         }}
       >
+        <Box
+          sx={{
+            // backgroundColor: "yellow",
+            width: "20%",
+            display: "flex",
+            // justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Button
+            variant="contained"
+            onClick={() => navigate("/LaundryHistory")}
+          >
+            Laundry History
+          </Button>
+        </Box>
         <HouseKeepingFilters
           houseKeepingFilterButtons={houseKeepingFilterButtons}
           onFilterClick={handleFilterClick}
@@ -186,6 +218,9 @@ const HouseKeeperDashboard = () => {
                             ? "#00A9E0"
                             : item?.serviceTypeStatus === "Room_Cleaning"
                             ? "#280071"
+                            : item?.serviceTypeStatus ===
+                              "Room_Cleaning_After_Checkout"
+                            ? "#C445FF"
                             : "gray",
                         height: "1.5rem",
                       }}
@@ -200,7 +235,7 @@ const HouseKeeperDashboard = () => {
                       <Typography>{item?.roomNo}</Typography>
                       <Typography>{item?.roomType?.type}</Typography>
                       <Typography sx={{ color: "gray" }}>
-                        {item?.serviceTypeStatus.replace(/_/g, " ")}
+                        {item?.serviceTypeStatus?.replace(/_/g, " ")}
                       </Typography>
                     </Box>
                   </Box>
@@ -217,7 +252,7 @@ const HouseKeeperDashboard = () => {
         snack={snack}
         setSnack={setSnack}
       />
-      <LoadingComponent open={isLoading} />
+      <LoadingComponent open={isLoading || isServiceFetching} />
     </Box>
   );
 };
@@ -225,7 +260,7 @@ const HouseKeepingFilters = ({ houseKeepingFilterButtons, onFilterClick }) => {
   return (
     <Box
       sx={{
-        width: "100%",
+        width: "80%",
         display: "flex",
         justifyContent: "flex-end",
         alignItems: "center",
@@ -276,8 +311,14 @@ const HouseKeepingDialog = ({
   snack,
   setSnack,
 }) => {
+  console.log("selectedRoom", selectedRoom);
   const [checkboxStates, setCheckboxStates] = React.useState({});
   const [itemCounts, setItemCounts] = React.useState({});
+
+  //  states for laundry service
+  const [laundryCheckboxStates, setLaundryCheckboxStates] = React.useState({});
+  const [laundryItemCounts, setLaundryItemCounts] = React.useState({});
+
   const [remarks, setRemarks] = React.useState("");
   const [approveService, approveServiceRes] =
     useApproveHouseKeepingServiceMutation();
@@ -294,25 +335,131 @@ const HouseKeepingDialog = ({
       [rowId]: value,
     }));
   };
-  const handleSubmit = () => {
-    const extraItemsList =
-      selectedRoom?.serviceTypeStatus === "Room_Cleaning"
-        ? []
-        : selectedRoom.extraItemsList?.map((item) => ({
-            id: item.id,
-            noOfItemsRequired: item.noOfItemsRequired || 1,
-            noOfItems: Number(itemCounts[item.id]) || 0,
-            isAvailable: !checkboxStates[item.id],
-          }));
 
-    const payload = {
-      isForCheckoutRequest: selectedRoom?.serviceTypeStatus !== "Room_Cleaning",
-      roomDto: {
-        id: selectedRoom.id,
-      },
-      extraItemsList,
-      remarks,
-    };
+  // laundry service handlers
+  const handleLaundryCheckboxChange = (itemId) => {
+    setLaundryCheckboxStates((prev) => ({
+      ...prev,
+      [itemId]: !prev[itemId],
+    }));
+  };
+
+  const handleLaundryItemCountChange = (itemId, value) => {
+    setLaundryItemCounts((prev) => ({
+      ...prev,
+      [itemId]: value,
+    }));
+  };
+  const handleSubmit = () => {
+    // const extraItemsList =
+    //   selectedRoom?.serviceTypeStatus === "Room_Cleaning"
+    //     ? []
+    //     : selectedRoom.extraItemsList?.map((item) => ({
+    //         id: item.id,
+    //         noOfItemsRequired: item.noOfItemsRequired || 1,
+    //         noOfItems: Number(itemCounts[item.id]) || 0,
+    //         isAvailable: !checkboxStates[item.id],
+    //       }));
+
+    // const payload = {
+    //   isForCheckoutRequest: selectedRoom?.serviceTypeStatus !== "Room_Cleaning",
+    //   roomDto: {
+    //     id: selectedRoom.id,
+    //   },
+    //   extraItemsList,
+    //   remarks,
+    // };
+
+    // const payloadForLaundryService = {
+    //   isForLaundryService: true,
+    //   roomDto: {
+    //     id: selectedRoom.id,
+    //   },
+    //   laundryDto: {
+    //     totalPrice: 100,
+    //     itemsList: [
+    //       {
+    //         laundryItems: {
+    //           id: 1,
+    //         },
+    //         noOfQty: 1,
+    //         price: 100,
+    //       },
+    //     ],
+    //   },
+    //   remarks,
+    // };
+
+    let payload;
+
+    if (selectedRoom?.serviceTypeStatus === "Room_Cleaning") {
+      payload = {
+        isForCheckoutRequest: false,
+        roomDto: {
+          id: selectedRoom.id,
+        },
+        remarks,
+        serviceTypeStatus: selectedRoom?.serviceTypeStatus,
+      };
+    } else if (selectedRoom?.serviceTypeStatus === "Laundry_Service") {
+      // Calculate total price and prepare laundry items list
+      const laundryItems = selectedRoom.laundryItemsList
+        .filter((item) => laundryCheckboxStates[item.id])
+        .map((item) => ({
+          laundryItems: {
+            id: item.id,
+          },
+          noOfQty: Number(laundryItemCounts[item.id] || 0),
+          price: item.price * Number(laundryItemCounts[item.id] || 0),
+        }));
+
+      const totalPrice = laundryItems.reduce(
+        (sum, item) => sum + item.price,
+        0
+      );
+
+      payload = {
+        isForLaundryService: true,
+        roomDto: {
+          id: selectedRoom.id,
+        },
+        laundryDto: {
+          totalPrice,
+          itemsList: laundryItems,
+        },
+        remarks,
+        serviceTypeStatus: selectedRoom?.serviceTypeStatus,
+      };
+    } else if (
+      selectedRoom?.serviceTypeStatus === "Room_Cleaning_After_Checkout"
+    ) {
+      payload = {
+        isForCheckoutRequest: false,
+        roomDto: {
+          id: selectedRoom.id,
+        },
+        remarks,
+        serviceTypeStatus: selectedRoom?.serviceTypeStatus,
+      };
+    } else {
+      // Checkout request logic
+      const extraItemsList = selectedRoom.extraItemsList?.map((item) => ({
+        id: item.id,
+        noOfItemsRequired: item.noOfItemsRequired || 1,
+        noOfItems: Number(itemCounts[item.id]) || 0,
+        isAvailable: !checkboxStates[item.id],
+      }));
+
+      payload = {
+        isForCheckoutRequest: true,
+        roomDto: {
+          id: selectedRoom.id,
+        },
+        extraItemsList,
+        remarks,
+        serviceTypeStatus: selectedRoom?.serviceTypeStatus,
+      };
+    }
     approveService(payload)
       .unwrap()
       .then((res) => {
@@ -345,7 +492,7 @@ const HouseKeepingDialog = ({
           <Typography
             sx={{ fontWeight: "bold", fontSize: "1.4rem", color: "" }}
           >
-            House Keeping Details
+            {selectedRoom?.serviceTypeStatus?.split("_").join(" ")}
           </Typography>
           <Typography sx={{ color: "gray" }}>
             (Room No:{selectedRoom?.roomNo})
@@ -364,10 +511,98 @@ const HouseKeepingDialog = ({
               <Typography
                 sx={{ color: "gray", fontSize: "1.4rem", fontWeight: "bold" }}
               >
-                Room cleaning is completed , please press on proceed button for
+                Room cleaning is completed, please press on proceed button for
                 checkout
               </Typography>
             </Box>
+          ) : selectedRoom?.serviceTypeStatus ===
+            "Room_Cleaning_After_Checkout" ? (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: "200px",
+              }}
+            >
+              <Typography
+                sx={{ color: "gray", fontSize: "1.4rem", fontWeight: "bold" }}
+              >
+                Room cleaning is completed, please press on proceed button for
+                checkout
+              </Typography>
+            </Box>
+          ) : selectedRoom?.serviceTypeStatus === "Laundry_Service" ? (
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <StyledTableRow>
+                    <StyledTableCell>Select</StyledTableCell>
+                    <StyledTableCell>Sl. No.</StyledTableCell>
+                    <StyledTableCell>Cloth type</StyledTableCell>
+                    <StyledTableCell>Per Unit Price</StyledTableCell>
+                    <StyledTableCell>Quantity</StyledTableCell>
+                    <StyledTableCell>Total Price</StyledTableCell>
+                  </StyledTableRow>
+                </TableHead>
+                <TableBody>
+                  {selectedRoom?.laundryItemsList ? (
+                    selectedRoom?.laundryItemsList.map((item, index) => (
+                      <TableRow key={item.id}>
+                        <TableCell>
+                          <Checkbox
+                            checked={laundryCheckboxStates[item.id] || false}
+                            onChange={() =>
+                              handleLaundryCheckboxChange(item.id)
+                            }
+                          />
+                        </TableCell>
+                        <TableCell sx={{ textAlign: "center" }}>
+                          {index + 1}
+                        </TableCell>
+                        <TableCell sx={{ textAlign: "center" }}>
+                          {item.name}
+                        </TableCell>
+                        <TableCell sx={{ textAlign: "center" }}>
+                          ₹ {item.price}
+                        </TableCell>
+                        <TableCell sx={{ textAlign: "center" }}>
+                          <TextField
+                            id={`laundry-item-${item.id}`}
+                            variant="standard"
+                            size="small"
+                            type="number"
+                            disabled={!laundryCheckboxStates[item.id]}
+                            value={laundryItemCounts[item.id] || ""}
+                            onChange={(e) =>
+                              handleLaundryItemCountChange(
+                                item.id,
+                                e.target.value
+                              )
+                            }
+                            inputProps={{ min: 0 }}
+                          />
+                        </TableCell>
+                        <TableCell sx={{ textAlign: "center" }}>
+                          {laundryCheckboxStates[item.id] &&
+                          laundryItemCounts[item.id]
+                            ? `₹ ${
+                                item.price * Number(laundryItemCounts[item.id])
+                              }`
+                            : "-"}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={6} align="center">
+                        No laundry items available
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
           ) : (
             <TableContainer>
               <Table>
@@ -383,9 +618,9 @@ const HouseKeepingDialog = ({
                 </TableHead>
                 <TableBody>
                   {selectedRoom?.extraItemsList ? (
-                    selectedRoom?.extraItemsList?.map((row, index) => (
+                    selectedRoom?.extraItemsList.map((row, index) => (
                       <TableRow key={row.id}>
-                        <TableCell>{index + 1}</TableCell>
+                        <TableCell align="center">{index + 1}</TableCell>
                         <TableCell>{row.itemName}</TableCell>
                         <TableCell>
                           <Checkbox

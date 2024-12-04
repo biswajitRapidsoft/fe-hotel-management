@@ -1,6 +1,9 @@
 const config = Object.freeze({
-  baseUrl: "http://192.168.12.37:9000/",
+  // baseUrl: "http://192.168.12.37:9000/",
+  // baseUrl: "http://192.168.30.44:8070/be-hms/",
+  // baseUrl: "http://crimarrstaging.nyggs.com/backend/",
   // baseUrl: "http://192.168.30.44:9000/",
+  baseUrl: "http://192.168.12.43:8080/be-hms/",
   apiName: {
     loginAsCustomer: "login/as/customer",
     loginAsStaff: "login",
@@ -54,9 +57,15 @@ const config = Object.freeze({
     // HOUSE-KEEPER DASHBOARD API ENDPOINTS
     getServiceableRoomData: "api/get/service/requested/rooms",
     approveHouseKeepingService: "api/approve/service/request",
+    getAllLaundryHistory: "public/get/all/laundry/services/history",
+    laundryRequest: "public/request/for/laundry/service",
+    getAllLaundryStatus: "api/get/all/laundry/status",
+    changeLaundryStatus: "api/change/laundry/service/status",
 
     // PARKING DASHBOARD DATA
     getAllParkingData: "api/get/all/parking/list",
+    parkVehicle: "api/park/vehicle",
+    releaseVehicle: "api/release/vehicle",
   },
 });
 

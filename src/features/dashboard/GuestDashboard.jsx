@@ -52,6 +52,8 @@ const GuestDashboard = () => {
       skip: !JSON.parse(sessionStorage.getItem("data"))?.roleType === CUSTOMER,
     }
   );
+
+  console.log("bookingDetails", bookingDetails);
   const {
     data: userDetails = {
       data: [],
@@ -72,22 +74,31 @@ const GuestDashboard = () => {
           py: 3,
         }}
       >
-        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
-          <Button
-            variant="contained"
-            sx={{
-              backgroundImage:
-                "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
-              color: "white",
-              "&:hover": {
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            mb: 2,
+            // backgroundColor: "red",
+          }}
+        >
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <Button
+              variant="contained"
+              sx={{
                 backgroundImage:
-                  "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
-              },
-            }}
-            onClick={toggleBookingHistoryDrawer(true)}
-          >
-            Booking History
-          </Button>
+                  "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
+                color: "white",
+                "&:hover": {
+                  backgroundImage:
+                    "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
+                },
+              }}
+              onClick={toggleBookingHistoryDrawer(true)}
+            >
+              Booking History
+            </Button>
+          </Box>
         </Box>
         <Grid container size={12}>
           <Grid size={{ xs: 12 }}>
@@ -127,6 +138,7 @@ const GuestDashboard = () => {
 };
 
 const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
+  console.log("hotelDetails", hotelDetails);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [formData, setFormData] = React.useState({
     firstName: "",
@@ -282,6 +294,9 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
           severity: "error",
         });
       }
+      // const bookingAmount =
+      //   calculateNumberOfDays * Number(hotelDetails.basePrice);
+
       reserveHotelRoom({
         firstName: formData.firstName,
         middleName: formData.middleName,
@@ -299,6 +314,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
         roomTypeId: hotelDetails?.id,
         hotelId: hotelDetails?.hotelDto?.id,
         paidAmount: formData.advancePayment,
+        bookingAmount: calculateNumberOfDays * Number(hotelDetails.basePrice),
       })
         .unwrap()
         .then((res) => {
