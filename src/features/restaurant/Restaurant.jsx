@@ -170,6 +170,7 @@ const Restaurant = () => {
   const handlePlaceOrder = React.useCallback(() => {
     orderFood({
       bookingRefNo: sessionStorage.getItem("bookingRefNumber"),
+      hotelId: sessionStorage.getItem("hotelId"),
       dinningType: dineType,
       itemsList: cartItems.map((item) => ({
         itemId: item.id,

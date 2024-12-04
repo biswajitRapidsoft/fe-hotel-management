@@ -43,6 +43,30 @@ const restaurantApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
+      invalidatesTags: ["getCustomerOrdeHistory", "getFoodOrderListAdmin"],
+    }),
+    getFoodOrderListAdmin: build.query({
+      query: (payload) => ({
+        url: config.apiName.getFoodOrderListAdmin,
+        method: "GET",
+        params: {
+          hotelId: payload,
+        },
+      }),
+      providesTags: ["getFoodOrderListAdmin"],
+    }),
+    getAllFoodOrderStatus: build.query({
+      query: () => ({
+        url: config.apiName.getAllFoodOrderStatus,
+        method: "GET",
+      }),
+    }),
+    rateFood: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.rateFood,
+        method: "POST",
+        data: payload,
+      }),
       invalidatesTags: ["getCustomerOrdeHistory"],
     }),
   }),
@@ -55,4 +79,7 @@ export const {
   useGetDineTypeQuery,
   useGetCustomerOrdeHistoryQuery,
   useUpdateFoodOrderStatusMutation,
+  useGetFoodOrderListAdminQuery,
+  useGetAllFoodOrderStatusQuery,
+  useRateFoodMutation,
 } = restaurantApi;
