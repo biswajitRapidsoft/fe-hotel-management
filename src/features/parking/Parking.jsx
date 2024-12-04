@@ -1,16 +1,153 @@
-import { Box, Typography } from "@mui/material";
+import {
+  Box,
+  Typography,
+  IconButton,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Slide,
+  Button,
+  TextField,
+  Divider,
+} from "@mui/material";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import React, { memo } from "react";
 import Grid from "@mui/material/Grid2";
 import Slider from "@mui/material/Slider";
-import { useGetAllParkingDataQuery } from "../../services/parking";
+import {
+  useGetAllParkingDataQuery,
+  useParkVehicleMutation,
+  useReleaseVehicleMutation,
+} from "../../services/parking";
 import TwoWheelerIcon from "@mui/icons-material/TwoWheeler";
 import { FaCarSide } from "react-icons/fa6";
-// import { parkingDataArray } from "./parkingData";
-// parent card
+import dayjs from "dayjs";
+import LoadingComponent from "../../components/LoadingComponent";
+import SnackAlert from "../../components/Alert";
 
-const CustomParentCard = memo(({ parkingDataArray }) => {
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
+const Parking = () => {
+  const [searchVehicle, setSearchVehicle] = React.useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = React.useState("");
+  const [selectedParkingArea, setSelectedParkingArea] = React.useState(null);
+
+  const handleSearchSubmit = () => {
+    setDebouncedSearchTerm(searchVehicle);
+  };
+
+  const queryPayload = {
+    hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId,
+    searchVehicle: debouncedSearchTerm,
+  };
+  const {
+    data: parkingData = {
+      data: [],
+    },
+    isLoading,
+    isFetching: isParkingDataFetching,
+  } = useGetAllParkingDataQuery(queryPayload, {
+    // refetchOnMountOrArgChange: searchTrigger,
+  });
+
+  console.log("parkingDataaaa", parkingData);
+  // React.useEffect(() => {
+  //   if (
+  //     parkingData?.data &&
+  //     parkingData.data.length > 0 &&
+  //     !selectedParkingArea
+  //   ) {
+  //     setSelectedParkingArea(parkingData.data[0]);
+  //   }
+  // }, [parkingData?.data, selectedParkingArea]);
+
+  // React.useEffect(() => {
+  //   if (parkingData?.data?.length > 0) {
+  //     // Always update selected area to match latest data
+  //     setSelectedParkingArea(
+  //       (prev) =>
+  //         parkingData.data.find((area) => prev?.id === area.id) ||
+  //         parkingData.data[0]
+  //     );
+  //   }
+  // }, [parkingData?.data]);
+
+  React.useEffect(() => {
+    if (parkingData?.data?.length === 0) {
+      setSelectedParkingArea(null);
+    } else if (parkingData?.data?.length > 0) {
+      setSelectedParkingArea(
+        (prev) =>
+          parkingData.data.find((area) => prev?.id === area.id) ||
+          parkingData.data[0]
+      );
+    }
+  }, [parkingData?.data]);
   return (
-    <Box>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      {/* Header Box */}
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Box>
+          <Typography
+            sx={{
+              fontFamily: "'Times New Roman', Times, serif",
+              fontWeight: "bold",
+              color: "#606470",
+              fontSize: "1.6rem",
+            }}
+          >
+            PARKING MAP
+          </Typography>
+        </Box>
+        <Box sx={{ display: "flex", gap: 1 }}>
+          <TextField
+            fullWidth
+            size="small"
+            id="searchVehicle"
+            label="Search Vehicle"
+            name="searchVehicle"
+            variant="outlined"
+            value={searchVehicle}
+            onChange={(e) => setSearchVehicle(e.target.value)}
+            sx={{
+              bgcolor: "#F9F4FF",
+              "& .MuiOutlinedInput-root": {
+                borderRadius: 2,
+              },
+            }}
+          />
+          <Button variant="contained" onClick={handleSearchSubmit}>
+            Submit
+          </Button>
+        </Box>
+      </Box>
+
+      {/* cards */}
+      <CustomParentCard
+        parkingDataArray={parkingData?.data}
+        onCardClick={setSelectedParkingArea}
+        selectedParkingArea={selectedParkingArea}
+      />
+      {/* {selectedParkingArea && (
+        <CustomParkingSlots parkingDataArray={[selectedParkingArea]} />
+      )} */}
+      {selectedParkingArea && (
+        <CustomParkingSlots parkingDataArray={[selectedParkingArea]} />
+      )}
+      <LoadingComponent open={isLoading || isParkingDataFetching} />
+    </Box>
+  );
+};
+
+const CustomParentCard = memo(
+  ({ parkingDataArray, onCardClick, selectedParkingArea }) => {
+    return (
+      // <Box>
       <Grid container size={12} columnSpacing={4}>
         {parkingDataArray?.map((item, index) => {
           const occupiedPercentage =
@@ -18,18 +155,25 @@ const CustomParentCard = memo(({ parkingDataArray }) => {
 
           return (
             <>
-              <Grid key={`parking${index}`} size={{ xs: 3 }}>
+              <Grid key={index} size={{ xs: 3 }}>
                 <Box
                   sx={{
                     minHeight: "12rem",
                     boxShadow:
                       "rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px",
                     borderRadius: "0.7rem",
-                    backgroundColor: "#fff",
+                    backgroundColor:
+                      selectedParkingArea === item ? "#e6f2ff" : "#fff",
                     display: "flex",
                     flexDirection: "column",
                     p: 1.5,
+                    cursor: "pointer",
+                    transition: "background-color 0.3s ease",
+                    "&:hover": {
+                      backgroundColor: "#f0f0f0",
+                    },
                   }}
+                  onClick={() => onCardClick(item)}
                 >
                   <Box>
                     <Typography
@@ -127,86 +271,518 @@ const CustomParentCard = memo(({ parkingDataArray }) => {
           );
         })}
       </Grid>
-    </Box>
-  );
-});
+      // </Box>
+    );
+  }
+);
 
 // parking slots
 
 const CustomParkingSlots = memo(({ parkingDataArray }) => {
+  const [parkVehicleOpen, setParkVehicleOpen] = React.useState(false);
+  const [selectedSlot, setSelectedSlot] = React.useState(null);
+
+  console.log("parkingDataArray inside slots", parkingDataArray);
+  const handleVehicleParking = (slot) => {
+    setSelectedSlot(slot);
+    setParkVehicleOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setParkVehicleOpen(false);
+    setSelectedSlot(null);
+  };
   return (
-    <Box elevation={2} sx={{ p: 2, backgroundColor: "#fff" }}>
-      <Grid container spacing={2}>
-        {parkingDataArray?.map((parkingData) =>
-          parkingData?.parkingSlotData?.map((slot, index) => (
-            <Grid
-              key={index}
-              item
-              xs={1}
-              sm={1}
-              lg={0.7}
-              xl={0.7}
-              sx={{ display: "flex", justifyContent: "center" }}
+    <Box
+      elevation={2}
+      sx={{ p: 2, backgroundColor: "#fff", minHeight: "500px" }}
+    >
+      {parkingDataArray?.map((parkingData) => (
+        <>
+          <Box
+            sx={{
+              mb: 2,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: "bold",
+                color: "#606470",
+                textTransform: "uppercase",
+              }}
             >
-              <Box
-                sx={{
-                  boxShadow:
-                    "rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px",
-                  height: "4rem",
-                  width: "100%",
-                  borderRadius: "1rem",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  backgroundColor: slot.isOccupied ? "#E8F5E9" : "#FFF",
-                }}
-              >
-                {slot.parkingVehicleData?.vehicleType === "Bick" ? (
-                  <TwoWheelerIcon
-                    style={{ fontSize: "2.4rem", color: "#00A9E0" }}
-                  />
-                ) : (
-                  <FaCarSide style={{ fontSize: "2.4rem", color: "#280071" }} />
-                )}
-              </Box>
-            </Grid>
-          ))
-        )}
-      </Grid>
+              {parkingData?.areaName} Slots
+            </Typography>
+          </Box>
+          <Grid container spacing={2}>
+            {parkingData?.parkingSlotData?.map((slot, index) => (
+              <Grid key={index}>
+                <Box
+                  sx={{
+                    boxShadow:
+                      "rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px",
+                    height: "4rem",
+                    p: 2,
+                    width: "100%",
+                    borderRadius: "1rem",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: Boolean(slot?.isOccupied)
+                      ? "gray"
+                      : "#FFF",
+                  }}
+                >
+                  {slot?.vehicleType === "Bike" ? (
+                    <IconButton
+                      onClick={() => {
+                        handleVehicleParking(slot);
+                      }}
+                      // disabled={slot?.isOccupied}
+                    >
+                      <TwoWheelerIcon
+                        style={{
+                          fontSize: "2.4rem",
+                          color: Boolean(slot?.isOccupied) ? "#fff" : "#00A9E0",
+                        }}
+                      />
+                    </IconButton>
+                  ) : (
+                    <IconButton
+                      onClick={() => {
+                        handleVehicleParking(slot);
+                      }}
+                      // disabled={slot?.isOccupied}
+                    >
+                      <FaCarSide
+                        style={{
+                          fontSize: "2.4rem",
+                          color: Boolean(slot?.isOccupied) ? "#fff" : "#280071",
+                        }}
+                      />
+                    </IconButton>
+                  )}
+                </Box>
+              </Grid>
+            ))}
+          </Grid>
+        </>
+      ))}
+      <VehicleParkingDialog
+        parkVehicleOpen={parkVehicleOpen}
+        selectedSlot={selectedSlot}
+        onClose={handleCloseDialog}
+      />
     </Box>
   );
 });
 
-// parent parking
-const Parking = () => {
-  const {
-    data: parkingData = {
-      data: [],
-    },
-  } = useGetAllParkingDataQuery(
-    JSON.parse(sessionStorage.getItem("data"))?.hotelId
-  );
+// Dialog for vehicle parking
+const VehicleParkingDialog = ({ parkVehicleOpen, selectedSlot, onClose }) => {
+  console.log("selectedslot", selectedSlot);
+  const [formData, setFormData] = React.useState({
+    vehicleNumber: "",
+    amount: "",
+    fromDate: null,
+    toDate: null,
+    description: "",
+  });
 
+  const [vehicleParking, vehicleParkingRes] = useParkVehicleMutation();
+  const [releaseVehicle, releaseVehicleRes] = useReleaseVehicleMutation();
+
+  const [snack, setSnack] = React.useState({
+    open: false,
+    message: "",
+    severity: "",
+  });
+
+  const calculateNumberOfDays = React.useMemo(() => {
+    if (formData.fromDate && formData.toDate) {
+      const startDate = dayjs(formData.fromDate);
+      const endDate = dayjs(formData.toDate);
+      return endDate.diff(startDate, "day") + 1;
+    }
+    return 0;
+  }, [formData.fromDate, formData.toDate]);
+
+  const handleChangeInput = (e) => {
+    const { name, value } = e.target;
+    let newValue = value;
+
+    if (name === "amount") {
+      const numericRegex = /^[0-9]*$/;
+      if (!numericRegex.test(value)) {
+        return;
+      }
+    } else if (name === "vehicleNumber") {
+      newValue = value.toUpperCase();
+    }
+
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: newValue,
+    }));
+  };
+
+  const handleDateChange = (field) => (date) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: date,
+    }));
+  };
+  const handleSubmit = () => {
+    if (Boolean(selectedSlot?.isOccupied)) {
+      // Call releaseVehicle API
+      const releaseVehiclePayload = {
+        id: selectedSlot?.id,
+        parkingVehicleData: {
+          id: selectedSlot?.parkingVehicleData?.id,
+        },
+      };
+      releaseVehicle(releaseVehiclePayload)
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            severity: "success",
+          });
+
+          onClose();
+          setFormData({
+            vehicleNumber: "",
+            amount: "",
+            fromDate: null,
+            toDate: null,
+          });
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data || "Something Went Wrong",
+            severity: "error",
+          });
+        });
+    } else {
+      const isAmountValid =
+        formData.amount &&
+        Number(formData.amount) >=
+          Number(selectedSlot?.perDayPrice) * calculateNumberOfDays &&
+        Number(formData.amount) <=
+          Number(selectedSlot?.perDayPrice) * calculateNumberOfDays;
+
+      if (!isAmountValid) {
+        return setSnack({
+          open: true,
+          message:
+            calculateNumberOfDays > 0
+              ? Number(formData.amount) <
+                Number(selectedSlot?.perDayPrice) * calculateNumberOfDays
+                ? `Please pay ₹${
+                    selectedSlot?.perDayPrice * calculateNumberOfDays
+                  } in advance`
+                : `Advance amount cannot exceed ₹${
+                    selectedSlot?.perDayPrice * calculateNumberOfDays
+                  }`
+              : "Invalid  payment",
+          severity: "error",
+        });
+      }
+      // Call vehicleParking API
+      const parkingVehiclePayload = {
+        id: selectedSlot?.id,
+        parkingVehicleData: {
+          vehicleNo: formData.vehicleNumber,
+          vehicleType: selectedSlot?.vehicleType,
+          fromDate: formData.fromDate
+            ? dayjs(formData.fromDate).format("DD-MM-YYYY")
+            : null,
+          toDate: formData.toDate
+            ? dayjs(formData.toDate).format("DD-MM-YYYY")
+            : null,
+          totalAmount: selectedSlot?.perDayPrice,
+          paidAmount: formData.amount,
+          description: formData.description,
+        },
+      };
+      vehicleParking(parkingVehiclePayload)
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            severity: "success",
+          });
+          onClose();
+          setFormData({
+            vehicleNumber: "",
+            amount: "",
+            fromDate: null,
+            toDate: null,
+          });
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data || "Something Went Wrong",
+            severity: "error",
+          });
+        });
+    }
+  };
+  console.log("selectedSlot", selectedSlot);
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      {/* Header Box */}
-      <Box>
-        <Typography
-          sx={{
-            fontFamily: "'Times New Roman', Times, serif",
-            fontWeight: "bold",
-            color: "#606470",
-            fontSize: "1.6rem",
-          }}
-        >
-          PARKING MAP
-        </Typography>
-      </Box>
+    <>
+      <Dialog
+        TransitionComponent={Transition}
+        open={parkVehicleOpen}
+        onClose={onClose}
+        // maxWidth="sm"
+        fullWidth
+        sx={{ "& .MuiDialog-paper": { minHeight: "450px", minWidth: "700px" } }}
+      >
+        <DialogTitle>
+          <Typography
+            sx={{
+              fontWeight: "bold",
+              fontSize: "1.5rem",
+              color: selectedSlot?.isOccupied ? "#606470" : "#280071",
 
-      {/* cards */}
-      <CustomParentCard parkingDataArray={parkingData?.data} />
-      <CustomParkingSlots parkingDataArray={parkingData?.data} />
-    </Box>
+              // "#606470"
+            }}
+          >
+            {/* Park Vehicle */}
+            {Boolean(selectedSlot?.isOccupied)
+              ? "Release Vehicle"
+              : "Park Vehicle"}
+          </Typography>
+        </DialogTitle>
+        <DialogContent dividers>
+          {Boolean(selectedSlot?.isOccupied) ? (
+            <Box sx={{ display: "flex", flexDirection: "column" }}>
+              <Divider sx={{ borderWidth: "2px", borderColor: "#000" }} />
+              <Box sx={{ margin: "auto" }}>
+                <Typography
+                  sx={{
+                    fontWeight: "bold",
+                    fontFamily: "'Times New Roman', Times, serif",
+                    fontSize: "1.3rem",
+                  }}
+                >
+                  BOOKING RECEIPT
+                </Typography>
+              </Box>
+              <Divider sx={{ borderWidth: "2px", borderColor: "#000" }} />
+              <Box
+                sx={{
+                  // backgroundColor: "yellow",
+                  width: "58%",
+                  margin: "auto",
+                  mt: 2,
+                }}
+              >
+                <Grid container spacing={2}>
+                  <Grid size={{ xs: 6 }}>
+                    <Typography
+                      sx={{
+                        fontFamily: "'Times New Roman', Times, serif",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Vehicle Number :
+                    </Typography>
+                  </Grid>
+                  <Grid size={{ xs: 6 }}>
+                    <Typography>
+                      {selectedSlot?.parkingVehicleData?.vehicleNo}
+                    </Typography>
+                  </Grid>
+                  <Grid size={{ xs: 6 }}>
+                    <Typography
+                      sx={{
+                        fontFamily: "'Times New Roman', Times, serif",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      From Date:
+                    </Typography>
+                  </Grid>
+
+                  <Grid size={{ xs: 6 }}>
+                    {selectedSlot?.parkingVehicleData?.fromDate}
+                  </Grid>
+                  <Grid size={{ xs: 6 }}>
+                    <Typography
+                      sx={{
+                        fontFamily: "'Times New Roman', Times, serif",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      To Date:
+                    </Typography>
+                  </Grid>
+                  <Grid size={{ xs: 6 }}>
+                    {selectedSlot?.parkingVehicleData?.toDate}
+                  </Grid>
+                  <Grid size={{ xs: 6 }}>
+                    <Typography
+                      sx={{
+                        fontFamily: "'Times New Roman', Times, serif",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Token No.
+                    </Typography>
+                  </Grid>
+                  <Grid size={{ xs: 6 }}>
+                    {selectedSlot?.parkingVehicleData?.digitalTokenNo}
+                  </Grid>
+                  <Grid size={{ xs: 6 }}>
+                    <Typography
+                      sx={{
+                        fontFamily: "'Times New Roman', Times, serif",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Paid Amount
+                    </Typography>
+                  </Grid>
+                  <Grid size={{ xs: 6 }}>
+                    ₹ {selectedSlot?.parkingVehicleData?.paidAmount}
+                  </Grid>
+                </Grid>
+              </Box>
+            </Box>
+          ) : (
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 6 }}>
+                <LocalizationProvider dateAdapter={AdapterDayjs} fullWidth>
+                  <DatePicker
+                    label="From Date"
+                    disablePast
+                    format="DD-MM-YYYY"
+                    value={formData.fromDate}
+                    onChange={handleDateChange("fromDate")}
+                    slotProps={{
+                      textField: {
+                        readOnly: true,
+                      },
+                    }}
+                    sx={{ width: "100%" }}
+                  />
+                </LocalizationProvider>
+              </Grid>
+
+              <Grid size={{ xs: 6 }}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="To Date"
+                    format="DD-MM-YYYY"
+                    value={formData.toDate}
+                    onChange={handleDateChange("toDate")}
+                    minDate={
+                      formData.fromDate ? dayjs(formData.fromDate) : undefined
+                    }
+                    slotProps={{
+                      textField: {
+                        readOnly: true,
+                      },
+                    }}
+                    sx={{ width: "100%" }}
+                  />
+                </LocalizationProvider>
+              </Grid>
+              <Grid size={{ xs: 6 }}>
+                <TextField
+                  id="outlined-basic"
+                  name="vehicleNumber"
+                  label="Vehicle Number"
+                  variant="outlined"
+                  value={formData.vehicleNumber}
+                  onChange={handleChangeInput}
+                  inputProps={{ maxLength: 25 }}
+                  required
+                  sx={{ width: "100%" }}
+                />
+              </Grid>
+              <Grid size={{ xs: 6 }}>
+                <TextField
+                  id="outlined-basic"
+                  name="amount"
+                  label="Total Amount"
+                  variant="outlined"
+                  value={formData.amount}
+                  onChange={handleChangeInput}
+                  inputProps={{ maxLength: 25 }}
+                  required
+                  sx={{ width: "100%" }}
+                  helperText={
+                    calculateNumberOfDays > 0
+                      ? Number(formData.amount) <
+                        Number(selectedSlot?.perDayPrice) *
+                          calculateNumberOfDays
+                        ? `Please pay ₹${
+                            selectedSlot?.perDayPrice * calculateNumberOfDays
+                          } in advance`
+                        : Number(formData.amount) >
+                          Number(selectedSlot?.perDayPrice) *
+                            calculateNumberOfDays
+                        ? `Advance amount cannot exceed ₹${
+                            selectedSlot?.perDayPrice * calculateNumberOfDays
+                          }`
+                        : ""
+                      : ""
+                  }
+                />
+              </Grid>
+
+              <Grid size={{ xs: 12 }}>
+                <TextField
+                  id="outlined-basic"
+                  name="description"
+                  label="Description"
+                  variant="outlined"
+                  value={formData.description}
+                  onChange={handleChangeInput}
+                  inputProps={{ maxLength: 25 }}
+                  required
+                  sx={{ width: "100%" }}
+                />
+              </Grid>
+            </Grid>
+          )}
+          {/* <Box> */}
+
+          {/* </Box> */}
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={onClose}
+            variant="contained"
+            sx={{ backgroundColor: "#E31837" }}
+          >
+            No
+          </Button>
+          <Button
+            variant="contained"
+            sx={{ backgroundColor: "#318CE7" }}
+            onClick={handleSubmit}
+          >
+            Yes
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <LoadingComponent
+        open={vehicleParkingRes?.isLoading || releaseVehicleRes?.isLoading}
+      />
+      <SnackAlert snack={snack} setSnack={setSnack} />
+    </>
   );
 };
 

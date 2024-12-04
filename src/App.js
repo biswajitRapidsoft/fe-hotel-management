@@ -30,6 +30,9 @@ const FrontdeskBookingHistory = React.lazy(() =>
 );
 const Parking = React.lazy(() => import("./features/parking/Parking"));
 
+const LaundryHistory = React.lazy(() =>
+  import("./features/dashboard/LaundryHistory")
+);
 function App() {
   return (
     <div className="App">
@@ -57,6 +60,7 @@ function App() {
               element={<FrontdeskBookingHistory />}
             />
             <Route path="/Parking" element={<Parking />} />
+            <Route path="/LaundryHistory" element={<LaundryHistory />} />
           </Route>
         </Routes>
       </React.Suspense>

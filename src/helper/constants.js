@@ -11,7 +11,8 @@ export const ADMIN = "Admin";
 export const CUSTOMER = "Customer";
 export const FRONTDESK = "Front_Desk_Staff";
 export const HOUSEKEEPER = "Housekeeping_Staff";
-
+export const KITCHENSTAFF = "Kitchen_Staff";
+export const GUARD = "Guard";
 //ROOM STATUSES
 export const AVAILABLE = { id: 1, key: "Available" };
 export const RESERVED = { id: 2, key: "Reserved" };
