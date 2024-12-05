@@ -54,8 +54,9 @@ const LaundryHistory = () => {
         ? [
             { label: "Rating", key: "rating" },
             { label: "Rating Message", key: "ratingMessage" },
+            { label: "Action", key: "laundryAction" },
           ]
-        : [{ label: "Action", key: "laundryAction" }]),
+        : []),
     ];
   }, []);
 
