@@ -122,7 +122,7 @@ const ExtraItem = () => {
             <TextField
               label={
                 <React.Fragment>
-                  Extra Item Name{" "}
+                  Inventory Item Name{" "}
                   <Box
                     component="span"
                     sx={{
@@ -165,7 +165,7 @@ const ExtraItem = () => {
             type="submit"
             disabled={!Boolean(extraItemName.trim())}
           >
-            Add Extra Item
+            Add Inventory Item
           </Button>
         </Box>
       </Box>
@@ -182,7 +182,7 @@ const ExtraItem = () => {
             variant="h6"
             sx={{ fontWeight: "bold", letterSpacing: 1 }}
           >
-            Room Type List
+            Inventory List
           </Typography>
         </Toolbar>
         <TableContainer sx={{ maxHeight: 600 }}>
@@ -199,7 +199,7 @@ const ExtraItem = () => {
                 }}
               >
                 <TableCell>Sl No.</TableCell>
-                <TableCell>Extra Item Name</TableCell>
+                <TableCell>Inventory Item</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

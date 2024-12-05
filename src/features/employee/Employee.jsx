@@ -292,7 +292,7 @@ const Employee = () => {
             <Autocomplete
               options={hotelList.data}
               value={formData.selectedHotel}
-              getOptionLabel={(option) => option.name}
+              getOptionLabel={(option) => `${option.name} (${option.address})`}
               onChange={(e, newVal) =>
                 handleChange({
                   target: { name: "selectedHotel", value: newVal },
