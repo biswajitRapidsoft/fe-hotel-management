@@ -18,6 +18,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import LoadingComponent from "../../components/LoadingComponent";
 
 import { useGetHotelListByCompanyQuery } from "../../services/hotel";
+import { useNavigate } from "react-router-dom";
 
 const tableHeader = [
   { label: "Sl No." },
@@ -29,6 +30,7 @@ const tableHeader = [
     label: "Email",
   },
   { label: "Phone No." },
+  { label: "Halls" },
 ];
 
 const HotelListTable = () => {
@@ -96,6 +98,8 @@ const HotelListTable = () => {
 
 function Row({ hotel, sequence }) {
   const [open, setOpen] = React.useState(false);
+  const navigate = useNavigate();
+
   //   let roomSlNo = 0;
   return (
     <React.Fragment>
@@ -124,6 +128,14 @@ function Row({ hotel, sequence }) {
         <TableCell>{hotel.address}</TableCell>
         <TableCell>{hotel.email}</TableCell>
         <TableCell>{hotel.contactNos?.join(", ")}</TableCell>
+        <TableCell
+          onClick={() => {
+            sessionStorage.setItem("hotelIdForHall", hotel?.id);
+            navigate("/HallList");
+          }}
+        >
+          <Typography sx={{ cursor: "pointer" }}>{hotel?.noOfHalls}</Typography>
+        </TableCell>
         <TableCell>
           <IconButton
             sx={{ ml: "auto", display: "block" }}

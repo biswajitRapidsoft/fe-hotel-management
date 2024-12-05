@@ -16,58 +16,92 @@ import {
   Button,
 } from "@mui/material";
 
-import {
-  useGetAllExtraItemsQuery,
-  useAddExtraItemMutation,
-} from "../../services/extraItem";
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 
-const ExtraItem = () => {
+import { useAddHallMutation, useGetAllHallsQuery } from "../../services/hotel";
+
+const HallList = () => {
+  const [formData, setFormData] = React.useState({
+    hallName: "",
+    capacity: "",
+    pricePerHour: "",
+    pricePerDay: "",
+  });
+
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
     severity: "",
   });
-  const [addExtraItem, addExtraItemRes] = useAddExtraItemMutation();
-  const [extraItemName, setExtraItemName] = React.useState("");
+  const [addHall, addHallRes] = useAddHallMutation();
   const {
-    data: extraItemList = {
+    data: hallListData = {
       data: [],
     },
     isLoading,
-  } = useGetAllExtraItemsQuery(
-    JSON.parse(sessionStorage.getItem("data")).companyId
-  );
+    isFetching,
+  } = useGetAllHallsQuery(sessionStorage.getItem("hotelIdForHall"), {
+    skip: !Boolean(sessionStorage.getItem("hotelIdForHall")),
+  });
+  console.log("hallListData", hallListData);
+  const handleResetForm = React.useCallback(() => {
+    setFormData({
+      hallName: "",
+      capacity: "",
+      pricePerHour: "",
+      pricePerDay: "",
+    });
+  }, []);
 
   const handleSubmit = React.useCallback(
-    (event) => {
-      event.preventDefault();
-      addExtraItem({
-        name: extraItemName,
-        company: {
-          id: JSON.parse(sessionStorage.getItem("data")).companyId,
+    (e) => {
+      e.preventDefault();
+
+      const payload = {
+        hotel: {
+          id: 2,
         },
-      })
+        hallName: formData.hallName,
+        capacity: formData.capacity,
+        pricePerHour: formData.pricePerHour,
+        pricePerDay: formData.pricePerDay,
+      };
+      addHall(payload)
         .unwrap()
         .then((res) => {
-          setExtraItemName("");
-          setSnack({
-            open: true,
-            severity: "success",
-            message: res.message,
-          });
+          setSnack({ open: true, message: res.message, severity: "success" });
+          handleResetForm();
         })
         .catch((err) => {
           setSnack({
             open: true,
-            severity: "error",
             message: err.data?.message || err.data,
+            severity: "error",
           });
         });
     },
-    [addExtraItem, extraItemName]
+    [formData, addHall, handleResetForm]
   );
+
+  const handleChange = React.useCallback((e) => {
+    if (["capacity", "pricePerHour", "pricePerDay"].includes(e.target.name)) {
+      setFormData((prevData) => ({
+        ...prevData,
+        [e.target.name]: e.target.value.replace(/\D/g, ""),
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [e.target.name]: e.target.value,
+      }));
+    }
+  }, []);
+
+  const isFormValid = React.useCallback(() => {
+    const { hallName, capacity, pricePerHour, pricePerDay } = formData;
+    return Boolean(hallName && capacity && pricePerHour && pricePerDay);
+  }, [formData]);
 
   return (
     <Container>
@@ -122,7 +156,7 @@ const ExtraItem = () => {
             <TextField
               label={
                 <React.Fragment>
-                  Inventory Item Name{" "}
+                  Hall Name
                   <Box
                     component="span"
                     sx={{
@@ -133,9 +167,75 @@ const ExtraItem = () => {
                   </Box>
                 </React.Fragment>
               }
-              name="extraItemName"
-              value={extraItemName}
-              onChange={(e) => setExtraItemName(e.target.value)}
+              name="hallName"
+              value={formData.hallName}
+              onChange={handleChange}
+              variant="standard"
+              inputProps={{
+                maxLength: 45,
+              }}
+            />
+          </Grid>
+          <Grid size={3}>
+            <TextField
+              label={
+                <React.Fragment>
+                  Capacity
+                  <Box
+                    component="span"
+                    sx={{
+                      color: (theme) => theme.palette.error.main,
+                    }}
+                  >
+                    *
+                  </Box>
+                </React.Fragment>
+              }
+              name="capacity"
+              value={formData.capacity}
+              onChange={handleChange}
+              variant="standard"
+            />
+          </Grid>
+          <Grid size={3}>
+            <TextField
+              label={
+                <React.Fragment>
+                  Price per Hour
+                  <Box
+                    component="span"
+                    sx={{
+                      color: (theme) => theme.palette.error.main,
+                    }}
+                  >
+                    *
+                  </Box>
+                </React.Fragment>
+              }
+              name="pricePerHour"
+              value={formData.pricePerHour}
+              onChange={handleChange}
+              variant="standard"
+            />
+          </Grid>
+          <Grid size={3}>
+            <TextField
+              label={
+                <React.Fragment>
+                  Price per day
+                  <Box
+                    component="span"
+                    sx={{
+                      color: (theme) => theme.palette.error.main,
+                    }}
+                  >
+                    *
+                  </Box>
+                </React.Fragment>
+              }
+              name="pricePerDay"
+              value={formData.pricePerDay}
+              onChange={handleChange}
               variant="standard"
             />
           </Grid>
@@ -163,12 +263,13 @@ const ExtraItem = () => {
               },
             }}
             type="submit"
-            disabled={!Boolean(extraItemName.trim())}
+            disabled={!isFormValid()}
           >
-            Add Inventory Item
+            Add Hall
           </Button>
         </Box>
       </Box>
+
       <Paper>
         <Toolbar
           sx={[
@@ -182,7 +283,7 @@ const ExtraItem = () => {
             variant="h6"
             sx={{ fontWeight: "bold", letterSpacing: 1 }}
           >
-            Inventory List
+            Hall List
           </Typography>
         </Toolbar>
         <TableContainer sx={{ maxHeight: 600 }}>
@@ -199,11 +300,14 @@ const ExtraItem = () => {
                 }}
               >
                 <TableCell>Sl No.</TableCell>
-                <TableCell>Inventory Item Name</TableCell>
+                <TableCell>Hall Name</TableCell>
+                <TableCell>Capacity</TableCell>
+                <TableCell>Price per hour</TableCell>
+                <TableCell>Price per day</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {extraItemList.data.map((item, index) => {
+              {hallListData.data.map((item, index) => {
                 return (
                   <TableRow
                     sx={{
@@ -214,8 +318,11 @@ const ExtraItem = () => {
                       },
                     }}
                   >
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{item.name}</TableCell>
+                    <TableCell> {index + 1}</TableCell>
+                    <TableCell>{item?.hallName}</TableCell>
+                    <TableCell>{item?.capacity}</TableCell>
+                    <TableCell>{item?.pricePerHour}</TableCell>
+                    <TableCell>{item?.pricePerDay}</TableCell>
                   </TableRow>
                 );
               })}
@@ -223,10 +330,12 @@ const ExtraItem = () => {
           </Table>
         </TableContainer>
       </Paper>
-      <LoadingComponent open={isLoading || addExtraItemRes.isLoading} />
+      <LoadingComponent
+        open={isLoading || isFetching || addHallRes.isLoading}
+      />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </Container>
   );
 };
 
-export default ExtraItem;
+export default HallList;

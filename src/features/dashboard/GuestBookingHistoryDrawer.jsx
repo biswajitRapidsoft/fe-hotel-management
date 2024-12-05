@@ -418,7 +418,7 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                                       startIcon={<CleaningServicesIcon />}
                                       onClick={() =>
                                         handleRoomCleanRequest(
-                                          booking.roomType?.id,
+                                          booking.roomDto?.id,
                                           booking.hotel?.id
                                         )
                                       }

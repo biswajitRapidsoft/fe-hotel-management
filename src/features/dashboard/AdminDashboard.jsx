@@ -9,7 +9,7 @@ const tabList = [
   { label: "Hotel List", path: "/hotel-list", key: "noOfHotels" },
   { label: "Room Type", path: "/room-type", key: "noOfRoomTypes" },
   {
-    label: "Extra Item",
+    label: "Inventory List",
     path: "/extra-item",
     key: "noOfExtraItems",
   },
