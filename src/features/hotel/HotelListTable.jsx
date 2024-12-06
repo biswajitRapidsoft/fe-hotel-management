@@ -115,7 +115,14 @@ function Row({ hotel, sequence }) {
       >
         <TableCell>{sequence}</TableCell>
         <TableCell>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              width: 230,
+            }}
+          >
             <Box
               component="img"
               src={hotel.logoUrl}
@@ -126,7 +133,7 @@ function Row({ hotel, sequence }) {
         </TableCell>
         <TableCell>{hotel.state.name}</TableCell>
         <TableCell>{hotel.city.name}</TableCell>
-        <TableCell>{hotel.address}</TableCell>
+        <TableCell sx={{ minWidth: 200 }}>{hotel.address}</TableCell>
         <TableCell>{hotel.email}</TableCell>
         <TableCell>{hotel.contactNos?.join(", ")}</TableCell>
         <TableCell

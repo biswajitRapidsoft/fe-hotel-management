@@ -57,7 +57,7 @@ const Row = ({ order, index, setUpdateStatusDialog }) => {
         <TableCell>{index + 1}</TableCell>
         <TableCell>{order.bookingDetails.orderId}</TableCell>
         <TableCell>{order.bookingDetails.bookingRefNo}</TableCell>
-        <TableCell>{`${order.bookingDetails.firstName} ${
+        <TableCell sx={{ minWidth: 150 }}>{`${order.bookingDetails.firstName} ${
           order.bookingDetails.middleName || ""
         } ${order.bookingDetails.lastName || ""}`}</TableCell>
         <TableCell>{order.bookingDetails.phoneNo}</TableCell>
