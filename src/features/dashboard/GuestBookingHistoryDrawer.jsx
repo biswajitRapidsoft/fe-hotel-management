@@ -76,6 +76,8 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
         return "blue";
       case "Cancelled":
         return "red";
+      case "Booking_Cancellation_Requested":
+        return "#CC0000";
       default:
         return "gray";
     }
@@ -321,7 +323,7 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                             </Typography>
                             <Typography>
                               {booking?.bookedOn
-                                ? moment(booking.bookedOn).format("DD/MM/YYYY")
+                                ? moment(booking?.bookedOn).format("DD/MM/YYYY")
                                 : "N/A"}
                             </Typography>
                           </Box>
@@ -329,7 +331,23 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                             <Typography sx={{ fontWeight: "bold" }}>
                               No. of people:
                             </Typography>
-                            <Typography>{booking.noOfPeoples || 0}</Typography>
+                            <Typography>{booking?.noOfPeoples || 0}</Typography>
+                          </Box>
+                          <Box sx={{ display: "flex", gap: 1 }}>
+                            <Typography sx={{ fontWeight: "bold" }}>
+                              Room Type:
+                            </Typography>
+                            <Typography>
+                              {booking?.roomType?.type || 0}
+                            </Typography>
+                          </Box>
+                          <Box sx={{ display: "flex", gap: 1 }}>
+                            <Typography sx={{ fontWeight: "bold" }}>
+                              Ref Number:
+                            </Typography>
+                            <Typography>
+                              {booking?.bookingRefNumber || "N/A"}
+                            </Typography>
                           </Box>
                           <Box
                             sx={{
@@ -347,15 +365,18 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                                 sx={{
                                   color: getStatusColour(booking.bookingStatus),
                                   fontWeight: "bold",
+                                  wordWrap: "break-word",
                                 }}
                               >
-                                {booking.bookingStatus || "N/A"}
+                                {/* {booking.bookingStatus || "N/A"} */}
+                                {booking?.bookingStatus?.split("_").join(" ") ||
+                                  "N/A"}
                               </Typography>
                             </Box>
                           </Box>
                           <Box sx={{ display: "flex", gap: 1 }}>
                             {/* {booking.bookingStatus === "Booked" && ( */}
-                            {booking.bookingStatus ===
+                            {booking?.bookingStatus ===
                               "Pending_Confirmation" && (
                               <Button
                                 variant="contained"
@@ -370,110 +391,119 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                                   textTransform: "none",
                                 }}
                                 onClick={() => {
-                                  handleCancelClick(booking.bookingRefNumber);
+                                  handleCancelClick(booking?.bookingRefNumber);
                                   // handleBookingCancel(booking.bookingRefNumber);
                                 }}
                               >
                                 Cancel
                               </Button>
                             )}
-                            {booking.bookingStatus ===
-                              // "Pending_Confirmation" && (
-                              "Checked_In" && (
-                              <>
-                                <Grid container spacing={1}>
-                                  <Grid size={{ xs: 6 }}>
-                                    <Button
-                                      variant="outlined"
-                                      sx={{
-                                        textTransform: "none",
-                                        color: "#5072A7",
-                                        width: "100%",
-                                      }}
-                                      startIcon={<RestaurantIcon />}
-                                      onClick={() => {
-                                        sessionStorage.setItem(
-                                          "bookingRefNumber",
-                                          booking?.bookingRefNumber
-                                        );
-                                        sessionStorage.setItem(
-                                          "hotelId",
-                                          booking?.hotel?.id
-                                        );
-                                        navigate("/resturant");
-                                      }}
-                                    >
-                                      Order Food
-                                    </Button>
-                                  </Grid>
-                                  <Grid size={{ xs: 6 }}>
-                                    <Button
-                                      variant="outlined"
-                                      sx={{
-                                        textTransform: "none",
-                                        width: "100%",
-                                        color: "#00AB66",
-                                        borderColor: "#00AB66",
-                                      }}
-                                      startIcon={<CleaningServicesIcon />}
-                                      onClick={() =>
-                                        handleRoomCleanRequest(
-                                          booking.roomDto?.id,
-                                          booking.hotel?.id
-                                        )
-                                      }
-                                    >
-                                      Room Clean
-                                    </Button>
-                                  </Grid>
-                                  <Grid size={{ xs: 6 }}>
-                                    <Button
-                                      variant="outlined"
-                                      sx={{
-                                        textTransform: "none",
-                                        width: "100%",
-                                        color: "#E60026",
-                                        borderColor: "#E60026",
-                                      }}
-                                      startIcon={<ExitToAppIcon />}
-                                      onClick={() =>
-                                        handleRequestRoomCheckout(
-                                          booking.bookingRefNumber
-                                        )
-                                      }
-                                    >
-                                      Checkout
-                                    </Button>
-                                  </Grid>
-                                  <Grid size={{ xs: 6 }}>
-                                    <Button
-                                      variant="outlined"
-                                      sx={{
-                                        textTransform: "none",
-                                        width: "100%",
-                                        color: "#757a79",
-                                        borderColor: "#757a79",
-                                      }}
-                                      startIcon={<DryCleaningIcon />}
-                                      onClick={() =>
-                                        // handleRequestLaundryService(
-                                        //   booking.bookingRefNumber
-                                        // )
-                                        {
+                            {booking?.bookingStatus === "Checked_In" &&
+                              (booking?.roomDto?.isCheckoutProceed === null ||
+                                booking?.roomDto?.isCheckoutProceed ===
+                                  undefined) && (
+                                // ||
+                                //   Boolean(
+                                //     booking?.roomDto?.isCheckoutProceed ===
+                                //       "false" &&
+                                //       booking?.roomDto
+                                //         ?.isCheckedByKeepingStaff === "true"
+                                //   )
+
+                                <>
+                                  <Grid container spacing={1}>
+                                    <Grid size={{ xs: 6 }}>
+                                      <Button
+                                        variant="outlined"
+                                        sx={{
+                                          textTransform: "none",
+                                          color: "#5072A7",
+                                          width: "100%",
+                                        }}
+                                        startIcon={<RestaurantIcon />}
+                                        onClick={() => {
                                           sessionStorage.setItem(
-                                            "bookingRefNumberForLaundry",
+                                            "bookingRefNumber",
                                             booking?.bookingRefNumber
                                           );
-                                          navigate("/LaundryHistory");
+                                          sessionStorage.setItem(
+                                            "hotelId",
+                                            booking?.hotel?.id
+                                          );
+                                          navigate("/resturant");
+                                        }}
+                                      >
+                                        Order Food
+                                      </Button>
+                                    </Grid>
+                                    <Grid size={{ xs: 6 }}>
+                                      <Button
+                                        variant="outlined"
+                                        sx={{
+                                          textTransform: "none",
+                                          width: "100%",
+                                          color: "#00AB66",
+                                          borderColor: "#00AB66",
+                                        }}
+                                        startIcon={<CleaningServicesIcon />}
+                                        onClick={() =>
+                                          handleRoomCleanRequest(
+                                            booking.roomDto?.id,
+                                            booking.hotel?.id
+                                          )
                                         }
-                                      }
-                                    >
-                                      Laundry
-                                    </Button>
+                                      >
+                                        Room Clean
+                                      </Button>
+                                    </Grid>
+                                    <Grid size={{ xs: 6 }}>
+                                      <Button
+                                        variant="outlined"
+                                        sx={{
+                                          textTransform: "none",
+                                          width: "100%",
+                                          color: "#E60026",
+                                          borderColor: "#E60026",
+                                        }}
+                                        startIcon={<ExitToAppIcon />}
+                                        onClick={() =>
+                                          handleRequestRoomCheckout(
+                                            booking.bookingRefNumber
+                                          )
+                                        }
+                                      >
+                                        Checkout
+                                      </Button>
+                                    </Grid>
+                                    <Grid size={{ xs: 6 }}>
+                                      <Button
+                                        variant="outlined"
+                                        sx={{
+                                          textTransform: "none",
+                                          width: "100%",
+                                          color: "#757a79",
+                                          borderColor: "#757a79",
+                                        }}
+                                        startIcon={<DryCleaningIcon />}
+                                        onClick={() =>
+                                          // handleRequestLaundryService(
+                                          //   booking.bookingRefNumber
+                                          // )
+                                          {
+                                            sessionStorage.setItem(
+                                              "bookingRefNumberForLaundry",
+                                              booking?.bookingRefNumber
+                                            );
+                                            navigate("/LaundryHistory");
+                                          }
+                                        }
+                                      >
+                                        Laundry
+                                      </Button>
+                                    </Grid>
                                   </Grid>
-                                </Grid>
-                              </>
-                            )}
+                                </>
+                              )}
                           </Box>
                         </Box>
                       </Grid>

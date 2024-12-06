@@ -783,6 +783,7 @@ const PaymentDialog = memo(function ({
   const [cardNumber, setCardNumber] = React.useState("");
   const [upiNumber, setUpiNumber] = React.useState("");
   const [cvv, setCvv] = React.useState("");
+  const [expiryDate, setExpiryDate] = React.useState("");
   const isPayButtonDisabled =
     (paymentMethod === "card" && cardNumber.trim() === "") ||
     (paymentMethod === "upi" && upiNumber.trim() === "");
@@ -802,6 +803,25 @@ const PaymentDialog = memo(function ({
     setUpiNumber("");
     setCvv("");
   };
+  const handleChangeInputForPayment = (e) => {
+    const { name, value } = e.target;
+    const numericRegex = /^[0-9]*$/;
+
+    if (name === "cardNumber") {
+      if (numericRegex.test(value) && value.length <= 16) {
+        setCardNumber(value);
+      }
+    } else if (name === "cvv") {
+      if (numericRegex.test(value) && value.length <= 3) {
+        setCvv(value);
+      }
+    } else if (name === "upiNumber") {
+      // const upiRegex = /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/;
+      // if (value.trim() === "" || upiRegex.test(value)) {
+      setUpiNumber(value);
+      // }
+    }
+  };
 
   return (
     <Dialog
@@ -816,8 +836,6 @@ const PaymentDialog = memo(function ({
         <Box
           sx={{
             width: "100%",
-            // , border: "2px solid black"
-            // height: "600px",
           }}
         >
           <Box
@@ -896,8 +914,6 @@ const PaymentDialog = memo(function ({
               <Box
                 sx={{
                   width: "100%",
-                  // backgroundColor: "yellow",
-                  // height: "400px",
                 }}
               >
                 <Box
@@ -906,7 +922,6 @@ const PaymentDialog = memo(function ({
                     p: 3,
                     display: "flex",
                     flexDirection: "column",
-                    // alignItems: "center",
                     gap: 2,
                     height: "240px",
                     borderRadius: "0.7rem",
@@ -931,7 +946,8 @@ const PaymentDialog = memo(function ({
                             name="cardNumber"
                             variant="outlined"
                             value={cardNumber}
-                            onChange={(e) => setCardNumber(e.target.value)}
+                            // onChange={(e) => setCardNumber(e.target.value)}
+                            onChange={handleChangeInputForPayment}
                             sx={{
                               // bgcolor: "#F9F4FF",
                               "& .MuiOutlinedInput-root": {
@@ -949,7 +965,8 @@ const PaymentDialog = memo(function ({
                             name="cvv"
                             variant="outlined"
                             value={cvv}
-                            onChange={(e) => setCvv(e.target.value)}
+                            // onChange={(e) => setCvv(e.target.value)}
+                            onChange={handleChangeInputForPayment}
                             sx={{
                               // bgcolor: "#F9F4FF",
                               "& .MuiOutlinedInput-root": {
@@ -959,7 +976,7 @@ const PaymentDialog = memo(function ({
                           />
                         </Grid>
                         <Grid size={{ xs: 6 }}>
-                          <LocalizationProvider dateAdapter={AdapterDayjs}>
+                          {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DatePicker
                               label="Expiry Date"
                               disablePast
@@ -973,7 +990,38 @@ const PaymentDialog = memo(function ({
                                 },
                               }}
                             />
-                          </LocalizationProvider>
+                          </LocalizationProvider> */}
+                          <TextField
+                            label="Expiry Date"
+                            name="expiryDate"
+                            placeholder="MM/YY"
+                            variant="outlined"
+                            inputProps={{
+                              maxLength: 5,
+                            }}
+                            size="small"
+                            value={expiryDate}
+                            sx={{
+                              // bgcolor: "#F9F4FF",
+                              "& .MuiOutlinedInput-root": {
+                                borderRadius: 2,
+                              },
+                            }}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              // Auto-format input to MM/YY
+                              if (value.length === 2 && !value.includes("/")) {
+                                e.target.value = value + "/";
+                              }
+
+                              // Validate input
+                              const formattedValue = value.replace(
+                                /[^0-9/]/g,
+                                ""
+                              );
+                              setExpiryDate(formattedValue);
+                            }}
+                          />
                         </Grid>
                       </Grid>
                     )}
@@ -981,12 +1029,13 @@ const PaymentDialog = memo(function ({
                       <TextField
                         fullWidth
                         size="small"
-                        id="searchVehicle"
+                        id="upiNumber"
                         label="Enter UPI Id"
-                        name="searchVehicle"
+                        name="upiNumber"
                         variant="outlined"
                         value={upiNumber}
-                        onChange={(e) => setUpiNumber(e.target.value)}
+                        // onChange={(e) => setUpiNumber(e.target.value)}
+                        onChange={handleChangeInputForPayment}
                         sx={{
                           // bgcolor: "#F9F4FF",
                           "& .MuiOutlinedInput-root": {

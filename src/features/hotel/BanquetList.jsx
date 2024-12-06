@@ -19,38 +19,38 @@ import {
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 
-import { useAddHallMutation, useGetAllHallsQuery } from "../../services/hotel";
+import {
+  useAddBanquetMutation,
+  useGetAllBanquetQuery,
+} from "../../services/hotel";
 
-const HallList = () => {
+const BanquetList = () => {
   const [formData, setFormData] = React.useState({
-    hallName: "",
-    capacity: "",
-    pricePerHour: "",
-    pricePerDay: "",
+    banquetType: "",
+    perPlatePrice: "",
   });
-
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
     severity: "",
   });
-  const [addHall, addHallRes] = useAddHallMutation();
+
+  const [addBanquet, addBanquetRes] = useAddBanquetMutation();
+
   const {
-    data: hallListData = {
+    data: banquetListData = {
       data: [],
     },
     isLoading,
     isFetching,
-  } = useGetAllHallsQuery(sessionStorage.getItem("hotelIdForHall"), {
-    skip: !Boolean(sessionStorage.getItem("hotelIdForHall")),
+  } = useGetAllBanquetQuery(sessionStorage.getItem("hotelIdForBanquet"), {
+    skip: !Boolean(sessionStorage.getItem("hotelIdForBanquet")),
   });
-  console.log("hallListData", hallListData);
+
   const handleResetForm = React.useCallback(() => {
     setFormData({
-      hallName: "",
-      capacity: "",
-      pricePerHour: "",
-      pricePerDay: "",
+      banquetType: "",
+      perPlatePrice: "",
     });
   }, []);
 
@@ -60,16 +60,14 @@ const HallList = () => {
 
       const payload = {
         hotel: {
-          id: Boolean(sessionStorage.getItem("hotelIdForHall"))
-            ? sessionStorage.getItem("hotelIdForHall")
+          id: Boolean(sessionStorage.getItem("hotelIdForBanquet"))
+            ? sessionStorage.getItem("hotelIdForBanquet")
             : "",
         },
-        hallName: formData.hallName,
-        capacity: formData.capacity,
-        pricePerHour: formData.pricePerHour,
-        pricePerDay: formData.pricePerDay,
+        perPlatePrice: formData.perPlatePrice,
+        type: formData.banquetType,
       };
-      addHall(payload)
+      addBanquet(payload)
         .unwrap()
         .then((res) => {
           setSnack({ open: true, message: res.message, severity: "success" });
@@ -83,11 +81,11 @@ const HallList = () => {
           });
         });
     },
-    [formData, addHall, handleResetForm]
+    [formData, handleResetForm, addBanquet]
   );
 
   const handleChange = React.useCallback((e) => {
-    if (["capacity", "pricePerHour", "pricePerDay"].includes(e.target.name)) {
+    if (["perPlatePrice"].includes(e.target.name)) {
       setFormData((prevData) => ({
         ...prevData,
         [e.target.name]: e.target.value.replace(/\D/g, ""),
@@ -101,8 +99,8 @@ const HallList = () => {
   }, []);
 
   const isFormValid = React.useCallback(() => {
-    const { hallName, capacity, pricePerHour, pricePerDay } = formData;
-    return Boolean(hallName && capacity && pricePerHour && pricePerDay);
+    const { banquetType, perPlatePrice } = formData;
+    return Boolean(banquetType && perPlatePrice);
   }, [formData]);
 
   return (
@@ -158,7 +156,7 @@ const HallList = () => {
             <TextField
               label={
                 <React.Fragment>
-                  Hall Name
+                  Banquet Type
                   <Box
                     component="span"
                     sx={{
@@ -169,8 +167,8 @@ const HallList = () => {
                   </Box>
                 </React.Fragment>
               }
-              name="hallName"
-              value={formData.hallName}
+              name="banquetType"
+              value={formData.banquetType}
               onChange={handleChange}
               variant="standard"
               inputProps={{
@@ -182,7 +180,7 @@ const HallList = () => {
             <TextField
               label={
                 <React.Fragment>
-                  Capacity
+                  Per plate price
                   <Box
                     component="span"
                     sx={{
@@ -193,55 +191,14 @@ const HallList = () => {
                   </Box>
                 </React.Fragment>
               }
-              name="capacity"
-              value={formData.capacity}
-              onChange={handleChange}
-              variant="standard"
-            />
-          </Grid>
-          <Grid size={3}>
-            <TextField
-              label={
-                <React.Fragment>
-                  Price per Hour
-                  <Box
-                    component="span"
-                    sx={{
-                      color: (theme) => theme.palette.error.main,
-                    }}
-                  >
-                    *
-                  </Box>
-                </React.Fragment>
-              }
-              name="pricePerHour"
-              value={formData.pricePerHour}
-              onChange={handleChange}
-              variant="standard"
-            />
-          </Grid>
-          <Grid size={3}>
-            <TextField
-              label={
-                <React.Fragment>
-                  Price per day
-                  <Box
-                    component="span"
-                    sx={{
-                      color: (theme) => theme.palette.error.main,
-                    }}
-                  >
-                    *
-                  </Box>
-                </React.Fragment>
-              }
-              name="pricePerDay"
-              value={formData.pricePerDay}
+              name="perPlatePrice"
+              value={formData.perPlatePrice}
               onChange={handleChange}
               variant="standard"
             />
           </Grid>
         </Grid>
+
         <Box
           sx={{
             display: "flex",
@@ -267,7 +224,7 @@ const HallList = () => {
             type="submit"
             disabled={!isFormValid()}
           >
-            Add Hall
+            Add Banquet
           </Button>
         </Box>
       </Box>
@@ -285,7 +242,7 @@ const HallList = () => {
             variant="h6"
             sx={{ fontWeight: "bold", letterSpacing: 1 }}
           >
-            Hall List
+            Banquet List
           </Typography>
         </Toolbar>
         <TableContainer sx={{ maxHeight: 600 }}>
@@ -302,14 +259,12 @@ const HallList = () => {
                 }}
               >
                 <TableCell>Sl No.</TableCell>
-                <TableCell>Hall Name</TableCell>
-                <TableCell>Capacity</TableCell>
-                <TableCell>Price per hour</TableCell>
-                <TableCell>Price per day</TableCell>
+                <TableCell> Banquet Type</TableCell>
+                <TableCell>Price per plate</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {hallListData.data.map((item, index) => {
+              {banquetListData.data.map((item, index) => {
                 return (
                   <TableRow
                     sx={{
@@ -321,10 +276,8 @@ const HallList = () => {
                     }}
                   >
                     <TableCell> {index + 1}</TableCell>
-                    <TableCell>{item?.hallName}</TableCell>
-                    <TableCell>{item?.capacity}</TableCell>
-                    <TableCell>{item?.pricePerHour}</TableCell>
-                    <TableCell>{item?.pricePerDay}</TableCell>
+                    <TableCell>{item?.type}</TableCell>
+                    <TableCell>{item?.perPlatePrice}</TableCell>
                   </TableRow>
                 );
               })}
@@ -332,12 +285,13 @@ const HallList = () => {
           </Table>
         </TableContainer>
       </Paper>
+
       <LoadingComponent
-        open={isLoading || isFetching || addHallRes.isLoading}
+        open={isLoading || isFetching || addBanquetRes.isLoading}
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </Container>
   );
 };
 
-export default HallList;
+export default BanquetList;

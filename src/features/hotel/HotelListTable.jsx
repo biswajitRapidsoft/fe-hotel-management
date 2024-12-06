@@ -31,6 +31,7 @@ const tableHeader = [
   },
   { label: "Phone No." },
   { label: "Halls" },
+  { label: "Banquets" },
 ];
 
 const HotelListTable = () => {
@@ -135,6 +136,16 @@ function Row({ hotel, sequence }) {
           }}
         >
           <Typography sx={{ cursor: "pointer" }}>{hotel?.noOfHalls}</Typography>
+        </TableCell>
+        <TableCell
+          onClick={() => {
+            sessionStorage.setItem("hotelIdForBanquet", hotel?.id);
+            navigate("/BanquetList");
+          }}
+        >
+          <Typography sx={{ cursor: "pointer" }}>
+            {hotel?.noOfBanquets}
+          </Typography>
         </TableCell>
         <TableCell>
           <IconButton

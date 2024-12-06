@@ -38,6 +38,8 @@ const LaundryHistory = React.lazy(() =>
 );
 
 const HallList = React.lazy(() => import("./features/hotel/HallList"));
+const BanquetList = React.lazy(() => import("./features/hotel/BanquetList"));
+
 function App() {
   return (
     <div className="App">
@@ -71,6 +73,7 @@ function App() {
             <Route path="/Parking" element={<Parking />} />
             <Route path="/LaundryHistory" element={<LaundryHistory />} />
             <Route path="/HallList" element={<HallList />} />
+            <Route path="/BanquetList" element={<BanquetList />} />
           </Route>
         </Routes>
       </React.Suspense>
