@@ -76,7 +76,7 @@ const RoomTypeTable = () => {
               >
                 <TableCell>Sl No.</TableCell>
                 <TableCell>Room Type</TableCell>
-                <TableCell>Extra items</TableCell>
+                <TableCell sx={{ width: "50%" }}>Extra items</TableCell>
                 <TableCell>Images</TableCell>
               </TableRow>
             </TableHead>
