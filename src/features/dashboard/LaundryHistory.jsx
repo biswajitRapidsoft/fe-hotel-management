@@ -4,6 +4,7 @@ import {
   useGetAllLaundryStatusQuery,
   useChangeLaundryStatusMutation,
   useLaundryRequestMutation,
+  useAddRatingForLaundryMutation,
 } from "../../services/dashboard";
 import SnackAlert from "../../components/Alert";
 
@@ -25,6 +26,7 @@ import {
   TextField,
   Autocomplete,
   DialogActions,
+  Rating,
 } from "@mui/material";
 import { StyledTableRow, StyledTableCell } from "./HouseKeeperDashboard";
 import Grid from "@mui/material/Grid2";
@@ -33,11 +35,12 @@ import LoadingComponent from "../../components/LoadingComponent";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ClearIcon from "@mui/icons-material/Clear";
-import { CUSTOMER } from "../../helper/constants";
+import { CUSTOMER, ADMIN } from "../../helper/constants";
 
 const LaundryHistory = () => {
   const LaundryHistoryTableHeaders = React.useMemo(() => {
     const roleType = JSON.parse(sessionStorage.getItem("data"))?.roleType;
+    // const isCustomer = roleType === CUSTOMER;
 
     return [
       { label: "Sl. No.", key: "sno" },
@@ -46,8 +49,14 @@ const LaundryHistory = () => {
       { label: "Room No.", key: "room.roomNo" },
       { label: "Created At", key: "createdAt" },
       { label: "Laundry Status", key: "laundryStatus" },
-      ...(roleType !== "Customer"
-        ? [{ label: "Action", key: "laundryAction" }]
+      ...(roleType === "Customer"
+        ? [{ label: "Rating", key: "rating" }]
+        : roleType === "Admin"
+        ? [
+            { label: "Rating", key: "rating" },
+            { label: "Rating Message", key: "ratingMessage" },
+            { label: "Action", key: "laundryAction" },
+          ]
         : []),
     ];
   }, []);
@@ -176,24 +185,28 @@ const LaundryHistory = () => {
             justifyContent: "flex-end",
           }}
         >
-          <Box>
-            {/* Filters */}
-            <Button
-              variant="contained"
-              sx={{
-                backgroundImage:
-                  "linear-gradient(to right, #32cd32 0%, #228b22 100%)",
-                color: "white",
-                "&:hover": {
+          {Boolean(
+            JSON.parse(sessionStorage.getItem("data"))?.roleType === "Customer"
+          ) && (
+            <Box>
+              {/* Filters */}
+              <Button
+                variant="contained"
+                sx={{
                   backgroundImage:
-                    "linear-gradient(to right, #32cd32 10%, #228b22 90%)",
-                },
-              }}
-              onClick={handleRequestLaundryService}
-            >
-              Laundry Request
-            </Button>
-          </Box>
+                    "linear-gradient(to right, #32cd32 0%, #228b22 100%)",
+                  color: "white",
+                  "&:hover": {
+                    backgroundImage:
+                      "linear-gradient(to right, #32cd32 10%, #228b22 90%)",
+                  },
+                }}
+                onClick={handleRequestLaundryService}
+              >
+                Laundry Request
+              </Button>
+            </Box>
+          )}
         </Box>
         <Grid container size={12}>
           <Grid size={{ xs: 12 }}>
@@ -266,9 +279,18 @@ function calculateSerialNumber(index, pageNumber, rowsPerPage) {
 }
 
 const CustomRow = memo(function ({ tableHeaders, rowSerialNumber, row }) {
+  const roleType = JSON.parse(sessionStorage.getItem("data"))?.roleType;
+  const isAdmin = roleType === ADMIN;
+
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [statusDialogOpen, setStatusDialogOpen] = React.useState(false);
-
+  const [reviewDialog, setReviewDialog] = React.useState(null);
+  const [rateLaundry, rateLaundryRes] = useAddRatingForLaundryMutation();
+  const [snack, setSnack] = React.useState({
+    open: false,
+    message: "",
+    severity: "",
+  });
   const handleItemsClick = () => {
     setIsDialogOpen(true);
   };
@@ -303,9 +325,9 @@ const CustomRow = memo(function ({ tableHeaders, rowSerialNumber, row }) {
             <TableCell
               key={`table-body-cell=${subIndex}`}
               align="center"
-              onClick={subitem?.key === "" ? handleItemsClick : undefined} // Add this
+              onClick={subitem?.key === "" ? handleItemsClick : undefined}
             >
-              <Typography sx={{ fontSize: "13px" }}>
+              <Box>
                 {subitem?.key === "sno" ? (
                   <Typography
                     sx={{
@@ -341,9 +363,11 @@ const CustomRow = memo(function ({ tableHeaders, rowSerialNumber, row }) {
                     {row?.laundryStatus?.replace(/_/g, " ")}
                   </Box>
                 ) : subitem?.key === "laundryAction" &&
+                  isAdmin &&
                   !Boolean(
-                    JSON.parse(sessionStorage.getItem("data"))?.roleType ===
-                      CUSTOMER
+                    // JSON.parse(sessionStorage.getItem("data"))?.roleType ===
+                    //   CUSTOMER
+                    row?.laundryStatus === "Completed"
                   ) ? (
                   <>
                     <Box
@@ -365,16 +389,61 @@ const CustomRow = memo(function ({ tableHeaders, rowSerialNumber, row }) {
                       </Button>
                     </Box>
                   </>
+                ) : subitem?.key === "rating" &&
+                  Boolean(
+                    JSON.parse(sessionStorage.getItem("data"))?.roleType ===
+                      CUSTOMER ||
+                      JSON.parse(sessionStorage.getItem("data"))?.roleType ===
+                        ADMIN
+                  ) &&
+                  Boolean(row?.laundryStatus === "Completed") ? (
+                  <Box>
+                    {Boolean(row?.isRated) ? (
+                      <Rating value={row?.ratingPoints} disabled size="large" />
+                    ) : (
+                      <Box>
+                        {JSON.parse(sessionStorage.getItem("data"))
+                          ?.roleType === ADMIN ? (
+                          "-"
+                        ) : (
+                          <Button
+                            color="secondary"
+                            variant="contained"
+                            sx={{
+                              color: "#fff",
+                              letterSpacing: 1,
+                              textTransform: "none",
+                              "&.Mui-disabled": {
+                                background: "#B2E5F6",
+                                color: "#FFFFFF",
+                              },
+                            }}
+                            onClick={() => setReviewDialog(row)}
+                          >
+                            Review
+                          </Button>
+                        )}
+                      </Box>
+                    )}
+                  </Box>
                 ) : (
                   <Typography sx={{ fontSize: "13px" }}>
                     {getCellValue(row, subitem?.key)}
                   </Typography>
                 )}
-              </Typography>
+              </Box>
             </TableCell>
           );
         })}
       </TableRow>
+
+      <ReviewDialog
+        open={Boolean(reviewDialog)}
+        handleClose={() => setReviewDialog(null)}
+        rateLaundry={rateLaundry}
+        setSnack={setSnack}
+        orderObj={reviewDialog}
+      />
       <LaundryItemsDialog
         open={isDialogOpen}
         onClose={handleDialogClose}
@@ -386,9 +455,112 @@ const CustomRow = memo(function ({ tableHeaders, rowSerialNumber, row }) {
         onClose={handleStatusDialogClose}
         items={row}
       />
+      <LoadingComponent open={rateLaundryRes.isLoading} />
+      <SnackAlert snack={snack} setSnack={setSnack} />
     </>
   );
 });
+
+function ReviewDialog({ open, handleClose, rateLaundry, setSnack, orderObj }) {
+  const [rating, setRating] = React.useState(0);
+  const [review, setReview] = React.useState("");
+
+  const handleSubmitReview = React.useCallback(
+    (event) => {
+      event.preventDefault();
+      rateLaundry({
+        id: orderObj.id,
+        ratingPoints: rating,
+        ratingMessage: review,
+      })
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            severity: "success",
+          });
+          setRating(0);
+          setReview("");
+          handleClose();
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data,
+            severity: "error",
+          });
+        });
+    },
+    [rateLaundry, setSnack, rating, review, handleClose, orderObj]
+  );
+
+  return (
+    <React.Fragment>
+      <Dialog
+        maxWidth="sm"
+        fullWidth
+        open={open}
+        onClose={handleClose}
+        PaperProps={{
+          component: "form",
+          onSubmit: handleSubmitReview,
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 600, fontSize: 24 }}>
+          Review Your Order
+        </DialogTitle>
+        <DialogContent>
+          <Grid container>
+            <Grid size={12}>
+              <Typography component="legend">Rating</Typography>
+              <Rating
+                value={rating}
+                onChange={(e, newVal) => setRating(newVal)}
+                size="large"
+              />
+            </Grid>
+            <Grid size={12}>
+              <TextField
+                autoFocus
+                margin="dense"
+                name="review"
+                label="Review Message"
+                fullWidth
+                variant="standard"
+                value={review}
+                onChange={(e) => setReview(e.target.value)}
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            color="secondary"
+            variant="contained"
+            sx={{
+              color: "#fff",
+              display: "block",
+              mx: "auto",
+              letterSpacing: 1,
+              fontWeight: 600,
+              textTransform: "none",
+              fontSize: 18,
+              "&.Mui-disabled": {
+                background: "#B2E5F6",
+                color: "#FFFFFF",
+              },
+            }}
+            disabled={!Boolean(rating)}
+            type="submit"
+          >
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </React.Fragment>
+  );
+}
 
 const LaundryItemsDialog = ({ open, onClose, items, totalPrice }) => {
   console.log("items", items);
@@ -648,7 +820,7 @@ const LaundryStatusDialog = ({ open, onClose, items }) => {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button variant="contained" color="error">
+          <Button variant="contained" color="error" onClick={onClose}>
             cancel
           </Button>
           <Button
