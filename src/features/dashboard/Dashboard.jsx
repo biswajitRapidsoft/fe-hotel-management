@@ -7388,7 +7388,7 @@ const Dashboard = () => {
       Boolean(showcaseDialogFormData?.subTotalAmountRemaining > 0) &&
       Boolean(
         parseFloat(showcaseDialogFormData?.paidAmount) !==
-          showcaseDialogFormData?.subTotalAmountRemaining
+          parseFloat(showcaseDialogFormData?.subTotalAmountRemaining)
       )
     ) {
       setSnack({

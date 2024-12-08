@@ -18,6 +18,7 @@ import {
 import Grid from "@mui/material/Grid2";
 import { useNavigate } from "react-router-dom";
 import { FaArrowAltCircleLeft } from "react-icons/fa";
+import { RiRefund2Line } from "react-icons/ri";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -28,6 +29,8 @@ import {
   useRoomBookingHistoryByHotelIdQuery,
   useConFirmBookingMutation,
   useGetRoomsByRoomTypeQuery,
+  useGetRoomBookingChartQuery,
+  useApproveBookingCancelRequestMutation,
 } from "../../services/frontdeskBookingHistory";
 import moment from "moment";
 import Table from "@mui/material/Table";
@@ -48,6 +51,7 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import BookingHistoryChartComponent from "./BookingHistoryChartComponent";
 
 dayjs.extend(customParseFormat);
 dayjs.extend(isSameOrBefore);
@@ -390,7 +394,7 @@ const CustomBookingHistoryTableFIlters = memo(function ({
       }}
     >
       <Grid container size={12} spacing={1}>
-        <Grid size={{ xs: 4, lg: 1.7, xl: 1.5 }}>
+        {/* <Grid size={{ xs: 4, lg: 1.7, xl: 1.5 }}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               disablePast
@@ -437,9 +441,9 @@ const CustomBookingHistoryTableFIlters = memo(function ({
               format="DD/MM/YYYY"
             />
           </LocalizationProvider>
-        </Grid>
+        </Grid> */}
 
-        <Grid size={{ xs: 4, lg: 1.7, xl: 1.5 }}>
+        {/* <Grid size={{ xs: 4, lg: 1.7, xl: 1.5 }}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               disablePast
@@ -486,7 +490,7 @@ const CustomBookingHistoryTableFIlters = memo(function ({
               format="DD/MM/YYYY"
             />
           </LocalizationProvider>
-        </Grid>
+        </Grid> */}
         <Grid size={{ xs: 4, lg: 1.7, xl: 1.5 }}>
           <TextField
             fullWidth
@@ -680,6 +684,7 @@ const CustomRow = memo(function ({
   handleChangeBookingConfirmation,
   handleOpenCustomBookingHistoryDrawer,
   handleChangeSelectedBookingHistory,
+  handleApproveBookingCancelRequest,
 }) {
   const handleChangeBookingConfirmationOnConfirm = useCallback(
     (name, rowDate) => {
@@ -698,6 +703,12 @@ const CustomRow = memo(function ({
       );
     },
     [handleChangeSelectedBookingHistory, handleOpenCustomBookingHistoryDrawer]
+  );
+  const handleApproveBookingCancelRequestOnClick = useCallback(
+    (selectedBookingData) => {
+      handleApproveBookingCancelRequest(selectedBookingData);
+    },
+    [handleApproveBookingCancelRequest]
   );
   return (
     <TableRow
@@ -799,6 +810,39 @@ const CustomRow = memo(function ({
                       </Button>
                     </Box>
                   )}
+                  {row?.bookingStatus === "Booking_Cancellation_Requested" && (
+                    <Box
+                      sx={{
+                        display: "flex",
+                        gap: 1,
+                        width: "100%",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Button
+                        variant="outlined"
+                        sx={{
+                          minWidth: "unset",
+                          width: "auto", // Allow the button to adjust based on icon size
+                          paddingY: "4.8px",
+                          paddingX: "8px",
+                          color: "#FF5722", // Text color (Deep Orange)
+                          borderColor: "#FF5722", // Border color (Deep Orange)
+                          "&:hover": {
+                            borderColor: "#E64A19", // Darker shade for hover
+                            backgroundColor: "rgba(255, 87, 34, 0.1)", // Optional hover background
+                          },
+                        }}
+                        onClick={() =>
+                          handleApproveBookingCancelRequestOnClick(row)
+                        }
+                      >
+                        <RiRefund2Line
+                          style={{ fontSize: "14px", fontWeight: 600 }}
+                        />
+                      </Button>
+                    </Box>
+                  )}
                 </>
               ) : (
                 <Typography sx={{ fontSize: "13px" }}>
@@ -823,6 +867,7 @@ const CustomBookingHistoryTableContainer = memo(function ({
   handleChangeBookingConfirmation,
   handleChangeSelectedBookingHistory,
   handleOpenCustomBookingHistoryDrawer,
+  handleApproveBookingCancelRequest,
 }) {
   console.log("CustomBookingHistoryTableContainer tableData : ", tableData);
   return (
@@ -832,8 +877,8 @@ const CustomBookingHistoryTableContainer = memo(function ({
         sx={{
           overflow: "auto",
           maxHeight: {
-            xs: "calc(100vh - 310px)",
-            xl: "calc(100vh - 280px)",
+            xs: "calc(100vh - 465px)",
+            xl: "calc(100vh - 360px)",
             "&::-webkit-scrollbar": {
               // height: "14px",
             },
@@ -894,6 +939,9 @@ const CustomBookingHistoryTableContainer = memo(function ({
                   }
                   handleOpenCustomBookingHistoryDrawer={
                     handleOpenCustomBookingHistoryDrawer
+                  }
+                  handleApproveBookingCancelRequest={
+                    handleApproveBookingCancelRequest
                   }
                 />
               ))
@@ -1340,8 +1388,10 @@ function getBookingStatusColor(key) {
       return { color: "#6101a8", bgcolor: "#f0ddff" };
     case "Cancelled":
       return { color: "#c60000", bgcolor: "#ffd6d6" };
+    case "Booking_Cancellation_Requested":
+      return { color: "#f72585", bgcolor: "#ffd6e8" };
     default:
-      return { color: "inherit", bgcolor: "inherit" };
+      return { color: "#4b4b4b", bgcolor: "#dedede" };
   }
 }
 
@@ -1885,6 +1935,60 @@ const FrontdeskBookingHistory = () => {
     }),
     []
   );
+
+  const leftChartLabels = useMemo(
+    () => [
+      {
+        name: "Total Booking",
+        key: "totalBookings",
+        color: "#26afeb",
+        filterationKey: "",
+      },
+      {
+        name: "Checked In",
+        key: "noOfCheckedInCounts",
+        color: "#0fd87c",
+        filterationKey: "Checked_In",
+      },
+      {
+        name: "Checked Out",
+        key: "noOfCheckedOutCounts",
+        color: "#a393eb",
+        filterationKey: "Checked_Out",
+      },
+      {
+        name: "Cancelled",
+        key: "noOfCancelledCounts",
+        color: "#f73859",
+        filterationKey: "Cancelled",
+      },
+    ],
+    []
+  );
+
+  const rightChartLabels = useMemo(
+    () => [
+      {
+        name: "Pending",
+        key: "noOfNotYetApprovedCounts",
+        color: "#ea5455",
+        filterationKey: "Pending_Confirmation",
+      },
+      {
+        name: "Booked",
+        key: "noOfApprovedButNotCheckedInCounts",
+        color: "#0f4392",
+        filterationKey: "Booked",
+      },
+      {
+        name: "Cancel Request",
+        key: "noOfCancelledRequestCount",
+        color: "#f72585",
+        filterationKey: "Booking_Cancellation_Requested",
+      },
+    ],
+    []
+  );
   const [bookingHistoryTableFilters, setBookingHistoryTableFilters] = useState(
     initialBookingHistoryTableFilters
   );
@@ -1921,6 +2025,7 @@ const FrontdeskBookingHistory = () => {
       },
     },
     isLoading: isRoomBookingHistoryByHotelIdLoading,
+    isFetching: isRoomBookingHistoryByHotelIdFetching,
     isSuccess: isRoomBookingHistoryByHotelIdSuccess,
   } = useRoomBookingHistoryByHotelIdQuery(
     {
@@ -1969,6 +2074,30 @@ const FrontdeskBookingHistory = () => {
   );
 
   const {
+    data: roomBookingChartData = {
+      data: {
+        totalBookings: 0,
+        noOfCheckedInCounts: 0,
+        noOfCheckedOutCounts: 0,
+        noOfCancelledCounts: 0,
+        noOfNotYetApprovedCounts: 0,
+        noOfApprovedButNotCheckedInCounts: 0,
+      },
+    },
+    isLoading: isRoomBookingChartDataLoading,
+  } = useGetRoomBookingChartQuery(
+    {
+      hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId,
+    },
+    {
+      refetchOnMountOrArgChange: true,
+      skip: !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId),
+    }
+  );
+
+  console.log("roomBookingChartData : ", roomBookingChartData);
+
+  const {
     data: getRoomsByRoomTypeData = { data: [] },
     isFetching: isGetRoomsByRoomTypeDataFetching,
   } = useGetRoomsByRoomTypeQuery(
@@ -1999,6 +2128,9 @@ const FrontdeskBookingHistory = () => {
   const [cancelBookingByFrontDesk, cancelBookingByFrontDeskRes] =
     useCancelHotelRoomMutation();
 
+  const [approveBookingCancelRequest, approveBookingCancelRequestRes] =
+    useApproveBookingCancelRequestMutation();
+
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
@@ -2018,6 +2150,14 @@ const FrontdeskBookingHistory = () => {
       title: "",
       type: null,
     });
+
+  const [selectedFilterInChartComponent, setSelectedFilterInChartComponent] =
+    useState(null);
+
+  console.log(
+    "selectedFilterInChartComponent : ",
+    selectedFilterInChartComponent
+  );
 
   console.log("bookingHistoryTableData : ", bookingHistoryTableData);
   const [selectedBookingHistory, setSelectedBookingHistory] = useState(null);
@@ -2224,6 +2364,90 @@ const FrontdeskBookingHistory = () => {
     ]
   );
 
+  const handleChangeSelectedFilterInChartComponent = useCallback(
+    (filter) => {
+      console.log(
+        "handleChangeSelectedFilterInChartComponent filter : ",
+        filter
+      );
+      setSelectedFilterInChartComponent((prevData) => {
+        if (prevData !== filter) {
+          const foundLeftChartComponentItem = [
+            ...leftChartLabels,
+            ...rightChartLabels,
+          ]?.find((item) => item?.key === filter);
+          const foundBookingStatusTypeData = foundLeftChartComponentItem
+            ? allBookingStatusTypeData?.data?.find(
+                (item) => item === foundLeftChartComponentItem?.filterationKey
+              )
+            : null;
+          const foundBookingStatusTypeDataObj = foundBookingStatusTypeData
+            ? {
+                key: foundBookingStatusTypeData,
+                name: foundBookingStatusTypeData.replace(/_/g, " "),
+              }
+            : null;
+
+          handleChangeBookingHistoryTableFilters(
+            "bookingStatus",
+            foundBookingStatusTypeDataObj
+          );
+          return filter;
+        } else {
+          handleChangeBookingHistoryTableFilters("bookingStatus", null);
+          return null;
+        }
+      });
+    },
+    [
+      handleChangeBookingHistoryTableFilters,
+      leftChartLabels,
+      rightChartLabels,
+      allBookingStatusTypeData,
+    ]
+  );
+
+  const handleApproveBookingCancelRequest = useCallback(
+    (selectedBookingData) => {
+      Swal.fire({
+        title: "Confirm Refund!",
+        text: "Are you Sure To CONFIRM the Booking Cancellation?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const payload = {
+            bookingRefNumber: selectedBookingData?.bookingRefNumber || null,
+          };
+          approveBookingCancelRequest(payload)
+            .unwrap()
+            .then((res) => {
+              setSnack({
+                open: true,
+                message:
+                  res?.message || "Cancellation Ruquest Approve Successfully",
+                severity: "success",
+              });
+            })
+            .catch((err) => {
+              setSnack({
+                open: true,
+                message:
+                  err?.data?.message ||
+                  err?.data ||
+                  "Cancellation Ruquest Approve Successfully Failed",
+                severity: "error",
+              });
+            });
+        }
+      });
+    },
+    [approveBookingCancelRequest]
+  );
+
   useEffect(() => {
     if (isRoomBookingHistoryByHotelIdSuccess) {
       setBookingHistoryTableData(
@@ -2286,10 +2510,54 @@ const FrontdeskBookingHistory = () => {
           <Grid size={{ xs: 12 }}>
             <Box
               sx={{
+                width: { lg: "75%", md: "80%", xs: "91%" },
+                margin: "auto",
+              }}
+            >
+              <Grid container size={12}>
+                <Grid size={6}>
+                  <Box
+                    sx={{
+                      width: "67%",
+                    }}
+                  >
+                    <BookingHistoryChartComponent
+                      dataCount={roomBookingChartData?.data}
+                      customLabels={leftChartLabels}
+                      isActionable={true}
+                      pieSelectionFunction={
+                        handleChangeSelectedFilterInChartComponent
+                      }
+                    />
+                  </Box>
+                </Grid>
+                <Grid size={6}>
+                  <Box
+                    sx={{
+                      width: "70%",
+                    }}
+                  >
+                    <BookingHistoryChartComponent
+                      dataCount={roomBookingChartData?.data}
+                      customLabels={rightChartLabels}
+                      showTotal={true}
+                      isActionable={true}
+                      pieSelectionFunction={
+                        handleChangeSelectedFilterInChartComponent
+                      }
+                    />
+                  </Box>
+                </Grid>
+              </Grid>
+            </Box>
+          </Grid>
+          <Grid size={{ xs: 12 }}>
+            <Box
+              sx={{
                 width: "100%",
                 height: {
-                  xs: "calc(100vh - 250px)",
-                  xl: "calc(100vh - 200px)",
+                  xs: "calc(100vh - 410px)",
+                  xl: "calc(100vh - 410px)",
                 },
                 overflowX: "hidden",
                 overflowY: "auto",
@@ -2313,30 +2581,19 @@ const FrontdeskBookingHistory = () => {
                 handleOpenCustomBookingHistoryDrawer={
                   handleOpenCustomBookingHistoryDrawer
                 }
+                handleApproveBookingCancelRequest={
+                  handleApproveBookingCancelRequest
+                }
               />
             </Box>
           </Grid>
         </Grid>
       </Box>
-      {/* <ShowcaseDialog
-            openShowcaseDialog={showcaseDialogData?.open}
-            title={showcaseDialogData?.title}
-            type={showcaseDialogData?.type}
-            inventoryData={showcaseDialogData?.inventoryData}
-            foodData={showcaseDialogData?.foodData}
-            checkOutRoomData={isSelectedRoom}
-            handleCloseShowcaseDialog={handleCloseShowcaseDialog}
-            showcaseDialogFormData={showcaseDialogFormData}
-            allPaymentMethods={allPaymentMethods}
-            handleChangeShowcaseDialogFormData={handleChangeShowcaseDialogFormData}
-            handleConfirmFinalCheckout={handleConfirmFinalCheckout}
-          /> */}
       <CustomBookingHistoryDrawer
         customDrawerOpen={customBookingHistoryDrawerOpen?.open}
         title={customBookingHistoryDrawerOpen?.title}
         type={customBookingHistoryDrawerOpen?.type}
         handleToggleCustomFormDrawer={handleOpenCustomBookingHistoryDrawer}
-        customFormDrawerData={null}
         handleChangeSelectedBookingHistory={handleChangeSelectedBookingHistory}
         roomtypeByHotelIdForBookingHistoryData={
           roomtypeByHotelIdForBookingHistoryData?.data || []
@@ -2360,6 +2617,9 @@ const FrontdeskBookingHistory = () => {
           cancelBookingByFrontDeskRes?.isLoading ||
           isRoomtypeByHotelIdForBookingHistoryDataFetching ||
           isGetRoomsByRoomTypeDataFetching ||
+          isRoomBookingChartDataLoading ||
+          isRoomBookingHistoryByHotelIdFetching ||
+          approveBookingCancelRequestRes.isLoading ||
           false
         }
       />

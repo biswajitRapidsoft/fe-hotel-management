@@ -1,9 +1,9 @@
 const config = Object.freeze({
   // baseUrl: "http://192.168.12.37:9000/",
-  // baseUrl: "http://192.168.30.44:8070/be-hms/",
+  baseUrl: "http://192.168.30.44:8070/be-hms/",
   // baseUrl: "http://crimarrstaging.nyggs.com/backend/",
   // baseUrl: "http://192.168.30.44:9000/",
-  baseUrl: "http://192.168.12.43:8080/be-hms/",
+  // baseUrl: "http://192.168.12.43:8080/be-hms/",
   apiName: {
     loginAsCustomer: "login/as/customer",
     loginAsStaff: "login",
@@ -46,6 +46,17 @@ const config = Object.freeze({
     conFirmBooking: "api/confirm/booking",
     getRoomsByRoomType: "api/get/room/by/roomtype",
     bookingByFrontDeskStaff: "api/booking/by/frontdesk/staff",
+    getRoomBookingChart: "api/get/room/booking/chart/data",
+    approveBookingCancelRequest: "api/approve/booking/cancel/request",
+
+    // HALL BOOKING DASHBOARD
+    getAllHallBookings: "api/get/all/hall/bookings/data",
+    getAllHallStatus: "api/get/all/hall/status",
+    getAllHallsByHotelIdForHallBooking: "api/get/all/halls",
+    getHallBookingChart: "api/get/hall/chart/data",
+    getIndividualHallBookingDataById: "api/get/individual/hall/booking/data",
+    bookHallFromFrontdesk: "api/book/hall",
+    getAllBanquetsByHotelId: "api/get/all/banquets/by/hotel",
 
     // GUEST DASHBOARD API ENDPOINTS
     getAllHotels: "public/hotels/list",
