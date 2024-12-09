@@ -148,6 +148,14 @@ export default function SignIn() {
         });
     },
   });
+
+  const handleEmailChange = React.useCallback(
+    (e) => {
+      formik.setFieldValue("username", e.target.value.toLowerCase());
+    },
+    [formik]
+  );
+
   const [visible, setVisible] = React.useState(false);
   const handleSetVisibility = React.useCallback(() => {
     setVisible(!visible);
@@ -199,7 +207,7 @@ export default function SignIn() {
               autoFocus
               variant="standard"
               value={formik.values.username}
-              onChange={formik.handleChange}
+              onChange={handleEmailChange}
               error={formik.touched.username && Boolean(formik.errors.username)}
               helperText={formik.touched.username && formik.errors.username}
             />
