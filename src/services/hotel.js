@@ -79,6 +79,30 @@ const hotelApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["getAllBanquet"],
     }),
+    getAllPromoCode: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllPromoCode,
+        method: "GET",
+        params: {
+          hotelId: payload,
+        },
+      }),
+      providesTags: ["getAllPromoCode"],
+    }),
+    createPromoCode: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.createPromocode,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllPromoCode"],
+    }),
+    getAllPromocodeTypes: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllPromocodeTypes,
+        method: "GET",
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -93,4 +117,7 @@ export const {
   useGetAllHallsQuery,
   useAddBanquetMutation,
   useGetAllBanquetQuery,
+  useGetAllPromoCodeQuery,
+  useCreatePromoCodeMutation,
+  useGetAllPromocodeTypesQuery,
 } = hotelApi;

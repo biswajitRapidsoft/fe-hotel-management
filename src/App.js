@@ -43,6 +43,12 @@ const LaundryHistory = React.lazy(() =>
 const HallList = React.lazy(() => import("./features/hotel/HallList"));
 const BanquetList = React.lazy(() => import("./features/hotel/BanquetList"));
 
+const HouseKeepingHistory = React.lazy(() =>
+  import("./features/houseKeepingHistory/HouseKeepingHistory")
+);
+
+const PromocodeList = React.lazy(() => import("./features/hotel/PromcodeList"));
+
 function App() {
   return (
     <div className="App">
@@ -78,6 +84,11 @@ function App() {
             <Route path="/LaundryHistory" element={<LaundryHistory />} />
             <Route path="/HallList" element={<HallList />} />
             <Route path="/BanquetList" element={<BanquetList />} />
+            <Route
+              path="/HouseKeepingHistory"
+              element={<HouseKeepingHistory />}
+            />
+            <Route path="/PromocodeList" element={<PromocodeList />} />
           </Route>
         </Routes>
       </React.Suspense>
