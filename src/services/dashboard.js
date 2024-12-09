@@ -57,6 +57,16 @@ const dashboardApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["getUserDetailsForBooking"],
     }),
+    getAllRestaurantPromocodeByHotelId: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllRestaurantPromocodeByHotelId,
+        method: "GET",
+        params: {
+          hotelId: payload?.hotelId,
+        },
+      }),
+      providesTags: ["getAllRestaurantPromocodeByHotelId"],
+    }),
 
     // HOUSE-KEEPER DASHBOARD
     getServiceableRoomData: build.query({
@@ -268,4 +278,5 @@ export const {
   useChangeLaundryStatusMutation,
   useAddRatingForLaundryMutation,
   useGetPendingBookingRequestCountsQuery,
+  useGetAllRestaurantPromocodeByHotelIdQuery,
 } = dashboardApi;

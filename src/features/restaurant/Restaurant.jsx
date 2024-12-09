@@ -23,6 +23,11 @@ import {
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 import OrderHistoryDrawer from "./OrderHistoryDrawer";
+import { useGetAllRestaurantPromocodeByHotelIdQuery } from "../../services/dashboard";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import { CheckBox } from "@mui/icons-material";
+import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
+import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
 
 const drawerWidth = 399;
 
@@ -98,6 +103,10 @@ const getFilterdMenuList = (menuList, mealType, foodType) => {
 
 const Restaurant = () => {
   const [isOrderHistoryDrawer, setIsOrderHistoryDrawer] = React.useState(false);
+  const [selectedRestaurantCoupon, setSelectedRestaurantCoupon] =
+    React.useState(null);
+  const [isViewAllCouponsSelected, setIsViewAllCouponsSelected] =
+    React.useState(false);
   const [orderFood, orderFoodRes] = useOrderFoodMutation();
   const {
     data: dineTypes = {
@@ -127,6 +136,25 @@ const Restaurant = () => {
   } = useGetCustomerOrdeHistoryQuery(
     sessionStorage.getItem("bookingRefNumber")
   );
+
+  const {
+    data: allRestaurantPromocodeByHotelIdData = {
+      data: [],
+    },
+    isLoading: isAllRestaurantPromocodeByHotelIdDataLoading,
+  } = useGetAllRestaurantPromocodeByHotelIdQuery(
+    { hotelId: JSON.parse(sessionStorage.getItem("hotelId")) },
+    {
+      refetchOnMountOrArgChange: true,
+      skip: !Boolean(JSON.parse(sessionStorage.getItem("hotelId"))),
+    }
+  );
+
+  console.log(
+    "allRestaurantPromocodeByHotelIdData : ",
+    allRestaurantPromocodeByHotelIdData
+  );
+
   const handleTabChange = React.useCallback((e, value) => {
     setMealType(value);
   }, []);
@@ -192,6 +220,10 @@ const Restaurant = () => {
         });
       });
   }, [cartItems, orderFood, dineType, calculateTotalAmountOfCartItems]);
+
+  const handleChangeIsViewAllCouponsSelected = React.useCallback(() => {
+    setIsViewAllCouponsSelected((prev) => !prev);
+  }, []);
 
   return (
     <React.Fragment>
@@ -301,55 +333,207 @@ const Restaurant = () => {
             </Typography>
           </DrawerHeader>
           <Divider />
-          <Box sx={{ p: 2 }}>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: 600, letterSpacing: 1, marginBottom: 3 }}
-            >
-              My Order
-            </Typography>
-            <Divider />
-            <Box
-              sx={{
-                height: 350,
-                overflowY: "auto",
-                // backgroundColor: "#f7f0ff",
-                p: 0.75,
-              }}
-            >
-              <Grid container spacing={2}>
-                {cartItems.map((cartItem) => {
-                  return (
-                    <Grid size={12} key={cartItem.id}>
-                      <Box sx={{ display: "flex", gap: 2 }}>
-                        <Box
-                          component="img"
-                          src={cartItem.image}
-                          sx={{ width: 50 }}
-                        />
-                        <Box
-                          sx={{
-                            flexGrow: 1,
-                            display: "flex",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <Box>
-                            <Typography>{cartItem.itemName}</Typography>
-                            <Typography>{`x${cartItem.quantity}`}</Typography>
+          {isViewAllCouponsSelected ? (
+            <Box sx={{ p: 2 }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 600, letterSpacing: 1, marginBottom: 3 }}
+              >
+                Coupons
+              </Typography>
+              <Divider />
+              <Box
+                sx={{
+                  height: 320,
+                  overflowY: "auto",
+                  // backgroundColor: "#f7f0ff",
+                  p: 0.75,
+                }}
+              >
+                <Grid container spacing={2}>
+                  {allRestaurantPromocodeByHotelIdData?.data?.map(
+                    (promoItem) => {
+                      return (
+                        <Grid size={12} key={promoItem?.id}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              gap: 2,
+                              boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+                              borderRadius: "5px",
+                              cursor: "pointer",
+                              px: 2,
+                              py: 1,
+                            }}
+                          >
+                            <Box sx={{ width: "90%" }}>
+                              <Typography
+                                sx={{ fontSize: "12.5px", fontWeight: 550 }}
+                              >{`Flat ${promoItem?.discountPercentage}% off upto ${promoItem?.maxDiscountAmount} on minimum order of ${promoItem?.minOrderValue}.`}</Typography>
+                              <Typography sx={{ mt: "5px" }}>
+                                <Typography
+                                  component="span"
+                                  sx={{
+                                    fontSize: "11.5px",
+                                    fontWeight: 550,
+                                    color: "#737373",
+                                  }}
+                                >
+                                  Coupon code
+                                </Typography>
+                                <Typography
+                                  component="span"
+                                  sx={{
+                                    fontSize: "11.5px",
+                                    fontWeight: 550,
+                                    color: "#737373",
+                                  }}
+                                >
+                                  {" "}
+                                  :{" "}
+                                </Typography>
+                                <Typography
+                                  component="span"
+                                  sx={{
+                                    border: "1px dashed #9c9c9c",
+                                    paddingX: "8px",
+                                    paddingY: "3px",
+                                    borderRadius: "4px",
+                                    fontSize: "12.5px",
+                                    fontWeight: 550,
+                                    color: "#0e36b3",
+                                  }}
+                                >
+                                  {promoItem?.codeName}
+                                </Typography>
+                              </Typography>
+                            </Box>
+                            <Box
+                              sx={{
+                                width: "10%",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                              }}
+                            >
+                              <CheckBox
+                                icon={<RadioButtonUncheckedIcon />}
+                                checkedIcon={<RadioButtonCheckedIcon />}
+                              />
+                            </Box>
                           </Box>
-                          <Typography sx={{ fontWeight: 600 }}>{`Rs. ${
-                            cartItem.perUnitPrice * cartItem.quantity
-                          }`}</Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                  );
-                })}
-              </Grid>
+                        </Grid>
+                      );
+                    }
+                  )}
+                </Grid>
+              </Box>
+              <Divider sx={{ mt: 1 }} />
+              <Box
+                sx={{
+                  px: 2,
+                  py: 0.8,
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  mt: 1,
+                  backgroundColor: "#ffffff",
+                  boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+                  transition: "all 0.3s ease",
+                  cursor: "pointer",
+                  "&:hover": {
+                    backgroundColor: "#f3f3f3",
+                  },
+                }}
+                onClick={() => handleChangeIsViewAllCouponsSelected()}
+              >
+                <Typography sx={{ fontSize: "14px", fontWeight: 550 }}>
+                  View All Coupons
+                </Typography>
+
+                <KeyboardArrowRightIcon />
+              </Box>
+              <Divider sx={{ mt: 1 }} />
             </Box>
-            <Divider sx={{ mt: 2 }} />
-          </Box>
+          ) : (
+            <Box sx={{ p: 2 }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 600, letterSpacing: 1, marginBottom: 3 }}
+              >
+                My Order
+              </Typography>
+              <Divider />
+              <Box
+                sx={{
+                  height: 320,
+                  overflowY: "auto",
+                  // backgroundColor: "#f7f0ff",
+                  p: 0.75,
+                }}
+              >
+                <Grid container spacing={2}>
+                  {cartItems.map((cartItem) => {
+                    return (
+                      <Grid size={12} key={cartItem.id}>
+                        <Box sx={{ display: "flex", gap: 2 }}>
+                          <Box
+                            component="img"
+                            src={cartItem.image}
+                            sx={{ width: 50 }}
+                          />
+                          <Box
+                            sx={{
+                              flexGrow: 1,
+                              display: "flex",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <Box>
+                              <Typography>{cartItem.itemName}</Typography>
+                              <Typography>{`x${cartItem.quantity}`}</Typography>
+                            </Box>
+                            <Typography sx={{ fontWeight: 600 }}>{`Rs. ${
+                              cartItem.perUnitPrice * cartItem.quantity
+                            }`}</Typography>
+                          </Box>
+                        </Box>
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+              </Box>
+              <Divider sx={{ mt: 1 }} />
+              <Box
+                sx={{
+                  px: 2,
+                  py: 0.8,
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  mt: 1,
+                  backgroundColor: "#ffffff",
+                  boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+                  transition: "all 0.3s ease",
+                  cursor: "pointer",
+                  "&:hover": {
+                    backgroundColor: "#f3f3f3",
+                  },
+                }}
+                onClick={() => handleChangeIsViewAllCouponsSelected()}
+              >
+                <Typography sx={{ fontSize: "14px", fontWeight: 550 }}>
+                  View All Coupons
+                </Typography>
+
+                <KeyboardArrowRightIcon />
+              </Box>
+              <Divider sx={{ mt: 1 }} />
+            </Box>
+          )}
+
           <Box
             sx={{
               position: "absolute",
@@ -437,7 +621,13 @@ const Restaurant = () => {
           orderHistory={orderHistory.data}
         />
       </Box>
-      <LoadingComponent open={isLoading || orderFoodRes.isLoading} />
+      <LoadingComponent
+        open={
+          isLoading ||
+          orderFoodRes.isLoading ||
+          isAllRestaurantPromocodeByHotelIdDataLoading
+        }
+      />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </React.Fragment>
   );
