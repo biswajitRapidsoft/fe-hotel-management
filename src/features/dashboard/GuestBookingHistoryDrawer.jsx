@@ -245,7 +245,7 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
             <TimelineItem key={booking.id}>
               <TimelineSeparator>
                 <TimelineDot />
-                {index < bookingDetails.data.length - 1 && (
+                {index < bookingDetails?.data?.length - 1 && (
                   <TimelineConnector />
                 )}
               </TimelineSeparator>
@@ -276,7 +276,7 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                         >
                           <img
                             src={
-                              booking.roomType?.images?.[0] ||
+                              booking?.roomType?.images?.[0] ||
                               "http://192.168.12.41:9000/download/1.jpg"
                             }
                             style={{
@@ -304,7 +304,7 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                               Hotel Name :
                             </Typography>
                             <Typography>
-                              {booking.hotel?.name || "N/A"}
+                              {booking?.hotel?.name || "N/A"}
                             </Typography>
                           </Box>
                           <Box sx={{ display: "flex", gap: 1 }}>
@@ -312,9 +312,9 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                               Person Name :
                             </Typography>
                             <Typography>
-                              {`${booking.firstName || ""} ${
-                                booking.middleName || ""
-                              } ${booking.lastName || ""}`.trim()}
+                              {`${booking?.firstName || ""} ${
+                                booking?.middleName || ""
+                              } ${booking?.lastName || ""}`.trim()}
                             </Typography>
                           </Box>
                           <Box sx={{ display: "flex", gap: 1 }}>
@@ -342,7 +342,12 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                             </Typography>
                           </Box>
                           <Box sx={{ display: "flex", gap: 1 }}>
-                            <Typography sx={{ fontWeight: "bold" }}>
+                            <Typography
+                              sx={{
+                                fontWeight: "bold",
+                                wordWrap: "break-word",
+                              }}
+                            >
                               Ref Number:
                             </Typography>
                             <Typography>

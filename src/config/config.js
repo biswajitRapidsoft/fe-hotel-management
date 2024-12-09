@@ -33,6 +33,10 @@ const config = Object.freeze({
     getAllHalls: "api/get/all/halls",
     addBanquet: "api/create/new/banquet",
     getAllBanquet: "api/get/all/banquets/by/hotel",
+    createPromocode: "api/create/new/promocode",
+    getAllPromoCode: "public/get/all/resturant/promocode",
+    getAllPromocodeTypes: "api/get/all/promocode/type",
+
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",
@@ -66,6 +70,9 @@ const config = Object.freeze({
     getAllLaundryStatus: "api/get/all/laundry/status",
     changeLaundryStatus: "api/change/laundry/service/status",
     addRatingForLaundry: "public/rate/laundry/service",
+    getAllRoomServiceHistory: "api/get/all/room/service/request/list",
+    getAllHouseKeepingStaff: "api/get/all/housekeeping/staff/list",
+    assignHouseKeepingRequest: "api/assign/housekeeping/staff",
 
     // PARKING DASHBOARD DATA
     getAllParkingData: "api/get/all/parking/list",

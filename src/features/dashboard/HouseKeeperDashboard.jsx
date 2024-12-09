@@ -91,20 +91,24 @@ const HouseKeeperDashboard = () => {
     currentFilter === "Service"
       ? {
           hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
+          userId: JSON.parse(sessionStorage.getItem("data")).id,
           serviceType: "Room_Cleaning",
         }
       : currentFilter === "Checkout"
       ? {
           hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
+          userId: JSON.parse(sessionStorage.getItem("data")).id,
           serviceType: "Checkout_Request",
         }
       : currentFilter === "Laundry"
       ? {
           hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
+          userId: JSON.parse(sessionStorage.getItem("data")).id,
           serviceType: "Laundry_Service",
         }
       : {
           hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
+          userId: JSON.parse(sessionStorage.getItem("data")).id,
           serviceType: "",
         },
     {

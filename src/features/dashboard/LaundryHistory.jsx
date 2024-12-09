@@ -858,7 +858,7 @@ const CustomLaundryHistoryTableContainer = memo(function ({
   handleChangeRowsPerPage,
 }) {
   // const roleType = JSON.parse(sessionStorage.getItem("data"))?.roleType;
-
+  console.log("tableHeaders", tableHeaders);
   return (
     <>
       <TableContainer

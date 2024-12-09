@@ -266,11 +266,23 @@ const Header = () => {
             >
               {JSON.parse(sessionStorage.getItem("data"))?.userName}
             </Typography>
-            <Typography sx={{ fontSize: 14, letterSpacing: 1 }}>
-              {getUserType(
-                JSON.parse(sessionStorage.getItem("data"))?.roleType
-              )}
-            </Typography>
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <Typography sx={{ fontSize: 14, letterSpacing: 1 }}>
+                {getUserType(
+                  JSON.parse(sessionStorage.getItem("data"))?.roleType
+                )}
+              </Typography>
+              <Typography sx={{ fontSize: 14, letterSpacing: 1 }}>
+                {!Boolean(
+                  JSON.parse(sessionStorage.getItem("data"))?.roleType === ADMIN
+                ) &&
+                  !Boolean(
+                    JSON.parse(sessionStorage.getItem("data"))?.roleType ===
+                      CUSTOMER
+                  ) &&
+                  `(${JSON.parse(sessionStorage.getItem("data"))?.hotelName})`}
+              </Typography>
+            </Box>
           </Box>
 
           <React.Fragment>

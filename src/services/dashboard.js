@@ -68,6 +68,7 @@ const dashboardApi = apiSlice.injectEndpoints({
         // },
         params: {
           hotelId: payload.hotelId,
+          userId: payload.userId,
           // ...(payload.isService !== undefined && {
           serviceType: payload.serviceType,
           // }),

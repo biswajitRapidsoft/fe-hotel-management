@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import MasterCard from "../../img/masterCard.png";
 import Visa from "../../img/visa.png";
 import Maestro from "../../img/maestro.png";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 
 import {
   Box,
@@ -70,8 +71,6 @@ const GuestDashboard = () => {
       skip: !JSON.parse(sessionStorage.getItem("data"))?.roleType === CUSTOMER,
     }
   );
-
-  console.log("bookingDetails", bookingDetails);
   const {
     data: userDetails = {
       data: [],
@@ -83,6 +82,7 @@ const GuestDashboard = () => {
       skip: !JSON.parse(sessionStorage.getItem("data"))?.roleType === CUSTOMER,
     }
   );
+
   return (
     <>
       <Box
@@ -183,18 +183,36 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
   const toggleDrawer = (open) => () => {
     if (!open) {
       handleResetForm();
+      if (sessionStorage.getItem("paymentDetail")) {
+        sessionStorage.removeItem("paymentDetail");
+      }
     }
     setDrawerOpen(open);
   };
 
   // reset formdata function
+  // const handleResetForm = React.useCallback(() => {
+  //   setFormData((prevData) => ({
+  //     firstName: "",
+  //     middleName: "",
+  //     lastName: "",
+  //     email: "",
+  //     address: "",
+  //     fromDate: null,
+  //     toDate: null,
+  //     noOfPeoples: "",
+  //     advancePayment: "",
+  //     phoneNumber: prevData.phoneNumber,
+  //   }));
+  // }, []);
+
   const handleResetForm = React.useCallback(() => {
     setFormData((prevData) => ({
-      firstName: "",
-      middleName: "",
-      lastName: "",
-      email: "",
-      address: "",
+      firstName: prevData.firstName,
+      middleName: prevData.middleName,
+      lastName: prevData.lastName,
+      email: prevData.email,
+      address: prevData.address,
       fromDate: null,
       toDate: null,
       noOfPeoples: "",
@@ -709,6 +727,28 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                   />
                 </Grid>
               )}
+              {Boolean(sessionStorage.getItem("paymentDetail")) ? (
+                <Grid container>
+                  <Grid size={{ xs: 12 }} sx={{ px: 1 }}>
+                    <Box sx={{ display: "flex", gap: 1 }}>
+                      <CheckCircleOutlineIcon sx={{ color: "green" }} />
+                      <Typography
+                        sx={{
+                          color: "gray",
+                          fontStyle: "italic",
+                          fontFamily: "'Georgia', 'Times New Roman', serif",
+                          fontSize: "bold",
+                        }}
+                      >
+                        Payment done successfully
+                      </Typography>
+                    </Box>
+                  </Grid>
+                </Grid>
+              ) : (
+                ""
+              )}
+
               <Grid size={{ xs: 12 }}>
                 <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                   {Boolean(sessionStorage.getItem("paymentDetail")) ? (
