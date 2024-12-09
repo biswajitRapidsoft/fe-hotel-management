@@ -38,6 +38,8 @@ const CustomChips = ({ itemList }) => {
               sx={{ mx: 0.1, my: 0.1 }}
             />
           );
+        } else {
+          return null;
         }
       })}
       {showMore ? (
