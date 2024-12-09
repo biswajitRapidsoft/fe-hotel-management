@@ -98,6 +98,7 @@ const RoomTypeTable = () => {
             {
               pl: { sm: 2 },
               pr: { xs: 1, sm: 1 },
+              justifyContent: { xs: "space-between" },
             },
           ]}
         >
@@ -107,6 +108,30 @@ const RoomTypeTable = () => {
           >
             Room Type List
           </Typography>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Box
+                sx={{
+                  height: 15,
+                  width: 15,
+                  borderRadius: "50%",
+                  backgroundColor: (theme) => theme.palette.success.main,
+                }}
+              />
+              <Typography>Non-Consumables</Typography>
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Box
+                sx={{
+                  height: 15,
+                  width: 15,
+                  borderRadius: "50%",
+                  backgroundColor: (theme) => theme.palette.error.main,
+                }}
+              />
+              <Typography>Consumables</Typography>
+            </Box>
+          </Box>
         </Toolbar>
         <TableContainer sx={{ maxHeight: 600 }}>
           <Table stickyHeader>
