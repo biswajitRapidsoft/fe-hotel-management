@@ -30,6 +30,7 @@ import {
   useAddHotelMutation,
 } from "../../services/hotel";
 import { useGetAllRoomTypesByCompanyQuery } from "../../services/roomType";
+import { v4 as uuidv4 } from "uuid";
 import SnackAlert from "../../components/Alert";
 import LoadingComponent from "../../components/LoadingComponent";
 import HotelListTable from "./HotelListTable";
@@ -57,7 +58,7 @@ const HotelList = () => {
   const imageRef = React.useRef(null);
   const [floorList, setFloorList] = React.useState([
     {
-      id: crypto.randomUUID(),
+      id: uuidv4(),
       roomList: [],
     },
   ]);
@@ -96,7 +97,7 @@ const HotelList = () => {
     });
     setFloorList([
       {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         roomList: [],
       },
     ]);
@@ -172,10 +173,7 @@ const HotelList = () => {
   }, []);
 
   const handleAddFloor = React.useCallback(() => {
-    setFloorList((prevData) => [
-      ...prevData,
-      { id: crypto.randomUUID(), roomList: [] },
-    ]);
+    setFloorList((prevData) => [...prevData, { id: uuidv4(), roomList: [] }]);
   }, []);
 
   const handleDeleteFloor = React.useCallback(
@@ -733,20 +731,22 @@ function FloorFormComponent({
           {`Floor ${floorIndex + 1}`}
         </Typography>
         <Box>
-          <IconButton
-            sx={{
-              color: "#fff",
-              backgroundColor: (theme) => theme.palette.error.main,
-              "&:hover": {
+          {floorIndex !== 0 && (
+            <IconButton
+              sx={{
+                color: "#fff",
                 backgroundColor: (theme) => theme.palette.error.main,
-              },
-              mt: 0.4,
-            }}
-            onClick={() => handleDeleteFloor(floor.id)}
-            size="small"
-          >
-            <DeleteIcon fontSize="small" />
-          </IconButton>
+                "&:hover": {
+                  backgroundColor: (theme) => theme.palette.error.main,
+                },
+                mt: 0.4,
+              }}
+              onClick={() => handleDeleteFloor(floor.id)}
+              size="small"
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          )}
           {isLastIndex && (
             <IconButton
               sx={{

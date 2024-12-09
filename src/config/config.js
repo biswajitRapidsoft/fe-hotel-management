@@ -29,6 +29,10 @@ const config = Object.freeze({
     getFoodOrderListAdmin: "api/get/today/order/history",
     getAllFoodOrderStatus: "public/get/all/dinning/status/type",
     rateFood: "public/rate/your/food",
+    addHall: "api/add/new/hall",
+    getAllHalls: "api/get/all/halls",
+    addBanquet: "api/create/new/banquet",
+    getAllBanquet: "api/get/all/banquets/by/hotel",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",

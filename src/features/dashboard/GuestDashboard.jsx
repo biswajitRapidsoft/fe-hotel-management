@@ -2,13 +2,18 @@ import React, { memo } from "react";
 import Grid from "@mui/material/Grid2";
 import Drawer from "@mui/material/Drawer";
 import dayjs from "dayjs";
+import MasterCard from "../../img/masterCard.png";
+import Visa from "../../img/visa.png";
+import Maestro from "../../img/maestro.png";
 
 import {
   Box,
   Button,
-  // Dialog,
+  Dialog,
+  DialogContent,
   Divider,
   IconButton,
+  Slide,
   Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
@@ -26,6 +31,12 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import SnackAlert from "../../components/Alert";
 import LoadingComponent from "../../components/LoadingComponent";
 import GuestBookingHistoryDrawer from "./GuestBookingHistoryDrawer";
+import { IoCardOutline } from "react-icons/io5";
+import { RiSecurePaymentLine } from "react-icons/ri";
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const GuestDashboard = () => {
   const [bookingHistoryDrawerOpen, setBookingHistoryDrawerOpen] =
@@ -39,7 +50,14 @@ const GuestDashboard = () => {
       data: [],
     },
     isLoading,
-  } = useGetAllHotelsQuery();
+  } = useGetAllHotelsQuery(
+    {},
+    {
+      skip:
+        !Boolean(JSON.parse(sessionStorage.getItem("data"))?.email) &&
+        !Boolean(JSON.parse(sessionStorage.getItem("data"))?.phoneNo),
+    }
+  );
 
   const {
     data: bookingDetails = {
@@ -140,6 +158,8 @@ const GuestDashboard = () => {
 const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
   console.log("hotelDetails", hotelDetails);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [openPaymentDialog, setOpenPaymentDialog] = React.useState(false);
+
   const [formData, setFormData] = React.useState({
     firstName: "",
     middleName: "",
@@ -169,18 +189,18 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
 
   // reset formdata function
   const handleResetForm = React.useCallback(() => {
-    setFormData({
+    setFormData((prevData) => ({
       firstName: "",
       middleName: "",
       lastName: "",
-      // phoneNumber: "",
       email: "",
       address: "",
       fromDate: null,
       toDate: null,
       noOfPeoples: "",
       advancePayment: "",
-    });
+      phoneNumber: prevData.phoneNumber,
+    }));
   }, []);
 
   const calculateNumberOfDays = React.useMemo(() => {
@@ -235,18 +255,6 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
           message: "Please provide first name",
           severity: "error",
         });
-      } else if (!Boolean(formData.middleName)) {
-        return setSnack({
-          open: true,
-          message: "Please provide middle name",
-          severity: "error",
-        });
-      } else if (!Boolean(formData.lastName)) {
-        return setSnack({
-          open: true,
-          message: "Please provide middle name",
-          severity: "error",
-        });
       } else if (!Boolean(formData.email)) {
         return setSnack({
           open: true,
@@ -294,8 +302,6 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
           severity: "error",
         });
       }
-      // const bookingAmount =
-      //   calculateNumberOfDays * Number(hotelDetails.basePrice);
 
       reserveHotelRoom({
         firstName: formData.firstName,
@@ -315,6 +321,9 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
         hotelId: hotelDetails?.hotelDto?.id,
         paidAmount: formData.advancePayment,
         bookingAmount: calculateNumberOfDays * Number(hotelDetails.basePrice),
+        paymentDetails: Boolean(sessionStorage.getItem("paymentDetail"))
+          ? sessionStorage.getItem("paymentDetail")
+          : "",
       })
         .unwrap()
         .then((res) => {
@@ -323,21 +332,25 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
             message: res.message,
             severity: "success",
           });
+          if (sessionStorage.getItem("paymentDetail")) {
+            sessionStorage.removeItem("paymentDetail");
+          }
+
           setDrawerOpen(false);
           handleResetForm();
           // Reset form data
-          setFormData({
-            firstName: "",
-            middleName: "",
-            lastName: "",
-            // phoneNumber: "",
-            email: "",
-            address: "",
-            fromDate: null,
-            toDate: null,
-            noOfPeoples: "",
-            advancePayment: "",
-          });
+          // setFormData({
+          //   firstName: "",
+          //   middleName: "",
+          //   lastName: "",
+          //   // phoneNumber: "",
+          //   email: "",
+          //   address: "",
+          //   fromDate: null,
+          //   toDate: null,
+          //   noOfPeoples: "",
+          //   advancePayment: "",
+          // });
         })
         .catch((err) => {
           setSnack({
@@ -345,6 +358,10 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
             message: err.data?.message || err.data || "Something Went Wrong",
             severity: "error",
           });
+
+          if (sessionStorage.getItem("paymentDetail")) {
+            sessionStorage.removeItem("paymentDetail");
+          }
         });
     },
     [
@@ -356,12 +373,6 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
     ]
   );
 
-  // const handleChangeInput = (e) => {
-  //   setFormData((prevData) => ({
-  //     ...prevData,
-  //     [e.target.name]: e.target.value,
-  //   }));
-  // };
   const handleChangeInput = (e) => {
     const { name, value } = e.target;
 
@@ -560,7 +571,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                   value={formData.middleName}
                   onChange={handleChangeInput}
                   inputProps={{ maxLength: 25 }}
-                  required
+                  // required
                 />
               </Grid>
               <Grid size={{ xs: 6 }}>
@@ -572,7 +583,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                   value={formData.lastName}
                   onChange={handleChangeInput}
                   inputProps={{ maxLength: 25 }}
-                  required
+                  // required
                 />
               </Grid>
               <Grid size={{ xs: 6 }}>
@@ -583,7 +594,6 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                   variant="outlined"
                   value={formData.phoneNumber}
                   onChange={handleChangeInput}
-                  disabled
                   required
                 />
               </Grid>
@@ -701,35 +711,54 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
               )}
               <Grid size={{ xs: 12 }}>
                 <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                  <Button
-                    variant="contained"
-                    sx={{
-                      backgroundImage:
-                        //  isFormValid()?
-                        "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
-                      // : "none"
-                      backgroundColor:
-                        // isFormValid() ?
-                        "inherit",
-                      // : "gray",
-                      color:
-                        //  isFormValid() ?
-                        "white",
-                      //  : "black",
-                      "&:hover":
-                        //  isFormValid()
-                        //   ?
-                        {
+                  {Boolean(sessionStorage.getItem("paymentDetail")) ? (
+                    <Button
+                      variant="contained"
+                      sx={{
+                        backgroundImage:
+                          //  isFormValid()?
+                          "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
+                        // : "none"
+                        backgroundColor:
+                          // isFormValid() ?
+                          "inherit",
+                        // : "gray",
+                        color:
+                          //  isFormValid() ?
+                          "white",
+                        //  : "black",
+                        "&:hover":
+                          //  isFormValid()
+                          //   ?
+                          {
+                            backgroundImage:
+                              "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
+                          },
+                        // : {},
+                      }}
+                      type="submit"
+                      // disabled={!isFormValid()}
+                    >
+                      Reserve
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="contained"
+                      sx={{
+                        backgroundImage:
+                          "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
+                        backgroundColor: "inherit",
+                        color: "white",
+                        "&:hover": {
                           backgroundImage:
                             "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
                         },
-                      // : {},
-                    }}
-                    type="submit"
-                    // disabled={!isFormValid()}
-                  >
-                    Reserve
-                  </Button>
+                      }}
+                      onClick={() => setOpenPaymentDialog(true)}
+                    >
+                      Pay Now
+                    </Button>
+                  )}
                 </Box>
               </Grid>
             </Grid>
@@ -738,7 +767,302 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
       </Drawer>
       <LoadingComponent open={reserveHotelRoomRes.isLoading} />
       <SnackAlert snack={snack} setSnack={setSnack} />
+      <PaymentDialog
+        openPaymentDialog={openPaymentDialog}
+        handlePaymentDialogClose={() => setOpenPaymentDialog(false)}
+      />
     </>
+  );
+});
+
+const PaymentDialog = memo(function ({
+  openPaymentDialog,
+  handlePaymentDialogClose,
+}) {
+  const [paymentMethod, setPaymentMethod] = React.useState("card");
+  const [cardNumber, setCardNumber] = React.useState("");
+  const [upiNumber, setUpiNumber] = React.useState("");
+  const [cvv, setCvv] = React.useState("");
+  const [expiryDate, setExpiryDate] = React.useState("");
+  const isPayButtonDisabled =
+    (paymentMethod === "card" && cardNumber.trim() === "") ||
+    (paymentMethod === "upi" && upiNumber.trim() === "");
+
+  const handlePayNow = () => {
+    const paymentDetail = paymentMethod === "card" ? cardNumber : upiNumber;
+    sessionStorage.setItem("paymentDetail", paymentDetail);
+    setCardNumber("");
+    setUpiNumber("");
+    setCvv("");
+    handlePaymentDialogClose();
+  };
+
+  const handlePaymentMethodChange = (method) => {
+    setPaymentMethod(method);
+    setCardNumber("");
+    setUpiNumber("");
+    setCvv("");
+  };
+  const handleChangeInputForPayment = (e) => {
+    const { name, value } = e.target;
+    const numericRegex = /^[0-9]*$/;
+
+    if (name === "cardNumber") {
+      if (numericRegex.test(value) && value.length <= 16) {
+        setCardNumber(value);
+      }
+    } else if (name === "cvv") {
+      if (numericRegex.test(value) && value.length <= 3) {
+        setCvv(value);
+      }
+    } else if (name === "upiNumber") {
+      // const upiRegex = /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/;
+      // if (value.trim() === "" || upiRegex.test(value)) {
+      setUpiNumber(value);
+      // }
+    }
+  };
+
+  return (
+    <Dialog
+      TransitionComponent={Transition}
+      open={openPaymentDialog}
+      onClose={handlePaymentDialogClose}
+      maxWidth="md"
+      fullWidth
+      sx={{ "& .MuiDialog-paper": { height: "450px" } }}
+    >
+      <DialogContent>
+        <Box
+          sx={{
+            width: "100%",
+          }}
+        >
+          <Box
+            sx={{
+              width: "100%",
+              py: 2,
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+          >
+            <Typography sx={{ fontWeight: "bold", fontSize: "1.6rem", mb: 1 }}>
+              Cashfree Payment Methods
+            </Typography>
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <img
+                src={MasterCard}
+                alt="MasterCard Logo"
+                height={45}
+                width={45}
+              />
+              <img src={Visa} alt="MasterCard Logo" height={45} width={45} />
+              <img src={Maestro} alt="MasterCard Logo" height={45} width={45} />
+            </Box>
+          </Box>
+          <Grid container columnSpacing={2}>
+            <Grid size={{ xs: 6 }}>
+              <Box
+                sx={{
+                  width: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 2,
+                  cursor: "pointer",
+                }}
+              >
+                {/* box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px; */}
+                <Box
+                  onClick={() => handlePaymentMethodChange("card")}
+                  sx={{
+                    boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
+                    p: 3,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    borderRadius: "1rem",
+                    backgroundColor:
+                      paymentMethod === "card" ? "#f0f8ff" : "#fff",
+                  }}
+                >
+                  <IoCardOutline
+                    style={{ fontSize: "2rem", color: "#0039a6" }}
+                  />
+                  <Typography>Card</Typography>
+                </Box>
+                <Box
+                  onClick={() => handlePaymentMethodChange("upi")}
+                  sx={{
+                    boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
+                    p: 3,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    borderRadius: "1rem",
+                    backgroundColor:
+                      paymentMethod === "upi" ? "#f0f8ff" : "#fff",
+                  }}
+                >
+                  <RiSecurePaymentLine
+                    style={{ fontSize: "2rem", color: "#0039a6" }}
+                  />
+                  <Typography>UPI</Typography>
+                </Box>
+              </Box>
+            </Grid>
+            <Grid size={{ xs: 6 }}>
+              <Box
+                sx={{
+                  width: "100%",
+                }}
+              >
+                <Box
+                  sx={{
+                    boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
+                    p: 3,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                    height: "240px",
+                    borderRadius: "0.7rem",
+                  }}
+                >
+                  <Box>
+                    <Typography sx={{ fontSize: "1.3rem" }}>
+                      {paymentMethod === "card"
+                        ? "Card details:"
+                        : "Enter UPI Id:"}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ width: "100%" }}>
+                    {paymentMethod === "card" && (
+                      <Grid container spacing={2}>
+                        <Grid size={{ xs: 12 }}>
+                          <TextField
+                            fullWidth
+                            size="small"
+                            id="cardNumber"
+                            label="Card Number"
+                            name="cardNumber"
+                            variant="outlined"
+                            value={cardNumber}
+                            // onChange={(e) => setCardNumber(e.target.value)}
+                            onChange={handleChangeInputForPayment}
+                            sx={{
+                              // bgcolor: "#F9F4FF",
+                              "& .MuiOutlinedInput-root": {
+                                borderRadius: 2,
+                              },
+                            }}
+                          />
+                        </Grid>
+                        <Grid size={{ xs: 6 }}>
+                          <TextField
+                            fullWidth
+                            size="small"
+                            id="cvv"
+                            label="CVV"
+                            name="cvv"
+                            variant="outlined"
+                            value={cvv}
+                            // onChange={(e) => setCvv(e.target.value)}
+                            onChange={handleChangeInputForPayment}
+                            sx={{
+                              // bgcolor: "#F9F4FF",
+                              "& .MuiOutlinedInput-root": {
+                                borderRadius: 2,
+                              },
+                            }}
+                          />
+                        </Grid>
+                        <Grid size={{ xs: 6 }}>
+                          {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <DatePicker
+                              label="Expiry Date"
+                              disablePast
+                              format="DD-MM-YYYY"
+                              // value={formData.fromDate}
+                              // onChange={handleDateChange("fromDate")}
+                              slotProps={{
+                                textField: {
+                                  readOnly: true,
+                                  size: "small",
+                                },
+                              }}
+                            />
+                          </LocalizationProvider> */}
+                          <TextField
+                            label="Expiry Date"
+                            name="expiryDate"
+                            placeholder="MM/YY"
+                            variant="outlined"
+                            inputProps={{
+                              maxLength: 5,
+                            }}
+                            size="small"
+                            value={expiryDate}
+                            sx={{
+                              // bgcolor: "#F9F4FF",
+                              "& .MuiOutlinedInput-root": {
+                                borderRadius: 2,
+                              },
+                            }}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              // Auto-format input to MM/YY
+                              if (value.length === 2 && !value.includes("/")) {
+                                e.target.value = value + "/";
+                              }
+
+                              // Validate input
+                              const formattedValue = value.replace(
+                                /[^0-9/]/g,
+                                ""
+                              );
+                              setExpiryDate(formattedValue);
+                            }}
+                          />
+                        </Grid>
+                      </Grid>
+                    )}
+                    {paymentMethod === "upi" && (
+                      <TextField
+                        fullWidth
+                        size="small"
+                        id="upiNumber"
+                        label="Enter UPI Id"
+                        name="upiNumber"
+                        variant="outlined"
+                        value={upiNumber}
+                        // onChange={(e) => setUpiNumber(e.target.value)}
+                        onChange={handleChangeInputForPayment}
+                        sx={{
+                          // bgcolor: "#F9F4FF",
+                          "& .MuiOutlinedInput-root": {
+                            borderRadius: 2,
+                          },
+                        }}
+                      />
+                    )}
+                  </Box>
+
+                  <Box sx={{ width: "100%" }}>
+                    <Button
+                      variant="contained"
+                      sx={{ backgroundColor: "#2a52be" }}
+                      disabled={isPayButtonDisabled}
+                      onClick={handlePayNow}
+                    >
+                      Pay Now
+                    </Button>
+                  </Box>
+                </Box>
+              </Box>
+            </Grid>
+          </Grid>
+        </Box>
+      </DialogContent>
+    </Dialog>
   );
 });
 

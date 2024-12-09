@@ -43,6 +43,42 @@ const hotelApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["getHotelListByCompany"],
     }),
+    addHall: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.addHall,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllHalls"],
+    }),
+    getAllHalls: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllHalls,
+        method: "GET",
+        params: {
+          hotelId: payload,
+        },
+      }),
+      providesTags: ["getAllHalls"],
+    }),
+    addBanquet: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.addBanquet,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllBanquet"],
+    }),
+    getAllBanquet: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllBanquet,
+        method: "GET",
+        params: {
+          hotelId: payload,
+        },
+      }),
+      providesTags: ["getAllBanquet"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -53,4 +89,8 @@ export const {
   useUploadFileMutation,
   useAddHotelMutation,
   useGetHotelListByCompanyQuery,
+  useAddHallMutation,
+  useGetAllHallsQuery,
+  useAddBanquetMutation,
+  useGetAllBanquetQuery,
 } = hotelApi;

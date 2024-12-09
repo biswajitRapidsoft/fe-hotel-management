@@ -17,11 +17,58 @@ import {
   DialogContent,
   DialogActions,
   Grid2 as Grid,
+  Chip,
 } from "@mui/material";
 import { useGetAllRoomTypesByCompanyQuery } from "../../services/roomType";
 import LoadingComponent from "../../components/LoadingComponent";
 import { BootstrapDialog } from "../header/Header";
 import CloseIcon from "@mui/icons-material/Close";
+
+const CustomChips = ({ itemList }) => {
+  const [showMore, setShowMore] = React.useState(false);
+  return (
+    <React.Fragment>
+      {itemList.map((item, index) => {
+        if (index < 3) {
+          return (
+            <Chip
+              key={item.itemName}
+              color={item.isReusable ? "success" : "error"}
+              label={item.itemName}
+              sx={{ mx: 0.1, my: 0.1 }}
+            />
+          );
+        } else {
+          return null;
+        }
+      })}
+      {showMore ? (
+        <React.Fragment>
+          {itemList.slice(2).map((item) => {
+            return (
+              <Chip
+                key={item.itemName}
+                color={item.isReusable ? "success" : "error"}
+                label={item.itemName}
+                sx={{ mx: 0.1, my: 0.1 }}
+              />
+            );
+          })}
+        </React.Fragment>
+      ) : (
+        Boolean(itemList.length - 2 > 0) && (
+          <Chip
+            color="primary"
+            label={`${itemList.length - 2} More`}
+            sx={{ mx: 0.2, my: 0.1, cursor: "pointer" }}
+            variant="outlined"
+            onClick={() => setShowMore(true)}
+          />
+        )
+      )}
+    </React.Fragment>
+  );
+};
 
 const RoomTypeTable = () => {
   const {
@@ -51,6 +98,7 @@ const RoomTypeTable = () => {
             {
               pl: { sm: 2 },
               pr: { xs: 1, sm: 1 },
+              justifyContent: { xs: "space-between" },
             },
           ]}
         >
@@ -60,6 +108,30 @@ const RoomTypeTable = () => {
           >
             Room Type List
           </Typography>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Box
+                sx={{
+                  height: 15,
+                  width: 15,
+                  borderRadius: "50%",
+                  backgroundColor: (theme) => theme.palette.success.main,
+                }}
+              />
+              <Typography>Non-Consumables</Typography>
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Box
+                sx={{
+                  height: 15,
+                  width: 15,
+                  borderRadius: "50%",
+                  backgroundColor: (theme) => theme.palette.error.main,
+                }}
+              />
+              <Typography>Consumables</Typography>
+            </Box>
+          </Box>
         </Toolbar>
         <TableContainer sx={{ maxHeight: 600 }}>
           <Table stickyHeader>
@@ -76,7 +148,7 @@ const RoomTypeTable = () => {
               >
                 <TableCell>Sl No.</TableCell>
                 <TableCell>Room Type</TableCell>
-                <TableCell>Extra items</TableCell>
+                <TableCell sx={{ width: "50%" }}>Extra items</TableCell>
                 <TableCell>Images</TableCell>
               </TableRow>
             </TableHead>
@@ -96,9 +168,9 @@ const RoomTypeTable = () => {
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{roomType.type}</TableCell>
                     <TableCell>
-                      {roomType.extraItem
-                        ?.map((item) => item.itemName)
-                        .join(", ")}
+                      {roomType.extraItem && (
+                        <CustomChips itemList={roomType.extraItem} />
+                      )}
                     </TableCell>
                     <TableCell sx={{ display: "flex", alignItems: "center" }}>
                       {Boolean(roomType.images.length) && (

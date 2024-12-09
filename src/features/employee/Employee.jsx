@@ -53,7 +53,10 @@ const Employee = () => {
   const handleChange = React.useCallback((e) => {
     setFormData((prevData) => ({
       ...prevData,
-      [e.target.name]: e.target.value,
+      [e.target.name]:
+        e.target.name === "email"
+          ? e.target.value.toLowerCase()
+          : e.target.value,
     }));
   }, []);
 
@@ -292,7 +295,7 @@ const Employee = () => {
             <Autocomplete
               options={hotelList.data}
               value={formData.selectedHotel}
-              getOptionLabel={(option) => option.name}
+              getOptionLabel={(option) => `${option.name} (${option.address})`}
               onChange={(e, newVal) =>
                 handleChange({
                   target: { name: "selectedHotel", value: newVal },

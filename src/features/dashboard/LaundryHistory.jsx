@@ -40,6 +40,7 @@ import { CUSTOMER, ADMIN } from "../../helper/constants";
 const LaundryHistory = () => {
   const LaundryHistoryTableHeaders = React.useMemo(() => {
     const roleType = JSON.parse(sessionStorage.getItem("data"))?.roleType;
+    // const isCustomer = roleType === CUSTOMER;
 
     return [
       { label: "Sl. No.", key: "sno" },
@@ -184,24 +185,28 @@ const LaundryHistory = () => {
             justifyContent: "flex-end",
           }}
         >
-          <Box>
-            {/* Filters */}
-            <Button
-              variant="contained"
-              sx={{
-                backgroundImage:
-                  "linear-gradient(to right, #32cd32 0%, #228b22 100%)",
-                color: "white",
-                "&:hover": {
+          {Boolean(
+            JSON.parse(sessionStorage.getItem("data"))?.roleType === "Customer"
+          ) && (
+            <Box>
+              {/* Filters */}
+              <Button
+                variant="contained"
+                sx={{
                   backgroundImage:
-                    "linear-gradient(to right, #32cd32 10%, #228b22 90%)",
-                },
-              }}
-              onClick={handleRequestLaundryService}
-            >
-              Laundry Request
-            </Button>
-          </Box>
+                    "linear-gradient(to right, #32cd32 0%, #228b22 100%)",
+                  color: "white",
+                  "&:hover": {
+                    backgroundImage:
+                      "linear-gradient(to right, #32cd32 10%, #228b22 90%)",
+                  },
+                }}
+                onClick={handleRequestLaundryService}
+              >
+                Laundry Request
+              </Button>
+            </Box>
+          )}
         </Box>
         <Grid container size={12}>
           <Grid size={{ xs: 12 }}>
@@ -274,6 +279,9 @@ function calculateSerialNumber(index, pageNumber, rowsPerPage) {
 }
 
 const CustomRow = memo(function ({ tableHeaders, rowSerialNumber, row }) {
+  const roleType = JSON.parse(sessionStorage.getItem("data"))?.roleType;
+  const isAdmin = roleType === ADMIN;
+
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [statusDialogOpen, setStatusDialogOpen] = React.useState(false);
   const [reviewDialog, setReviewDialog] = React.useState(null);
@@ -317,9 +325,9 @@ const CustomRow = memo(function ({ tableHeaders, rowSerialNumber, row }) {
             <TableCell
               key={`table-body-cell=${subIndex}`}
               align="center"
-              onClick={subitem?.key === "" ? handleItemsClick : undefined} // Add this
+              onClick={subitem?.key === "" ? handleItemsClick : undefined}
             >
-              <Typography sx={{ fontSize: "13px" }}>
+              <Box>
                 {subitem?.key === "sno" ? (
                   <Typography
                     sx={{
@@ -355,9 +363,11 @@ const CustomRow = memo(function ({ tableHeaders, rowSerialNumber, row }) {
                     {row?.laundryStatus?.replace(/_/g, " ")}
                   </Box>
                 ) : subitem?.key === "laundryAction" &&
+                  isAdmin &&
                   !Boolean(
-                    JSON.parse(sessionStorage.getItem("data"))?.roleType ===
-                      CUSTOMER
+                    // JSON.parse(sessionStorage.getItem("data"))?.roleType ===
+                    //   CUSTOMER
+                    row?.laundryStatus === "Completed"
                   ) ? (
                   <>
                     <Box
@@ -421,7 +431,7 @@ const CustomRow = memo(function ({ tableHeaders, rowSerialNumber, row }) {
                     {getCellValue(row, subitem?.key)}
                   </Typography>
                 )}
-              </Typography>
+              </Box>
             </TableCell>
           );
         })}
@@ -810,7 +820,7 @@ const LaundryStatusDialog = ({ open, onClose, items }) => {
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button variant="contained" color="error">
+          <Button variant="contained" color="error" onClick={onClose}>
             cancel
           </Button>
           <Button

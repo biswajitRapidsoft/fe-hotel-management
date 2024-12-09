@@ -16,58 +16,92 @@ import {
   Button,
 } from "@mui/material";
 
-import {
-  useGetAllExtraItemsQuery,
-  useAddExtraItemMutation,
-} from "../../services/extraItem";
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 
-const ExtraItem = () => {
+import {
+  useAddBanquetMutation,
+  useGetAllBanquetQuery,
+} from "../../services/hotel";
+
+const BanquetList = () => {
+  const [formData, setFormData] = React.useState({
+    banquetType: "",
+    perPlatePrice: "",
+  });
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
     severity: "",
   });
-  const [addExtraItem, addExtraItemRes] = useAddExtraItemMutation();
-  const [extraItemName, setExtraItemName] = React.useState("");
+
+  const [addBanquet, addBanquetRes] = useAddBanquetMutation();
+
   const {
-    data: extraItemList = {
+    data: banquetListData = {
       data: [],
     },
     isLoading,
-  } = useGetAllExtraItemsQuery(
-    JSON.parse(sessionStorage.getItem("data")).companyId
-  );
+    isFetching,
+  } = useGetAllBanquetQuery(sessionStorage.getItem("hotelIdForBanquet"), {
+    skip: !Boolean(sessionStorage.getItem("hotelIdForBanquet")),
+  });
+
+  const handleResetForm = React.useCallback(() => {
+    setFormData({
+      banquetType: "",
+      perPlatePrice: "",
+    });
+  }, []);
 
   const handleSubmit = React.useCallback(
-    (event) => {
-      event.preventDefault();
-      addExtraItem({
-        name: extraItemName,
-        company: {
-          id: JSON.parse(sessionStorage.getItem("data")).companyId,
+    (e) => {
+      e.preventDefault();
+
+      const payload = {
+        hotel: {
+          id: Boolean(sessionStorage.getItem("hotelIdForBanquet"))
+            ? sessionStorage.getItem("hotelIdForBanquet")
+            : "",
         },
-      })
+        perPlatePrice: formData.perPlatePrice,
+        type: formData.banquetType,
+      };
+      addBanquet(payload)
         .unwrap()
         .then((res) => {
-          setExtraItemName("");
-          setSnack({
-            open: true,
-            severity: "success",
-            message: res.message,
-          });
+          setSnack({ open: true, message: res.message, severity: "success" });
+          handleResetForm();
         })
         .catch((err) => {
           setSnack({
             open: true,
-            severity: "error",
             message: err.data?.message || err.data,
+            severity: "error",
           });
         });
     },
-    [addExtraItem, extraItemName]
+    [formData, handleResetForm, addBanquet]
   );
+
+  const handleChange = React.useCallback((e) => {
+    if (["perPlatePrice"].includes(e.target.name)) {
+      setFormData((prevData) => ({
+        ...prevData,
+        [e.target.name]: e.target.value.replace(/\D/g, ""),
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [e.target.name]: e.target.value,
+      }));
+    }
+  }, []);
+
+  const isFormValid = React.useCallback(() => {
+    const { banquetType, perPlatePrice } = formData;
+    return Boolean(banquetType && perPlatePrice);
+  }, [formData]);
 
   return (
     <Container>
@@ -122,7 +156,7 @@ const ExtraItem = () => {
             <TextField
               label={
                 <React.Fragment>
-                  Inventory Item Name{" "}
+                  Banquet Type
                   <Box
                     component="span"
                     sx={{
@@ -133,13 +167,38 @@ const ExtraItem = () => {
                   </Box>
                 </React.Fragment>
               }
-              name="extraItemName"
-              value={extraItemName}
-              onChange={(e) => setExtraItemName(e.target.value)}
+              name="banquetType"
+              value={formData.banquetType}
+              onChange={handleChange}
+              variant="standard"
+              inputProps={{
+                maxLength: 45,
+              }}
+            />
+          </Grid>
+          <Grid size={3}>
+            <TextField
+              label={
+                <React.Fragment>
+                  Per plate price
+                  <Box
+                    component="span"
+                    sx={{
+                      color: (theme) => theme.palette.error.main,
+                    }}
+                  >
+                    *
+                  </Box>
+                </React.Fragment>
+              }
+              name="perPlatePrice"
+              value={formData.perPlatePrice}
+              onChange={handleChange}
               variant="standard"
             />
           </Grid>
         </Grid>
+
         <Box
           sx={{
             display: "flex",
@@ -163,12 +222,13 @@ const ExtraItem = () => {
               },
             }}
             type="submit"
-            disabled={!Boolean(extraItemName.trim())}
+            disabled={!isFormValid()}
           >
-            Add Inventory Item
+            Add Banquet
           </Button>
         </Box>
       </Box>
+
       <Paper>
         <Toolbar
           sx={[
@@ -182,7 +242,7 @@ const ExtraItem = () => {
             variant="h6"
             sx={{ fontWeight: "bold", letterSpacing: 1 }}
           >
-            Inventory List
+            Banquet List
           </Typography>
         </Toolbar>
         <TableContainer sx={{ maxHeight: 600 }}>
@@ -199,11 +259,12 @@ const ExtraItem = () => {
                 }}
               >
                 <TableCell>Sl No.</TableCell>
-                <TableCell>Inventory Item Name</TableCell>
+                <TableCell> Banquet Type</TableCell>
+                <TableCell>Price per plate</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {extraItemList.data.map((item, index) => {
+              {banquetListData.data.map((item, index) => {
                 return (
                   <TableRow
                     sx={{
@@ -213,10 +274,10 @@ const ExtraItem = () => {
                         letterSpacing: 1,
                       },
                     }}
-                    key={item.id}
                   >
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{item.name}</TableCell>
+                    <TableCell> {index + 1}</TableCell>
+                    <TableCell>{item?.type}</TableCell>
+                    <TableCell>{item?.perPlatePrice}</TableCell>
                   </TableRow>
                 );
               })}
@@ -224,10 +285,13 @@ const ExtraItem = () => {
           </Table>
         </TableContainer>
       </Paper>
-      <LoadingComponent open={isLoading || addExtraItemRes.isLoading} />
+
+      <LoadingComponent
+        open={isLoading || isFetching || addBanquetRes.isLoading}
+      />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </Container>
   );
 };
 
-export default ExtraItem;
+export default BanquetList;
