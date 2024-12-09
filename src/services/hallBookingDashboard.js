@@ -70,6 +70,14 @@ const hallBookingDashboardApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["getAllBanquetsByHotelId"],
     }),
+    changeHallBookingStatus: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.changeHallBookingStatus,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllHallBookings", "getHallBookingChart"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -82,4 +90,5 @@ export const {
   useGetIndividualHallBookingDataByIdQuery,
   useBookHallFromFrontdeskMutation,
   useGetAllBanquetsByHotelIdQuery,
+  useChangeHallBookingStatusMutation,
 } = hallBookingDashboardApi;

@@ -1,95 +1,85 @@
-// import React, { useState } from "react";
+// import React, { useState, useMemo, useCallback } from "react";
 // import { Box, IconButton, Typography, Grid, Button } from "@mui/material";
 // import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 // import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+// import dayjs from "dayjs";
 
-// function getDateColor(day) {
-//   const currentDate = new Date();
-//   if (currentDate.getMonth() !== 10) {
-//     return {};
-//   }
-
-//   // November 1-2 green
-//   if (day >= 1 && day <= 2) {
-//     return {
-//       color: "#fff",
-//       backgroundColor: "#2e7d32",
-//       "&:hover": {
-//         backgroundColor: "#1b5e20",
-//       },
-//     };
-//   }
-//   // November 3-12 red
-//   if (day >= 3 && day <= 12) {
-//     return {
-//       color: "#fff",
-//       backgroundColor: "#c62828",
-//       "&:hover": {
-//         backgroundColor: "#b71c1c",
-//       },
-//     };
-//   }
-//   // November 13-25 green
-//   if (day >= 13 && day <= 25) {
-//     return {
-//       color: "#fff",
-//       backgroundColor: "#2e7d32",
-//       "&:hover": {
-//         backgroundColor: "#1b5e20",
-//       },
-//     };
-//   }
-//   return {};
-// }
-
-// const CustomCalenderCard = ({ onDateSelect }) => {
+// const CustomCalenderCard = React.memo(({ onDateSelect, warnDates = [] }) => {
 //   const [currentDate, setCurrentDate] = useState(new Date());
 
-//   const daysInMonth = new Date(
-//     currentDate.getFullYear(),
-//     currentDate.getMonth() + 1,
-//     0
-//   ).getDate();
+//   const daysInMonth = useMemo(
+//     () => dayjs(currentDate).daysInMonth(),
+//     [currentDate]
+//   );
 
-//   const firstDayOfMonth = new Date(
-//     currentDate.getFullYear(),
-//     currentDate.getMonth(),
-//     1
-//   ).getDay();
+//   const firstDayOfMonth = useMemo(
+//     () => dayjs(currentDate).startOf("month").day(),
+//     [currentDate]
+//   );
 
-//   const months = [
-//     "January",
-//     "February",
-//     "March",
-//     "April",
-//     "May",
-//     "June",
-//     "July",
-//     "August",
-//     "September",
-//     "October",
-//     "November",
-//     "December",
-//   ];
+//   const months = useMemo(
+//     () => [
+//       "January",
+//       "February",
+//       "March",
+//       "April",
+//       "May",
+//       "June",
+//       "July",
+//       "August",
+//       "September",
+//       "October",
+//       "November",
+//       "December",
+//     ],
+//     []
+//   );
 
-//   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+//   const weekDays = useMemo(
+//     () => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+//     []
+//   );
 
-//   const handlePrevMonth = () => {
-//     setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)));
-//   };
+//   const handlePrevMonth = useCallback(() => {
+//     setCurrentDate((prev) => dayjs(prev).subtract(1, "month").toDate());
+//   }, []);
 
-//   const handleNextMonth = () => {
-//     setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)));
-//   };
+//   const handleNextMonth = useCallback(() => {
+//     setCurrentDate((prev) => dayjs(prev).add(1, "month").toDate());
+//   }, []);
 
-//   const handleDateClick = (day) => {
-//     const selectedDate = new Date(
-//       currentDate.getFullYear(),
-//       currentDate.getMonth(),
-//       day
-//     );
-//     onDateSelect?.(selectedDate);
-//   };
+//   const handleDateClick = useCallback(
+//     (day) => {
+//       const selectedDate = dayjs(currentDate).date(day).toDate();
+//       onDateSelect?.(selectedDate);
+//     },
+//     [currentDate, onDateSelect]
+//   );
+
+//   const currentMonthYear = useMemo(
+//     () => dayjs(currentDate).startOf("month"),
+//     [currentDate]
+//   );
+
+//   const getDateColor = useCallback(
+//     (day) => {
+//       const formattedDate = dayjs(currentMonthYear)
+//         .date(day)
+//         .format("YYYY-MM-DD");
+
+//       if (warnDates.includes(formattedDate)) {
+//         return {
+//           color: "#fff",
+//           backgroundColor: "#f57c00", // Warn color (orange)
+//           "&:hover": {
+//             backgroundColor: "#ef6c00",
+//           },
+//         };
+//       }
+//       return {};
+//     },
+//     [currentMonthYear, warnDates]
+//   );
 
 //   return (
 //     <Box sx={{ width: "100%" }}>
@@ -140,10 +130,7 @@
 
 //         {[...Array(daysInMonth)].map((_, index) => {
 //           const day = index + 1;
-//           const isToday =
-//             day === new Date().getDate() &&
-//             currentDate.getMonth() === new Date().getMonth() &&
-//             currentDate.getFullYear() === new Date().getFullYear();
+//           const isToday = dayjs(currentDate).date(day).isSame(dayjs(), "day");
 
 //           return (
 //             <Grid item xs={12 / 7} key={day}>
@@ -154,7 +141,6 @@
 //                   minWidth: 0,
 //                   minHeight: "unset",
 //                   height: "27px",
-//                   // px: 1,
 //                   borderRadius: 1,
 //                   ...getDateColor(day),
 //                   ...(isToday &&
@@ -180,53 +166,83 @@
 //           );
 //         })}
 //       </Grid>
-
-//       {/* Legend */}
-//       {/* <Box
-//         sx={{
-//           display: "flex",
-//           gap: 2,
-//           justifyContent: "center",
-//           mt: 2,
-//           alignItems: "center",
-//         }}
-//       >
-//         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-//           <Box
-//             sx={{
-//               width: 12,
-//               height: 12,
-//               backgroundColor: "#2e7d32",
-//               borderRadius: "50%",
-//             }}
-//           />
-//           <Typography variant="caption">Data available</Typography>
-//         </Box>
-//         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-//           <Box
-//             sx={{
-//               width: 12,
-//               height: 12,
-//               backgroundColor: "#c62828",
-//               borderRadius: "50%",
-//             }}
-//           />
-//           <Typography variant="caption">No data available</Typography>
-//         </Box>
-//       </Box> */}
 //     </Box>
 //   );
-// };
+// });
 
 // export default CustomCalenderCard;
-import React, { useState, useMemo, useCallback } from "react";
+
+import React, { useState, useMemo, useCallback, memo } from "react";
 import { Box, IconButton, Typography, Grid, Button } from "@mui/material";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import dayjs from "dayjs";
 
+const CustomDateButton = memo(function ({
+  handleDateClick,
+  day,
+  getDateColor,
+  isToday,
+  isSelected,
+}) {
+  const handleDateClickOnClick = useCallback(
+    (selectedDay) => {
+      handleDateClick(selectedDay);
+    },
+    [handleDateClick]
+  );
+
+  const handleGetDateColorOnRender = useCallback(
+    (selectedDay) => {
+      return getDateColor(selectedDay);
+    },
+    [getDateColor]
+  );
+
+  return (
+    <Grid item xs={12 / 7}>
+      <Button
+        fullWidth
+        onClick={() => handleDateClickOnClick(day)}
+        sx={{
+          minWidth: 0,
+          minHeight: "unset",
+          height: "27px",
+          borderRadius: 1,
+          ...handleGetDateColorOnRender(day),
+          ...(isToday &&
+            !handleGetDateColorOnRender(day).backgroundColor && {
+              backgroundColor: "primary.main",
+              color: "primary.contrastText",
+              "&:hover": {
+                backgroundColor: "primary.dark",
+              },
+            }),
+          ...(!isToday &&
+            !handleGetDateColorOnRender(day).backgroundColor && {
+              color: "text.primary",
+              "&:hover": {
+                backgroundColor: "action.hover",
+              },
+            }),
+          ...(isSelected && {
+            backgroundColor: "#0fb7ec", // Selected date color
+            color: "#fff",
+            "&:hover": {
+              backgroundColor: "#0a98b5 !important", // Lighter hover color
+            },
+          }),
+        }}
+      >
+        {day}
+      </Button>
+    </Grid>
+  );
+});
+
 const CustomCalenderCard = React.memo(({ onDateSelect, warnDates = [] }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(null); // Track the selected date
 
   const daysInMonth = useMemo(
     () => dayjs(currentDate).daysInMonth(),
@@ -271,10 +287,19 @@ const CustomCalenderCard = React.memo(({ onDateSelect, warnDates = [] }) => {
 
   const handleDateClick = useCallback(
     (day) => {
-      const selectedDate = dayjs(currentDate).date(day).toDate();
-      onDateSelect?.(selectedDate);
+      const newSelectedDate = dayjs(currentDate).date(day).toDate();
+
+      // Toggle selection: If the same date is clicked again, unselect it
+      if (selectedDate && dayjs(newSelectedDate).isSame(selectedDate, "day")) {
+        setSelectedDate(null);
+      } else {
+        setSelectedDate(newSelectedDate);
+      }
+
+      // Optionally, notify the parent component (if required)
+      onDateSelect?.(newSelectedDate);
     },
-    [currentDate, onDateSelect]
+    [currentDate, selectedDate, onDateSelect]
   );
 
   const currentMonthYear = useMemo(
@@ -352,38 +377,59 @@ const CustomCalenderCard = React.memo(({ onDateSelect, warnDates = [] }) => {
         {[...Array(daysInMonth)].map((_, index) => {
           const day = index + 1;
           const isToday = dayjs(currentDate).date(day).isSame(dayjs(), "day");
+          const isSelected =
+            selectedDate &&
+            dayjs(selectedDate).date(day).isSame(dayjs(selectedDate), "day");
+
+          // return (
+          //   <Grid item xs={12 / 7} key={day}>
+          //     <Button
+          //       fullWidth
+          //       onClick={() => handleDateClick(day)}
+          //       sx={{
+          //         minWidth: 0,
+          //         minHeight: "unset",
+          //         height: "27px",
+          //         borderRadius: 1,
+          //         ...getDateColor(day),
+          //         ...(isToday &&
+          //           !getDateColor(day).backgroundColor && {
+          //             backgroundColor: "primary.main",
+          //             color: "primary.contrastText",
+          //             "&:hover": {
+          //               backgroundColor: "primary.dark",
+          //             },
+          //           }),
+          //         ...(!isToday &&
+          //           !getDateColor(day).backgroundColor && {
+          //             color: "text.primary",
+          //             "&:hover": {
+          //               backgroundColor: "action.hover",
+          //             },
+          //           }),
+          //         ...(isSelected && {
+          //           backgroundColor: "#0fb7ec", // Selected date color
+          //           color: "#fff",
+          //           "&:hover": {
+          //             backgroundColor: "#0a98b5 !important", // Lighter hover color
+          //           },
+          //         }),
+          //       }}
+          //     >
+          //       {day}
+          //     </Button>
+          //   </Grid>
+          // );
 
           return (
-            <Grid item xs={12 / 7} key={day}>
-              <Button
-                fullWidth
-                onClick={() => handleDateClick(day)}
-                sx={{
-                  minWidth: 0,
-                  minHeight: "unset",
-                  height: "27px",
-                  borderRadius: 1,
-                  ...getDateColor(day),
-                  ...(isToday &&
-                    !getDateColor(day).backgroundColor && {
-                      backgroundColor: "primary.main",
-                      color: "primary.contrastText",
-                      "&:hover": {
-                        backgroundColor: "primary.dark",
-                      },
-                    }),
-                  ...(!isToday &&
-                    !getDateColor(day).backgroundColor && {
-                      color: "text.primary",
-                      "&:hover": {
-                        backgroundColor: "action.hover",
-                      },
-                    }),
-                }}
-              >
-                {day}
-              </Button>
-            </Grid>
+            <CustomDateButton
+              key={`mini-date-button-${index}`}
+              day={day}
+              getDateColor={getDateColor}
+              handleDateClick={handleDateClick}
+              isToday={isToday ? true : false}
+              isSelected={isSelected ? true : false}
+            />
           );
         })}
       </Grid>

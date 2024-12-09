@@ -228,6 +228,16 @@ const dashboardApi = apiSlice.injectEndpoints({
         "roomBookingHistoryByHotelId",
       ],
     }),
+    getPendingBookingRequestCounts: build.query({
+      query: (payload) => ({
+        url: config.apiName.getPendingBookingRequestCounts,
+        method: "GET",
+        params: {
+          hotelId: payload?.hotelId,
+        },
+      }),
+      providesTags: ["getPendingBookingRequestCounts"],
+    }),
   }),
 
   overrideExisting: false,
@@ -257,4 +267,5 @@ export const {
   useGetAllLaundryStatusQuery,
   useChangeLaundryStatusMutation,
   useAddRatingForLaundryMutation,
+  useGetPendingBookingRequestCountsQuery,
 } = dashboardApi;

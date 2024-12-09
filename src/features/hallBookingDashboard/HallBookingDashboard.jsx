@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
   useBookHallFromFrontdeskMutation,
+  useChangeHallBookingStatusMutation,
   useGetAllBanquetsByHotelIdQuery,
   useGetAllHallBookingsQuery,
   useGetAllHallsByHotelIdForHallBookingQuery,
@@ -27,6 +28,7 @@ import {
   TablePagination,
   TableRow,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
@@ -36,6 +38,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import moment from "moment";
 import CloseIcon from "@mui/icons-material/Close";
+import CheckIcon from "@mui/icons-material/Check";
 import dayjs from "dayjs";
 import { StyledCalendarIcon } from "../dashboard/Dashboard";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
@@ -49,6 +52,7 @@ import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isBetween from "dayjs/plugin/isBetween";
 import { useGetAllPaymentMethodsQuery } from "../../services/dashboard";
+import Swal from "sweetalert2";
 
 dayjs.extend(customParseFormat);
 dayjs.extend(isSameOrBefore);
@@ -57,10 +61,13 @@ dayjs.extend(customParseFormat);
 dayjs.extend(isBetween);
 
 const filterBySelectedDate = (sortedArray, selectedCalendarDate) => {
-  // Ensure the selected date is parsed correctly, stripping out the time
+  if (!selectedCalendarDate) {
+    return sortedArray;
+  }
+
   const selectedDayjs = dayjs(selectedCalendarDate).startOf("day");
 
-  if (!selectedDayjs.isValid()) return [];
+  if (!selectedDayjs.isValid()) return sortedArray;
 
   return sortedArray.filter((item) => {
     // Parse start and end times with a specific format to ensure correct parsing
@@ -110,42 +117,42 @@ const sortAndExtractWarnDates = (dataArray) => {
   return { sortedArray, warnDates: Array.from(warnDates) };
 };
 
-// const checkEventConflict = (existingEvents, newEventStart, newEventEnd) => {
-//   // Convert input times to Day.js objects with specific parsing
-//   const start = dayjs(newEventStart, "YYYY-MM-DDTHH:mm:ss");
-//   const end = dayjs(newEventEnd, "YYYY-MM-DDTHH:mm:ss");
+const checkEventConflict = (existingEvents, newEventStart, newEventEnd) => {
+  // Convert input times to Day.js objects with specific parsing
+  const start = dayjs(newEventStart, "YYYY-MM-DDTHH:mm:ss");
+  const end = dayjs(newEventEnd, "YYYY-MM-DDTHH:mm:ss");
 
-//   // Validate input times
-//   if (!start.isValid() || !end.isValid()) return false;
+  // Validate input times
+  if (!start.isValid() || !end.isValid()) return false;
 
-//   // Check for conflicts
-//   return existingEvents.some((event) => {
-//     const eventStart = dayjs(event.startTime, "DD-MM-YYYY HH:mm:ss");
-//     const eventEnd = dayjs(event.endTime, "DD-MM-YYYY HH:mm:ss");
+  // Check for conflicts
+  return existingEvents.some((event) => {
+    const eventStart = dayjs(event.startTime, "DD-MM-YYYY HH:mm:ss");
+    const eventEnd = dayjs(event.endTime, "DD-MM-YYYY HH:mm:ss");
 
-//     // Scenario 1: Complete overlap
-//     const completeOverlap =
-//       start.isSameOrBefore(eventStart) && end.isSameOrAfter(eventEnd);
+    // Scenario 1: Complete overlap
+    const completeOverlap =
+      start.isSameOrBefore(eventStart) && end.isSameOrAfter(eventEnd);
 
-//     // Scenario 2: Partial overlap (new event starts during existing event)
-//     const startDuringExistingEvent =
-//       start.isAfter(eventStart) && start.isBefore(eventEnd);
+    // Scenario 2: Partial overlap (new event starts during existing event)
+    const startDuringExistingEvent =
+      start.isAfter(eventStart) && start.isBefore(eventEnd);
 
-//     // Scenario 3: Partial overlap (new event ends during existing event)
-//     const endDuringExistingEvent =
-//       end.isAfter(eventStart) && end.isBefore(eventEnd);
+    // Scenario 3: Partial overlap (new event ends during existing event)
+    const endDuringExistingEvent =
+      end.isAfter(eventStart) && end.isBefore(eventEnd);
 
-//     // Scenario 4: Edge case - exact same start time (as per your requirement)
-//     const exactStartTimeConflict = start.isSame(eventStart, "minute");
+    // Scenario 4: Edge case - exact same start time (as per your requirement)
+    const exactStartTimeConflict = start.isSame(eventStart, "minute");
 
-//     return (
-//       completeOverlap ||
-//       startDuringExistingEvent ||
-//       endDuringExistingEvent ||
-//       exactStartTimeConflict
-//     );
-//   });
-// };
+    return (
+      completeOverlap ||
+      startDuringExistingEvent ||
+      endDuringExistingEvent ||
+      exactStartTimeConflict
+    );
+  });
+};
 
 const CustomHallBookingTableFIlters = memo(function ({
   hallBookingTableFilters,
@@ -452,18 +459,12 @@ const getCellValue = (obj, key, fallback = "") => {
 };
 function getHallBookingStatusColor(key) {
   switch (key) {
-    case "Pending_Confirmation":
-      return { color: "#cd5000", bgcolor: "#ffe3d1" };
-    case "Booked":
+    case "CONFIRMED":
       return { color: "#0068b7", bgcolor: "#d3ecff" };
-    case "Checked_In":
+    case "COMPLETED":
       return { color: "#01a837", bgcolor: "#c7ffd9" };
-    case "Checked_Out":
-      return { color: "#6101a8", bgcolor: "#f0ddff" };
-    case "Cancelled":
+    case "CANCELLED":
       return { color: "#c60000", bgcolor: "#ffd6d6" };
-    case "Booking_Cancellation_Requested":
-      return { color: "#f72585", bgcolor: "#ffd6e8" };
     default:
       return { color: "#4b4b4b", bgcolor: "#dedede" };
   }
@@ -473,42 +474,21 @@ const CustomRow = memo(function ({
   tableHeaders,
   rowSerialNumber,
   row,
-  handleChangeBookingConfirmation,
-  handleOpenCustomHallBookingDrawer,
-  handleChangeSelectedHallBooking,
-  handleApproveBookingCancelRequest,
+  handleChangeHallBookingStatus,
 }) {
-  // const handleChangeBookingConfirmationOnConfirm = useCallback(
-  //   (name, rowDate) => {
-  //     handleChangeBookingConfirmation(name, rowDate);
-  //   },
-  //   [handleChangeBookingConfirmation]
-  // );
-
-  // const handleChangeSelectedHallBookingOnClick = useCallback(
-  //   (rowData) => {
-  //     handleChangeSelectedHallBooking(rowData);
-  //     handleOpenCustomHallBookingDrawer(
-  //       true,
-  //       "Check Availability",
-  //       "confirmBooking"
-  //     );
-  //   },
-  //   [handleChangeSelectedHallBooking, handleOpenCustomHallBookingDrawer]
-  // );
-  // const handleApproveBookingCancelRequestOnClick = useCallback(
-  //   (selectedBookingData) => {
-  //     handleApproveBookingCancelRequest(selectedBookingData);
-  //   },
-  //   [handleApproveBookingCancelRequest]
-  // );
+  const handleChangeHallBookingStatusOnClick = useCallback(
+    (name, selectedHallBookingData) => {
+      handleChangeHallBookingStatus(name, selectedHallBookingData);
+    },
+    [handleChangeHallBookingStatus]
+  );
   return (
     <TableRow
       hover
       key={row?.id}
       sx={{
-        cursor: "pointer",
-        height: 50,
+        // cursor: "pointer",
+        height: 45,
         backgroundColor: "inherit",
         "&:hover": {
           backgroundColor: "inherit",
@@ -518,134 +498,116 @@ const CustomRow = memo(function ({
       {tableHeaders?.map((subitem, subIndex) => {
         return (
           <TableCell key={`table-body-cell=${subIndex}`} align="center">
-            <Typography sx={{ fontSize: "13px" }}>
-              {subitem?.key === "sno" ? (
-                <Typography sx={{ fontSize: "13px" }}>
-                  {rowSerialNumber}
-                </Typography>
-              ) : subitem?.key === "guestName" ? (
-                <Typography sx={{ fontSize: "13px" }}>
-                  {[row?.firstName, row?.middleName, row?.lastName]
-                    .filter(Boolean)
-                    .join(" ")}
-                </Typography>
-              ) : subitem?.key === "startTime" ? (
-                <Typography sx={{ fontSize: "13px" }}>
-                  {row?.startTime &&
-                    moment(row?.startTime, "DD-MM-YYYY HH:mm:ss").format(
-                      "DD-MM-YYYY hh:mm A"
-                    )}
-                </Typography>
-              ) : subitem?.key === "endTime" ? (
-                <Typography sx={{ fontSize: "13px" }}>
-                  {row?.endTime &&
-                    moment(row?.endTime, "DD-MM-YYYY HH:mm:ss").format(
-                      "DD-MM-YYYY hh:mm A"
-                    )}
-                </Typography>
-              ) : subitem?.key === "bookingStatus" ? (
-                // <Typography
-                //   sx={{
-                //     fontSize: "13px",
-                //     border: "1px solid red",
-                //     paddingX: "5px",
-                //     paddingY: "3px",
-                //     borderRadius: "7px",
-                //     whiteSpace: "none",
-                //   }}
-                // >
-                <Box
-                  sx={{
-                    color: getHallBookingStatusColor(row?.bookingStatus)?.color,
-                    backgroundColor: getHallBookingStatusColor(
-                      row?.bookingStatus
-                    )?.bgcolor,
-                    fontWeight: "600",
-                    border: `0.5px solid ${
-                      getHallBookingStatusColor(row?.bookingStatus)?.color
-                    }`,
-                    py: 0.7,
-                    textAlign: "center",
-                    width: "178px",
-                    borderRadius: 2,
-                  }}
-                >
-                  {row?.bookingStatus?.replace(/_/g, " ")}
-                </Box>
-              ) : // </Typography>
-              subitem?.key === "bookingAction" ? (
-                <>
-                  {row?.bookingStatus === "Pending_Confirmation" && (
-                    <Box sx={{ display: "flex", gap: 1, width: "100%" }}>
+            {subitem?.key === "sno" ? (
+              <Typography sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
+                {rowSerialNumber}
+              </Typography>
+            ) : subitem?.key === "guestName" ? (
+              <Typography sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
+                {[row?.firstName, row?.middleName, row?.lastName]
+                  .filter(Boolean)
+                  .join(" ")}
+              </Typography>
+            ) : subitem?.key === "startTime" ? (
+              <Typography sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
+                {row?.startTime &&
+                  moment(row?.startTime, "DD-MM-YYYY HH:mm:ss").format(
+                    "DD-MM-YYYY hh:mm A"
+                  )}
+              </Typography>
+            ) : subitem?.key === "endTime" ? (
+              <Typography sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
+                {row?.endTime &&
+                  moment(row?.endTime, "DD-MM-YYYY HH:mm:ss").format(
+                    "DD-MM-YYYY hh:mm A"
+                  )}
+              </Typography>
+            ) : subitem?.key === "hallStatus" ? (
+              // <Typography
+              //   sx={{
+              //     fontSize: "13px",
+              //     border: "1px solid red",
+              //     paddingX: "5px",
+              //     paddingY: "3px",
+              //     borderRadius: "7px",
+              //     whiteSpace: "none",
+              //   }}
+              // >
+              <Box
+                sx={{
+                  color: getHallBookingStatusColor(row?.hallStatus)?.color,
+                  backgroundColor: getHallBookingStatusColor(row?.hallStatus)
+                    ?.bgcolor,
+                  fontWeight: 600,
+                  border: `0.5px solid ${
+                    getHallBookingStatusColor(row?.hallStatus)?.color
+                  }`,
+                  py: 0.7,
+                  px:
+                    (
+                      row?.hallStatus
+                        ?.replace(/_/g, " ")
+                        ?.toLowerCase()
+                        ?.replace(/^\w/, (char) => char.toUpperCase()) || ""
+                    ).length > 28
+                      ? "10px"
+                      : "33px",
+                  textAlign: "center",
+                  // width: "178px",
+                  width: "auto",
+                  borderRadius: 2,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {row?.hallStatus
+                  ?.replace(/_/g, " ")
+                  ?.toLowerCase()
+                  ?.replace(/^\w/, (char) => char.toUpperCase())}
+              </Box>
+            ) : // </Typography>
+            subitem?.key === "hallBookingAction" ? (
+              <>
+                {row?.hallStatus === "CONFIRMED" && (
+                  <Box sx={{ display: "flex", gap: 1, width: "100%" }}>
+                    <Tooltip title={"Complete Event"} arrow>
                       <Button
                         variant="outlined"
-                        // color="success"
+                        color="success"
                         sx={{ minWidth: "unset", width: "11px" }}
-
-                        //   onClick={() =>
-                        //     handleChangeSelectedHallBookingOnClick(row)
-                        //   }
+                        onClick={() =>
+                          handleChangeHallBookingStatusOnClick(
+                            "completeHallEvent",
+                            row
+                          )
+                        }
                       >
-                        {/* <EventAvailableIcon
-                            sx={{ fontSize: "14px", fontWeight: 600 }}
-                          /> */}
+                        <CheckIcon sx={{ fontSize: "14px", fontWeight: 600 }} />
                       </Button>
+                    </Tooltip>
 
+                    <Tooltip title={"Complete Event"} arrow>
                       <Button
                         variant="outlined"
                         color="error"
                         sx={{ minWidth: "unset", width: "11px" }}
-                        //   onClick={() =>
-                        //     handleChangeBookingConfirmationOnConfirm(
-                        //       "cancelBooking",
-                        //       row
-                        //     )
-                        //   }
+                        onClick={() =>
+                          handleChangeHallBookingStatusOnClick(
+                            "cancelHallEvent",
+                            row
+                          )
+                        }
                       >
                         <CloseIcon sx={{ fontSize: "14px", fontWeight: 600 }} />
                       </Button>
-                    </Box>
-                  )}
-                  {row?.bookingStatus === "Booking_Cancellation_Requested" && (
-                    <Box
-                      sx={{
-                        display: "flex",
-                        gap: 1,
-                        width: "100%",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Button
-                        variant="outlined"
-                        sx={{
-                          minWidth: "unset",
-                          width: "auto", // Allow the button to adjust based on icon size
-                          paddingY: "4.8px",
-                          paddingX: "8px",
-                          color: "#FF5722", // Text color (Deep Orange)
-                          borderColor: "#FF5722", // Border color (Deep Orange)
-                          "&:hover": {
-                            borderColor: "#E64A19", // Darker shade for hover
-                            backgroundColor: "rgba(255, 87, 34, 0.1)", // Optional hover background
-                          },
-                        }}
-                        //   onClick={() =>
-                        //     handleApproveBookingCancelRequestOnClick(row)
-                        //   }
-                      >
-                        {/* <RiRefund2Line
-                            style={{ fontSize: "14px", fontWeight: 600 }}
-                          /> */}
-                      </Button>
-                    </Box>
-                  )}
-                </>
-              ) : (
-                <Typography sx={{ fontSize: "13px" }}>
-                  {getCellValue(row, subitem?.key)}
-                </Typography>
-              )}
-            </Typography>
+                    </Tooltip>
+                  </Box>
+                )}
+              </>
+            ) : (
+              <Typography sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
+                {getCellValue(row, subitem?.key)}
+              </Typography>
+            )}
           </TableCell>
         );
       })}
@@ -660,6 +622,7 @@ const CustomHallBookingTableContainer = memo(function ({
   pageSize,
   handlePageChange,
   handleChangeRowsPerPage,
+  handleChangeHallBookingStatus,
 }) {
   console.log("CustomHallBookingTableContainer tableData : ", tableData);
   return (
@@ -723,6 +686,7 @@ const CustomHallBookingTableContainer = memo(function ({
                   )}
                   key={row.id}
                   row={row}
+                  handleChangeHallBookingStatus={handleChangeHallBookingStatus}
                 />
               ))
             ) : (
@@ -904,6 +868,8 @@ const CustomHallBookingDrawer = memo(function ({
   console.log("CustomFormDrawer customDrawerOpen : ", customDrawerOpen, type);
   const [selectedDateOnCalendar, setSelectedDateOnCalendar] = useState(null);
 
+  console.log("selectedDateOnCalendar : ", selectedDateOnCalendar);
+
   const finalFilteredEvent = useMemo(
     () => filterBySelectedDate(sortedArray, selectedDateOnCalendar),
     [sortedArray, selectedDateOnCalendar]
@@ -911,10 +877,35 @@ const CustomHallBookingDrawer = memo(function ({
 
   console.log("finalFilteredEvent : ", finalFilteredEvent);
 
+  const handleChangeSetSelectedDateOnCalendar = useCallback((selectedDate) => {
+    setSelectedDateOnCalendar((prevState) => {
+      const newSelectedDate = dayjs(selectedDate).startOf("day"); // Strip off time part
+      console.log(
+        "handleChangeSetSelectedDateOnCalendar selectedDate : ",
+        selectedDate
+      );
+      const prevSelectedDate = prevState
+        ? dayjs(prevState).startOf("day")
+        : null;
+
+      // Compare dates without time, if same, set null; otherwise, set the new date
+      if (newSelectedDate.isSame(prevSelectedDate)) {
+        return null; // If the same date is selected, set it to null
+      } else {
+        return selectedDate; // Otherwise, set the new selected date
+      }
+    });
+  }, []);
+
   const handleToggleCustomFormDrawerOnChange = useCallback(() => {
     handleToggleCustomFormDrawer();
     handleChangeSelectedHallBooking();
-  }, [handleToggleCustomFormDrawer, handleChangeSelectedHallBooking]);
+    handleChangeSetSelectedDateOnCalendar();
+  }, [
+    handleToggleCustomFormDrawer,
+    handleChangeSelectedHallBooking,
+    handleChangeSetSelectedDateOnCalendar,
+  ]);
 
   const handleChangeHallBookingFormDataOnChange = useCallback(
     (name, value) => {
@@ -922,10 +913,10 @@ const CustomHallBookingDrawer = memo(function ({
     },
     [handleChangeHallBookingFormData]
   );
-  const handleChangeSetSelectedDateOnCalendar = useCallback((selectedDate) => {
-    setSelectedDateOnCalendar(selectedDate);
-    // handleChangeHallBookingFormDataOnChange("startTime", dayjs(selectedDate));
-  }, []);
+  // const handleChangeSetSelectedDateOnCalendar = useCallback((selectedDate) => {
+  //   setSelectedDateOnCalendar(selectedDate);
+  //   // handleChangeHallBookingFormDataOnChange("startTime", dayjs(selectedDate));
+  // }, []);
 
   //   const handleChangeBookingConfirmationOnClick = useCallback(
   //     (name, roomId) => {
@@ -955,7 +946,7 @@ const CustomHallBookingDrawer = memo(function ({
       onClose={() => handleToggleCustomFormDrawerOnChange()}
       sx={{ zIndex: 1300 }}
     >
-      <Box sx={{ width: 500 }} role="presentation">
+      <Box sx={{ width: 500, paddingBottom: "15px" }} role="presentation">
         <Box
           sx={{
             px: 1.5,
@@ -1299,7 +1290,7 @@ const CustomHallBookingDrawer = memo(function ({
                   sx={{ width: "100%", display: "flex", flexDirection: "row" }}
                 >
                   <Box
-                    sx={{ width: "50%", maxHeight: "80px", overflowY: "auto" }}
+                    sx={{ width: "55%", maxHeight: "80px", overflowY: "auto" }}
                   >
                     <HallListChipCard
                       hallsData={allHallsData}
@@ -1309,7 +1300,7 @@ const CustomHallBookingDrawer = memo(function ({
                       }
                     />
                   </Box>
-                  <Box sx={{ width: "50%" }}>
+                  <Box sx={{ width: "45%" }}>
                     <Collapse in={true} timeout="auto">
                       <CustomCalenderCard
                         onDateSelect={(date) => {
@@ -1416,6 +1407,12 @@ const CustomHallBookingDrawer = memo(function ({
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DateTimePicker
                           disablePast
+                          minDateTime={
+                            hallBookingFormData?.startTime
+                              ? dayjs(hallBookingFormData?.startTime)
+                              : // .add(1, "day")
+                                undefined
+                          }
                           value={hallBookingFormData?.endTime || null}
                           onChange={(newVal) =>
                             handleChangeHallBookingFormDataOnChange(
@@ -2191,22 +2188,22 @@ const HallBookingDashboard = () => {
   const pieChartLabels = useMemo(
     () => [
       {
-        name: "Booked",
+        name: "Confirmed",
         key: "bookedHallCount",
-        color: "#26afeb",
-        filterationKey: "",
+        color: "#0f4392",
+        filterationKey: "CONFIRMED",
       },
       {
         name: "Completed",
         key: "completedHallCount",
         color: "#0fd87c",
-        filterationKey: "",
+        filterationKey: "COMPLETED",
       },
       {
         name: "Canceled",
         key: "cancelledHallCount",
-        color: "#a393eb",
-        filterationKey: "",
+        color: "#f73859",
+        filterationKey: "CANCELLED",
       },
     ],
     []
@@ -2228,6 +2225,8 @@ const HallBookingDashboard = () => {
 
   const [bookHallFromFrontdesk, bookHallFromFrontdeskres] =
     useBookHallFromFrontdeskMutation();
+  const [changeHallBookingStatus, changeHallBookingStatusRes] =
+    useChangeHallBookingStatusMutation();
 
   const {
     data: getAllHallBookingsData = {
@@ -2381,6 +2380,13 @@ const HallBookingDashboard = () => {
   );
 
   console.log("hallBookingFormData : ", hallBookingFormData);
+  const [selectedFilterInChartComponent, setSelectedFilterInChartComponent] =
+    useState(null);
+
+  console.log(
+    "selectedFilterInChartComponent : ",
+    selectedFilterInChartComponent
+  );
 
   const handleChangeSelectedHallChip = useCallback((selectedHall) => {
     setSelectedHallChip((prevData) => {
@@ -2646,11 +2652,19 @@ const HallBookingDashboard = () => {
       if (!open) {
         handleChangeHallBookingFormData();
         handleChangeSelectedHallBooking();
+        handleChangeSelectedHallChip();
       }
     },
-    [handleChangeHallBookingFormData, handleChangeSelectedHallBooking]
+    [
+      handleChangeHallBookingFormData,
+      handleChangeSelectedHallBooking,
+      handleChangeSelectedHallChip,
+    ]
   );
   const handleSubmitBookHallFromFrontdesk = useCallback(() => {
+    const currentTime = dayjs();
+    const startTime = dayjs(hallBookingFormData.startTime);
+    const endTime = dayjs(hallBookingFormData.endTime);
     if (!Boolean(hallBookingFormData?.firstName)) {
       setSnack({
         open: true,
@@ -2690,6 +2704,27 @@ const HallBookingDashboard = () => {
       setSnack({
         open: true,
         message: "Please provide a valid End Time",
+        severity: "warning",
+      });
+      return;
+    } else if (startTime.isBefore(currentTime)) {
+      setSnack({
+        open: true,
+        message: "Start Time must not be in the past",
+        severity: "warning",
+      });
+      return;
+    } else if (endTime.isBefore(currentTime)) {
+      setSnack({
+        open: true,
+        message: "End Time must not be in the past",
+        severity: "warning",
+      });
+      return;
+    } else if (endTime.isBefore(startTime)) {
+      setSnack({
+        open: true,
+        message: "End Time cannot be before Start Time",
         severity: "warning",
       });
       return;
@@ -2758,6 +2793,19 @@ const HallBookingDashboard = () => {
         severity: "warning",
       });
       return;
+    } else if (
+      checkEventConflict(
+        sortedArray,
+        hallBookingFormData?.startTime,
+        hallBookingFormData?.endTime
+      )
+    ) {
+      setSnack({
+        open: true,
+        message: "Given Event date range is conflicting on existing events.",
+        severity: "warning",
+      });
+      return;
     }
     const payload = {
       firstName: hallBookingFormData?.firstName,
@@ -2785,7 +2833,7 @@ const HallBookingDashboard = () => {
       noOfGuest: hallBookingFormData?.noOfGuest,
       hallId: selectedHallChip?.id,
       hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId,
-      totalPrice: hallBookingFormData?.advanceAmount * 2,
+      totalPrice: hallBookingFormData?.totalHallDurationPrice,
       paidAmount: hallBookingFormData?.paidAmount,
       paymentMethod: hallBookingFormData?.paymentMethod?.key,
       ...(hallBookingFormData?.paymentMethod?.key !== "Cash" &&
@@ -2831,7 +2879,126 @@ const HallBookingDashboard = () => {
     selectedHallChip,
     bookHallFromFrontdesk,
     handleOpenCustomHallBookingDrawer,
+    sortedArray,
   ]);
+
+  const handleChangeHallBookingStatus = useCallback(
+    (name, hallBookingData) => {
+      if (name === "completeHallEvent") {
+        Swal.fire({
+          title: "Complete Event!",
+          text: "Are you Sure To Complete The Event?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const payload = {
+              id: hallBookingData?.id || null,
+              hallStatus: "COMPLETED",
+            };
+            changeHallBookingStatus(payload)
+              .unwrap()
+              .then((res) => {
+                setSnack({
+                  open: true,
+                  message: res?.message || "Hall Event Completion Success",
+                  severity: "success",
+                });
+              })
+              .catch((err) => {
+                setSnack({
+                  open: true,
+                  message:
+                    err?.data?.message ||
+                    err?.data ||
+                    "Hall Event Completion Failed",
+                  severity: "error",
+                });
+              });
+          }
+        });
+      } else if (name === "cancelHallEvent") {
+        Swal.fire({
+          title: "Cancel Event!",
+          text: "Are You Sure To CANCEL The Event?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const payload = {
+              id: hallBookingData?.id || null,
+              hallStatus: "CANCELLED",
+            };
+
+            changeHallBookingStatus(payload)
+              .unwrap()
+              .then((res) => {
+                setSnack({
+                  open: true,
+                  message: res?.message || "Hall Event Cancelation Success",
+                  severity: "success",
+                });
+              })
+              .catch((err) => {
+                setSnack({
+                  open: true,
+                  message:
+                    err?.data?.message ||
+                    err?.data ||
+                    "Hall Event Cancelation Failed",
+                  severity: "error",
+                });
+              });
+          }
+        });
+      }
+    },
+    [changeHallBookingStatus]
+  );
+
+  const handleChangeSelectedFilterInChartComponent = useCallback(
+    (filter) => {
+      console.log(
+        "handleChangeSelectedFilterInChartComponent filter : ",
+        filter
+      );
+      setSelectedFilterInChartComponent((prevData) => {
+        if (prevData !== filter) {
+          const foundPieChartComponentItem = pieChartLabels?.find(
+            (item) => item?.key === filter
+          );
+          const foundHallBookingStatusTypeData = foundPieChartComponentItem
+            ? allHallStatusTypeData?.data?.find(
+                (item) => item === foundPieChartComponentItem?.filterationKey
+              )
+            : null;
+          const foundHallBookingStatusTypeDataObj =
+            foundHallBookingStatusTypeData
+              ? {
+                  key: foundHallBookingStatusTypeData,
+                  name: foundHallBookingStatusTypeData.replace(/_/g, " "),
+                }
+              : null;
+
+          handleChangeHallBookingTableFilters(
+            "hallBookingStatus",
+            foundHallBookingStatusTypeDataObj
+          );
+          return filter;
+        } else {
+          handleChangeHallBookingTableFilters("hallBookingStatus", null);
+          return null;
+        }
+      });
+    },
+    [handleChangeHallBookingTableFilters, allHallStatusTypeData, pieChartLabels]
+  );
   return (
     <>
       <Box
@@ -2881,10 +3048,10 @@ const HallBookingDashboard = () => {
                       dataCount={hallBookingChartData?.data}
                       customLabels={pieChartLabels}
                       showTotal={true}
-                      //   isActionable={true}
-                      //   pieSelectionFunction={
-                      //     handleChangeSelectedFilterInChartComponent
-                      //   }
+                      isActionable={true}
+                      pieSelectionFunction={
+                        handleChangeSelectedFilterInChartComponent
+                      }
                     />
                   </Box>
                 </Grid>
@@ -2924,6 +3091,7 @@ const HallBookingDashboard = () => {
                 handleChangeRowsPerPage={
                   handleChangeHallBookingTableRowsPerPage
                 }
+                handleChangeHallBookingStatus={handleChangeHallBookingStatus}
               />
             </Box>
           </Grid>
@@ -2957,6 +3125,7 @@ const HallBookingDashboard = () => {
           bookHallFromFrontdeskres?.isLoading ||
           isAllBanquetsByHotelIdDataFetching ||
           isAllPaymentMethodsFetching ||
+          changeHallBookingStatusRes?.isLoading ||
           false
         }
       />

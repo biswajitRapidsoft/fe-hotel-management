@@ -11,6 +11,8 @@ const BookingHistoryChartComponent = ({
   customHeight = 210,
   isActionable = false,
   pieSelectionFunction,
+  customTotalKey = "",
+  totalLabelFontSize = 20,
 }) => {
   const sanitizedLabels = React.useMemo(() => {
     return (customLabels || []).map((label, index) => ({
@@ -96,8 +98,19 @@ const BookingHistoryChartComponent = ({
                 showAlways: showTotal,
                 label: totalLabel || "Total",
                 color: "black",
-                fontSize: 20,
+                fontSize: totalLabelFontSize,
                 fontWeight: "bold",
+                formatter: function () {
+                  // If a specific key is provided, show its value
+                  if (customTotalKey) {
+                    return dataCount?.[customTotalKey] || 0; // Value for the specific key, default to 0 if not found
+                  }
+                  // Otherwise, calculate the sum of all values in dataCount
+                  return sanitizedLabels.reduce(
+                    (sum, label) => sum + (dataCount?.[label.key] || 0),
+                    0
+                  );
+                },
               },
             },
           },
@@ -116,6 +129,9 @@ const BookingHistoryChartComponent = ({
       totalLabel,
       isActionable,
       pieSelectionFunctionOnClick,
+      dataCount,
+      customTotalKey,
+      totalLabelFontSize,
     ]
   );
 

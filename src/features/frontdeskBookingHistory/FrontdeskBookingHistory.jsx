@@ -715,8 +715,8 @@ const CustomRow = memo(function ({
       hover
       key={row?.id}
       sx={{
-        cursor: "pointer",
-        height: 50,
+        // cursor: "pointer",
+        height: 45,
         backgroundColor: "inherit",
         "&:hover": {
           backgroundColor: "inherit",
@@ -726,130 +726,121 @@ const CustomRow = memo(function ({
       {tableHeaders?.map((subitem, subIndex) => {
         return (
           <TableCell key={`table-body-cell=${subIndex}`} align="center">
-            <Typography sx={{ fontSize: "13px" }}>
-              {subitem?.key === "sno" ? (
-                <Typography sx={{ fontSize: "13px" }}>
-                  {rowSerialNumber}
-                </Typography>
-              ) : subitem?.key === "guestName" ? (
-                <Typography sx={{ fontSize: "13px" }}>
-                  {[row?.firstName, row?.middleName, row?.lastName]
-                    .filter(Boolean)
-                    .join(" ")}
-                </Typography>
-              ) : subitem?.key === "bookedOn" ? (
-                <Typography sx={{ fontSize: "13px" }}>
-                  {row?.bookedOn &&
-                    moment(row?.bookedOn).format("DD-MM-YYYY hh:mm A")}
-                </Typography>
-              ) : subitem?.key === "bookingStatus" ? (
-                // <Typography
-                //   sx={{
-                //     fontSize: "13px",
-                //     border: "1px solid red",
-                //     paddingX: "5px",
-                //     paddingY: "3px",
-                //     borderRadius: "7px",
-                //     whiteSpace: "none",
-                //   }}
-                // >
-                <Box
-                  sx={{
-                    color: getBookingStatusColor(row?.bookingStatus)?.color,
-                    backgroundColor: getBookingStatusColor(row?.bookingStatus)
-                      ?.bgcolor,
-                    fontWeight: "600",
-                    border: `0.5px solid ${
-                      getBookingStatusColor(row?.bookingStatus)?.color
-                    }`,
-                    py: 0.7,
-                    textAlign: "center",
-                    width: "178px",
-                    borderRadius: 2,
-                  }}
-                >
-                  {row?.bookingStatus?.replace(/_/g, " ")}
-                </Box>
-              ) : // </Typography>
-              subitem?.key === "bookingAction" ? (
-                <>
-                  {row?.bookingStatus === "Pending_Confirmation" && (
-                    <Box sx={{ display: "flex", gap: 1, width: "100%" }}>
-                      <Button
-                        variant="outlined"
-                        // color="success"
-                        sx={{ minWidth: "unset", width: "11px" }}
-                        // onClick={() =>
-                        //   handleChangeBookingConfirmationOnConfirm(
-                        //     "confirmBooking",
-                        //     row
-                        //   )
-                        // }
+            {subitem?.key === "sno" ? (
+              <Typography sx={{ fontSize: "13px" }}>
+                {rowSerialNumber}
+              </Typography>
+            ) : subitem?.key === "guestName" ? (
+              <Typography sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
+                {[row?.firstName, row?.middleName, row?.lastName]
+                  .filter(Boolean)
+                  .join(" ")}
+              </Typography>
+            ) : subitem?.key === "bookedOn" ? (
+              <Typography sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
+                {row?.bookedOn &&
+                  moment(row?.bookedOn).format("DD-MM-YYYY hh:mm A")}
+              </Typography>
+            ) : subitem?.key === "bookingStatus" ? (
+              <Box
+                sx={{
+                  color: getBookingStatusColor(row?.bookingStatus)?.color,
+                  backgroundColor: getBookingStatusColor(row?.bookingStatus)
+                    ?.bgcolor,
+                  fontWeight: 600,
+                  border: `0.5px solid ${
+                    getBookingStatusColor(row?.bookingStatus)?.color
+                  }`,
+                  py: 0.7,
+                  px: "5px",
+                  textAlign: "center",
+                  // width: "178px",
+                  width: "auto",
+                  borderRadius: 2,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {row?.bookingStatus?.replace(/_/g, " ")}
+              </Box>
+            ) : // </Typography>
+            subitem?.key === "bookingAction" ? (
+              <>
+                {row?.bookingStatus === "Pending_Confirmation" && (
+                  <Box sx={{ display: "flex", gap: 1, width: "100%" }}>
+                    <Button
+                      variant="outlined"
+                      // color="success"
+                      sx={{ minWidth: "unset", width: "11px" }}
+                      // onClick={() =>
+                      //   handleChangeBookingConfirmationOnConfirm(
+                      //     "confirmBooking",
+                      //     row
+                      //   )
+                      // }
 
-                        onClick={() =>
-                          handleChangeSelectedBookingHistoryOnClick(row)
-                        }
-                      >
-                        <EventAvailableIcon
-                          sx={{ fontSize: "14px", fontWeight: 600 }}
-                        />
-                      </Button>
-
-                      <Button
-                        variant="outlined"
-                        color="error"
-                        sx={{ minWidth: "unset", width: "11px" }}
-                        onClick={() =>
-                          handleChangeBookingConfirmationOnConfirm(
-                            "cancelBooking",
-                            row
-                          )
-                        }
-                      >
-                        <CloseIcon sx={{ fontSize: "14px", fontWeight: 600 }} />
-                      </Button>
-                    </Box>
-                  )}
-                  {row?.bookingStatus === "Booking_Cancellation_Requested" && (
-                    <Box
-                      sx={{
-                        display: "flex",
-                        gap: 1,
-                        width: "100%",
-                        justifyContent: "center",
-                      }}
+                      onClick={() =>
+                        handleChangeSelectedBookingHistoryOnClick(row)
+                      }
                     >
-                      <Button
-                        variant="outlined"
-                        sx={{
-                          minWidth: "unset",
-                          width: "auto", // Allow the button to adjust based on icon size
-                          paddingY: "4.8px",
-                          paddingX: "8px",
-                          color: "#FF5722", // Text color (Deep Orange)
-                          borderColor: "#FF5722", // Border color (Deep Orange)
-                          "&:hover": {
-                            borderColor: "#E64A19", // Darker shade for hover
-                            backgroundColor: "rgba(255, 87, 34, 0.1)", // Optional hover background
-                          },
-                        }}
-                        onClick={() =>
-                          handleApproveBookingCancelRequestOnClick(row)
-                        }
-                      >
-                        <RiRefund2Line
-                          style={{ fontSize: "14px", fontWeight: 600 }}
-                        />
-                      </Button>
-                    </Box>
-                  )}
-                </>
-              ) : (
-                <Typography sx={{ fontSize: "13px" }}>
-                  {getCellValue(row, subitem?.key)}
-                </Typography>
-              )}
-            </Typography>
+                      <EventAvailableIcon
+                        sx={{ fontSize: "14px", fontWeight: 600 }}
+                      />
+                    </Button>
+
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      sx={{ minWidth: "unset", width: "11px" }}
+                      onClick={() =>
+                        handleChangeBookingConfirmationOnConfirm(
+                          "cancelBooking",
+                          row
+                        )
+                      }
+                    >
+                      <CloseIcon sx={{ fontSize: "14px", fontWeight: 600 }} />
+                    </Button>
+                  </Box>
+                )}
+                {row?.bookingStatus === "Booking_Cancellation_Requested" && (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: 1,
+                      width: "100%",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Button
+                      variant="outlined"
+                      sx={{
+                        minWidth: "unset",
+                        width: "auto", // Allow the button to adjust based on icon size
+                        paddingY: "4.8px",
+                        paddingX: "8px",
+                        color: "#FF5722", // Text color (Deep Orange)
+                        borderColor: "#FF5722", // Border color (Deep Orange)
+                        "&:hover": {
+                          borderColor: "#E64A19", // Darker shade for hover
+                          backgroundColor: "rgba(255, 87, 34, 0.1)", // Optional hover background
+                        },
+                      }}
+                      onClick={() =>
+                        handleApproveBookingCancelRequestOnClick(row)
+                      }
+                    >
+                      <RiRefund2Line
+                        style={{ fontSize: "14px", fontWeight: 600 }}
+                      />
+                    </Button>
+                  </Box>
+                )}
+              </>
+            ) : (
+              <Typography sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
+                {getCellValue(row, subitem?.key)}
+              </Typography>
+            )}
           </TableCell>
         );
       })}
@@ -1014,42 +1005,40 @@ const CustomParentCollapseTableRow = memo(function ({
         {bookingRoomsTableHeaders?.map((subitem, subIndex) => {
           return (
             <TableCell key={`table-body-cell=${subIndex}`} align="center">
-              <Typography sx={{ fontSize: "13px" }}>
-                {subitem?.key === "sno" ? (
-                  <Typography sx={{ fontSize: "13px" }}>
-                    {rowSerialNumber}
-                  </Typography>
-                ) : subitem?.key === "roomAction" ? (
-                  // <Box sx={{ display: "flex", gap: 1, width: "100%" }}>
-                  <IconButton
+              {subitem?.key === "sno" ? (
+                <Typography sx={{ fontSize: "13px" }}>
+                  {rowSerialNumber}
+                </Typography>
+              ) : subitem?.key === "roomAction" ? (
+                // <Box sx={{ display: "flex", gap: 1, width: "100%" }}>
+                <IconButton
+                  sx={{
+                    width: "20px",
+                    height: "20px",
+                    transition: "transform 0.3s ease",
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleChangeOpenCollapseTable();
+                  }}
+                >
+                  <KeyboardArrowDownIcon
                     sx={{
-                      width: "20px",
-                      height: "20px",
+                      fontSize: "20px",
+                      fontWeight: 600,
+                      transform: openCollapseTable
+                        ? "rotate(180deg)" // Rotated when true
+                        : "rotate(0deg)", // Default position when false
                       transition: "transform 0.3s ease",
                     }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleChangeOpenCollapseTable();
-                    }}
-                  >
-                    <KeyboardArrowDownIcon
-                      sx={{
-                        fontSize: "20px",
-                        fontWeight: 600,
-                        transform: openCollapseTable
-                          ? "rotate(180deg)" // Rotated when true
-                          : "rotate(0deg)", // Default position when false
-                        transition: "transform 0.3s ease",
-                      }}
-                    />
-                  </IconButton>
-                ) : (
-                  // </Box>
-                  <Typography sx={{ fontSize: "13px" }}>
-                    {getCellValue(row, subitem?.key)}
-                  </Typography>
-                )}
-              </Typography>
+                  />
+                </IconButton>
+              ) : (
+                // </Box>
+                <Typography sx={{ fontSize: "13px" }}>
+                  {getCellValue(row, subitem?.key)}
+                </Typography>
+              )}
             </TableCell>
           );
         })}
@@ -2478,6 +2467,24 @@ const FrontdeskBookingHistory = () => {
   //   console.log("generateBookingHistoryResponse response : ", response);
   //   setBookingHistoryTableData(response?.paginationData);
   // }, [bookingHistoryTableRowsPerPage, bookingHistoryTablePageNo]);
+
+  useEffect(() => {
+    const customAlertFilter = sessionStorage.getItem("customAlertFilter")
+      ? JSON.parse(sessionStorage.getItem("customAlertFilter"))
+      : null;
+    if (customAlertFilter) {
+      const customBookingStatusTypeDataObj = {
+        key: customAlertFilter,
+        name: customAlertFilter.replace(/_/g, " "),
+      };
+
+      handleChangeBookingHistoryTableFilters(
+        "bookingStatus",
+        customBookingStatusTypeDataObj
+      );
+      sessionStorage.removeItem("customAlertFilter");
+    }
+  }, [handleChangeBookingHistoryTableFilters]);
   return (
     <>
       <Box
@@ -2525,6 +2532,10 @@ const FrontdeskBookingHistory = () => {
                       dataCount={roomBookingChartData?.data}
                       customLabels={leftChartLabels}
                       isActionable={true}
+                      showTotal={true}
+                      totalLabel={"Total Bookings"}
+                      customTotalKey={"totalBookings"}
+                      totalLabelFontSize={14}
                       pieSelectionFunction={
                         handleChangeSelectedFilterInChartComponent
                       }
