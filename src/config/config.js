@@ -1,9 +1,9 @@
 const config = Object.freeze({
-  baseUrl: "http://192.168.12.37:9000/",
+  // baseUrl: "http://192.168.12.37:9000/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
   // baseUrl: "http://crimarrstaging.nyggs.com/backend/",
   // baseUrl: "http://192.168.30.44:9000/",
-  // baseUrl: "http://192.168.12.43:8080/be-hms/",
+  baseUrl: "http://192.168.12.43:8080/be-hms/",
   apiName: {
     loginAsCustomer: "login/as/customer",
     loginAsStaff: "login",
@@ -58,6 +58,7 @@ const config = Object.freeze({
     bookingByFrontDeskStaff: "api/booking/by/frontdesk/staff",
     getRoomBookingChart: "api/get/room/booking/chart/data",
     approveBookingCancelRequest: "api/approve/booking/cancel/request",
+    exportBookingHistory: "api/export/booking/history/data",
 
     // HALL BOOKING DASHBOARD
     getAllHallBookings: "api/get/all/hall/bookings/data",
@@ -75,6 +76,8 @@ const config = Object.freeze({
     getAllBookingDetails: "public/booking/data",
     cancelHotelRoom: "public/cancel/booking",
     getUserDetailsForBooking: "public/customer/details",
+    getAllFiltersData: "public/get/all/search/filter/datas",
+    addRating: "public/rate/room/booking",
 
     // HOUSE-KEEPER DASHBOARD API ENDPOINTS
     getServiceableRoomData: "api/get/service/requested/rooms",
@@ -87,6 +90,7 @@ const config = Object.freeze({
     getAllRoomServiceHistory: "api/get/all/room/service/request/list",
     getAllHouseKeepingStaff: "api/get/all/housekeeping/staff/list",
     assignHouseKeepingRequest: "api/assign/housekeeping/staff",
+    exportHouseKeepingRecords: "api/export/room/service/list",
 
     // PARKING DASHBOARD DATA
     getAllParkingData: "api/get/all/parking/list",

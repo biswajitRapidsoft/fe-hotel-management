@@ -24,6 +24,9 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import ClearIcon from "@mui/icons-material/Clear";
 import { StyledCalendarIcon } from "../dashboard/Dashboard";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import { saveAs } from "file-saver";
+
 import {
   useGetAllBookingStatusTypeQuery,
   useRoomBookingHistoryByHotelIdQuery,
@@ -31,6 +34,7 @@ import {
   useGetRoomsByRoomTypeQuery,
   useGetRoomBookingChartQuery,
   useApproveBookingCancelRequestMutation,
+  useExportBookingHistoryMutation,
 } from "../../services/frontdeskBookingHistory";
 import moment from "moment";
 import Table from "@mui/material/Table";
@@ -346,31 +350,59 @@ const filterBookingRooms = (
 export const CustomHeader = memo(function ({
   backNavigate = false,
   headerText,
+  exportExcel = false,
+  handlerFunction,
 }) {
   const navigate = useNavigate();
   return (
-    <Box sx={{ display: "flex", alignItems: "center", width: "100%" }}>
-      {backNavigate && (
-        <FaArrowAltCircleLeft
-          style={{
-            color: "#164e80",
-            marginRight: "5px",
-            cursor: "pointer",
-            fontSize: "20px",
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        width: "100%",
+        justifyContent: "space-between",
+      }}
+    >
+      <Box>
+        {backNavigate && (
+          <FaArrowAltCircleLeft
+            style={{
+              color: "#164e80",
+              marginRight: "5px",
+              cursor: "pointer",
+              fontSize: "20px",
+            }}
+            onClick={() => {
+              navigate(-1);
+            }}
+          />
+        )}
+        <Typography
+          variant="h5"
+          display="inline-block"
+          fontWeight="500"
+          marginX="0"
+        >
+          {headerText}
+        </Typography>
+      </Box>
+      {exportExcel && (
+        <Button
+          variant="contained"
+          color="secondary"
+          startIcon={<FileDownloadIcon />}
+          sx={{
+            color: "#fff",
+            fontWeight: 600,
+            fontSize: 16,
+            textTransform: "none",
+            letterSpacing: 1,
           }}
-          onClick={() => {
-            navigate(-1);
-          }}
-        />
+          onClick={handlerFunction}
+        >
+          Export Excel
+        </Button>
       )}
-      <Typography
-        variant="h5"
-        display="inline-block"
-        fontWeight="500"
-        marginX="0"
-      >
-        {headerText}
-      </Typography>
     </Box>
   );
 });
@@ -2120,6 +2152,10 @@ const FrontdeskBookingHistory = () => {
   const [approveBookingCancelRequest, approveBookingCancelRequestRes] =
     useApproveBookingCancelRequestMutation();
 
+  // export booking history api
+  const [exportBookingHistory, exportBookingHistoryRes] =
+    useExportBookingHistoryMutation();
+
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
@@ -2436,7 +2472,31 @@ const FrontdeskBookingHistory = () => {
     },
     [approveBookingCancelRequest]
   );
-
+  const handleExportBookingHistory = React.useCallback(
+    (event) => {
+      event.preventDefault();
+      exportBookingHistory({
+        hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId,
+      })
+        .unwrap()
+        .then((res) => {
+          saveAs(res, "BookingHistory_report.xlsx");
+          setSnack({
+            open: true,
+            message: "file downloaded successfully",
+            severity: "success",
+          });
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data,
+            severity: "error",
+          });
+        });
+    },
+    [exportBookingHistory]
+  );
   useEffect(() => {
     if (isRoomBookingHistoryByHotelIdSuccess) {
       setBookingHistoryTableData(
@@ -2503,7 +2563,12 @@ const FrontdeskBookingHistory = () => {
             gap: 2,
           }}
         >
-          <CustomHeader backNavigate={true} headerText={"Booking History"} />
+          <CustomHeader
+            backNavigate={true}
+            headerText={"Booking History"}
+            exportExcel={true}
+            handlerFunction={handleExportBookingHistory}
+          />
           <CustomBookingHistoryTableFIlters
             bookingHistoryTableFilters={bookingHistoryTableFilters}
             handleChangeBookingHistoryTableFilters={
@@ -2631,6 +2696,7 @@ const FrontdeskBookingHistory = () => {
           isRoomBookingChartDataLoading ||
           isRoomBookingHistoryByHotelIdFetching ||
           approveBookingCancelRequestRes.isLoading ||
+          exportBookingHistoryRes.isLoading ||
           false
         }
       />

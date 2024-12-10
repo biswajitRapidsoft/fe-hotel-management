@@ -33,6 +33,14 @@ const houseKeepingHistoryApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["getAllRoomServiceHistory", "getAllHouseKeepingStaff"],
     }),
+    exportHouseKeepingRecords: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.exportHouseKeepingRecords,
+        method: "POST",
+        data: payload,
+        responseType: "blob",
+      }),
+    }),
   }),
 
   overrideExisting: false,
@@ -42,4 +50,5 @@ export const {
   useGetAllRoomServiceHistoryQuery,
   useGetAllHouseKeepingStaffQuery,
   useAssignHouseKeepingRequestMutation,
+  useExportHouseKeepingRecordsMutation,
 } = houseKeepingHistoryApi;

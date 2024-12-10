@@ -32,11 +32,13 @@ import {
   useGetAllRoomServiceHistoryQuery,
   useGetAllHouseKeepingStaffQuery,
   useAssignHouseKeepingRequestMutation,
+  useExportHouseKeepingRecordsMutation,
 } from "../../services/houseKeepingHistory";
 import moment from "moment";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ClearIcon from "@mui/icons-material/Clear";
+import { saveAs } from "file-saver";
 
 const HouseKeepingHistory = () => {
   const HouseKeepingHistoryTableHeaders = React.useMemo(() => {
@@ -99,6 +101,11 @@ const HouseKeepingHistory = () => {
     pageNo: HouseKeepingHistoryTableFilters?.pageNo,
     pageSize: HouseKeepingHistoryTableFilters?.pageSize,
   });
+
+  // House-Keeping History Export api
+  const [exportHouseKeepingData, exportHouseKeepingDataRes] =
+    useExportHouseKeepingRecordsMutation();
+
   React.useEffect(() => {
     if (isHouseKeepingHistorySuccess) {
       setHouseKeepingHistoryTableData(
@@ -120,6 +127,33 @@ const HouseKeepingHistory = () => {
       setHouseKeepingHistoryTablePageNo(0);
     },
     []
+  );
+
+  const handleSubmitRecord = React.useCallback(
+    (event) => {
+      event.preventDefault();
+      exportHouseKeepingData({
+        hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId,
+      })
+        .unwrap()
+        .then((res) => {
+          saveAs(res, "HouseKeeping_report.xlsx");
+          setSnack({
+            open: true,
+            message: "file downloaded successfully",
+            severity: "success",
+          });
+          console.log(res);
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data,
+            severity: "error",
+          });
+        });
+    },
+    [exportHouseKeepingData]
   );
   return (
     <>
@@ -158,7 +192,7 @@ const HouseKeepingHistory = () => {
                 textTransform: "none",
                 letterSpacing: 1,
               }}
-              // onClick={handleSubmitFilter}
+              onClick={handleSubmitRecord}
             >
               Export Excel
             </Button>
@@ -191,7 +225,13 @@ const HouseKeepingHistory = () => {
           </Grid>
         </Grid>
       </Box>
-      <LoadingComponent open={isHouseKeepingHistoryLoading || false} />
+      <LoadingComponent
+        open={
+          isHouseKeepingHistoryLoading ||
+          exportHouseKeepingDataRes.isLoading ||
+          false
+        }
+      />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </>
   );
