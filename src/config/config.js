@@ -13,6 +13,8 @@ const config = Object.freeze({
     getAllRoomTypesByCompany: "api/get/room/type/by/company",
     fileUpload: "api/upload",
     addHotel: "api/add/hotel",
+    updateHotel: "api/update/hotel",
+    changeRoomStatus: "api/room/status/change/by/roomId",
     getHotelListByCompany: "api/get/all/hotels",
     getAllExtraItems: "api/get/all/extra/items",
     addRoomType: "api/save/master/room/type",
