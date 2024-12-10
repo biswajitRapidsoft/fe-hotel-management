@@ -53,6 +53,7 @@ import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isBetween from "dayjs/plugin/isBetween";
 import { useGetAllPaymentMethodsQuery } from "../../services/dashboard";
 import Swal from "sweetalert2";
+import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 
 dayjs.extend(customParseFormat);
 dayjs.extend(isSameOrBefore);
@@ -461,14 +462,130 @@ function getHallBookingStatusColor(key) {
   switch (key) {
     case "CONFIRMED":
       return { color: "#0068b7", bgcolor: "#d3ecff" };
-    case "COMPLETED":
+    case "STARTED":
       return { color: "#01a837", bgcolor: "#c7ffd9" };
+    case "COMPLETED":
+      return { color: "#6101a8", bgcolor: "#f0ddff" };
     case "CANCELLED":
       return { color: "#c60000", bgcolor: "#ffd6d6" };
     default:
       return { color: "#4b4b4b", bgcolor: "#dedede" };
   }
 }
+
+const CustomHallBookingAlertSection = memo(function ({
+  chipData,
+  alertData,
+  handleChangeHallBookingFilterFromAlertChip,
+}) {
+  const handleChangeHallBookingFilterFromAlertChipOnClick = useCallback(
+    (filterationKey) => {
+      handleChangeHallBookingFilterFromAlertChip(filterationKey);
+    },
+    [handleChangeHallBookingFilterFromAlertChip]
+  );
+
+  return (
+    <Box sx={{ width: "100%" }}>
+      <Box
+        sx={{
+          borderBottom: "2px solid #ccc",
+          bgcolor: "#e3e3e3",
+          py: 0.2,
+          px: 1,
+        }}
+      >
+        <Typography
+          variant="h6"
+          sx={{ fontWeight: 550, letterSpacing: 1, fontSize: "18px" }}
+        >
+          {`Alerts`}
+        </Typography>
+      </Box>
+      <Box
+        sx={{
+          width: "100%",
+          mt: 2,
+          height: "100px",
+          overflowY: "auto",
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "5px",
+        }}
+      >
+        {chipData?.map((item, index) => {
+          return (
+            <Box
+              key={`hall-booking-alert-${index}`}
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+                border: `2px solid ${item?.customColor}`,
+                borderRadius: "5px",
+                maxHeight: "35px",
+                overflow: "hidden",
+                userSelect: "none",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  "& .leftBox": {
+                    bgcolor: "#ffffff",
+                    color: `${item?.customColor}`,
+                  },
+                  "& .rightBox": {
+                    bgcolor: `${item?.customColor}`,
+                    color: "#ffffff",
+                  },
+                  "& .rightBox .MuiTypography-root": {
+                    color: "#ffffff",
+                  },
+                },
+              }}
+              onClick={() =>
+                handleChangeHallBookingFilterFromAlertChipOnClick(
+                  item?.filterationKey
+                )
+              }
+            >
+              <Box
+                className="leftBox"
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  paddingX: "3px",
+                  bgcolor: `${item?.customColor}`,
+                  color: "#ffffff",
+                  transition: "all 0.3s ease",
+                }}
+              >
+                <Typography sx={{ fontSize: "13px", fontWeight: 600 }}>
+                  {item?.label}
+                </Typography>
+              </Box>
+              <Box
+                className="rightBox"
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  paddingX: "12px",
+                  minWidth: "40px",
+                  color: `${item?.customColor}`,
+                  transition: "all 0.3s ease",
+                }}
+              >
+                <Typography sx={{ fontWeight: 550 }}>
+                  {alertData?.[item?.key] || "0"}
+                </Typography>
+              </Box>
+            </Box>
+          );
+        })}
+      </Box>
+    </Box>
+  );
+});
 
 const CustomRow = memo(function ({
   tableHeaders,
@@ -569,19 +686,21 @@ const CustomRow = memo(function ({
               <>
                 {row?.hallStatus === "CONFIRMED" && (
                   <Box sx={{ display: "flex", gap: 1, width: "100%" }}>
-                    <Tooltip title={"Complete Event"} arrow>
+                    <Tooltip title={"Start Event"} arrow>
                       <Button
                         variant="outlined"
-                        color="success"
+                        // color="success"
                         sx={{ minWidth: "unset", width: "11px" }}
                         onClick={() =>
                           handleChangeHallBookingStatusOnClick(
-                            "completeHallEvent",
+                            "startlHallEvent",
                             row
                           )
                         }
                       >
-                        <CheckIcon sx={{ fontSize: "14px", fontWeight: 600 }} />
+                        <PlayCircleOutlineIcon
+                          sx={{ fontSize: "14px", fontWeight: 600 }}
+                        />
                       </Button>
                     </Tooltip>
 
@@ -598,6 +717,25 @@ const CustomRow = memo(function ({
                         }
                       >
                         <CloseIcon sx={{ fontSize: "14px", fontWeight: 600 }} />
+                      </Button>
+                    </Tooltip>
+                  </Box>
+                )}
+                {row?.hallStatus === "STARTED" && (
+                  <Box sx={{ display: "flex", gap: 1, width: "100%" }}>
+                    <Tooltip title={"Complete Event"} arrow>
+                      <Button
+                        variant="outlined"
+                        color="success"
+                        sx={{ minWidth: "unset", width: "11px" }}
+                        onClick={() =>
+                          handleChangeHallBookingStatusOnClick(
+                            "completeHallEvent",
+                            row
+                          )
+                        }
+                      >
+                        <CheckIcon sx={{ fontSize: "14px", fontWeight: 600 }} />
                       </Button>
                     </Tooltip>
                   </Box>
@@ -633,7 +771,7 @@ const CustomHallBookingTableContainer = memo(function ({
           overflow: "auto",
           maxHeight: {
             xs: "calc(100vh - 465px)",
-            xl: "calc(100vh - 360px)",
+            xl: "calc(100vh - 465px)",
             "&::-webkit-scrollbar": {
               // height: "14px",
             },
@@ -2128,6 +2266,10 @@ const HallBookingDashboard = () => {
       hallBookingStatus: null,
       hallBookingStatusInputVal: "",
       bookingRefNumber: "",
+      isForLiveEvents: false,
+      isForTodayEvents: false,
+      isForFutureEvents: false,
+      isForExpiredEvents: false,
     }),
     []
   );
@@ -2194,9 +2336,15 @@ const HallBookingDashboard = () => {
         filterationKey: "CONFIRMED",
       },
       {
+        name: "Started",
+        key: "noOfStartedEventsCount",
+        color: "#0fd87c",
+        filterationKey: "STARTED",
+      },
+      {
         name: "Completed",
         key: "completedHallCount",
-        color: "#0fd87c",
+        color: "#6101a8",
         filterationKey: "COMPLETED",
       },
       {
@@ -2204,6 +2352,36 @@ const HallBookingDashboard = () => {
         key: "cancelledHallCount",
         color: "#f73859",
         filterationKey: "CANCELLED",
+      },
+    ],
+    []
+  );
+
+  const customHallAlertChips = useMemo(
+    () => [
+      {
+        label: "Live",
+        key: "noOfStartedEventsCount",
+        filterationKey: "isForLiveEvents",
+        customColor: "#0a853e",
+      },
+      {
+        label: "Today",
+        key: "todayEventsCount",
+        filterationKey: "isForTodayEvents",
+        customColor: "#290383",
+      },
+      {
+        label: "Upcoming",
+        key: "futureEventsCount",
+        filterationKey: "isForFutureEvents",
+        customColor: "#087eb9",
+      },
+      {
+        label: "Expired",
+        key: "pastEventsNotCompleted",
+        filterationKey: "isForExpiredEvents",
+        customColor: "#bd4707",
       },
     ],
     []
@@ -2244,6 +2422,10 @@ const HallBookingDashboard = () => {
       pageNo: hallBookingTablePageNo,
       pageSize: hallBookingTableRowsPerPage,
       status: hallBookingTableFilters?.hallBookingStatus?.key || null,
+      isForLiveEvents: hallBookingTableFilters?.isForLiveEvents || false,
+      isForTodayEvents: hallBookingTableFilters?.isForTodayEvents || false,
+      isForFutureEvents: hallBookingTableFilters?.isForFutureEvents || false,
+      isForExpiredEvents: hallBookingTableFilters?.isForExpiredEvents || false,
     },
     {
       refetchOnMountOrArgChange: true,
@@ -2400,7 +2582,26 @@ const HallBookingDashboard = () => {
 
   const handleChangeHallBookingTableFilters = useCallback(
     (name, inputValue) => {
+      const poolOfKeys = [
+        "isForLiveEvents",
+        "isForTodayEvents",
+        "isForFutureEvents",
+        "isForExpiredEvents",
+      ];
       if (name) {
+        sethallBookingTableFilters((prevData) => {
+          const newState = {
+            ...prevData,
+            [name]: inputValue, // Update the specific filter key
+          };
+
+          // Reset pool keys to false
+          poolOfKeys.forEach((key) => {
+            newState[key] = false;
+          });
+
+          return newState;
+        });
         if (name === "fromDate") {
           sethallBookingTableFilters((prevData) => ({
             ...prevData,
@@ -2920,6 +3121,43 @@ const HallBookingDashboard = () => {
               });
           }
         });
+      } else if (name === "startlHallEvent") {
+        Swal.fire({
+          title: "Start Event!",
+          text: "Are You Sure To Start The Event?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const payload = {
+              id: hallBookingData?.id || null,
+              hallStatus: "STARTED",
+            };
+
+            changeHallBookingStatus(payload)
+              .unwrap()
+              .then((res) => {
+                setSnack({
+                  open: true,
+                  message: res?.message || "Hall Event Initiation Success",
+                  severity: "success",
+                });
+              })
+              .catch((err) => {
+                setSnack({
+                  open: true,
+                  message:
+                    err?.data?.message ||
+                    err?.data ||
+                    "Hall Event Initiation Failed",
+                  severity: "error",
+                });
+              });
+          }
+        });
       } else if (name === "cancelHallEvent") {
         Swal.fire({
           title: "Cancel Event!",
@@ -2999,6 +3237,51 @@ const HallBookingDashboard = () => {
     },
     [handleChangeHallBookingTableFilters, allHallStatusTypeData, pieChartLabels]
   );
+
+  const handleChangeHallBookingFilterFromAlertChip = useCallback(
+    (selectedFilterKey) => {
+      const poolOfKeys = [
+        "isForLiveEvents",
+        "isForTodayEvents",
+        "isForFutureEvents",
+        "isForExpiredEvents",
+      ];
+
+      // sethallBookingTableFilters((prevState) => {
+      //   return Object.keys(prevState).reduce((newState, key) => {
+      //     if (poolOfKeys.includes(key)) {
+      //       if (key === selectedFilterKey && prevState[key] === true) {
+      //         newState[key] = false;
+      //       } else {
+      //         newState[key] = key === selectedFilterKey;
+      //       }
+      //     } else {
+      //       newState[key] = prevState[key];
+      //     }
+      //     return newState;
+      //   }, {});
+      // });
+      sethallBookingTableFilters((prevState) => {
+        return Object.keys(initialHallBookingTableFilters).reduce(
+          (newState, key) => {
+            if (poolOfKeys.includes(key)) {
+              if (key === selectedFilterKey && prevState[key] === true) {
+                newState[key] = false; // Uncheck the selected key if it was true
+              } else {
+                newState[key] = key === selectedFilterKey; // Set selected key to true, others to false
+              }
+            } else {
+              newState[key] = initialHallBookingTableFilters[key]; // Reset non-pool keys to initial values
+            }
+            return newState;
+          },
+          {}
+        );
+      });
+    },
+    [initialHallBookingTableFilters]
+  );
+
   return (
     <>
       <Box
@@ -3033,15 +3316,16 @@ const HallBookingDashboard = () => {
           <Grid size={{ xs: 12 }}>
             <Box
               sx={{
-                width: { lg: "75%", md: "80%", xs: "91%" },
+                // width: { lg: "75%", md: "80%", xs: "91%" },
+                width: "100%",
                 margin: "auto",
               }}
             >
-              <Grid container size={12}>
-                <Grid size={6}>
+              <Grid container size={12} spacing={1}>
+                <Grid size={4}>
                   <Box
                     sx={{
-                      width: "67%",
+                      width: "100%",
                     }}
                   >
                     <HallBookingChartComponent
@@ -3055,17 +3339,27 @@ const HallBookingDashboard = () => {
                     />
                   </Box>
                 </Grid>
-                <Grid size={6}>
+                <Grid size={4}>
                   <Box
                     sx={{
                       width: "97%",
-                      height: "230px",
+                      height: "240px",
+                      // marginBottom: "10px",
                     }}
                   >
                     <HallBookingBarChartComponent
                       data={hallBookingChartData?.data?.chartHallData}
                     />
                   </Box>
+                </Grid>
+                <Grid size={4}>
+                  <CustomHallBookingAlertSection
+                    chipData={customHallAlertChips}
+                    alertData={hallBookingChartData?.data}
+                    handleChangeHallBookingFilterFromAlertChip={
+                      handleChangeHallBookingFilterFromAlertChip
+                    }
+                  />
                 </Grid>
               </Grid>
             </Box>

@@ -31,6 +31,7 @@ import {
   useGetRoomsByRoomTypeQuery,
   useGetRoomBookingChartQuery,
   useApproveBookingCancelRequestMutation,
+  useCancelRoomBookingFromBookingHistoryMutation,
 } from "../../services/frontdeskBookingHistory";
 import moment from "moment";
 import Table from "@mui/material/Table";
@@ -42,10 +43,7 @@ import TableRow from "@mui/material/TableRow";
 // import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
-import {
-  useCancelHotelRoomMutation,
-  useRoomtypeByHotelIdQuery,
-} from "../../services/dashboard";
+import { useRoomtypeByHotelIdQuery } from "../../services/dashboard";
 import dayjs from "dayjs";
 
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -869,7 +867,7 @@ const CustomBookingHistoryTableContainer = memo(function ({
           overflow: "auto",
           maxHeight: {
             xs: "calc(100vh - 465px)",
-            xl: "calc(100vh - 360px)",
+            xl: "calc(100vh - 465px)",
             "&::-webkit-scrollbar": {
               // height: "14px",
             },
@@ -2115,7 +2113,7 @@ const FrontdeskBookingHistory = () => {
     useConFirmBookingMutation();
 
   const [cancelBookingByFrontDesk, cancelBookingByFrontDeskRes] =
-    useCancelHotelRoomMutation();
+    useCancelRoomBookingFromBookingHistoryMutation();
 
   const [approveBookingCancelRequest, approveBookingCancelRequestRes] =
     useApproveBookingCancelRequestMutation();
@@ -2525,7 +2523,7 @@ const FrontdeskBookingHistory = () => {
                 <Grid size={6}>
                   <Box
                     sx={{
-                      width: "67%",
+                      width: "100%",
                     }}
                   >
                     <BookingHistoryChartComponent

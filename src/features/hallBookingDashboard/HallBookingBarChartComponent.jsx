@@ -115,10 +115,10 @@ const HallBookingBarChartComponent = ({ data }) => {
     <div
       style={{
         width: "100%",
-        height: "100%",
+        height: "97%",
         display: "flex",
-        justifyContent: "center",
-        marginBottom: "1em",
+        // justifyContent: "center",
+        justifyContent: "flex-start",
       }}
     >
       <canvas ref={chartRef} id="myChart"></canvas>
