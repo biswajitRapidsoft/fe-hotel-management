@@ -213,6 +213,7 @@ const ExtraItem = () => {
                         letterSpacing: 1,
                       },
                     }}
+                    key={item.id}
                   >
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{item.name}</TableCell>

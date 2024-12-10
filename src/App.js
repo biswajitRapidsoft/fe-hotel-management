@@ -31,6 +31,9 @@ const FrontdeskBookingHistory = React.lazy(() =>
 const HotelBillInvoice = React.lazy(() =>
   import("./features/HotelBillInvoice/HotelBillInvoice")
 );
+const HallBookingDashboard = React.lazy(() =>
+  import("./features/hallBookingDashboard/HallBookingDashboard")
+);
 const Parking = React.lazy(() => import("./features/parking/Parking"));
 
 const LaundryHistory = React.lazy(() =>
@@ -76,6 +79,7 @@ function App() {
               path="/frontdeskBookingHistory"
               element={<FrontdeskBookingHistory />}
             />
+            <Route path="/hallBookings" element={<HallBookingDashboard />} />
             <Route path="/Parking" element={<Parking />} />
             <Route path="/LaundryHistory" element={<LaundryHistory />} />
             <Route path="/HallList" element={<HallList />} />

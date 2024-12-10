@@ -14,6 +14,8 @@ import { useNavigate } from "react-router";
 import GroupsIcon from "@mui/icons-material/Groups";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import AltRouteIcon from "@mui/icons-material/AltRoute";
+import KingBedIcon from "@mui/icons-material/KingBed";
+import RoofingIcon from "@mui/icons-material/Roofing";
 
 const drawerWidth = 300;
 
@@ -43,7 +45,7 @@ const Drawer = styled(MuiDrawer, {
 })(({ theme, open }) => ({
   width: drawerWidth,
   flexShrink: 0,
-  // zIndex: theme.zIndex.modal - 1000,
+  zIndex: theme.zIndex.appBar - 1,
   whiteSpace: "nowrap",
   boxSizing: "border-box",
   ...(open && {
@@ -57,6 +59,20 @@ const Drawer = styled(MuiDrawer, {
 }));
 
 const sideBarMenuOptions = [
+  {
+    pathname: "/dashboard",
+    isLibraryIcon: true,
+    menuIcon: <KingBedIcon sx={{ color: "#fff" }} />,
+    menuIconAlt: "Room Logo",
+    menuTitle: "Rooms",
+  },
+  {
+    pathname: "/hallBookings",
+    isLibraryIcon: true,
+    menuIcon: <RoofingIcon sx={{ color: "#fff" }} />,
+    menuIconAlt: "Hall Logo",
+    menuTitle: "Halls",
+  },
   {
     pathname: "/CustomerList",
     isLibraryIcon: true,

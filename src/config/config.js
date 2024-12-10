@@ -47,6 +47,8 @@ const config = Object.freeze({
     finalRoomCheckOut: "api/customer/checkout",
     roomCleanRequest: "public/room/clean/request",
     roomtypeByHotelId: "api/roomtype/by/hotelId",
+    getPendingBookingRequestCounts:
+      "api/get/pending/state/booking/request/count",
 
     //FRONTDESK BOOKING HISTORY
     roomBookingHistoryByHotelId: "api/booking/history",
@@ -54,6 +56,18 @@ const config = Object.freeze({
     conFirmBooking: "api/confirm/booking",
     getRoomsByRoomType: "api/get/room/by/roomtype",
     bookingByFrontDeskStaff: "api/booking/by/frontdesk/staff",
+    getRoomBookingChart: "api/get/room/booking/chart/data",
+    approveBookingCancelRequest: "api/approve/booking/cancel/request",
+
+    // HALL BOOKING DASHBOARD
+    getAllHallBookings: "api/get/all/hall/bookings/data",
+    getAllHallStatus: "api/get/all/hall/status",
+    getAllHallsByHotelIdForHallBooking: "api/get/all/halls",
+    getHallBookingChart: "api/get/hall/chart/data",
+    getIndividualHallBookingDataById: "api/get/individual/hall/booking/data",
+    bookHallFromFrontdesk: "api/book/hall",
+    getAllBanquetsByHotelId: "api/get/all/banquets/by/hotel",
+    changeHallBookingStatus: "api/change/hall/booking/status",
 
     // GUEST DASHBOARD API ENDPOINTS
     getAllHotels: "public/hotels/list",

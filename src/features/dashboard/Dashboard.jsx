@@ -1,4 +1,7 @@
 import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
   Autocomplete,
   Box,
   Button,
@@ -49,6 +52,7 @@ import {
   useGetAllGovtIdsQuery,
   useGetAllPaymentMethodsQuery,
   useGetAllRoomListByHotelIdQuery,
+  useGetPendingBookingRequestCountsQuery,
   useGetTodayCheckoutRoomsByHotelIdQuery,
   useRequestRoomCheckoutMutation,
   useRoomCleanRequestMutation,
@@ -58,7 +62,7 @@ import {
 import { checkRoomStatusType } from "../../helper/helperFunctions";
 import moment from "moment";
 import { BootstrapDialog } from "../header/Header";
-// import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CloseIcon from "@mui/icons-material/Close";
 import ReactDOM from "react-dom";
 import dayjs from "dayjs";
@@ -72,6 +76,23 @@ import InfoIcon from "@mui/icons-material/Info";
 export const StyledCalendarIcon = styled(CalendarMonthIcon)({
   color: "#9380B8",
 });
+
+function getRoomStatusColor(key) {
+  switch (key) {
+    case "Available":
+      return { color: "#3db7ff", bgcolor: "#c9ebff" };
+    case "Reserved":
+      return { color: "#ffa83a", bgcolor: "#ffe3c0" };
+    case "Occupied":
+      return { color: "#14b85c", bgcolor: "#b4ffd6" };
+    case "Not Available":
+      return { color: "#ff5353", bgcolor: "#ffc0c0" };
+    case "Being Serviced":
+      return { color: "#b200ff", bgcolor: "#efcaff" };
+    default:
+      return { color: "#cccccc", bgcolor: "#ffffff" };
+  }
+}
 
 function calculateNumberOfDaysOfStay({ checkOutDate, fromDate, toDate }) {
   if (checkOutDate) {
@@ -374,8 +395,8 @@ const CustomRoomFilters = memo(function ({
         width: "100%",
       }}
     >
-      <Grid container size={12} columnSpacing={0.5}>
-        <Grid>
+      <Grid container size={12} columnSpacing={0.5} rowSpacing={1}>
+        <Grid size={{ xs: 3, lg: 2.2, xl: 1.7 }}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               disablePast
@@ -419,7 +440,7 @@ const CustomRoomFilters = memo(function ({
             />
           </LocalizationProvider>
         </Grid>
-        <Grid>
+        <Grid size={{ xs: 3, lg: 2.2, xl: 1.7 }}>
           <Box
             sx={{
               ".MuiTextField-root": {
@@ -535,7 +556,7 @@ const CustomRoomFilters = memo(function ({
             />
           </Box>
         </Grid>
-        <Grid>
+        <Grid size={{ xs: 3, lg: 2.2, xl: 1.7 }}>
           <Box
             sx={{
               ".MuiTextField-root": {
@@ -650,7 +671,7 @@ const CustomRoomFilters = memo(function ({
             />
           </Box>
         </Grid>
-        <Grid size={1.5}>
+        <Grid size={{ xs: 3, md: 2.5, lg: 2, xl: 1.5 }}>
           <Button
             variant="contained"
             size="small"
@@ -812,79 +833,99 @@ const CustomFloorAccordion = memo(function ({
   return (
     <>
       <Box sx={{ width: "100" }}>
-        <Box
+        <Accordion
+          defaultExpanded
           sx={{
-            borderBottom: "2px solid #ccc",
-            bgcolor: "#e3e3e3",
-            py: 0.2,
-            px: 1,
+            boxShadow: "none",
+            "&.Mui-expanded": {
+              boxShadow: "none",
+            },
           }}
         >
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: 550, letterSpacing: 1, fontSize: "18px" }}
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel1-content"
+            id="panel1-header"
+            sx={{
+              // borderBottom: "2px solid #ccc",
+              minHeight: "unset",
+              height: "35px",
+              maxHeight: "35px",
+              bgcolor: "#e3e3e3",
+              "&.Mui-expanded": {
+                minHeight: "unset",
+                height: "35px",
+                maxHeight: "35px",
+              },
+            }}
           >
-            {`Floor ${floorData?.floorNo}`}
-          </Typography>
-        </Box>
-        <Box sx={{ width: "100%", mt: 1 }}>
-          <Grid container size={12} spacing={2}>
-            {Boolean(floorData?.roomDto?.length) &&
-              floorData?.roomDto
-                ?.filter((room) => {
-                  console.log("somya room : ", room);
-                  const matchesRoomStatus =
-                    roomFilters?.selectedRoomStatus &&
-                    !Boolean(roomFilters?.selectedRoomStatus === "All")
-                      ? checkRoomStatusType(room)?.key ===
-                        roomFilters?.selectedRoomStatus
-                      : true;
+            <Typography
+              sx={{ fontWeight: 550, letterSpacing: 1, fontSize: "18px" }}
+            >
+              {`Floor ${floorData?.floorNo}`}
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Box sx={{ width: "100%", mt: 1 }}>
+              <Grid container size={12} spacing={2}>
+                {Boolean(floorData?.roomDto?.length) &&
+                  floorData?.roomDto
+                    ?.filter((room) => {
+                      console.log("somya room : ", room);
+                      const matchesRoomStatus =
+                        roomFilters?.selectedRoomStatus &&
+                        !Boolean(roomFilters?.selectedRoomStatus === "All")
+                          ? checkRoomStatusType(room)?.key ===
+                            roomFilters?.selectedRoomStatus
+                          : true;
 
-                  const matchesRoomType = roomFilters?.roomType
-                    ? room?.roomType?.id === roomFilters?.roomType?.id
-                    : true;
+                      const matchesRoomType = roomFilters?.roomType
+                        ? room?.roomType?.id === roomFilters?.roomType?.id
+                        : true;
 
-                  const matchesSearchKey = roomFilters?.searchKey
-                    ? room?.roomNumber
-                        ?.toString()
-                        ?.includes(roomFilters?.searchKey) ||
-                      room?.occupier
-                        ?.toLowerCase()
-                        ?.includes(roomFilters?.searchKey?.toLowerCase())
-                    : true;
+                      const matchesSearchKey = roomFilters?.searchKey
+                        ? room?.roomNumber
+                            ?.toString()
+                            ?.includes(roomFilters?.searchKey) ||
+                          room?.occupier
+                            ?.toLowerCase()
+                            ?.includes(roomFilters?.searchKey?.toLowerCase())
+                        : true;
 
-                  const matchesDate = roomFilters?.toDate
-                    ? new Date(room?.availableDate) <=
-                      new Date(roomFilters?.toDate)
-                    : true;
+                      const matchesDate = roomFilters?.toDate
+                        ? new Date(room?.availableDate) <=
+                          new Date(roomFilters?.toDate)
+                        : true;
 
-                  return (
-                    matchesRoomStatus &&
-                    matchesRoomType &&
-                    matchesSearchKey &&
-                    matchesDate
-                  );
-                })
-                ?.map((roomDetailsItem, index) => {
-                  return (
-                    <Grid
-                      key={`room ${index}`}
-                      size={{ xs: 6, sm: 4, md: 2.5, lg: 2 }}
-                    >
-                      <CustomRoomCard
-                        roomDetails={roomDetailsItem}
-                        isSelectedRoom={
-                          isSelectedRoom?.roomNo === roomDetailsItem?.roomNo
-                            ? true
-                            : false
-                        }
-                        handleRoomSelect={handleRoomSelect}
-                      />
-                    </Grid>
-                  );
-                })}
-          </Grid>
-        </Box>
+                      return (
+                        matchesRoomStatus &&
+                        matchesRoomType &&
+                        matchesSearchKey &&
+                        matchesDate
+                      );
+                    })
+                    ?.map((roomDetailsItem, index) => {
+                      return (
+                        <Grid
+                          key={`room ${index}`}
+                          size={{ xs: 6, sm: 4, md: 2.5, lg: 2 }}
+                        >
+                          <CustomRoomCard
+                            roomDetails={roomDetailsItem}
+                            isSelectedRoom={
+                              isSelectedRoom?.roomNo === roomDetailsItem?.roomNo
+                                ? true
+                                : false
+                            }
+                            handleRoomSelect={handleRoomSelect}
+                          />
+                        </Grid>
+                      );
+                    })}
+              </Grid>
+            </Box>
+          </AccordionDetails>
+        </Accordion>
       </Box>
     </>
   );
@@ -909,33 +950,26 @@ const CustomRoomCard = memo(function ({
         display: "flex",
         flexDirection: "column",
         flexGrow: 1,
-        height: 110,
+        height: 87,
         position: "relative",
         overflow: "hidden",
+        bgcolor: getRoomStatusColor(checkRoomStatusType(roomDetails)?.key)
+          ?.bgcolor,
         boxShadow: isSelectedRoom
           ? "rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px"
           : "rgba(0, 0, 0, 0.1) 0px 4px 12px",
-        "&::before": {
-          content: '""',
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 20,
-          backgroundColor:
-            checkRoomStatusType(roomDetails)?.key === AVAILABLE.key
-              ? "hsla(202, 100%, 73%, 0.99)"
-              : checkRoomStatusType(roomDetails)?.key === RESERVED.key
-              ? "hsla(32, 98%, 65%, 0.99)"
-              : checkRoomStatusType(roomDetails)?.key === OCCUPIED.key
-              ? "hsla(140, 100%, 36%, 0.99)"
-              : checkRoomStatusType(roomDetails)?.key === NOT_AVAILABLE.key
-              ? "hsla(0, 100%, 65%, 0.99)"
-              : checkRoomStatusType(roomDetails)?.key === BEING_SERVICED.key
-              ? "hsla(281, 100%, 63%, 0.99)"
-              : "#ccc",
-          pointerEvents: "none",
-        },
+        // "&::before": {
+        //   content: '""',
+        //   position: "absolute",
+        //   top: 0,
+        //   left: 0,
+        //   right: 0,
+        //   height: 20,
+        //   backgroundColor: getRoomStatusColor(
+        //     checkRoomStatusType(roomDetails)?.key
+        //   )?.bgcolor,
+        //   pointerEvents: "none",
+        // },
         "&:hover": {
           cursor: "pointer",
         },
@@ -949,9 +983,8 @@ const CustomRoomCard = memo(function ({
           alignItems: "center",
           flexDirection: "column",
           px: 2,
-          pb: 1,
-          pt: 3,
-          gap: 0.5,
+          pt: 1,
+          gap: 0.2,
         }}
       >
         <Typography sx={{ fontSize: "17px", fontWeight: 550 }}>
@@ -959,7 +992,7 @@ const CustomRoomCard = memo(function ({
         </Typography>
         <Typography
           sx={{
-            fontSize: "14.5px",
+            fontSize: "13.5px",
             textAlign: "center",
             lineHeight: 1.2, // This will reduce the vertical spacing
             letterSpacing: "normal",
@@ -978,40 +1011,183 @@ const CustomRoomCard = memo(function ({
   );
 });
 
-// const KeyAllocationCard = memo(function ({ keyAllocationData }) {
-//   return (
-//     <>
-//       <Box sx={{ width: "100" }}>
-//         <Box
-//           sx={{
-//             borderBottom: "2px solid #ccc",
-//             bgcolor: "#e3e3e3",
-//             py: 0.5,
-//             px: 1,
-//           }}
-//         >
-//           <Typography variant="h6" sx={{ fontWeight: 550, letterSpacing: 1 }}>
-//             {`Key Allocation`}
-//           </Typography>
-//         </Box>
-//         <Box sx={{ width: "100%", mt: 2, height: "100px", overflowY: "auto" }}>
-//           <Grid container size={12} rowSpacing={2}>
-//             {Boolean(keyAllocationData?.length) &&
-//               keyAllocationData?.map((keyItem, index) => {
-//                 return (
-//                   <Grid key={`Key-${index}`} size={3}>
-//                     <Button variant="contained" size="small">
-//                       {keyItem?.roomNo}
-//                     </Button>
-//                   </Grid>
-//                 );
-//               })}
-//           </Grid>
-//         </Box>
-//       </Box>
-//     </>
-//   );
-// });
+const CustomAlertCard = memo(function ({ alertData }) {
+  const navigate = useNavigate();
+
+  const handleNavigateToBookingHistoryByAlert = useCallback(
+    (name) => {
+      if (name === "pendingConfirmation") {
+        sessionStorage.setItem(
+          "customAlertFilter",
+          JSON.stringify("Pending_Confirmation")
+        );
+        navigate("/frontdeskBookingHistory");
+      } else if (name === "pendingRefundRequest") {
+        sessionStorage.setItem(
+          "customAlertFilter",
+          JSON.stringify("Booking_Cancellation_Requested")
+        );
+        navigate("/frontdeskBookingHistory");
+      }
+    },
+    [navigate]
+  );
+
+  return (
+    <Box sx={{ width: "100%" }}>
+      <Box
+        sx={{
+          borderBottom: "2px solid #ccc",
+          bgcolor: "#e3e3e3",
+          py: 0.2,
+          px: 1,
+        }}
+      >
+        <Typography
+          variant="h6"
+          sx={{ fontWeight: 550, letterSpacing: 1, fontSize: "18px" }}
+        >
+          {`Alerts`}
+        </Typography>
+      </Box>
+      <Box
+        sx={{
+          width: "100%",
+          mt: 2,
+          height: "100px",
+          overflowY: "auto",
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "5px",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px;",
+            borderRadius: "5px",
+            maxHeight: "35px",
+            overflow: "hidden",
+            userSelect: "none",
+            cursor: "pointer",
+            transition: "all 0.3s ease",
+            "&:hover": {
+              "& .leftBox": {
+                bgcolor: "#ffffff",
+                color: "#e65d1d",
+              },
+              "& .rightBox": {
+                bgcolor: "#e65d1d",
+                color: "#ffffff",
+              },
+              "& .rightBox .MuiTypography-root": {
+                color: "#ffffff",
+              },
+            },
+          }}
+          onClick={() =>
+            handleNavigateToBookingHistoryByAlert("pendingConfirmation")
+          }
+        >
+          <Box
+            className="leftBox"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              paddingX: "3px",
+              bgcolor: "#e65d1d",
+              color: "#ffffff",
+              transition: "all 0.3s ease",
+            }}
+          >
+            <Typography sx={{ fontSize: "13px", fontWeight: 600 }}>
+              Pending Room Bookings
+            </Typography>
+          </Box>
+          <Box
+            className="rightBox"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              paddingX: "12px",
+              minWidth: "40px",
+              color: "#e65d1d",
+              transition: "all 0.3s ease",
+            }}
+          >
+            <Typography sx={{ fontWeight: 550 }}>
+              {alertData?.noOfBookingRequestCount || "0"}
+            </Typography>
+          </Box>
+        </Box>
+
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px;",
+            borderRadius: "5px",
+            maxHeight: "35px",
+            overflow: "hidden",
+            userSelect: "none",
+            cursor: "pointer",
+            transition: "all 0.3s ease",
+            "&:hover": {
+              "& .leftBox": {
+                bgcolor: "#ffffff",
+                color: "#5a1de6",
+              },
+              "& .rightBox": {
+                bgcolor: "#5a1de6",
+                color: "#ffffff",
+              },
+              "& .rightBox .MuiTypography-root": {
+                color: "#ffffff",
+              },
+            },
+          }}
+          onClick={() =>
+            handleNavigateToBookingHistoryByAlert("pendingRefundRequest")
+          }
+        >
+          <Box
+            className="leftBox"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              paddingX: "3px",
+              bgcolor: "#5a1de6",
+              color: "#ffffff",
+              transition: "all 0.3s ease",
+            }}
+          >
+            <Typography sx={{ fontSize: "13px", fontWeight: 600 }}>
+              Refund Requests
+            </Typography>
+          </Box>
+          <Box
+            className="rightBox"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              paddingX: "12px",
+              minWidth: "40px",
+              color: "#5a1de6",
+              transition: "all 0.3s ease",
+            }}
+          >
+            <Typography sx={{ fontWeight: 550 }}>
+              {alertData?.noOfCancellationRequstCount || "0"}
+            </Typography>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
+  );
+});
 
 const DayCheckoutCard = memo(function ({
   dayCheckoutData,
@@ -1361,6 +1537,50 @@ const RoomServiceCard = memo(function ({
                           </Typography>
                         </Grid>
 
+                        {/* CAPACITY */}
+                        <Grid size={5}>
+                          <Typography
+                            sx={{
+                              fontSize: "15.5px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            Capacity
+                          </Typography>
+                        </Grid>
+                        <Grid size={7}>
+                          <Typography
+                            sx={{
+                              fontSize: "15.5px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "15.5px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                                marginRight: "5px",
+                              }}
+                            >
+                              :
+                            </Typography>
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "15.5px",
+                                // color: "#707070",
+                                // fontWeight: 600,
+                              }}
+                            >
+                              {isSelectedRoom?.roomType?.capacity || ""}
+                            </Typography>
+                          </Typography>
+                        </Grid>
+
                         {/* BOOKING DATE */}
                         <Grid size={5}>
                           <Typography
@@ -1633,8 +1853,9 @@ const RoomServiceCard = memo(function ({
                         src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXp3DxP80ArpRzsB0XWBG9Ow5GeuefbLrUHw&s"
                         alt="person"
                         style={{
-                          width: "100%",
-                          height: "130px",
+                          width: "70px",
+                          height: "70px",
+                          borderRadius: "50%",
                           objectFit: "cover",
                         }}
                       />
@@ -2157,6 +2378,49 @@ const RoomServiceCard = memo(function ({
                             </Typography>
                           </Typography>
                         </Grid>
+                        {/* CAPACITY */}
+                        <Grid size={5}>
+                          <Typography
+                            sx={{
+                              fontSize: "15.5px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            Capacity
+                          </Typography>
+                        </Grid>
+                        <Grid size={7}>
+                          <Typography
+                            sx={{
+                              fontSize: "15.5px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "15.5px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                                marginRight: "5px",
+                              }}
+                            >
+                              :
+                            </Typography>
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "15.5px",
+                                // color: "#707070",
+                                // fontWeight: 600,
+                              }}
+                            >
+                              {isSelectedRoom?.roomType?.capacity || ""}
+                            </Typography>
+                          </Typography>
+                        </Grid>
 
                         {/* BOOKING DATE */}
                         <Grid size={5}>
@@ -2342,8 +2606,9 @@ const RoomServiceCard = memo(function ({
                         src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXp3DxP80ArpRzsB0XWBG9Ow5GeuefbLrUHw&s"
                         alt="person"
                         style={{
-                          width: "100%",
-                          height: "130px",
+                          width: "70px",
+                          height: "70px",
+                          borderRadius: "50%",
                           objectFit: "cover",
                         }}
                       />
@@ -2496,6 +2761,50 @@ const RoomServiceCard = memo(function ({
                                 ?.replace(/\b\w/g, (char) =>
                                   char.toUpperCase()
                                 ) || ""}
+                            </Typography>
+                          </Typography>
+                        </Grid>
+
+                        {/* CAPACITY */}
+                        <Grid size={3.5}>
+                          <Typography
+                            sx={{
+                              fontSize: "15.5px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            Capacity
+                          </Typography>
+                        </Grid>
+                        <Grid size={8.5}>
+                          <Typography
+                            sx={{
+                              fontSize: "15.5px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "15.5px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                                marginRight: "5px",
+                              }}
+                            >
+                              :
+                            </Typography>
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "15.5px",
+                                // color: "#707070",
+                                // fontWeight: 600,
+                              }}
+                            >
+                              {isSelectedRoom?.roomType?.capacity || ""}
                             </Typography>
                           </Typography>
                         </Grid>
@@ -2703,31 +3012,31 @@ const RoomServiceCard = memo(function ({
                   : ""}
               </Button>
 
-              {/* {Boolean(
+              {Boolean(
                 Boolean(
                   isSelectedRoom?.bookingDto?.isCheckoutProceed === false
                 ) &&
                   Boolean(
                     isSelectedRoom?.bookingDto?.isCheckedByKeepingStaff === true
                   )
-              ) && ( */}
-              <Button
-                variant="contained"
-                size="small"
-                sx={{
-                  backgroundImage:
-                    "linear-gradient(to right, #009688, #00897b, #00796b, #00695c)", // Lighter to darker teal
-                  color: "white",
-                  "&:hover": {
+              ) && (
+                <Button
+                  variant="contained"
+                  size="small"
+                  sx={{
                     backgroundImage:
-                      "linear-gradient(to right, #00796b, #00695c, #005b50)", // Slightly darker shades on hover
-                  },
-                }}
-                onClick={() => handleViewHotelBillInvoice(isSelectedRoom)}
-              >
-                View Invoice
-              </Button>
-              {/* )} */}
+                      "linear-gradient(to right, #009688, #00897b, #00796b, #00695c)", // Lighter to darker teal
+                    color: "white",
+                    "&:hover": {
+                      backgroundImage:
+                        "linear-gradient(to right, #00796b, #00695c, #005b50)", // Slightly darker shades on hover
+                    },
+                  }}
+                  onClick={() => handleViewHotelBillInvoice(isSelectedRoom)}
+                >
+                  View Invoice
+                </Button>
+              )}
             </>
           )}
         </Box>
@@ -2835,7 +3144,7 @@ const CustomFormDrawer = memo(function ({
       onClose={() => handleToggleCustomFormDrawerOnChange()}
       sx={{ zIndex: 1300 }}
     >
-      <Box sx={{ width: 500 }} role="presentation">
+      <Box sx={{ width: 500, paddingBottom: "15px" }} role="presentation">
         <Box
           sx={{
             px: 2,
@@ -3147,7 +3456,8 @@ const CustomFormDrawer = memo(function ({
                 <Box
                   sx={{
                     width: "100%",
-                    maxHeight: "calc(100vh - 550px)",
+                    // maxHeight: "calc(100vh - 550px)",
+                    maxHeight: "270px",
                     overflowX: "hidden",
                     overflowY: "auto",
                   }}
@@ -3667,7 +3977,7 @@ const CustomFormDrawer = memo(function ({
                   <Grid size={{ xs: 6, md: 4 }}>
                     <TextField
                       margin="normal"
-                      required
+                      // required
                       fullWidth
                       id={`remarks`}
                       label="Remarks"
@@ -3820,10 +4130,9 @@ const CustomFormDrawer = memo(function ({
           {type === "booking" && (
             <Grid container size={12} spacing={1}>
               <Grid size={12}>
-                <Grid container size={12} columnSpacing={1}>
+                <Grid container size={12} columnSpacing={1} rowSpacing={0.6}>
                   <Grid size={{ xs: 4 }}>
                     <TextField
-                      margin="normal"
                       required
                       fullWidth
                       id="firstName"
@@ -3862,7 +4171,6 @@ const CustomFormDrawer = memo(function ({
                   </Grid>
                   <Grid size={{ xs: 4 }}>
                     <TextField
-                      margin="normal"
                       // required
                       fullWidth
                       id="middleName"
@@ -3901,7 +4209,6 @@ const CustomFormDrawer = memo(function ({
                   </Grid>
                   <Grid size={{ xs: 4 }}>
                     <TextField
-                      margin="normal"
                       // required
                       fullWidth
                       id="lastName"
@@ -3940,7 +4247,6 @@ const CustomFormDrawer = memo(function ({
                   </Grid>
                   <Grid size={{ xs: 4 }}>
                     <TextField
-                      margin="normal"
                       required
                       fullWidth
                       id="phoneNumber"
@@ -3979,7 +4285,6 @@ const CustomFormDrawer = memo(function ({
                   </Grid>
                   <Grid size={{ xs: 4 }}>
                     <TextField
-                      margin="normal"
                       fullWidth
                       id="email"
                       label="Email"
@@ -4017,7 +4322,6 @@ const CustomFormDrawer = memo(function ({
                   </Grid>
                   <Grid size={{ xs: 4 }}>
                     <TextField
-                      margin="normal"
                       required
                       fullWidth
                       id="address"
@@ -4054,9 +4358,37 @@ const CustomFormDrawer = memo(function ({
                       }}
                     />
                   </Grid>
-                  <Grid size={{ xs: 4 }}>
+                  <Grid size={6}>
+                    <Box
+                      sx={{
+                        width: "100%",
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "flex-end",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: "100%",
+                          height: "80%",
+                          display: "flex",
+                          alignItems: "center",
+                          paddingY: "6px",
+                          paddingX: "7px",
+                          borderRadius: "5px",
+                          bgcolor: "#fff1c6",
+                          color: "#9c5208",
+                        }}
+                      >
+                        <Typography sx={{ fontSize: "13px", fontWeight: 550 }}>
+                          Room Capacity:{" "}
+                          {isSelectedRoom?.roomType?.capacity || "0"}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
+                  <Grid size={{ xs: 6 }}>
                     <TextField
-                      margin="normal"
                       required
                       fullWidth
                       id="noOfPeoples"
@@ -4097,7 +4429,7 @@ const CustomFormDrawer = memo(function ({
                     <Box
                       sx={{
                         width: "100%",
-                        paddingTop: "17px",
+                        paddingTop: "9px",
                       }}
                     >
                       <FormControlLabel
@@ -4119,7 +4451,7 @@ const CustomFormDrawer = memo(function ({
                             Book For Today
                           </Typography>
                         }
-                        labelPlacement="start"
+                        labelPlacement="end"
                       />
                     </Box>
                   </Grid>
@@ -4131,8 +4463,8 @@ const CustomFormDrawer = memo(function ({
                           width: "100%",
                           height: "100%",
                           display: "flex",
-                          alignItems: "end",
-                          paddingBottom: "8px",
+                          alignItems: "flex-start",
+                          // paddingBottom: "8px",
                         }}
                       >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -4189,8 +4521,7 @@ const CustomFormDrawer = memo(function ({
                           width: "100%",
                           height: "100%",
                           display: "flex",
-                          alignItems: "end",
-                          paddingBottom: "8px",
+                          alignItems: "flex-start",
                         }}
                       >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -4247,8 +4578,7 @@ const CustomFormDrawer = memo(function ({
                           width: "100%",
                           height: "100%",
                           display: "flex",
-                          alignItems: "end",
-                          paddingBottom: "8px",
+                          alignItems: "flex-start",
                         }}
                       >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -4330,7 +4660,8 @@ const CustomFormDrawer = memo(function ({
                     <Box
                       sx={{
                         width: "100%",
-                        maxHeight: "calc(100vh - 550px)",
+                        // maxHeight: "calc(100vh - 550px)",
+                        maxHeight: "270px",
                         overflowX: "hidden",
                         overflowY: "auto",
                         marginTop: "10px",
@@ -4963,7 +5294,7 @@ const CustomFormDrawer = memo(function ({
                     <Grid size={{ xs: 6, md: 4 }}>
                       <TextField
                         margin="normal"
-                        required
+                        // required
                         fullWidth
                         id={`remarks`}
                         label="Remarks"
@@ -6057,6 +6388,51 @@ const ShowcaseDialog = memo(function ({
                             </Typography>
                           </Typography>
                         </Grid>
+                        <Grid size={3.5}>
+                          <Typography
+                            sx={{
+                              fontSize: "15px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            Due Amount
+                          </Typography>
+                        </Grid>
+                        <Grid size={2.5}>
+                          <Typography
+                            sx={{
+                              fontSize: "15px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "15px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                                marginRight: "5px",
+                              }}
+                            >
+                              :
+                            </Typography>
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "15px",
+                                // color: "#707070",
+                                // fontWeight: 600,
+                              }}
+                            >
+                              {showcaseDialogFormData?.subTotalAmountRemaining >
+                              0
+                                ? showcaseDialogFormData?.subTotalAmountRemaining
+                                : 0}
+                            </Typography>
+                          </Typography>
+                        </Grid>
                       </Grid>
                     </Grid>
 
@@ -6209,9 +6585,10 @@ const ShowcaseDialog = memo(function ({
                             <TextField
                               margin="normal"
                               fullWidth
-                              disabled={
-                                !Boolean(showcaseDialogFormData?.paymentMethod)
-                              }
+                              // disabled={
+                              //   !Boolean(showcaseDialogFormData?.paymentMethod)
+                              // }
+                              disabled
                               id={`paidAmount`}
                               label="Amount"
                               name="paidAmount"
@@ -6328,7 +6705,6 @@ const Dashboard = () => {
   const [roomCleanRequest, roomCleanRequestRes] = useRoomCleanRequestMutation();
   const [bookingByFrontDeskStaff, bookingByFrontDeskStaffRes] =
     useBookingByFrontDeskStaffMutation();
-  const [roomListCacheBuster, setRoomListCacheBuster] = useState(false);
   const {
     data: apiTodayCheckoutRoomData = {
       data: [],
@@ -6337,7 +6713,6 @@ const Dashboard = () => {
   } = useGetTodayCheckoutRoomsByHotelIdQuery(
     {
       hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId,
-      cacheBuster: roomListCacheBuster,
     },
     {
       refetchOnMountOrArgChange: true,
@@ -6362,7 +6737,6 @@ const Dashboard = () => {
       dateFilterKey:
         roomFilters?.toDate &&
         moment(roomFilters.toDate.$d).format("DD-MM-YYYY"),
-      cacheBuster: roomListCacheBuster,
     },
     {
       refetchOnMountOrArgChange: true,
@@ -6399,6 +6773,26 @@ const Dashboard = () => {
   );
   console.log("roomtypeByHotelIdData : ", roomtypeByHotelIdData);
 
+  const {
+    data: pendingBookingRequestCountsData = {
+      data: { noOfBookingRequestCount: 0, noOfCancellationRequstCount: 0 },
+    },
+    isLoading: isPendingBookingRequestCountsDataLoading,
+  } = useGetPendingBookingRequestCountsQuery(
+    {
+      hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId,
+    },
+    {
+      refetchOnMountOrArgChange: true,
+      pollingInterval: 50000,
+      skip: !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId),
+    }
+  );
+  console.log(
+    "pendingBookingRequestCountsData : ",
+    pendingBookingRequestCountsData
+  );
+
   const floorOptions = React.useMemo(
     () =>
       apiRoomData.data.floorRoomMapData.map((item) => {
@@ -6434,6 +6828,7 @@ const Dashboard = () => {
       transactionReferenceNo: "",
       paidAmount: "",
       remarks: "",
+      specialRequirements: "",
       cancelBookingReason: "",
       firstName: "",
       middleName: "",
@@ -6551,9 +6946,6 @@ const Dashboard = () => {
   //   setIsSelectedFloor(selectedFloor || null);
   // }, []);
 
-  const handleChangeRoomListCacheBuster = useCallback(() => {
-    setRoomListCacheBuster((prev) => !prev);
-  }, []);
   const handleRoomSelect = useCallback((selectedRoom) => {
     setIsSelectedRoom((prevState) => {
       if (!selectedRoom || prevState?.id === selectedRoom?.id) {
@@ -6670,7 +7062,7 @@ const Dashboard = () => {
             //   inputValue === "" ? "" : Number(inputValue);
             const modifiedInputValue = Math.min(
               inputValue === "" ? 0 : Number(inputValue),
-              10 // Cap at 10 people
+              isSelectedRoom?.roomType?.capacity || 1 //
             );
 
             setCustomFormDrawerData((prevData) => {
@@ -7003,7 +7395,7 @@ const Dashboard = () => {
         setCustomFormDrawerData(initialCustomFormDrawerData);
       }
     },
-    [initialCustomFormDrawerData]
+    [initialCustomFormDrawerData, isSelectedRoom]
   );
 
   const handleOpenCustomFormDrawer = useCallback(
@@ -7076,17 +7468,43 @@ const Dashboard = () => {
         severity: "warning",
       });
       return;
-    } else if (!Boolean(customFormDrawerData?.remarks?.trim())) {
-      setSnack({
-        open: true,
-        message: "Please add a remark",
-        severity: "warning",
-      });
-      return;
-    } else if (!Boolean(customFormDrawerData?.checkOutDate)) {
+    }
+    // else if (!Boolean(customFormDrawerData?.remarks?.trim())) {
+    //   setSnack({
+    //     open: true,
+    //     message: "Please add a remark",
+    //     severity: "warning",
+    //   });
+    //   return;
+    // }
+    else if (!Boolean(customFormDrawerData?.checkOutDate)) {
       setSnack({
         open: true,
         message: "Please provide a valid Checkout date",
+        severity: "warning",
+      });
+      return;
+    } else if (
+      customFormDrawerData?.paymentMethod?.key &&
+      customFormDrawerData?.paymentMethod?.key !== "Cash" &&
+      customFormDrawerData?.paymentMethod?.key.trim() !== "" &&
+      !customFormDrawerData?.transactionReferenceNo?.trim()
+    ) {
+      setSnack({
+        open: true,
+        message:
+          "Please provide a valid transaction reference for the selected payment method.",
+        severity: "warning",
+      });
+      return;
+    } else if (
+      Boolean(customFormDrawerData?.paymentMethod?.key) !==
+      Boolean(parseFloat(customFormDrawerData?.paidAmount))
+    ) {
+      setSnack({
+        open: true,
+        message:
+          "Please provide both payment method and advance amount to proceed.",
         severity: "warning",
       });
       return;
@@ -7101,7 +7519,11 @@ const Dashboard = () => {
         ? 0
         : Number(customFormDrawerData?.paidAmount),
       paymentMethod: customFormDrawerData?.paymentMethod?.key,
-      transactionReferenceNo: customFormDrawerData?.transactionReferenceNo,
+      // transactionReferenceNo: customFormDrawerData?.transactionReferenceNo,
+      ...(customFormDrawerData?.paymentMethod?.key !== "Cash" &&
+        customFormDrawerData?.transactionReferenceNo?.trim() && {
+          transactionReferenceNo: customFormDrawerData?.transactionReferenceNo,
+        }),
       remarks: customFormDrawerData?.remarks,
       checkOutDate: customFormDrawerData?.checkOutDate
         ? moment(customFormDrawerData?.checkOutDate.$d).format("DD-MM-YYYY")
@@ -7127,7 +7549,6 @@ const Dashboard = () => {
         });
         handleOpenCustomFormDrawer();
         handleChangeCustomFormDrawerData();
-        handleChangeRoomListCacheBuster();
         handleRoomSelect();
       })
       .catch((err) => {
@@ -7142,7 +7563,6 @@ const Dashboard = () => {
     saveCustomerCheckIn,
     handleOpenCustomFormDrawer,
     handleChangeCustomFormDrawerData,
-    handleChangeRoomListCacheBuster,
     handleRoomSelect,
   ]);
 
@@ -7169,9 +7589,8 @@ const Dashboard = () => {
           severity: "success",
         });
         handleOpenCustomFormDrawer();
-        handleChangeCustomFormDrawerData();
-        handleChangeRoomListCacheBuster();
         handleRoomSelect();
+        handleChangeCustomFormDrawerData();
       })
       .catch((err) => {
         setSnack({
@@ -7185,7 +7604,6 @@ const Dashboard = () => {
     cancelReservation,
     handleOpenCustomFormDrawer,
     handleChangeCustomFormDrawerData,
-    handleChangeRoomListCacheBuster,
     handleRoomSelect,
   ]);
 
@@ -7213,7 +7631,6 @@ const Dashboard = () => {
             });
             handleOpenCustomFormDrawer();
             handleChangeCustomFormDrawerData();
-            handleChangeRoomListCacheBuster();
             handleRoomSelect();
           })
           .catch((err) => {
@@ -7231,7 +7648,6 @@ const Dashboard = () => {
     isSelectedRoom,
     handleOpenCustomFormDrawer,
     handleChangeCustomFormDrawerData,
-    handleChangeRoomListCacheBuster,
     handleRoomSelect,
   ]);
 
@@ -7288,6 +7704,43 @@ const Dashboard = () => {
         severity: "warning",
       });
       return;
+    } else if (
+      showcaseDialogFormData?.paymentMethod?.key &&
+      showcaseDialogFormData?.paymentMethod?.key !== "Cash" &&
+      showcaseDialogFormData?.paymentMethod?.key.trim() !== "" &&
+      !showcaseDialogFormData?.transactionReferenceNo?.trim()
+    ) {
+      setSnack({
+        open: true,
+        message:
+          "Please provide a valid transaction reference for the selected payment method.",
+        severity: "warning",
+      });
+      return;
+    } else if (
+      Boolean(showcaseDialogFormData?.subTotalAmountRemaining > 0) &&
+      Boolean(showcaseDialogFormData?.paymentMethod?.key) !==
+        Boolean(parseFloat(showcaseDialogFormData?.paidAmount))
+    ) {
+      setSnack({
+        open: true,
+        message: "Please provide both payment method and amount to proceed.",
+        severity: "warning",
+      });
+      return;
+    } else if (
+      Boolean(showcaseDialogFormData?.subTotalAmountRemaining > 0) &&
+      Boolean(
+        parseFloat(showcaseDialogFormData?.paidAmount) !==
+          parseFloat(showcaseDialogFormData?.subTotalAmountRemaining)
+      )
+    ) {
+      setSnack({
+        open: true,
+        message: "please provide remaining amount.",
+        severity: "warning",
+      });
+      return;
     }
 
     Swal.fire({
@@ -7304,6 +7757,11 @@ const Dashboard = () => {
           bookingRefNumber: showcaseDialogFormData?.bookingRefNumber,
           paidAmount: showcaseDialogFormData?.paidAmount,
           paymentMethod: showcaseDialogFormData?.paymentMethod?.key,
+          ...(showcaseDialogFormData?.paymentMethod?.key !== "Cash" &&
+            showcaseDialogFormData?.transactionReferenceNo?.trim() && {
+              transactionReferenceNo:
+                showcaseDialogFormData?.transactionReferenceNo,
+            }),
         };
         finalRoomCheckOut(payload)
           .unwrap()
@@ -7315,7 +7773,6 @@ const Dashboard = () => {
             });
             handleCloseShowcaseDialog();
             handleChangeShowcaseDialogFormData();
-            handleChangeRoomListCacheBuster();
             handleRoomSelect();
           })
           .catch((err) => {
@@ -7335,7 +7792,6 @@ const Dashboard = () => {
     showcaseDialogFormData,
     handleCloseShowcaseDialog,
     handleChangeShowcaseDialogFormData,
-    handleChangeRoomListCacheBuster,
     handleRoomSelect,
   ]);
 
@@ -7364,7 +7820,6 @@ const Dashboard = () => {
               });
               handleOpenCustomFormDrawer();
               handleChangeCustomFormDrawerData();
-              handleChangeRoomListCacheBuster();
               handleRoomSelect();
             })
             .catch((err) => {
@@ -7382,7 +7837,6 @@ const Dashboard = () => {
       roomCleanRequest,
       handleOpenCustomFormDrawer,
       handleChangeCustomFormDrawerData,
-      handleChangeRoomListCacheBuster,
       handleRoomSelect,
     ]
   );
@@ -7492,20 +7946,24 @@ const Dashboard = () => {
         severity: "warning",
       });
       return;
-    } else if (!Boolean(customFormDrawerData?.paymentMethod?.key)) {
+    } else if (
+      Boolean(customFormDrawerData?.isAdvanceRequired) &&
+      !Boolean(customFormDrawerData?.paymentMethod?.key)
+    ) {
       setSnack({
         open: true,
-        message: "Guest select a valid payment method",
+        message: "Please select a valid payment method",
         severity: "warning",
       });
       return;
     } else if (
+      Boolean(customFormDrawerData?.isAdvanceRequired) &&
       Boolean(customFormDrawerData?.paymentMethod?.key !== "Cash") &&
       !Boolean(customFormDrawerData?.transactionReferenceNo?.trim())
     ) {
       setSnack({
         open: true,
-        message: "Guest provide a valid transacion ref. no.",
+        message: "Please provide a valid transacion ref. no.",
         severity: "warning",
       });
       return;
@@ -7521,8 +7979,31 @@ const Dashboard = () => {
         severity: "warning",
       });
       return;
+    } else if (
+      customFormDrawerData?.paymentMethod?.key &&
+      customFormDrawerData?.paymentMethod?.key !== "Cash" &&
+      customFormDrawerData?.paymentMethod?.key.trim() !== "" &&
+      !customFormDrawerData?.transactionReferenceNo?.trim()
+    ) {
+      setSnack({
+        open: true,
+        message:
+          "Please provide a valid transaction reference for the selected payment method.",
+        severity: "warning",
+      });
+      return;
+    } else if (
+      Boolean(customFormDrawerData?.paymentMethod?.key) !==
+      Boolean(parseFloat(customFormDrawerData?.paidAmount))
+    ) {
+      setSnack({
+        open: true,
+        message:
+          "Please provide both payment method and advance amount to proceed.",
+        severity: "warning",
+      });
+      return;
     }
-
     const payload = {
       roomTypeId: customFormDrawerData?.roomDto?.roomType?.id,
       isBookingForToday: customFormDrawerData?.isBookingForToday,
@@ -7582,7 +8063,11 @@ const Dashboard = () => {
         ? 0
         : Number(customFormDrawerData?.paidAmount),
       paymentMethod: customFormDrawerData?.paymentMethod?.key,
-      transactionReferenceNo: customFormDrawerData?.transactionReferenceNo,
+      // transactionReferenceNo: customFormDrawerData?.transactionReferenceNo,
+      ...(customFormDrawerData?.paymentMethod?.key !== "Cash" &&
+        customFormDrawerData?.transactionReferenceNo?.trim() && {
+          transactionReferenceNo: customFormDrawerData?.transactionReferenceNo,
+        }),
       bookingAmount: customFormDrawerData?.accumulatedRoomCharge,
       remarks: customFormDrawerData?.remarks,
     };
@@ -7623,6 +8108,10 @@ const Dashboard = () => {
     handleUpdateRoomDataByFloor,
     apiRoomData?.data?.floorRoomMapData,
   ]);
+
+  useEffect(() => {
+    sessionStorage.removeItem("customAlertFilter");
+  }, []);
   return (
     <>
       <Box
@@ -7723,9 +8212,11 @@ const Dashboard = () => {
               }}
             >
               <Grid container size={12} spacing={1.5}>
-                {/* <Grid size={12}>
-                  <KeyAllocationCard keyAllocationData={tempKeyAlocationData} />
-                </Grid> */}
+                <Grid size={12}>
+                  <CustomAlertCard
+                    alertData={pendingBookingRequestCountsData?.data}
+                  />
+                </Grid>
                 <Grid size={12}>
                   <DayCheckoutCard
                     dayCheckoutData={apiTodayCheckoutRoomData?.data}
@@ -7808,6 +8299,7 @@ const Dashboard = () => {
           isAllGovtIdsDataFetching ||
           isAllPaymentMethodsFetching ||
           bookingByFrontDeskStaffRes?.isLoading ||
+          isPendingBookingRequestCountsDataLoading ||
           false
         }
       />

@@ -32,7 +32,7 @@ const frontdeskBookingHistoryApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
-      invalidatesTags: ["roomBookingHistoryByHotelId"],
+      invalidatesTags: ["roomBookingHistoryByHotelId", "getRoomBookingChart"],
     }),
     getRoomsByRoomType: build.query({
       query: (payload) => ({
@@ -45,6 +45,24 @@ const frontdeskBookingHistoryApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["getRoomsByRoomType"],
     }),
+    getRoomBookingChart: build.query({
+      query: (payload) => ({
+        url: config.apiName.getRoomBookingChart,
+        method: "GET",
+        params: {
+          hotelId: payload?.hotelId,
+        },
+      }),
+      providesTags: ["getRoomBookingChart"],
+    }),
+    approveBookingCancelRequest: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.approveBookingCancelRequest,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["roomBookingHistoryByHotelId", "getRoomBookingChart"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -54,4 +72,6 @@ export const {
   useGetAllBookingStatusTypeQuery,
   useConFirmBookingMutation,
   useGetRoomsByRoomTypeQuery,
+  useGetRoomBookingChartQuery,
+  useApproveBookingCancelRequestMutation,
 } = frontdeskBookingHistoryApi;

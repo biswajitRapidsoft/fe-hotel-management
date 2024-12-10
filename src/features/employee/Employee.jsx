@@ -53,7 +53,10 @@ const Employee = () => {
   const handleChange = React.useCallback((e) => {
     setFormData((prevData) => ({
       ...prevData,
-      [e.target.name]: e.target.value,
+      [e.target.name]:
+        e.target.name === "email"
+          ? e.target.value.toLowerCase()
+          : e.target.value,
     }));
   }, []);
 
