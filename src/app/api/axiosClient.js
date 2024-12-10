@@ -2,7 +2,7 @@ import axios from "axios";
 
 export const axiosBaseQuery =
   ({ baseUrl } = { baseUrl: "" }) =>
-  async ({ url, method, data, params }) => {
+  async ({ url, method, data, params, responseType }) => {
     try {
       const result = await axios({
         url: baseUrl + url,
@@ -10,13 +10,14 @@ export const axiosBaseQuery =
         data,
         params,
         headers: getOptions(),
+        responseType,
       });
       return { data: result.data };
     } catch (axiosError) {
       let err = axiosError;
       if (err.response?.status === 401) {
-        sessionStorage.clear();
-        window.location.href = "/";
+        // sessionStorage.clear();
+        // window.location.href = "/";
       }
       return {
         error: {

@@ -16,9 +16,14 @@ const dashboardApi = apiSlice.injectEndpoints({
     }),
     //GUEST DASHBOARD
     getAllHotels: build.query({
-      query: () => ({
+      query: (payload) => ({
         url: config.apiName.getAllHotels,
         method: "GET",
+        params: {
+          hotelId: payload.hotelId,
+          roomTypeId: payload.roomTypeId,
+          priceRange: payload.priceRange,
+        },
       }),
     }),
     reserveHotelRoom: build.mutation({
@@ -66,6 +71,20 @@ const dashboardApi = apiSlice.injectEndpoints({
         },
       }),
       providesTags: ["getAllRestaurantPromocodeByHotelId"],
+    }),
+    getAllFiltersData: build.query({
+      query: () => ({
+        url: config.apiName.getAllFiltersData,
+        method: "GET",
+      }),
+    }),
+    addRating: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.addRating,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllBookingDetails"],
     }),
 
     // HOUSE-KEEPER DASHBOARD
@@ -280,4 +299,6 @@ export const {
   useAddRatingForLaundryMutation,
   useGetPendingBookingRequestCountsQuery,
   useGetAllRestaurantPromocodeByHotelIdQuery,
+  useGetAllFiltersDataQuery,
+  useAddRatingMutation,
 } = dashboardApi;

@@ -83,8 +83,8 @@ const PromcodeList = () => {
       e.preventDefault();
       const payload = {
         hotel: {
-          id: Boolean(sessionStorage.getItem("hotelIdForBanquet"))
-            ? sessionStorage.getItem("hotelIdForBanquet")
+          id: Boolean(sessionStorage.getItem("hotelIdForPromoCode"))
+            ? sessionStorage.getItem("hotelIdForPromoCode")
             : "",
         },
         codeName: formData.codeName,

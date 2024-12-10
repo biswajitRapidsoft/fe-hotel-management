@@ -5,9 +5,12 @@ import dayjs from "dayjs";
 import MasterCard from "../../img/masterCard.png";
 import Visa from "../../img/visa.png";
 import Maestro from "../../img/maestro.png";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+// import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import ClearIcon from "@mui/icons-material/Clear";
 
 import {
+  Autocomplete,
   Box,
   Button,
   Dialog,
@@ -16,6 +19,7 @@ import {
   IconButton,
   Slide,
   Typography,
+  Paper,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import {
@@ -23,6 +27,7 @@ import {
   useReserveHotelRoomMutation,
   useGetAllBookingDetailsQuery,
   useGetUserDetailsForBookingQuery,
+  useGetAllFiltersDataQuery,
 } from "../../services/dashboard";
 import TextField from "@mui/material/TextField";
 import { CUSTOMER } from "../../helper/constants";
@@ -42,7 +47,13 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 const GuestDashboard = () => {
   const [bookingHistoryDrawerOpen, setBookingHistoryDrawerOpen] =
     React.useState(false);
+  const [filters, setFilters] = React.useState({
+    hotel: null,
+    roomType: null,
+    priceRange: null,
+  });
 
+  console.log("filters", filters);
   const toggleBookingHistoryDrawer = (open) => () => {
     setBookingHistoryDrawerOpen(open);
   };
@@ -52,13 +63,25 @@ const GuestDashboard = () => {
     },
     isLoading,
   } = useGetAllHotelsQuery(
-    {},
     {
+      hotelId: filters?.hotel?.id,
+      roomTypeId: filters?.roomType?.id,
+      priceRange: filters?.priceRange?.type,
+    },
+    {
+      refetchOnMountOrArgChange: true,
+
       skip:
         !Boolean(JSON.parse(sessionStorage.getItem("data"))?.email) &&
         !Boolean(JSON.parse(sessionStorage.getItem("data"))?.phoneNo),
     }
   );
+
+  const {
+    data: filterList = {
+      data: [],
+    },
+  } = useGetAllFiltersDataQuery();
 
   const {
     data: bookingDetails = {
@@ -95,11 +118,18 @@ const GuestDashboard = () => {
         <Box
           sx={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             mb: 2,
             // backgroundColor: "red",
           }}
         >
+          <Box sx={{ display: "flex" }}>
+            <CustomRoomFilters
+              filterOptions={filterList?.data}
+              setFilters={setFilters}
+              filters={filters}
+            />
+          </Box>
           <Box sx={{ display: "flex", gap: 1 }}>
             <Button
               variant="contained"
@@ -155,10 +185,356 @@ const GuestDashboard = () => {
   );
 };
 
+const CustomRoomFilters = memo(function ({
+  filterOptions,
+  setFilters,
+  filters,
+}) {
+  return (
+    <>
+      <Box sx={{ width: "100%" }}>
+        <Grid container size={12} columnSpacing={1} rowSpacing={1}>
+          {/* <Grid size={{ xs: 3 }}> */}
+          <Box
+            sx={{
+              ".MuiTextField-root": {
+                width: "100%",
+                backgroundColor: "transparent",
+                ".MuiInputBase-root": {
+                  color: "#B4B4B4",
+                  background: "rgba(255, 255, 255, 0.25)",
+                },
+              },
+              ".MuiFormLabel-root": {
+                color: (theme) => theme.palette.primary.main,
+                fontWeight: 600,
+                fontSize: 14,
+              },
+              ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+                borderBottom: (theme) =>
+                  `1px solid ${theme.palette.primary.main}`,
+              },
+              ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+                borderBottom: (theme) =>
+                  `1px solid ${theme.palette.primary.main}`,
+              },
+              "& .MuiOutlinedInput-root": {
+                height: "35px",
+                minHeight: "35px",
+              },
+              "& .MuiInputBase-input": {
+                padding: "13px",
+                height: "100%",
+                boxSizing: "border-box",
+                fontSize: "13px",
+              },
+            }}
+          >
+            <Autocomplete
+              options={filterOptions?.hotelList || []}
+              // disableClearable
+              fullWidth
+              // value={roomFilters?.roomType || null}
+              // onChange={(e, newVal) =>
+              //   handleChangeRoomFiltersOnChange("roomType", newVal)
+              // }
+              // inputValue={roomFilters.roomTypeInputVal}
+              // onInputChange={(e, newVal) =>
+              //   handleChangeRoomFiltersOnChange("roomTypeInputVal", newVal)
+              // }
+              value={filters.hotel}
+              onChange={(e, newVal) =>
+                setFilters((prev) => ({ ...prev, hotel: newVal }))
+              }
+              getOptionLabel={(option) => option.name || ""}
+              clearOnEscape
+              disablePortal
+              popupIcon={<KeyboardArrowDownIcon color="primary" />}
+              sx={{
+                // width: 200,
+                ".MuiInputBase-root": {
+                  color: "#fff",
+                },
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover": {
+                  backgroundColor: "#E9E5F1",
+                  color: "#280071",
+                  fontWeight: 600,
+                },
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                  {
+                    backgroundColor: "#E9E5F1",
+                    color: "#280071",
+                    fontWeight: 600,
+                  },
+              }}
+              componentsProps={{
+                popper: {
+                  sx: {
+                    "& .MuiAutocomplete-listbox": {
+                      maxHeight: "150px",
+                      overflow: "auto",
+                    },
+                    "& .MuiAutocomplete-option": {
+                      fontSize: "13px",
+                    },
+                  },
+                },
+              }}
+              size="small"
+              clearIcon={<ClearIcon color="primary" />}
+              PaperComponent={(props) => (
+                <Paper
+                  sx={{
+                    background: "#fff",
+                    color: "#B4B4B4",
+                    borderRadius: "10px",
+                  }}
+                  {...props}
+                />
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Hotel"
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      width: 200,
+                      height: 35,
+                    },
+                  }}
+                />
+              )}
+            />
+          </Box>
+          <Box
+            sx={{
+              ".MuiTextField-root": {
+                width: "100%",
+                backgroundColor: "transparent",
+                ".MuiInputBase-root": {
+                  color: "#B4B4B4",
+                  background: "rgba(255, 255, 255, 0.25)",
+                },
+              },
+              ".MuiFormLabel-root": {
+                color: (theme) => theme.palette.primary.main,
+                fontWeight: 600,
+                fontSize: 14,
+              },
+              ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+                borderBottom: (theme) =>
+                  `1px solid ${theme.palette.primary.main}`,
+              },
+              ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+                borderBottom: (theme) =>
+                  `1px solid ${theme.palette.primary.main}`,
+              },
+              "& .MuiOutlinedInput-root": {
+                height: "35px",
+                minHeight: "35px",
+              },
+              "& .MuiInputBase-input": {
+                padding: "13px",
+                height: "100%",
+                boxSizing: "border-box",
+                fontSize: "13px",
+              },
+            }}
+          >
+            <Autocomplete
+              options={filterOptions?.roomTypeList || []}
+              fullWidth
+              getOptionLabel={(option) => option.type || ""}
+              clearOnEscape
+              disablePortal
+              value={filters.roomType}
+              onChange={(e, newVal) =>
+                setFilters((prev) => ({ ...prev, roomType: newVal }))
+              }
+              popupIcon={<KeyboardArrowDownIcon color="primary" />}
+              sx={{
+                ".MuiInputBase-root": {
+                  color: "#fff",
+                },
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover": {
+                  backgroundColor: "#E9E5F1",
+                  color: "#280071",
+                  fontWeight: 600,
+                },
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                  {
+                    backgroundColor: "#E9E5F1",
+                    color: "#280071",
+                    fontWeight: 600,
+                  },
+              }}
+              componentsProps={{
+                popper: {
+                  sx: {
+                    "& .MuiAutocomplete-listbox": {
+                      maxHeight: "150px",
+                      overflow: "auto",
+                    },
+                    "& .MuiAutocomplete-option": {
+                      fontSize: "13px",
+                    },
+                  },
+                },
+              }}
+              size="small"
+              clearIcon={<ClearIcon color="primary" />}
+              PaperComponent={(props) => (
+                <Paper
+                  sx={{
+                    background: "#fff",
+                    color: "#B4B4B4",
+                    borderRadius: "10px",
+                  }}
+                  {...props}
+                />
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Room Type"
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      width: 200,
+                      height: 35,
+                    },
+                  }}
+                />
+              )}
+            />
+          </Box>
+          <Box
+            sx={{
+              ".MuiTextField-root": {
+                width: "100%",
+                backgroundColor: "transparent",
+                ".MuiInputBase-root": {
+                  color: "#B4B4B4",
+                  background: "rgba(255, 255, 255, 0.25)",
+                },
+              },
+              ".MuiFormLabel-root": {
+                color: (theme) => theme.palette.primary.main,
+                fontWeight: 600,
+                fontSize: 14,
+              },
+              ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+                borderBottom: (theme) =>
+                  `1px solid ${theme.palette.primary.main}`,
+              },
+              ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+                borderBottom: (theme) =>
+                  `1px solid ${theme.palette.primary.main}`,
+              },
+              "& .MuiOutlinedInput-root": {
+                height: "35px",
+                minHeight: "35px",
+              },
+              "& .MuiInputBase-input": {
+                padding: "13px",
+                height: "100%",
+                boxSizing: "border-box",
+                fontSize: "13px",
+              },
+            }}
+          >
+            <Autocomplete
+              options={filterOptions?.priceRangeList || []}
+              // disableClearable
+              fullWidth
+              // onChange={(e, newVal) =>
+              //   handleChangeRoomFiltersOnChange("roomType", newVal)
+              // }
+              // inputValue={roomFilters.roomTypeInputVal}
+              // onInputChange={(e, newVal) =>
+              //   handleChangeRoomFiltersOnChange("roomTypeInputVal", newVal)
+              // }
+              value={filters.priceRange}
+              onChange={(e, newVal) =>
+                setFilters((prev) => ({ ...prev, priceRange: newVal }))
+              }
+              getOptionLabel={(option) => option.type || ""}
+              clearOnEscape
+              disablePortal
+              popupIcon={<KeyboardArrowDownIcon color="primary" />}
+              sx={{
+                // width: 200,
+                ".MuiInputBase-root": {
+                  color: "#fff",
+                },
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover": {
+                  backgroundColor: "#E9E5F1",
+                  color: "#280071",
+                  fontWeight: 600,
+                },
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                  {
+                    backgroundColor: "#E9E5F1",
+                    color: "#280071",
+                    fontWeight: 600,
+                  },
+              }}
+              componentsProps={{
+                popper: {
+                  sx: {
+                    "& .MuiAutocomplete-listbox": {
+                      maxHeight: "150px",
+                      overflow: "auto",
+                    },
+                    "& .MuiAutocomplete-option": {
+                      fontSize: "13px",
+                    },
+                  },
+                },
+              }}
+              size="small"
+              clearIcon={<ClearIcon color="primary" />}
+              PaperComponent={(props) => (
+                <Paper
+                  sx={{
+                    background: "#fff",
+                    color: "#B4B4B4",
+                    borderRadius: "10px",
+                  }}
+                  {...props}
+                />
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Price Range"
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      width: 200,
+                      height: 35,
+                    },
+                  }}
+                />
+              )}
+            />
+          </Box>
+
+          {/* <Box>
+            <Button variant="contained">Submit</Button>
+          </Box> */}
+          {/* </Grid> */}
+        </Grid>
+      </Box>
+    </>
+  );
+});
 const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
   console.log("hotelDetails", hotelDetails);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [openPaymentDialog, setOpenPaymentDialog] = React.useState(false);
+  const [reservationPayload, setReservationPayload] = React.useState(null);
 
   const [formData, setFormData] = React.useState({
     firstName: "",
@@ -178,14 +554,14 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
     message: "",
     severity: "",
   });
-  const [reserveHotelRoom, reserveHotelRoomRes] = useReserveHotelRoomMutation();
+  // const [reserveHotelRoom, reserveHotelRoomRes] = useReserveHotelRoomMutation();
 
   const toggleDrawer = (open) => () => {
     if (!open) {
       handleResetForm();
-      if (sessionStorage.getItem("paymentDetail")) {
-        sessionStorage.removeItem("paymentDetail");
-      }
+      // if (sessionStorage.getItem("paymentDetail")) {
+      //   sessionStorage.removeItem("paymentDetail");
+      // }
     }
     setDrawerOpen(open);
   };
@@ -229,167 +605,229 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
     }
     return 0;
   }, [formData.fromDate, formData.toDate]);
-  // const isFormValid = React.useCallback(() => {
-  //   const isAdvanceValid =
-  //     !hotelDetails?.isAdvanceRequired ||
-  //     (formData.advancePayment &&
-  //       Number(formData.advancePayment) >=
-  //         Number(hotelDetails.advanceAmount) * calculateNumberOfDays &&
-  //       Number(formData.advancePayment) <=
-  //         Number(hotelDetails.basePrice) * calculateNumberOfDays);
 
-  //   return Boolean(
-  //     formData.firstName.trim() &&
-  //       formData.phoneNumber.length === 10 &&
-  //       formData.fromDate &&
-  //       formData.toDate &&
-  //       // formData.noOfPeoples &&
-  //       isAdvanceValid
-  //   );
-  // }, [formData, hotelDetails, calculateNumberOfDays]);
+  // Function to validate the form and open payment dialog
+  const validateAndOpenPaymentDialog = () => {
+    const isAdvanceValid =
+      !hotelDetails?.isAdvanceRequired ||
+      (formData.advancePayment &&
+        Number(formData.advancePayment) >=
+          Number(hotelDetails.advanceAmount) * calculateNumberOfDays &&
+        Number(formData.advancePayment) <=
+          Number(hotelDetails.basePrice) * calculateNumberOfDays);
 
+    if (!Boolean(formData.noOfPeoples)) {
+      return setSnack({
+        open: true,
+        message: "Please provide number of people",
+        severity: "error",
+      });
+    } else if (!Boolean(formData.firstName)) {
+      return setSnack({
+        open: true,
+        message: "Please provide first name",
+        severity: "error",
+      });
+    } else if (!Boolean(formData.email)) {
+      return setSnack({
+        open: true,
+        message: "Please provide email",
+        severity: "error",
+      });
+    } else if (!Boolean(formData.address)) {
+      return setSnack({
+        open: true,
+        message: "Please provide address",
+        severity: "error",
+      });
+    } else if (!Boolean(formData.fromDate)) {
+      return setSnack({
+        open: true,
+        message: "Please provide fromDate",
+        severity: "error",
+      });
+    } else if (!Boolean(formData.toDate)) {
+      return setSnack({
+        open: true,
+        message: "Please provide toDate",
+        severity: "error",
+      });
+    } else if (!Boolean(formData.noOfPeoples)) {
+      return setSnack({
+        open: true,
+        message: "Please provide number of people",
+        severity: "error",
+      });
+    } else if (!isAdvanceValid) {
+      return setSnack({
+        open: true,
+        message:
+          calculateNumberOfDays > 0
+            ? Number(formData.advancePayment) <
+              Number(hotelDetails.advanceAmount) * calculateNumberOfDays
+              ? `Please pay ₹${
+                  hotelDetails.advanceAmount * calculateNumberOfDays
+                } in advance`
+              : `Advance amount cannot exceed ₹${
+                  hotelDetails.basePrice * calculateNumberOfDays
+                }`
+            : "Invalid advance payment",
+        severity: "error",
+      });
+    }
+    // Create payload
+    const payload = {
+      firstName: formData.firstName,
+      middleName: formData.middleName,
+      lastName: formData.lastName,
+      phoneNumber: formData.phoneNumber,
+      email: formData.email,
+      address: formData.address,
+      fromDate: formData.fromDate
+        ? dayjs(formData.fromDate).format("DD-MM-YYYY")
+        : null,
+      toDate: formData.toDate
+        ? dayjs(formData.toDate).format("DD-MM-YYYY")
+        : null,
+      noOfPeoples: Number(formData.noOfPeoples),
+      roomTypeId: hotelDetails?.id,
+      hotelId: hotelDetails?.hotelDto?.id,
+      paidAmount: formData.advancePayment,
+      bookingAmount: calculateNumberOfDays * Number(hotelDetails?.basePrice),
+    };
+
+    setReservationPayload(payload);
+    setOpenPaymentDialog(true);
+  };
   // add reservation function
-  const handleSubmit = React.useCallback(
-    (e) => {
-      e.preventDefault();
+  // const handleSubmit = React.useCallback(
+  //   (e) => {
+  //     e.preventDefault();
 
-      const isAdvanceValid =
-        !hotelDetails?.isAdvanceRequired ||
-        (formData.advancePayment &&
-          Number(formData.advancePayment) >=
-            Number(hotelDetails.advanceAmount) * calculateNumberOfDays &&
-          Number(formData.advancePayment) <=
-            Number(hotelDetails.basePrice) * calculateNumberOfDays);
+  //     const isAdvanceValid =
+  //       !hotelDetails?.isAdvanceRequired ||
+  //       (formData.advancePayment &&
+  //         Number(formData.advancePayment) >=
+  //           Number(hotelDetails.advanceAmount) * calculateNumberOfDays &&
+  //         Number(formData.advancePayment) <=
+  //           Number(hotelDetails.basePrice) * calculateNumberOfDays);
 
-      if (!Boolean(formData.noOfPeoples)) {
-        return setSnack({
-          open: true,
-          message: "Please provide number of people",
-          severity: "error",
-        });
-      } else if (!Boolean(formData.firstName)) {
-        return setSnack({
-          open: true,
-          message: "Please provide first name",
-          severity: "error",
-        });
-      } else if (!Boolean(formData.email)) {
-        return setSnack({
-          open: true,
-          message: "Please provide email",
-          severity: "error",
-        });
-      } else if (!Boolean(formData.address)) {
-        return setSnack({
-          open: true,
-          message: "Please provide address",
-          severity: "error",
-        });
-      } else if (!Boolean(formData.fromDate)) {
-        return setSnack({
-          open: true,
-          message: "Please provide fromDate",
-          severity: "error",
-        });
-      } else if (!Boolean(formData.toDate)) {
-        return setSnack({
-          open: true,
-          message: "Please provide toDate",
-          severity: "error",
-        });
-      } else if (!Boolean(formData.noOfPeoples)) {
-        return setSnack({
-          open: true,
-          message: "Please provide number of people",
-          severity: "error",
-        });
-      } else if (!isAdvanceValid) {
-        return setSnack({
-          open: true,
-          message:
-            calculateNumberOfDays > 0
-              ? Number(formData.advancePayment) <
-                Number(hotelDetails.advanceAmount) * calculateNumberOfDays
-                ? `Please pay ₹${
-                    hotelDetails.advanceAmount * calculateNumberOfDays
-                  } in advance`
-                : `Advance amount cannot exceed ₹${
-                    hotelDetails.basePrice * calculateNumberOfDays
-                  }`
-              : "Invalid advance payment",
-          severity: "error",
-        });
-      }
+  //     if (!Boolean(formData.noOfPeoples)) {
+  //       return setSnack({
+  //         open: true,
+  //         message: "Please provide number of people",
+  //         severity: "error",
+  //       });
+  //     } else if (!Boolean(formData.firstName)) {
+  //       return setSnack({
+  //         open: true,
+  //         message: "Please provide first name",
+  //         severity: "error",
+  //       });
+  //     } else if (!Boolean(formData.email)) {
+  //       return setSnack({
+  //         open: true,
+  //         message: "Please provide email",
+  //         severity: "error",
+  //       });
+  //     } else if (!Boolean(formData.address)) {
+  //       return setSnack({
+  //         open: true,
+  //         message: "Please provide address",
+  //         severity: "error",
+  //       });
+  //     } else if (!Boolean(formData.fromDate)) {
+  //       return setSnack({
+  //         open: true,
+  //         message: "Please provide fromDate",
+  //         severity: "error",
+  //       });
+  //     } else if (!Boolean(formData.toDate)) {
+  //       return setSnack({
+  //         open: true,
+  //         message: "Please provide toDate",
+  //         severity: "error",
+  //       });
+  //     } else if (!Boolean(formData.noOfPeoples)) {
+  //       return setSnack({
+  //         open: true,
+  //         message: "Please provide number of people",
+  //         severity: "error",
+  //       });
+  //     } else if (!isAdvanceValid) {
+  //       return setSnack({
+  //         open: true,
+  //         message:
+  //           calculateNumberOfDays > 0
+  //             ? Number(formData.advancePayment) <
+  //               Number(hotelDetails.advanceAmount) * calculateNumberOfDays
+  //               ? `Please pay ₹${
+  //                   hotelDetails.advanceAmount * calculateNumberOfDays
+  //                 } in advance`
+  //               : `Advance amount cannot exceed ₹${
+  //                   hotelDetails.basePrice * calculateNumberOfDays
+  //                 }`
+  //             : "Invalid advance payment",
+  //         severity: "error",
+  //       });
+  //     }
 
-      reserveHotelRoom({
-        firstName: formData.firstName,
-        middleName: formData.middleName,
-        lastName: formData.lastName,
-        phoneNumber: formData.phoneNumber,
-        email: formData.email,
-        address: formData.address,
-        fromDate: formData.fromDate
-          ? dayjs(formData.fromDate).format("DD-MM-YYYY")
-          : null,
-        toDate: formData.toDate
-          ? dayjs(formData.toDate).format("DD-MM-YYYY")
-          : null,
-        noOfPeoples: Number(formData.noOfPeoples),
-        roomTypeId: hotelDetails?.id,
-        hotelId: hotelDetails?.hotelDto?.id,
-        paidAmount: formData.advancePayment,
-        bookingAmount: calculateNumberOfDays * Number(hotelDetails.basePrice),
-        paymentDetails: Boolean(sessionStorage.getItem("paymentDetail"))
-          ? sessionStorage.getItem("paymentDetail")
-          : "",
-      })
-        .unwrap()
-        .then((res) => {
-          setSnack({
-            open: true,
-            message: res.message,
-            severity: "success",
-          });
-          if (sessionStorage.getItem("paymentDetail")) {
-            sessionStorage.removeItem("paymentDetail");
-          }
+  //     reserveHotelRoom({
+  //       firstName: formData.firstName,
+  //       middleName: formData.middleName,
+  //       lastName: formData.lastName,
+  //       phoneNumber: formData.phoneNumber,
+  //       email: formData.email,
+  //       address: formData.address,
+  //       fromDate: formData.fromDate
+  //         ? dayjs(formData.fromDate).format("DD-MM-YYYY")
+  //         : null,
+  //       toDate: formData.toDate
+  //         ? dayjs(formData.toDate).format("DD-MM-YYYY")
+  //         : null,
+  //       noOfPeoples: Number(formData.noOfPeoples),
+  //       roomTypeId: hotelDetails?.id,
+  //       hotelId: hotelDetails?.hotelDto?.id,
+  //       paidAmount: formData.advancePayment,
+  //       bookingAmount: calculateNumberOfDays * Number(hotelDetails?.basePrice),
+  //       paymentDetails: Boolean(sessionStorage.getItem("paymentDetail"))
+  //         ? sessionStorage.getItem("paymentDetail")
+  //         : "",
+  //     })
+  //       .unwrap()
+  //       .then((res) => {
+  //         setSnack({
+  //           open: true,
+  //           message: res.message,
+  //           severity: "success",
+  //         });
+  //         if (sessionStorage.getItem("paymentDetail")) {
+  //           sessionStorage.removeItem("paymentDetail");
+  //         }
 
-          setDrawerOpen(false);
-          handleResetForm();
-          // Reset form data
-          // setFormData({
-          //   firstName: "",
-          //   middleName: "",
-          //   lastName: "",
-          //   // phoneNumber: "",
-          //   email: "",
-          //   address: "",
-          //   fromDate: null,
-          //   toDate: null,
-          //   noOfPeoples: "",
-          //   advancePayment: "",
-          // });
-        })
-        .catch((err) => {
-          setSnack({
-            open: true,
-            message: err.data?.message || err.data || "Something Went Wrong",
-            severity: "error",
-          });
+  //         setDrawerOpen(false);
+  //         handleResetForm();
+  //       })
+  //       .catch((err) => {
+  //         setSnack({
+  //           open: true,
+  //           message: err.data?.message || err.data || "Something Went Wrong",
+  //           severity: "error",
+  //         });
 
-          if (sessionStorage.getItem("paymentDetail")) {
-            sessionStorage.removeItem("paymentDetail");
-          }
-        });
-    },
-    [
-      formData,
-      hotelDetails,
-      reserveHotelRoom,
-      handleResetForm,
-      calculateNumberOfDays,
-    ]
-  );
+  //         if (sessionStorage.getItem("paymentDetail")) {
+  //           sessionStorage.removeItem("paymentDetail");
+  //         }
+  //       });
+  //   },
+  //   [
+  //     formData,
+  //     hotelDetails,
+  //     reserveHotelRoom,
+  //     handleResetForm,
+  //     calculateNumberOfDays,
+  //   ]
+  // );
 
   const handleChangeInput = (e) => {
     const { name, value } = e.target;
@@ -566,7 +1004,11 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
             </IconButton>
           </Box>
           <Divider />
-          <Box component="form" onSubmit={handleSubmit} sx={{ px: 2, py: 2 }}>
+          <Box
+            component="form"
+            // onSubmit={handleSubmit}
+            sx={{ px: 2, py: 2 }}
+          >
             <Grid container size={12} spacing={2}>
               <Grid size={{ xs: 6 }}>
                 <TextField
@@ -727,7 +1169,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                   />
                 </Grid>
               )}
-              {Boolean(sessionStorage.getItem("paymentDetail")) ? (
+              {/* {Boolean(sessionStorage.getItem("paymentDetail")) ? (
                 <Grid container>
                   <Grid size={{ xs: 12 }} sx={{ px: 1 }}>
                     <Box sx={{ display: "flex", gap: 1 }}>
@@ -739,7 +1181,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                           fontFamily: "'Georgia', 'Times New Roman', serif",
                           fontSize: "bold",
                         }}
-                      >
+                      >handleResetForm
                         Payment done successfully
                       </Typography>
                     </Box>
@@ -747,37 +1189,24 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                 </Grid>
               ) : (
                 ""
-              )}
+              )} */}
 
               <Grid size={{ xs: 12 }}>
                 <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                  {Boolean(sessionStorage.getItem("paymentDetail")) ? (
+                  {/* {Boolean(sessionStorage.getItem("paymentDetail")) ? (
                     <Button
                       variant="contained"
                       sx={{
                         backgroundImage:
-                          //  isFormValid()?
                           "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
-                        // : "none"
-                        backgroundColor:
-                          // isFormValid() ?
-                          "inherit",
-                        // : "gray",
-                        color:
-                          //  isFormValid() ?
-                          "white",
-                        //  : "black",
-                        "&:hover":
-                          //  isFormValid()
-                          //   ?
-                          {
-                            backgroundImage:
-                              "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
-                          },
-                        // : {},
+                        backgroundColor: "inherit",
+                        color: "white",
+                        "&:hover": {
+                          backgroundImage:
+                            "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
+                        },
                       }}
                       type="submit"
-                      // disabled={!isFormValid()}
                     >
                       Reserve
                     </Button>
@@ -798,18 +1227,39 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                     >
                       Pay Now
                     </Button>
-                  )}
+                  )} */}
+
+                  <Button
+                    variant="contained"
+                    sx={{
+                      backgroundImage:
+                        "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
+                      backgroundColor: "inherit",
+                      color: "white",
+                      "&:hover": {
+                        backgroundImage:
+                          "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
+                      },
+                    }}
+                    onClick={validateAndOpenPaymentDialog}
+                  >
+                    Pay and Reserve
+                  </Button>
                 </Box>
               </Grid>
             </Grid>
           </Box>
         </Box>
       </Drawer>
-      <LoadingComponent open={reserveHotelRoomRes.isLoading} />
+      {/* <LoadingComponent open={reserveHotelRoomRes.isLoading} /> */}
       <SnackAlert snack={snack} setSnack={setSnack} />
       <PaymentDialog
         openPaymentDialog={openPaymentDialog}
         handlePaymentDialogClose={() => setOpenPaymentDialog(false)}
+        reservationPayload={reservationPayload}
+        handleResetForm={handleResetForm}
+        setSnack={setSnack}
+        setDrawerOpen={setDrawerOpen}
       />
     </>
   );
@@ -818,24 +1268,37 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
 const PaymentDialog = memo(function ({
   openPaymentDialog,
   handlePaymentDialogClose,
+  reservationPayload,
+  handleResetForm,
+  setSnack,
+  setDrawerOpen,
 }) {
+  console.log("reservationPayload", reservationPayload);
   const [paymentMethod, setPaymentMethod] = React.useState("card");
   const [cardNumber, setCardNumber] = React.useState("");
   const [upiNumber, setUpiNumber] = React.useState("");
   const [cvv, setCvv] = React.useState("");
   const [expiryDate, setExpiryDate] = React.useState("");
+
+  const [reserveHotelRoom, reserveHotelRoomRes] = useReserveHotelRoomMutation();
+
   const isPayButtonDisabled =
     (paymentMethod === "card" && cardNumber.trim() === "") ||
     (paymentMethod === "upi" && upiNumber.trim() === "");
 
-  const handlePayNow = () => {
-    const paymentDetail = paymentMethod === "card" ? cardNumber : upiNumber;
-    sessionStorage.setItem("paymentDetail", paymentDetail);
-    setCardNumber("");
-    setUpiNumber("");
-    setCvv("");
-    handlePaymentDialogClose();
-  };
+  // const handlePayNow = () => {
+  //   const paymentDetail = paymentMethod === "card" ? cardNumber : upiNumber;
+  //   sessionStorage.setItem("paymentDetail", paymentDetail);
+
+  //   const finalPayload = {
+  //     ...reservationPayload,
+  //     paymentDetails,
+  //   };
+  //   setCardNumber("");
+  //   setUpiNumber("");
+  //   setCvv("");
+  //   handlePaymentDialogClose();
+  // };
 
   const handlePaymentMethodChange = (method) => {
     setPaymentMethod(method);
@@ -863,160 +1326,221 @@ const PaymentDialog = memo(function ({
     }
   };
 
+  const handleSubmit = React.useCallback(
+    (e) => {
+      e.preventDefault();
+      const paymentDetail = paymentMethod === "card" ? cardNumber : upiNumber;
+      sessionStorage.setItem("paymentDetail", paymentDetail);
+
+      const finalPayload = {
+        ...reservationPayload,
+        paymentDetail,
+      };
+
+      console.log("finalPayload", finalPayload);
+      reserveHotelRoom(finalPayload)
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            severity: "success",
+          });
+          handleResetForm();
+          setDrawerOpen(false);
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data || "Something Went Wrong",
+            severity: "error",
+          });
+        });
+
+      setCardNumber("");
+      setUpiNumber("");
+      setCvv("");
+      handlePaymentDialogClose();
+    },
+    [
+      cardNumber,
+      upiNumber,
+      paymentMethod,
+      reservationPayload,
+      handlePaymentDialogClose,
+      handleResetForm,
+      reserveHotelRoom,
+      setDrawerOpen,
+      setSnack,
+    ]
+  );
+
   return (
-    <Dialog
-      TransitionComponent={Transition}
-      open={openPaymentDialog}
-      onClose={handlePaymentDialogClose}
-      maxWidth="md"
-      fullWidth
-      sx={{ "& .MuiDialog-paper": { height: "450px" } }}
-    >
-      <DialogContent>
-        <Box
-          sx={{
-            width: "100%",
-          }}
-        >
+    <>
+      <Dialog
+        TransitionComponent={Transition}
+        open={openPaymentDialog}
+        onClose={handlePaymentDialogClose}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          component: "form",
+          onSubmit: handleSubmit,
+        }}
+        sx={{ "& .MuiDialog-paper": { height: "450px" } }}
+      >
+        <DialogContent>
           <Box
             sx={{
               width: "100%",
-              py: 2,
-              display: "flex",
-              justifyContent: "space-between",
             }}
           >
-            <Typography sx={{ fontWeight: "bold", fontSize: "1.6rem", mb: 1 }}>
-              Cashfree Payment Methods
-            </Typography>
-            <Box sx={{ display: "flex", gap: 1 }}>
-              <img
-                src={MasterCard}
-                alt="MasterCard Logo"
-                height={45}
-                width={45}
-              />
-              <img src={Visa} alt="MasterCard Logo" height={45} width={45} />
-              <img src={Maestro} alt="MasterCard Logo" height={45} width={45} />
-            </Box>
-          </Box>
-          <Grid container columnSpacing={2}>
-            <Grid size={{ xs: 6 }}>
-              <Box
-                sx={{
-                  width: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 2,
-                  cursor: "pointer",
-                }}
+            <Box
+              sx={{
+                width: "100%",
+                py: 2,
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <Typography
+                sx={{ fontWeight: "bold", fontSize: "1.6rem", mb: 1 }}
               >
-                {/* box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px; */}
-                <Box
-                  onClick={() => handlePaymentMethodChange("card")}
-                  sx={{
-                    boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
-                    p: 3,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    borderRadius: "1rem",
-                    backgroundColor:
-                      paymentMethod === "card" ? "#f0f8ff" : "#fff",
-                  }}
-                >
-                  <IoCardOutline
-                    style={{ fontSize: "2rem", color: "#0039a6" }}
-                  />
-                  <Typography>Card</Typography>
-                </Box>
-                <Box
-                  onClick={() => handlePaymentMethodChange("upi")}
-                  sx={{
-                    boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
-                    p: 3,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    borderRadius: "1rem",
-                    backgroundColor:
-                      paymentMethod === "upi" ? "#f0f8ff" : "#fff",
-                  }}
-                >
-                  <RiSecurePaymentLine
-                    style={{ fontSize: "2rem", color: "#0039a6" }}
-                  />
-                  <Typography>UPI</Typography>
-                </Box>
+                Cashfree Payment Methods
+              </Typography>
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <img
+                  src={MasterCard}
+                  alt="MasterCard Logo"
+                  height={45}
+                  width={45}
+                />
+                <img src={Visa} alt="MasterCard Logo" height={45} width={45} />
+                <img
+                  src={Maestro}
+                  alt="MasterCard Logo"
+                  height={45}
+                  width={45}
+                />
               </Box>
-            </Grid>
-            <Grid size={{ xs: 6 }}>
-              <Box
-                sx={{
-                  width: "100%",
-                }}
-              >
+            </Box>
+            <Grid container columnSpacing={2}>
+              <Grid size={{ xs: 6 }}>
                 <Box
                   sx={{
-                    boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
-                    p: 3,
+                    width: "100%",
                     display: "flex",
                     flexDirection: "column",
                     gap: 2,
-                    height: "240px",
-                    borderRadius: "0.7rem",
+                    cursor: "pointer",
                   }}
                 >
-                  <Box>
-                    <Typography sx={{ fontSize: "1.3rem" }}>
-                      {paymentMethod === "card"
-                        ? "Card details:"
-                        : "Enter UPI Id:"}
-                    </Typography>
+                  {/* box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px; */}
+                  <Box
+                    onClick={() => handlePaymentMethodChange("card")}
+                    sx={{
+                      boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
+                      p: 3,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      borderRadius: "1rem",
+                      backgroundColor:
+                        paymentMethod === "card" ? "#f0f8ff" : "#fff",
+                    }}
+                  >
+                    <IoCardOutline
+                      style={{ fontSize: "2rem", color: "#0039a6" }}
+                    />
+                    <Typography>Card</Typography>
                   </Box>
-                  <Box sx={{ width: "100%" }}>
-                    {paymentMethod === "card" && (
-                      <Grid container spacing={2}>
-                        <Grid size={{ xs: 12 }}>
-                          <TextField
-                            fullWidth
-                            size="small"
-                            id="cardNumber"
-                            label="Card Number"
-                            name="cardNumber"
-                            variant="outlined"
-                            value={cardNumber}
-                            // onChange={(e) => setCardNumber(e.target.value)}
-                            onChange={handleChangeInputForPayment}
-                            sx={{
-                              // bgcolor: "#F9F4FF",
-                              "& .MuiOutlinedInput-root": {
-                                borderRadius: 2,
-                              },
-                            }}
-                          />
-                        </Grid>
-                        <Grid size={{ xs: 6 }}>
-                          <TextField
-                            fullWidth
-                            size="small"
-                            id="cvv"
-                            label="CVV"
-                            name="cvv"
-                            variant="outlined"
-                            value={cvv}
-                            // onChange={(e) => setCvv(e.target.value)}
-                            onChange={handleChangeInputForPayment}
-                            sx={{
-                              // bgcolor: "#F9F4FF",
-                              "& .MuiOutlinedInput-root": {
-                                borderRadius: 2,
-                              },
-                            }}
-                          />
-                        </Grid>
-                        <Grid size={{ xs: 6 }}>
-                          {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <Box
+                    onClick={() => handlePaymentMethodChange("upi")}
+                    sx={{
+                      boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
+                      p: 3,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      borderRadius: "1rem",
+                      backgroundColor:
+                        paymentMethod === "upi" ? "#f0f8ff" : "#fff",
+                    }}
+                  >
+                    <RiSecurePaymentLine
+                      style={{ fontSize: "2rem", color: "#0039a6" }}
+                    />
+                    <Typography>UPI</Typography>
+                  </Box>
+                </Box>
+              </Grid>
+              <Grid size={{ xs: 6 }}>
+                <Box
+                  sx={{
+                    width: "100%",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
+                      p: 3,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 2,
+                      height: "240px",
+                      borderRadius: "0.7rem",
+                    }}
+                  >
+                    <Box>
+                      <Typography sx={{ fontSize: "1.3rem" }}>
+                        {paymentMethod === "card"
+                          ? "Card details:"
+                          : "Enter UPI Id:"}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ width: "100%" }}>
+                      {paymentMethod === "card" && (
+                        <Grid container spacing={2}>
+                          <Grid size={{ xs: 12 }}>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              id="cardNumber"
+                              label="Card Number"
+                              name="cardNumber"
+                              variant="outlined"
+                              value={cardNumber}
+                              // onChange={(e) => setCardNumber(e.target.value)}
+                              onChange={handleChangeInputForPayment}
+                              sx={{
+                                // bgcolor: "#F9F4FF",
+                                "& .MuiOutlinedInput-root": {
+                                  borderRadius: 2,
+                                },
+                              }}
+                            />
+                          </Grid>
+                          <Grid size={{ xs: 6 }}>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              id="cvv"
+                              label="CVV"
+                              name="cvv"
+                              variant="outlined"
+                              value={cvv}
+                              // onChange={(e) => setCvv(e.target.value)}
+                              onChange={handleChangeInputForPayment}
+                              sx={{
+                                // bgcolor: "#F9F4FF",
+                                "& .MuiOutlinedInput-root": {
+                                  borderRadius: 2,
+                                },
+                              }}
+                            />
+                          </Grid>
+                          <Grid size={{ xs: 6 }}>
+                            {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DatePicker
                               label="Expiry Date"
                               disablePast
@@ -1031,78 +1555,85 @@ const PaymentDialog = memo(function ({
                               }}
                             />
                           </LocalizationProvider> */}
-                          <TextField
-                            label="Expiry Date"
-                            name="expiryDate"
-                            placeholder="MM/YY"
-                            variant="outlined"
-                            inputProps={{
-                              maxLength: 5,
-                            }}
-                            size="small"
-                            value={expiryDate}
-                            sx={{
-                              // bgcolor: "#F9F4FF",
-                              "& .MuiOutlinedInput-root": {
-                                borderRadius: 2,
-                              },
-                            }}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              // Auto-format input to MM/YY
-                              if (value.length === 2 && !value.includes("/")) {
-                                e.target.value = value + "/";
-                              }
+                            <TextField
+                              label="Expiry Date"
+                              name="expiryDate"
+                              placeholder="MM/YY"
+                              variant="outlined"
+                              inputProps={{
+                                maxLength: 5,
+                              }}
+                              size="small"
+                              value={expiryDate}
+                              sx={{
+                                // bgcolor: "#F9F4FF",
+                                "& .MuiOutlinedInput-root": {
+                                  borderRadius: 2,
+                                },
+                              }}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                // Auto-format input to MM/YY
+                                if (
+                                  value.length === 2 &&
+                                  !value.includes("/")
+                                ) {
+                                  e.target.value = value + "/";
+                                }
 
-                              // Validate input
-                              const formattedValue = value.replace(
-                                /[^0-9/]/g,
-                                ""
-                              );
-                              setExpiryDate(formattedValue);
-                            }}
-                          />
+                                // Validate input
+                                const formattedValue = value.replace(
+                                  /[^0-9/]/g,
+                                  ""
+                                );
+                                setExpiryDate(formattedValue);
+                              }}
+                            />
+                          </Grid>
                         </Grid>
-                      </Grid>
-                    )}
-                    {paymentMethod === "upi" && (
-                      <TextField
-                        fullWidth
-                        size="small"
-                        id="upiNumber"
-                        label="Enter UPI Id"
-                        name="upiNumber"
-                        variant="outlined"
-                        value={upiNumber}
-                        // onChange={(e) => setUpiNumber(e.target.value)}
-                        onChange={handleChangeInputForPayment}
-                        sx={{
-                          // bgcolor: "#F9F4FF",
-                          "& .MuiOutlinedInput-root": {
-                            borderRadius: 2,
-                          },
-                        }}
-                      />
-                    )}
-                  </Box>
+                      )}
+                      {paymentMethod === "upi" && (
+                        <TextField
+                          fullWidth
+                          size="small"
+                          id="upiNumber"
+                          label="Enter UPI Id"
+                          name="upiNumber"
+                          variant="outlined"
+                          value={upiNumber}
+                          // onChange={(e) => setUpiNumber(e.target.value)}
+                          onChange={handleChangeInputForPayment}
+                          sx={{
+                            // bgcolor: "#F9F4FF",
+                            "& .MuiOutlinedInput-root": {
+                              borderRadius: 2,
+                            },
+                          }}
+                        />
+                      )}
+                    </Box>
 
-                  <Box sx={{ width: "100%" }}>
-                    <Button
-                      variant="contained"
-                      sx={{ backgroundColor: "#2a52be" }}
-                      disabled={isPayButtonDisabled}
-                      onClick={handlePayNow}
-                    >
-                      Pay Now
-                    </Button>
+                    <Box sx={{ width: "100%" }}>
+                      <Button
+                        variant="contained"
+                        sx={{ backgroundColor: "#2a52be" }}
+                        disabled={isPayButtonDisabled}
+                        // onClick={handlePayNow}
+                        type="submit"
+                      >
+                        Pay Now
+                      </Button>
+                    </Box>
                   </Box>
                 </Box>
-              </Box>
+              </Grid>
             </Grid>
-          </Grid>
-        </Box>
-      </DialogContent>
-    </Dialog>
+          </Box>
+        </DialogContent>
+      </Dialog>
+
+      <LoadingComponent open={reserveHotelRoomRes.isLoading} />
+    </>
   );
 });
 

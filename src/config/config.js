@@ -61,6 +61,7 @@ const config = Object.freeze({
     getRoomBookingChart: "api/get/room/booking/chart/data",
     approveBookingCancelRequest: "api/approve/booking/cancel/request",
     cancelRoomBookingFromBookingHistory: "api/cancel/booking/by/hotel",
+    exportBookingHistory: "api/export/booking/history/data",
 
     // HALL BOOKING DASHBOARD
     getAllHallBookings: "api/get/all/hall/bookings/data",
@@ -79,6 +80,8 @@ const config = Object.freeze({
     cancelHotelRoom: "public/cancel/booking",
     getUserDetailsForBooking: "public/customer/details",
     getAllRestaurantPromocodeByHotelId: "public/get/all/resturant/promocode",
+    getAllFiltersData: "public/get/all/search/filter/datas",
+    addRating: "public/rate/room/booking",
 
     // HOUSE-KEEPER DASHBOARD API ENDPOINTS
     getServiceableRoomData: "api/get/service/requested/rooms",
@@ -91,6 +94,7 @@ const config = Object.freeze({
     getAllRoomServiceHistory: "api/get/all/room/service/request/list",
     getAllHouseKeepingStaff: "api/get/all/housekeeping/staff/list",
     assignHouseKeepingRequest: "api/assign/housekeeping/staff",
+    exportHouseKeepingRecords: "api/export/room/service/list",
 
     // PARKING DASHBOARD DATA
     getAllParkingData: "api/get/all/parking/list",

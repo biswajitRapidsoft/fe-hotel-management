@@ -14,11 +14,12 @@ import {
   IconButton,
   Typography,
   Dialog,
-  // DialogActions,
+  DialogActions,
   DialogContent,
-  // DialogTitle,
+  DialogTitle,
   Slide,
   TextField,
+  Rating,
 } from "@mui/material";
 import moment from "moment";
 // import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
@@ -29,6 +30,7 @@ import {
   useCancelHotelRoomMutation,
   useRequestRoomCheckoutMutation,
   useRoomCleanRequestMutation,
+  useAddRatingMutation,
 } from "../../services/dashboard";
 
 import SnackAlert from "../../components/Alert";
@@ -48,6 +50,9 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
   const [cancelBookingOpen, setCancelBookingOpen] = React.useState(false);
   const [selectedBookingRefNumber, setSelectedBookingRefNumber] =
     React.useState(null);
+
+  const [reviewDialog, setReviewDialog] = React.useState(null);
+  const [rateStay, rateStayRes] = useAddRatingMutation();
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
@@ -141,58 +146,6 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
     },
     [roomCleanRequest]
   );
-
-  // api for cancelling booking
-
-  // const handleBookingCancel = (bookingRefNumber) => {
-  //   Swal.fire({
-  //     title: "Cancel Booking!",
-  //     text: "Are you sure you want to cancel booking ?",
-  //     icon: "warning",
-  //     // input: "text",
-  //     // inputPlaceholder: "Enter a remark for cancellation",
-  //     // inputValidator: (value) => {
-  //     //   if (!value || value.trim() === "") {
-  //     //     return "You need to provide a valid remark!";
-  //     //   }
-  //     //   return null;
-  //     // },
-  //     showCancelButton: true,
-  //     confirmButtonColor: "#3085d6",
-  //     cancelButtonColor: "#d33",
-  //     confirmButtonText: "Yes",
-  //   }).then(
-  //     (result) => {
-  //       // if (result.isConfirmed) {
-  //       // const remark = result.value ? result?.value?.trim() : "";
-  //       const payload = {
-  //         bookingRefNumber: bookingRefNumber,
-  //         // rejectionReason: remark,
-  //         rejectionReason: "",
-  //       };
-  //       cancelBooking(payload)
-  //         .unwrap()
-  //         .then((res) => {
-  //           setSnack({
-  //             open: true,
-  //             message: res?.message || "Booking Confirmation Success",
-  //             severity: "success",
-  //           });
-  //         })
-  //         .catch((err) => {
-  //           setSnack({
-  //             open: true,
-  //             message:
-  //               err?.data?.message ||
-  //               err?.data ||
-  //               "Booking Confirmation Failed",
-  //             severity: "error",
-  //           });
-  //         });
-  //     }
-  //     // }
-  //   );
-  // };
 
   const handleCancelClick = (bookingRefNumber) => {
     setSelectedBookingRefNumber(bookingRefNumber);
@@ -373,7 +326,6 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                                   wordWrap: "break-word",
                                 }}
                               >
-                                {/* {booking.bookingStatus || "N/A"} */}
                                 {booking?.bookingStatus?.split("_").join(" ") ||
                                   "N/A"}
                               </Typography>
@@ -403,6 +355,34 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                                 Cancel
                               </Button>
                             )}
+                            {booking?.bookingStatus === "Checked_Out" &&
+                              !Boolean(booking?.isRated) && (
+                                <Button
+                                  variant="contained"
+                                  sx={{
+                                    backgroundImage:
+                                      "linear-gradient(to right, #ff512f 0%, #dd2476 100%)",
+                                    color: "white",
+                                    "&:hover": {
+                                      backgroundImage:
+                                        "linear-gradient(to right, #ff512f 10%, #dd2476 90%)",
+                                    },
+                                    textTransform: "none",
+                                  }}
+                                  onClick={() => setReviewDialog(booking)}
+                                >
+                                  Please Rate Us
+                                </Button>
+                              )}
+                            {booking?.bookingStatus === "Checked_Out" &&
+                              Boolean(booking?.isRated) && (
+                                <Rating
+                                  value={booking?.ratingPoints}
+                                  disabled
+                                  size="large"
+                                />
+                              )}
+
                             {booking?.bookingStatus === "Checked_In" &&
                               (booking?.roomDto?.isCheckoutProceed === null ||
                                 booking?.roomDto?.isCheckoutProceed ===
@@ -533,9 +513,16 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
       <LoadingComponent
         open={
           requestRoomCheckoutRes.isLoading ||
-          // laundryRequestRes.isLoading ||
+          rateStayRes.isLoading ||
           roomCleanRequestRes.isLoading
         }
+      />
+      <ReviewDialog
+        open={Boolean(reviewDialog)}
+        handleClose={() => setReviewDialog(null)}
+        setSnack={setSnack}
+        rateStay={rateStay}
+        orderObj={reviewDialog}
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </Box>
@@ -554,6 +541,110 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
     </div>
   );
 };
+
+// Dialog for rating
+function ReviewDialog({ open, handleClose, rateStay, setSnack, orderObj }) {
+  const [rating, setRating] = React.useState(0);
+  const [review, setReview] = React.useState("");
+
+  console.log("orderObj", orderObj);
+  const handleSubmitReview = React.useCallback(
+    (event) => {
+      event.preventDefault();
+      rateStay({
+        // id: orderObj.id,
+        bookingRefNumber: orderObj.bookingRefNumber,
+        ratingPoints: rating,
+        ratingMessage: review,
+      })
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            severity: "success",
+          });
+          setRating(0);
+          setReview("");
+          handleClose();
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data,
+            severity: "error",
+          });
+        });
+    },
+    [rateStay, setSnack, rating, review, handleClose, orderObj]
+  );
+
+  return (
+    <React.Fragment>
+      <Dialog
+        maxWidth="sm"
+        fullWidth
+        open={open}
+        onClose={handleClose}
+        PaperProps={{
+          component: "form",
+          onSubmit: handleSubmitReview,
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 600, fontSize: 24 }}>
+          Review Your Stay
+        </DialogTitle>
+        <DialogContent>
+          <Grid container>
+            <Grid size={12}>
+              <Typography component="legend">Rating</Typography>
+              <Rating
+                value={rating}
+                onChange={(e, newVal) => setRating(newVal)}
+                size="large"
+              />
+            </Grid>
+            <Grid size={12}>
+              <TextField
+                autoFocus
+                margin="dense"
+                name="review"
+                label="Review Message"
+                fullWidth
+                variant="standard"
+                value={review}
+                onChange={(e) => setReview(e.target.value)}
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            color="secondary"
+            variant="contained"
+            sx={{
+              color: "#fff",
+              display: "block",
+              mx: "auto",
+              letterSpacing: 1,
+              fontWeight: 600,
+              textTransform: "none",
+              fontSize: 18,
+              "&.Mui-disabled": {
+                background: "#B2E5F6",
+                color: "#FFFFFF",
+              },
+            }}
+            disabled={!Boolean(rating)}
+            type="submit"
+          >
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </React.Fragment>
+  );
+}
 
 // dialog for confirmation of cancelling room
 const CancelRoomDialog = ({ open, onClose, selectedBookingRefNumber }) => {
