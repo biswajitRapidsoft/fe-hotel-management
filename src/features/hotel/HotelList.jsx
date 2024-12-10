@@ -17,6 +17,7 @@ import {
   TableCell,
   Table,
   InputAdornment,
+  Link,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -28,6 +29,7 @@ import {
   useGetStateListQuery,
   useUploadFileMutation,
   useAddHotelMutation,
+  useUpdateHotelMutation,
 } from "../../services/hotel";
 import { useGetAllRoomTypesByCompanyQuery } from "../../services/roomType";
 import { v4 as uuidv4 } from "uuid";
@@ -36,6 +38,8 @@ import LoadingComponent from "../../components/LoadingComponent";
 import HotelListTable from "./HotelListTable";
 
 const HotelList = () => {
+  const [hotelToUpdate, setHotelToUpdate] = React.useState(null);
+  console.log(hotelToUpdate, "hotelToUpdate");
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
@@ -43,6 +47,7 @@ const HotelList = () => {
   });
   const [uploadFile, uploadFileRes] = useUploadFileMutation();
   const [addHotel, addHotelRes] = useAddHotelMutation();
+  const [updateHotel, updateHotelRes] = useUpdateHotelMutation();
   const [formData, setFormData] = React.useState({
     hotelName: "",
     selectedState: null,
@@ -90,7 +95,6 @@ const HotelList = () => {
       selectedCity: null,
       selectedCityInputVal: "",
       address: "",
-      hotelImage: "",
       hotelImageUrl: "",
       email: "",
       phoneNumber: "",
@@ -101,59 +105,108 @@ const HotelList = () => {
         roomList: [],
       },
     ]);
-    imageRef.current.value = "";
+    // imageRef.current.value = "";
   }, []);
 
   const handleSubmit = React.useCallback(
     (e) => {
       e.preventDefault();
-      addHotel({
-        name: formData.hotelName,
-        logoUrl: formData.hotelImageUrl,
-        email: formData.email,
-        contactNo: formData.phoneNumber,
-        company: {
-          id: JSON.parse(sessionStorage.getItem("data")).companyId,
-        },
-        createdByUser: {
-          id: JSON.parse(sessionStorage.getItem("data")).id,
-        },
-        city: {
-          id: formData.selectedCity.id,
-        },
-        state: {
-          id: formData.selectedState.id,
-        },
+      if (Boolean(hotelToUpdate)) {
+        updateHotel({
+          id: hotelToUpdate.id,
+          name: formData.hotelName,
+          logoUrl: formData.hotelImageUrl,
+          email: formData.email,
+          contactNo: formData.phoneNumber,
+          company: {
+            id: JSON.parse(sessionStorage.getItem("data")).companyId,
+          },
+          createdByUser: {
+            id: JSON.parse(sessionStorage.getItem("data")).id,
+          },
+          city: {
+            id: formData.selectedCity.id,
+          },
+          state: {
+            id: formData.selectedState.id,
+          },
 
-        address: formData.address,
-        noOfFloors: floorList.length,
-        floorRoomMapData: floorList.map((floor, index) => {
-          return {
-            floorNo: index + 1,
-            noOfRooms: floor.roomList.length,
-            roomData: floor.roomList.map((room) => ({
-              roomNo: room.roomNumber,
-              roomType: {
-                id: room.roomType.id,
-              },
-            })),
-          };
-        }),
-      })
-        .unwrap()
-        .then((res) => {
-          setSnack({ open: true, message: res.message, severity: "success" });
-          handleResetForm();
+          address: formData.address,
+          noOfFloors: floorList.length,
+          floorRoomMapData: floorList.map((floor, index) => {
+            return {
+              floorNo: index + 1,
+              noOfRooms: floor.roomList.length,
+              roomData: floor.roomList.map((room) => ({
+                roomNo: room.roomNumber,
+                roomType: {
+                  id: room.roomType.id,
+                },
+              })),
+            };
+          }),
         })
-        .catch((err) => {
-          setSnack({
-            open: true,
-            message: err.data?.message || err.data,
-            severity: "error",
+          .unwrap()
+          .then((res) => {
+            setSnack({ open: true, message: res.message, severity: "success" });
+            handleResetForm();
+          })
+          .catch((err) => {
+            setSnack({
+              open: true,
+              message: err.data?.message || err.data,
+              severity: "error",
+            });
           });
-        });
+      } else {
+        addHotel({
+          name: formData.hotelName,
+          logoUrl: formData.hotelImageUrl,
+          email: formData.email,
+          contactNo: formData.phoneNumber,
+          company: {
+            id: JSON.parse(sessionStorage.getItem("data")).companyId,
+          },
+          createdByUser: {
+            id: JSON.parse(sessionStorage.getItem("data")).id,
+          },
+          city: {
+            id: formData.selectedCity.id,
+          },
+          state: {
+            id: formData.selectedState.id,
+          },
+
+          address: formData.address,
+          noOfFloors: floorList.length,
+          floorRoomMapData: floorList.map((floor, index) => {
+            return {
+              floorNo: index + 1,
+              noOfRooms: floor.roomList.length,
+              roomData: floor.roomList.map((room) => ({
+                roomNo: room.roomNumber,
+                roomType: {
+                  id: room.roomType.id,
+                },
+              })),
+            };
+          }),
+        })
+          .unwrap()
+          .then((res) => {
+            setSnack({ open: true, message: res.message, severity: "success" });
+            handleResetForm();
+          })
+          .catch((err) => {
+            setSnack({
+              open: true,
+              message: err.data?.message || err.data,
+              severity: "error",
+            });
+          });
+      }
     },
-    [formData, addHotel, floorList, handleResetForm]
+    [formData, addHotel, updateHotel, floorList, handleResetForm, hotelToUpdate]
   );
 
   const handleChange = React.useCallback((e) => {
@@ -209,41 +262,96 @@ const HotelList = () => {
     imageRef.current.click();
   }, []);
 
-  const handleUploadImage = React.useCallback(() => {
-    const formData = new FormData();
-    formData.append("file", imageRef.current.files[0]);
-    uploadFile(formData)
-      .unwrap()
-      .then((res) => {
-        setFormData((prev) => ({
-          ...prev,
-          hotelImageUrl: res.data,
-        }));
-        setSnack({
-          open: true,
-          message: res.message,
-          severity: "success",
-        });
-      })
-      .catch((err) => {
-        setSnack({
-          open: true,
-          message: err.data?.message || err.data,
-          severity: "error",
-        });
-      });
-  }, [uploadFile]);
+  const handleUploadImage = React.useCallback(
+    (e) => {
+      if (Boolean(e.target.files[0])) {
+        const formData = new FormData();
+        formData.append("file", e.target.files[0]);
+        uploadFile(formData)
+          .unwrap()
+          .then((res) => {
+            setFormData((prev) => ({
+              ...prev,
+              hotelImageUrl: res.data,
+            }));
+            setSnack({
+              open: true,
+              message: res.message,
+              severity: "success",
+            });
+          })
+          .catch((err) => {
+            setSnack({
+              open: true,
+              message: err.data?.message || err.data,
+              severity: "error",
+            });
+          });
+      }
+    },
+    [uploadFile]
+  );
+
+  const handleClearImage = React.useCallback(() => {
+    setFormData({
+      ...formData,
+      hotelImage: "",
+      hotelImageUrl: "",
+    });
+  }, [formData]);
+
+  // React.useEffect(() => {
+  //   if (formData.hotelImage && imageRef.current) {
+  //     handleUploadImage();
+  //   } else {
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       hotelImage: "",
+  //       hotelImageUrl: "",
+  //     }));
+  //   }
+  // }, [formData.hotelImage, handleUploadImage]);
 
   React.useEffect(() => {
-    if (formData.hotelImage) {
-      handleUploadImage();
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        hotelImageUrl: "",
-      }));
+    if (Boolean(hotelToUpdate)) {
+      setFormData({
+        hotelName: hotelToUpdate.name,
+        selectedState:
+          stateList.data.find((state) => state.id === hotelToUpdate.state.id) ||
+          null,
+        selectedStateInputVal:
+          stateList.data.find((state) => state.id === hotelToUpdate.state.id)
+            ?.name || "",
+        selectedCity:
+          cityList.data.find((city) => city.id === hotelToUpdate.city.id) ||
+          null,
+        selectedCityInputVal:
+          cityList.data.find((city) => city.id === hotelToUpdate.city.id)
+            ?.name || "",
+        address: hotelToUpdate.address,
+        hotelImage: "",
+        hotelImageUrl: hotelToUpdate.logoUrl || "",
+        email: hotelToUpdate.email,
+        phoneNumber: hotelToUpdate.contactNos
+          ? hotelToUpdate.contactNos[0]
+          : "",
+      });
+      setFloorList(
+        hotelToUpdate.floorRoomMapData.map((floor) => {
+          return {
+            id: floor.floorNo,
+            roomList: floor.roomDto.map((room) => {
+              return {
+                id: room.id,
+                roomNumber: room.roomNo,
+                roomType: room.roomType,
+              };
+            }),
+          };
+        })
+      );
     }
-  }, [formData.hotelImage, handleUploadImage]);
+  }, [hotelToUpdate, stateList.data, cityList.data]);
 
   return (
     <Container>
@@ -313,10 +421,12 @@ const HotelList = () => {
               value={formData.hotelName}
               onChange={handleChange}
               variant="standard"
+              disabled={Boolean(hotelToUpdate)}
             />
           </Grid>
           <Grid size={3}>
             <Autocomplete
+              disabled={Boolean(hotelToUpdate)}
               options={stateList.data}
               getOptionLabel={(option) => option.name}
               value={formData.selectedState}
@@ -384,6 +494,7 @@ const HotelList = () => {
           </Grid>
           <Grid size={3}>
             <Autocomplete
+              disabled={Boolean(hotelToUpdate)}
               options={cityList.data}
               getOptionLabel={(option) => option.name}
               value={formData.selectedCity}
@@ -471,6 +582,7 @@ const HotelList = () => {
               value={formData.address}
               onChange={handleChange}
               variant="standard"
+              disabled={Boolean(hotelToUpdate)}
             />
           </Grid>
           <Grid size={3}>
@@ -492,6 +604,7 @@ const HotelList = () => {
               value={formData.email}
               onChange={handleChange}
               variant="standard"
+              disabled={Boolean(hotelToUpdate)}
             />
           </Grid>
           <Grid size={3}>
@@ -513,48 +626,82 @@ const HotelList = () => {
               value={formData.phoneNumber}
               onChange={handleChange}
               variant="standard"
+              disabled={Boolean(hotelToUpdate)}
             />
           </Grid>
           <Grid size={3}>
-            <TextField
-              type="file"
-              name="hotelImage"
-              slotProps={{
-                htmlInput: {
-                  style: {
-                    opacity: formData.hotelImage ? 1 : 0,
-                  },
-                  ref: imageRef,
-                },
-                input: {
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        color="primary"
-                        onClick={handleAttachmentClick}
-                      >
-                        <AttachmentIcon sx={{ transform: "rotate(45deg)" }} />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                },
-              }}
-              onChange={handleChange}
-              label={
-                <React.Fragment>
-                  Hotel Image{" "}
-                  <Box
-                    component="span"
-                    sx={{
-                      color: (theme) => theme.palette.error.main,
+            {formData.hotelImageUrl ? (
+              <Box
+                sx={{
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "flex-end",
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Link
+                    href={formData.hotelImageUrl}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      window.open(formData.hotelImageUrl, "_blank");
                     }}
+                    sx={{ fontSize: 18 }}
                   >
-                    *
-                  </Box>
-                </React.Fragment>
-              }
-              variant="standard"
-            />
+                    Hotel Image
+                  </Link>
+                  <IconButton
+                    onClick={handleClearImage}
+                    disabled={Boolean(hotelToUpdate)}
+                  >
+                    <ClearIcon
+                      color={Boolean(hotelToUpdate) ? "disabled" : "error"}
+                    />
+                  </IconButton>
+                </Box>
+              </Box>
+            ) : (
+              <TextField
+                type="file"
+                name="hotelImage"
+                slotProps={{
+                  htmlInput: {
+                    style: {
+                      // opacity: formData.hotelImage ? 1 : 0,
+                      opacity: 0,
+                    },
+                    ref: imageRef,
+                  },
+                  input: {
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          color="primary"
+                          onClick={handleAttachmentClick}
+                        >
+                          <AttachmentIcon sx={{ transform: "rotate(45deg)" }} />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+                onChange={handleUploadImage}
+                label={
+                  <React.Fragment>
+                    Hotel Image{" "}
+                    <Box
+                      component="span"
+                      sx={{
+                        color: (theme) => theme.palette.error.main,
+                      }}
+                    >
+                      *
+                    </Box>
+                  </React.Fragment>
+                }
+                variant="standard"
+              />
+            )}
           </Grid>
         </Grid>
         <Box>
@@ -600,14 +747,18 @@ const HotelList = () => {
             disabled={!isFormValid()}
             type="submit"
           >
-            Add Hotel
+            {Boolean(hotelToUpdate) ? "Update Hotel" : "Add Hotel"}
           </Button>
         </Box>
       </Box>
-      <HotelListTable />
+      <HotelListTable setHotelToUpdate={setHotelToUpdate} />
       <SnackAlert snack={snack} setSnack={setSnack} />
       <LoadingComponent
-        open={uploadFileRes.isLoading || addHotelRes.isLoading}
+        open={
+          uploadFileRes.isLoading ||
+          addHotelRes.isLoading ||
+          updateHotelRes.isLoading
+        }
       />
     </Container>
   );
@@ -672,7 +823,8 @@ function FloorFormComponent({
           roomList: [
             ...item.roomList,
             {
-              id: item.roomList.length + 1,
+              // id: item.roomList.length + 1,
+              id: uuidv4(),
               roomNumber: formData.roomNumber,
               roomType: formData.selectedRoomType,
             },
@@ -731,7 +883,7 @@ function FloorFormComponent({
           {`Floor ${floorIndex + 1}`}
         </Typography>
         <Box>
-          {floorIndex !== 0 && (
+          {floorIndex !== 0 && typeof floor.id === "string" && (
             <IconButton
               sx={{
                 color: "#fff",
@@ -921,14 +1073,16 @@ function FloorFormComponent({
                             <TableCell>{room.roomNumber}</TableCell>
                             <TableCell>{room.roomType.type}</TableCell>
                             <TableCell>
-                              <IconButton
-                                size="small"
-                                onClick={() =>
-                                  handleDeleteRoomForCurrentFloor(room.id)
-                                }
-                              >
-                                <DeleteIcon fontSize="small" color="error" />
-                              </IconButton>
+                              {typeof room.id === "string" && (
+                                <IconButton
+                                  size="small"
+                                  onClick={() =>
+                                    handleDeleteRoomForCurrentFloor(room.id)
+                                  }
+                                >
+                                  <DeleteIcon fontSize="small" color="error" />
+                                </IconButton>
+                              )}
                             </TableCell>
                           </TableRow>
                         );

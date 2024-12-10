@@ -1,9 +1,9 @@
 const config = Object.freeze({
-  baseUrl: "http://192.168.12.37:9000/",
+  // baseUrl: "http://192.168.12.37:9000/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
   // baseUrl: "http://crimarrstaging.nyggs.com/backend/",
   // baseUrl: "http://192.168.30.44:9000/",
-  // baseUrl: "http://192.168.12.43:8080/be-hms/",
+  baseUrl: "http://192.168.12.43:8080/be-hms/",
   apiName: {
     loginAsCustomer: "login/as/customer",
     loginAsStaff: "login",
@@ -13,6 +13,8 @@ const config = Object.freeze({
     getAllRoomTypesByCompany: "api/get/room/type/by/company",
     fileUpload: "api/upload",
     addHotel: "api/add/hotel",
+    updateHotel: "api/update/hotel",
+    changeRoomStatus: "api/room/status/change/by/roomId",
     getHotelListByCompany: "api/get/all/hotels",
     getAllExtraItems: "api/get/all/extra/items",
     addRoomType: "api/save/master/room/type",
