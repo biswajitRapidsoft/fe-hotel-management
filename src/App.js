@@ -8,6 +8,7 @@ import LoadingComponent from "./components/LoadingComponent";
 const Login = React.lazy(() => import("./features/login/Login"));
 const Dashboard = React.lazy(() => import("./features/dashboard/Dashboard"));
 const Layout = React.lazy(() => import("./routes/Layout"));
+const SuperLayout = React.lazy(() => import("./routes/SuperLayout"));
 const AdminDashboard = React.lazy(() =>
   import("./features/dashboard/AdminDashboard")
 );
@@ -61,34 +62,36 @@ function App() {
             path="/hotelBillInvoice/:bookingRefNo"
             element={<HotelBillInvoice key="hotel-bill" />}
           />
-          <Route element={<Layout />}>
-            <Route path="/dashboard" element={<Dashboard />} />
+          <Route element={<SuperLayout />}>
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
-            <Route path="/guest-dashboard" element={<GuestDashboard />} />
             <Route path="/hotel-list" element={<HotelList />} />
             <Route path="/room-type" element={<RoomType />} />
             <Route path="/extra-item" element={<ExtraItem />} />
             <Route path="/employee-list" element={<EmployeeList />} />
-            <Route
-              path="/housekeeper-dashboard"
-              element={<HouseKeeperDashboard />}
-            />
-            <Route path="/resturant" element={<Restaurant />} />
-            <Route path="/restaurant-admin" element={<RestaurantAdmin />} />
-            <Route
-              path="/frontdeskBookingHistory"
-              element={<FrontdeskBookingHistory />}
-            />
-            <Route path="/hallBookings" element={<HallBookingDashboard />} />
-            <Route path="/Parking" element={<Parking />} />
-            <Route path="/LaundryHistory" element={<LaundryHistory />} />
             <Route path="/HallList" element={<HallList />} />
             <Route path="/BanquetList" element={<BanquetList />} />
-            <Route
-              path="/HouseKeepingHistory"
-              element={<HouseKeepingHistory />}
-            />
             <Route path="/PromocodeList" element={<PromocodeList />} />
+            <Route element={<Layout />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/guest-dashboard" element={<GuestDashboard />} />
+              <Route
+                path="/housekeeper-dashboard"
+                element={<HouseKeeperDashboard />}
+              />
+              <Route path="/resturant" element={<Restaurant />} />
+              <Route path="/restaurant-admin" element={<RestaurantAdmin />} />
+              <Route
+                path="/frontdeskBookingHistory"
+                element={<FrontdeskBookingHistory />}
+              />
+              <Route path="/hallBookings" element={<HallBookingDashboard />} />
+              <Route path="/Parking" element={<Parking />} />
+              <Route path="/LaundryHistory" element={<LaundryHistory />} />
+              <Route
+                path="/HouseKeepingHistory"
+                element={<HouseKeepingHistory />}
+              />
+            </Route>
           </Route>
         </Routes>
       </React.Suspense>
