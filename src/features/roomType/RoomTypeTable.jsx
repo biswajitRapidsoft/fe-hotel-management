@@ -148,7 +148,8 @@ const RoomTypeTable = () => {
               >
                 <TableCell>Sl No.</TableCell>
                 <TableCell>Room Type</TableCell>
-                <TableCell sx={{ width: "50%" }}>Extra items</TableCell>
+                <TableCell sx={{ width: "40%" }}>Extra items</TableCell>
+                <TableCell>Reward Points</TableCell>
                 <TableCell>Images</TableCell>
               </TableRow>
             </TableHead>
@@ -172,6 +173,7 @@ const RoomTypeTable = () => {
                         <CustomChips itemList={roomType.extraItem} />
                       )}
                     </TableCell>
+                    <TableCell>{roomType.rewardsPoints}</TableCell>
                     <TableCell sx={{ display: "flex", alignItems: "center" }}>
                       {Boolean(roomType.images.length) && (
                         <Box
