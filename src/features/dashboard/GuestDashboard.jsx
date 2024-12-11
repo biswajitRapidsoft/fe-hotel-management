@@ -1,10 +1,15 @@
-import React, { memo } from "react";
+import React, { memo, useCallback } from "react";
 import Grid from "@mui/material/Grid2";
 import Drawer from "@mui/material/Drawer";
 import dayjs from "dayjs";
 import MasterCard from "../../img/masterCard.png";
 import Visa from "../../img/visa.png";
 import Maestro from "../../img/maestro.png";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Confetti from "react-confetti";
+
 // import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -28,6 +33,7 @@ import {
   useGetAllBookingDetailsQuery,
   useGetUserDetailsForBookingQuery,
   useGetAllFiltersDataQuery,
+  useMakePaymentMutation,
 } from "../../services/dashboard";
 import TextField from "@mui/material/TextField";
 import { CUSTOMER } from "../../helper/constants";
@@ -53,7 +59,6 @@ const GuestDashboard = () => {
     priceRange: null,
   });
 
-  console.log("filters", filters);
   const toggleBookingHistoryDrawer = (open) => () => {
     setBookingHistoryDrawerOpen(open);
   };
@@ -448,13 +453,6 @@ const CustomRoomFilters = memo(function ({
               options={filterOptions?.priceRangeList || []}
               // disableClearable
               fullWidth
-              // onChange={(e, newVal) =>
-              //   handleChangeRoomFiltersOnChange("roomType", newVal)
-              // }
-              // inputValue={roomFilters.roomTypeInputVal}
-              // onInputChange={(e, newVal) =>
-              //   handleChangeRoomFiltersOnChange("roomTypeInputVal", newVal)
-              // }
               value={filters.priceRange}
               onChange={(e, newVal) =>
                 setFilters((prev) => ({ ...prev, priceRange: newVal }))
@@ -531,7 +529,6 @@ const CustomRoomFilters = memo(function ({
   );
 });
 const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
-  console.log("hotelDetails", hotelDetails);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [openPaymentDialog, setOpenPaymentDialog] = React.useState(false);
   const [reservationPayload, setReservationPayload] = React.useState(null);
@@ -554,7 +551,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
     message: "",
     severity: "",
   });
-  // const [reserveHotelRoom, reserveHotelRoomRes] = useReserveHotelRoomMutation();
+  const [reserveHotelRoom, reserveHotelRoomRes] = useReserveHotelRoomMutation();
 
   const toggleDrawer = (open) => () => {
     if (!open) {
@@ -700,134 +697,134 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
     setOpenPaymentDialog(true);
   };
   // add reservation function
-  // const handleSubmit = React.useCallback(
-  //   (e) => {
-  //     e.preventDefault();
+  const handleSubmitReserve = React.useCallback(
+    (e) => {
+      e.preventDefault();
 
-  //     const isAdvanceValid =
-  //       !hotelDetails?.isAdvanceRequired ||
-  //       (formData.advancePayment &&
-  //         Number(formData.advancePayment) >=
-  //           Number(hotelDetails.advanceAmount) * calculateNumberOfDays &&
-  //         Number(formData.advancePayment) <=
-  //           Number(hotelDetails.basePrice) * calculateNumberOfDays);
+      const isAdvanceValid =
+        !hotelDetails?.isAdvanceRequired ||
+        (formData.advancePayment &&
+          Number(formData.advancePayment) >=
+            Number(hotelDetails.advanceAmount) * calculateNumberOfDays &&
+          Number(formData.advancePayment) <=
+            Number(hotelDetails.basePrice) * calculateNumberOfDays);
 
-  //     if (!Boolean(formData.noOfPeoples)) {
-  //       return setSnack({
-  //         open: true,
-  //         message: "Please provide number of people",
-  //         severity: "error",
-  //       });
-  //     } else if (!Boolean(formData.firstName)) {
-  //       return setSnack({
-  //         open: true,
-  //         message: "Please provide first name",
-  //         severity: "error",
-  //       });
-  //     } else if (!Boolean(formData.email)) {
-  //       return setSnack({
-  //         open: true,
-  //         message: "Please provide email",
-  //         severity: "error",
-  //       });
-  //     } else if (!Boolean(formData.address)) {
-  //       return setSnack({
-  //         open: true,
-  //         message: "Please provide address",
-  //         severity: "error",
-  //       });
-  //     } else if (!Boolean(formData.fromDate)) {
-  //       return setSnack({
-  //         open: true,
-  //         message: "Please provide fromDate",
-  //         severity: "error",
-  //       });
-  //     } else if (!Boolean(formData.toDate)) {
-  //       return setSnack({
-  //         open: true,
-  //         message: "Please provide toDate",
-  //         severity: "error",
-  //       });
-  //     } else if (!Boolean(formData.noOfPeoples)) {
-  //       return setSnack({
-  //         open: true,
-  //         message: "Please provide number of people",
-  //         severity: "error",
-  //       });
-  //     } else if (!isAdvanceValid) {
-  //       return setSnack({
-  //         open: true,
-  //         message:
-  //           calculateNumberOfDays > 0
-  //             ? Number(formData.advancePayment) <
-  //               Number(hotelDetails.advanceAmount) * calculateNumberOfDays
-  //               ? `Please pay ₹${
-  //                   hotelDetails.advanceAmount * calculateNumberOfDays
-  //                 } in advance`
-  //               : `Advance amount cannot exceed ₹${
-  //                   hotelDetails.basePrice * calculateNumberOfDays
-  //                 }`
-  //             : "Invalid advance payment",
-  //         severity: "error",
-  //       });
-  //     }
+      if (!Boolean(formData.noOfPeoples)) {
+        return setSnack({
+          open: true,
+          message: "Please provide number of people",
+          severity: "error",
+        });
+      } else if (!Boolean(formData.firstName)) {
+        return setSnack({
+          open: true,
+          message: "Please provide first name",
+          severity: "error",
+        });
+      } else if (!Boolean(formData.email)) {
+        return setSnack({
+          open: true,
+          message: "Please provide email",
+          severity: "error",
+        });
+      } else if (!Boolean(formData.address)) {
+        return setSnack({
+          open: true,
+          message: "Please provide address",
+          severity: "error",
+        });
+      } else if (!Boolean(formData.fromDate)) {
+        return setSnack({
+          open: true,
+          message: "Please provide fromDate",
+          severity: "error",
+        });
+      } else if (!Boolean(formData.toDate)) {
+        return setSnack({
+          open: true,
+          message: "Please provide toDate",
+          severity: "error",
+        });
+      } else if (!Boolean(formData.noOfPeoples)) {
+        return setSnack({
+          open: true,
+          message: "Please provide number of people",
+          severity: "error",
+        });
+      } else if (!isAdvanceValid) {
+        return setSnack({
+          open: true,
+          message:
+            calculateNumberOfDays > 0
+              ? Number(formData.advancePayment) <
+                Number(hotelDetails.advanceAmount) * calculateNumberOfDays
+                ? `Please pay ₹${
+                    hotelDetails.advanceAmount * calculateNumberOfDays
+                  } in advance`
+                : `Advance amount cannot exceed ₹${
+                    hotelDetails.basePrice * calculateNumberOfDays
+                  }`
+              : "Invalid advance payment",
+          severity: "error",
+        });
+      }
 
-  //     reserveHotelRoom({
-  //       firstName: formData.firstName,
-  //       middleName: formData.middleName,
-  //       lastName: formData.lastName,
-  //       phoneNumber: formData.phoneNumber,
-  //       email: formData.email,
-  //       address: formData.address,
-  //       fromDate: formData.fromDate
-  //         ? dayjs(formData.fromDate).format("DD-MM-YYYY")
-  //         : null,
-  //       toDate: formData.toDate
-  //         ? dayjs(formData.toDate).format("DD-MM-YYYY")
-  //         : null,
-  //       noOfPeoples: Number(formData.noOfPeoples),
-  //       roomTypeId: hotelDetails?.id,
-  //       hotelId: hotelDetails?.hotelDto?.id,
-  //       paidAmount: formData.advancePayment,
-  //       bookingAmount: calculateNumberOfDays * Number(hotelDetails?.basePrice),
-  //       paymentDetails: Boolean(sessionStorage.getItem("paymentDetail"))
-  //         ? sessionStorage.getItem("paymentDetail")
-  //         : "",
-  //     })
-  //       .unwrap()
-  //       .then((res) => {
-  //         setSnack({
-  //           open: true,
-  //           message: res.message,
-  //           severity: "success",
-  //         });
-  //         if (sessionStorage.getItem("paymentDetail")) {
-  //           sessionStorage.removeItem("paymentDetail");
-  //         }
+      reserveHotelRoom({
+        firstName: formData.firstName,
+        middleName: formData.middleName,
+        lastName: formData.lastName,
+        phoneNumber: formData.phoneNumber,
+        email: formData.email,
+        address: formData.address,
+        fromDate: formData.fromDate
+          ? dayjs(formData.fromDate).format("DD-MM-YYYY")
+          : null,
+        toDate: formData.toDate
+          ? dayjs(formData.toDate).format("DD-MM-YYYY")
+          : null,
+        noOfPeoples: Number(formData.noOfPeoples),
+        roomTypeId: hotelDetails?.id,
+        hotelId: hotelDetails?.hotelDto?.id,
+        paidAmount: formData.advancePayment,
+        bookingAmount: calculateNumberOfDays * Number(hotelDetails?.basePrice),
+        // paymentDetails: Boolean(sessionStorage.getItem("paymentDetail"))
+        //   ? sessionStorage.getItem("paymentDetail")
+        //   : "",
+      })
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            severity: "success",
+          });
+          if (sessionStorage.getItem("paymentDetail")) {
+            sessionStorage.removeItem("paymentDetail");
+          }
 
-  //         setDrawerOpen(false);
-  //         handleResetForm();
-  //       })
-  //       .catch((err) => {
-  //         setSnack({
-  //           open: true,
-  //           message: err.data?.message || err.data || "Something Went Wrong",
-  //           severity: "error",
-  //         });
+          setDrawerOpen(false);
+          handleResetForm();
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data || "Something Went Wrong",
+            severity: "error",
+          });
 
-  //         if (sessionStorage.getItem("paymentDetail")) {
-  //           sessionStorage.removeItem("paymentDetail");
-  //         }
-  //       });
-  //   },
-  //   [
-  //     formData,
-  //     hotelDetails,
-  //     reserveHotelRoom,
-  //     handleResetForm,
-  //     calculateNumberOfDays,
-  //   ]
-  // );
+          if (sessionStorage.getItem("paymentDetail")) {
+            sessionStorage.removeItem("paymentDetail");
+          }
+        });
+    },
+    [
+      formData,
+      hotelDetails,
+      reserveHotelRoom,
+      handleResetForm,
+      calculateNumberOfDays,
+    ]
+  );
 
   const handleChangeInput = (e) => {
     const { name, value } = e.target;
@@ -1006,7 +1003,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
           <Divider />
           <Box
             component="form"
-            // onSubmit={handleSubmit}
+            onSubmit={handleSubmitReserve}
             sx={{ px: 2, py: 2 }}
           >
             <Grid container size={12} spacing={2}>
@@ -1169,31 +1166,10 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                   />
                 </Grid>
               )}
-              {/* {Boolean(sessionStorage.getItem("paymentDetail")) ? (
-                <Grid container>
-                  <Grid size={{ xs: 12 }} sx={{ px: 1 }}>
-                    <Box sx={{ display: "flex", gap: 1 }}>
-                      <CheckCircleOutlineIcon sx={{ color: "green" }} />
-                      <Typography
-                        sx={{
-                          color: "gray",
-                          fontStyle: "italic",
-                          fontFamily: "'Georgia', 'Times New Roman', serif",
-                          fontSize: "bold",
-                        }}
-                      >handleResetForm
-                        Payment done successfully
-                      </Typography>
-                    </Box>
-                  </Grid>
-                </Grid>
-              ) : (
-                ""
-              )} */}
 
               <Grid size={{ xs: 12 }}>
                 <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                  {/* {Boolean(sessionStorage.getItem("paymentDetail")) ? (
+                  {!Boolean(hotelDetails?.isAdvanceRequired) && (
                     <Button
                       variant="contained"
                       sx={{
@@ -1210,7 +1186,8 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                     >
                       Reserve
                     </Button>
-                  ) : (
+                  )}
+                  {Boolean(hotelDetails?.isAdvanceRequired) && (
                     <Button
                       variant="contained"
                       sx={{
@@ -1223,35 +1200,18 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                             "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
                         },
                       }}
-                      onClick={() => setOpenPaymentDialog(true)}
+                      onClick={validateAndOpenPaymentDialog}
                     >
-                      Pay Now
+                      Pay and Reserve
                     </Button>
-                  )} */}
-
-                  <Button
-                    variant="contained"
-                    sx={{
-                      backgroundImage:
-                        "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
-                      backgroundColor: "inherit",
-                      color: "white",
-                      "&:hover": {
-                        backgroundImage:
-                          "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
-                      },
-                    }}
-                    onClick={validateAndOpenPaymentDialog}
-                  >
-                    Pay and Reserve
-                  </Button>
+                  )}
                 </Box>
               </Grid>
             </Grid>
           </Box>
         </Box>
       </Drawer>
-      {/* <LoadingComponent open={reserveHotelRoomRes.isLoading} /> */}
+      <LoadingComponent open={reserveHotelRoomRes.isLoading} />
       <SnackAlert snack={snack} setSnack={setSnack} />
       <PaymentDialog
         openPaymentDialog={openPaymentDialog}
@@ -1260,45 +1220,35 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
         handleResetForm={handleResetForm}
         setSnack={setSnack}
         setDrawerOpen={setDrawerOpen}
+        reserveHotelRoom={reserveHotelRoom}
       />
     </>
   );
 });
 
-const PaymentDialog = memo(function ({
+export const PaymentDialog = memo(function ({
   openPaymentDialog,
   handlePaymentDialogClose,
   reservationPayload,
+  reserveHotelRoom,
   handleResetForm,
   setSnack,
   setDrawerOpen,
+  handleAfterSuccessFunction = () => {},
 }) {
-  console.log("reservationPayload", reservationPayload);
   const [paymentMethod, setPaymentMethod] = React.useState("card");
   const [cardNumber, setCardNumber] = React.useState("");
   const [upiNumber, setUpiNumber] = React.useState("");
   const [cvv, setCvv] = React.useState("");
   const [expiryDate, setExpiryDate] = React.useState("");
+  const [isDebitCard, setIsDebitCard] = React.useState(true);
+  // const [showConfetti, setShowConfetti] = React.useState(false); // For confetti
 
-  const [reserveHotelRoom, reserveHotelRoomRes] = useReserveHotelRoomMutation();
+  const [makePayment, makePaymentRes] = useMakePaymentMutation();
 
   const isPayButtonDisabled =
     (paymentMethod === "card" && cardNumber.trim() === "") ||
     (paymentMethod === "upi" && upiNumber.trim() === "");
-
-  // const handlePayNow = () => {
-  //   const paymentDetail = paymentMethod === "card" ? cardNumber : upiNumber;
-  //   sessionStorage.setItem("paymentDetail", paymentDetail);
-
-  //   const finalPayload = {
-  //     ...reservationPayload,
-  //     paymentDetails,
-  //   };
-  //   setCardNumber("");
-  //   setUpiNumber("");
-  //   setCvv("");
-  //   handlePaymentDialogClose();
-  // };
 
   const handlePaymentMethodChange = (method) => {
     setPaymentMethod(method);
@@ -1326,41 +1276,106 @@ const PaymentDialog = memo(function ({
     }
   };
 
+  const handleAfterSuccessFunctionOnSuccess = useCallback(() => {
+    handleAfterSuccessFunction();
+  }, [handleAfterSuccessFunction]);
+
   const handleSubmit = React.useCallback(
-    (e) => {
+    async (e) => {
       e.preventDefault();
       const paymentDetail = paymentMethod === "card" ? cardNumber : upiNumber;
-      sessionStorage.setItem("paymentDetail", paymentDetail);
 
-      const finalPayload = {
-        ...reservationPayload,
-        paymentDetail,
+      // const finalPayload = {
+      //   ...reservationPayload,
+      //   paymentDetail,
+      // };
+
+      const paymentPayload = {
+        paidAmount: reservationPayload?.paidAmount,
+        // paymentMethod: isDebitCard ? "Debit_Card" : "Credit_Card",
+        paymentMethod:
+          paymentMethod === "card"
+            ? isDebitCard
+              ? "Debit_Card"
+              : "Credit_Card"
+            : "UPI",
+        // cardNumber: paymentDetail,
+        cardNumber: paymentMethod === "card" ? cardNumber : null,
+        upiAddress: upiNumber,
       };
 
-      console.log("finalPayload", finalPayload);
-      reserveHotelRoom(finalPayload)
-        .unwrap()
-        .then((res) => {
+      try {
+        const paymentResponse = await makePayment(paymentPayload).unwrap();
+
+        if (paymentResponse && paymentResponse.data) {
+          const finalPayload = {
+            ...reservationPayload,
+            paymentDetail,
+            transactionReferenceNo: paymentResponse.data,
+          };
+          const reservationResponse = await reserveHotelRoom(
+            finalPayload
+          ).unwrap();
+
           setSnack({
             open: true,
-            message: res.message,
+            message: reservationResponse.message,
             severity: "success",
           });
-          handleResetForm();
-          setDrawerOpen(false);
-        })
-        .catch((err) => {
+          handleAfterSuccessFunctionOnSuccess();
+        } else {
           setSnack({
             open: true,
-            message: err.data?.message || err.data || "Something Went Wrong",
+            message: "Payment failed. Please try again.",
             severity: "error",
           });
-        });
+          return;
+        }
 
-      setCardNumber("");
-      setUpiNumber("");
-      setCvv("");
-      handlePaymentDialogClose();
+        // setShowConfetti(true); // Trigger confetti
+        // setTimeout(() => setShowConfetti(false), 5000);
+
+        // handleAfterSuccessFunctionOnSuccess();
+      } catch (err) {
+        setSnack({
+          open: true,
+          message: err.data?.message || err.data || "Something Went Wrong",
+          severity: "error",
+        });
+      } finally {
+        setCardNumber("");
+        setUpiNumber("");
+        setCvv("");
+        handlePaymentDialogClose();
+        handleResetForm();
+        setDrawerOpen(false);
+      }
+
+      // makePayment(paymentPayload);
+
+      // reserveHotelRoom(finalPayload)
+      //   .unwrap()
+      //   .then((res) => {
+      //     setSnack({
+      //       open: true,
+      //       message: res.message,
+      //       severity: "success",
+      //     });
+      //     handleResetForm();
+      //     setDrawerOpen(false);
+      //   })
+      //   .catch((err) => {
+      //     setSnack({
+      //       open: true,
+      //       message: err.data?.message || err.data || "Something Went Wrong",
+      //       severity: "error",
+      //     });
+      //   });
+
+      // setCardNumber("");
+      // setUpiNumber("");
+      // setCvv("");
+      // handlePaymentDialogClose();
     },
     [
       cardNumber,
@@ -1372,11 +1387,17 @@ const PaymentDialog = memo(function ({
       reserveHotelRoom,
       setDrawerOpen,
       setSnack,
+      isDebitCard,
+      makePayment,
     ]
   );
 
   return (
     <>
+      {/* {showConfetti && (
+        <Confetti width={window.innerWidth} height={window.innerHeight} />
+      )} */}
+
       <Dialog
         TransitionComponent={Transition}
         open={openPaymentDialog}
@@ -1487,16 +1508,52 @@ const PaymentDialog = memo(function ({
                       display: "flex",
                       flexDirection: "column",
                       gap: 2,
-                      height: "240px",
+                      height: "280px",
                       borderRadius: "0.7rem",
                     }}
                   >
                     <Box>
-                      <Typography sx={{ fontSize: "1.3rem" }}>
-                        {paymentMethod === "card"
-                          ? "Card details:"
-                          : "Enter UPI Id:"}
-                      </Typography>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          // alignItems: "center",
+                          justifyContent: "space-between",
+                          flexDirection: "column",
+                        }}
+                      >
+                        {paymentMethod === "card" && (
+                          <Box>
+                            <RadioGroup
+                              row
+                              value={isDebitCard ? "debit" : "credit"}
+                              onChange={(e) =>
+                                setIsDebitCard(e.target.value === "debit")
+                              }
+                            >
+                              <FormControlLabel
+                                value="debit"
+                                control={<Radio />}
+                                label="Debit Card"
+                                // onChange={() => setIsDebitCard(true)}
+                              />
+                              <FormControlLabel
+                                value="credit"
+                                control={<Radio />}
+                                label="Credit Card"
+                                // onChange={() => setIsDebitCard(false)}
+                              />
+                            </RadioGroup>
+                          </Box>
+                        )}
+
+                        <Typography sx={{ fontSize: "1.3rem" }}>
+                          {paymentMethod === "card"
+                            ? isDebitCard
+                              ? "Debit Card Details"
+                              : "Credit Card Details"
+                            : "Enter UPI Id:"}
+                        </Typography>
+                      </Box>
                     </Box>
                     <Box sx={{ width: "100%" }}>
                       {paymentMethod === "card" && (
@@ -1621,7 +1678,7 @@ const PaymentDialog = memo(function ({
                         // onClick={handlePayNow}
                         type="submit"
                       >
-                        Pay Now
+                        Pay ₹{reservationPayload?.paidAmount}
                       </Button>
                     </Box>
                   </Box>
@@ -1631,8 +1688,7 @@ const PaymentDialog = memo(function ({
           </Box>
         </DialogContent>
       </Dialog>
-
-      <LoadingComponent open={reserveHotelRoomRes.isLoading} />
+      <LoadingComponent open={makePaymentRes.isLoading} />
     </>
   );
 });
