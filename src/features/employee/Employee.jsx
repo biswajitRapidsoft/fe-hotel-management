@@ -30,14 +30,18 @@ const Employee = () => {
     data: roleList = {
       data: [],
     },
-  } = useGetAllRolesQuery();
+  } = useGetAllRolesQuery(
+    {},
+    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin" }
+  );
 
   const {
     data: hotelList = {
       data: [],
     },
   } = useGetHotelListByCompanyQuery(
-    JSON.parse(sessionStorage.getItem("data")).companyId
+    JSON.parse(sessionStorage.getItem("data")).companyId,
+    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin" }
   );
 
   const [formData, setFormData] = React.useState({

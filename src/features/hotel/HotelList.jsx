@@ -71,20 +71,28 @@ const HotelList = () => {
     data: stateList = {
       data: [],
     },
-  } = useGetStateListQuery();
+  } = useGetStateListQuery(
+    {},
+    {
+      skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin",
+    }
+  );
   const {
     data: cityList = {
       data: [],
     },
   } = useGetCityListQuery(formData.selectedState?.id, {
-    skip: !Boolean(formData.selectedState),
+    skip:
+      !Boolean(formData.selectedState) ||
+      JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin",
   });
   const {
     data: roomTypeByCompany = {
       data: [],
     },
   } = useGetAllRoomTypesByCompanyQuery(
-    JSON.parse(sessionStorage.getItem("data")).companyId
+    JSON.parse(sessionStorage.getItem("data")).companyId,
+    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin" }
   );
 
   const handleResetForm = React.useCallback(() => {

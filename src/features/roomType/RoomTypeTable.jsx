@@ -77,7 +77,8 @@ const RoomTypeTable = () => {
     },
     isLoading,
   } = useGetAllRoomTypesByCompanyQuery(
-    JSON.parse(sessionStorage.getItem("data")).companyId
+    JSON.parse(sessionStorage.getItem("data")).companyId,
+    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin" }
   );
 
   const [viewImageDialog, setViewImageDialog] = React.useState(null);

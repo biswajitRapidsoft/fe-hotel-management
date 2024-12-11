@@ -37,12 +37,22 @@ const ExtraItem = () => {
     },
     isLoading,
   } = useGetAllExtraItemsQuery(
-    JSON.parse(sessionStorage.getItem("data")).companyId
+    JSON.parse(sessionStorage.getItem("data")).companyId,
+    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin" }
   );
 
   const handleSubmit = React.useCallback(
     (event) => {
       event.preventDefault();
+
+      if (JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin") {
+        setSnack({
+          open: true,
+          severity: "warning",
+          message: "User Not Allowed",
+        });
+        return;
+      }
       addExtraItem({
         name: extraItemName,
         company: {

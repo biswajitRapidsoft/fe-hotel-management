@@ -8,7 +8,7 @@ import Maestro from "../../img/maestro.png";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import Confetti from "react-confetti";
+// import Confetti from "react-confetti";
 
 // import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -1231,7 +1231,7 @@ export const PaymentDialog = memo(function ({
   handlePaymentDialogClose,
   reservationPayload,
   reserveHotelRoom,
-  handleResetForm,
+  handleResetForm = () => {},
   setSnack,
   setDrawerOpen,
   handleAfterSuccessFunction = () => {},
@@ -1389,6 +1389,7 @@ export const PaymentDialog = memo(function ({
       setSnack,
       isDebitCard,
       makePayment,
+      handleAfterSuccessFunctionOnSuccess,
     ]
   );
 

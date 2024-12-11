@@ -407,7 +407,12 @@ const RestaurantAdmin = () => {
     },
     isLoading,
   } = useGetFoodOrderListAdminQuery(
-    JSON.parse(sessionStorage.getItem("data")).hotelId
+    JSON.parse(sessionStorage.getItem("data")).hotelId,
+    {
+      skip:
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
+        "Kitchen_Staff",
+    }
   );
   const {
     data: statusList = {

@@ -59,6 +59,7 @@ import BookingHistoryChartComponent from "./BookingHistoryChartComponent";
 import { IoMdInformationCircleOutline } from "react-icons/io";
 import { BootstrapDialog } from "../header/Header";
 import ReactDOM from "react-dom";
+import { PaymentDialog } from "../dashboard/GuestDashboard";
 
 dayjs.extend(customParseFormat);
 dayjs.extend(isSameOrBefore);
@@ -2475,7 +2476,14 @@ const FrontdeskBookingHistory = () => {
   const {
     data: allBookingStatusTypeData = { data: [] },
     isFetching: isAllBookingStatusTypeDataFetching,
-  } = useGetAllBookingStatusTypeQuery();
+  } = useGetAllBookingStatusTypeQuery(
+    {},
+    {
+      skip:
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
+        "Front_Desk_Staff",
+    }
+  );
 
   console.log("allBookingStatusTypeData : ", allBookingStatusTypeData);
 
@@ -2509,7 +2517,10 @@ const FrontdeskBookingHistory = () => {
     },
     {
       refetchOnMountOrArgChange: true,
-      skip: !JSON.parse(sessionStorage.getItem("data"))?.hotelId,
+      skip:
+        !JSON.parse(sessionStorage.getItem("data"))?.hotelId ||
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
+          "Front_Desk_Staff",
     }
   );
 
@@ -2529,7 +2540,10 @@ const FrontdeskBookingHistory = () => {
     },
     {
       refetchOnMountOrArgChange: true,
-      skip: !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId),
+      skip:
+        !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId) ||
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
+          "Front_Desk_Staff",
     }
   );
   console.log(
@@ -2555,7 +2569,10 @@ const FrontdeskBookingHistory = () => {
     },
     {
       refetchOnMountOrArgChange: true,
-      skip: !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId),
+      skip:
+        !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId) ||
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
+          "Front_Desk_Staff",
     }
   );
 
@@ -2573,7 +2590,9 @@ const FrontdeskBookingHistory = () => {
       refetchOnMountOrArgChange: true,
       skip:
         !JSON.parse(sessionStorage.getItem("data"))?.hotelId ||
-        !bookingConfirmationFormData?.roomType?.id,
+        !bookingConfirmationFormData?.roomType?.id ||
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
+          "Front_Desk_Staff",
     }
   );
 
@@ -2635,6 +2654,23 @@ const FrontdeskBookingHistory = () => {
     initialShowcaseBookingDialogData
   );
   // console.log("showcaseBookingDialogData : ", showcaseBookingDialogData);
+
+  const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
+
+  const [paymentDialogFinalPayload, setPaymentDialogFinalPayload] =
+    useState(null);
+
+  const [paymentDialogMutationType, setPaymentDialogMutationType] =
+    useState("");
+
+  const handleChangeSetPaymentDialogFinalPayload = useCallback(
+    ({ open = false, mutationType = "", payloadValue = null } = {}) => {
+      setOpenPaymentDialog(open || false);
+      setPaymentDialogFinalPayload(payloadValue || null);
+      setPaymentDialogMutationType(mutationType || "");
+    },
+    []
+  );
 
   const handleChangeBookingHistoryTableFilters = useCallback(
     (name, inputValue) => {
@@ -2969,6 +3005,30 @@ const FrontdeskBookingHistory = () => {
     }
   }, [isRoomBookingHistoryByHotelIdSuccess, roomBookingHistoryByHotelIdData]);
 
+  const HandleDynamicFinalApiMutationForPaymentDialog = useCallback(
+    (submitType = "") => {
+      let mutationFunction = () => {};
+      let afterMutationSuccessFunction = () => {};
+
+      if (submitType === "saveCheckIn") {
+        // mutationFunction = saveCustomerCheckIn;
+
+        afterMutationSuccessFunction = () => {
+          // handleOpenCustomFormDrawer();
+          // handleChangeCustomFormDrawerData();
+          // handleRoomSelect();
+          handleChangeSetPaymentDialogFinalPayload(); // MANDATORY FUNCTION
+        };
+      }
+
+      return {
+        mutationFunction,
+        afterMutationSuccessFunction,
+      };
+    },
+    [handleChangeSetPaymentDialogFinalPayload]
+  );
+
   useEffect(() => {
     const timerId = setTimeout(() => {
       setDebouncedBookingRefNoSearch(
@@ -3174,6 +3234,23 @@ const FrontdeskBookingHistory = () => {
           approveBookingCancelRequestRes.isLoading ||
           exportBookingHistoryRes.isLoading ||
           false
+        }
+      />
+
+      <PaymentDialog
+        openPaymentDialog={openPaymentDialog}
+        handlePaymentDialogClose={() => setOpenPaymentDialog(false)}
+        reservationPayload={paymentDialogFinalPayload}
+        setSnack={setSnack}
+        reserveHotelRoom={
+          HandleDynamicFinalApiMutationForPaymentDialog(
+            paymentDialogMutationType
+          )?.mutationFunction
+        }
+        handleAfterSuccessFunction={
+          HandleDynamicFinalApiMutationForPaymentDialog(
+            paymentDialogMutationType
+          )?.afterMutationSuccessFunction
         }
       />
       <SnackAlert snack={snack} setSnack={setSnack} />

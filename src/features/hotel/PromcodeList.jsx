@@ -57,7 +57,9 @@ const PromcodeList = () => {
     },
     isLoading: isPromoCodeListDataLoading,
   } = useGetAllPromoCodeQuery(sessionStorage.getItem("hotelIdForPromoCode"), {
-    skip: !Boolean(sessionStorage.getItem("hotelIdForPromoCode")),
+    skip:
+      !Boolean(sessionStorage.getItem("hotelIdForPromoCode")) ||
+      JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin",
   });
 
   const {

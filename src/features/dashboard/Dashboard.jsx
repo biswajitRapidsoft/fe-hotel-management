@@ -72,6 +72,7 @@ import Swal from "sweetalert2";
 import CleaningServicesIcon from "@mui/icons-material/CleaningServices";
 import { useNavigate } from "react-router-dom";
 import InfoIcon from "@mui/icons-material/Info";
+import { PaymentDialog } from "./GuestDashboard";
 
 export const StyledCalendarIcon = styled(CalendarMonthIcon)({
   color: "#9380B8",
@@ -3807,10 +3808,14 @@ const CustomFormDrawer = memo(function ({
                       <Autocomplete
                         fullWidth
                         options={
-                          allPaymentMethods?.data?.map((item) => ({
-                            key: item,
-                            name: item.replace(/_/g, " "),
-                          })) || []
+                          allPaymentMethods?.data
+                            ?.filter((item) =>
+                              ["Cash", "Online"].includes(item)
+                            )
+                            ?.map((item) => ({
+                              key: item,
+                              name: item.replace(/_/g, " "),
+                            })) || []
                         }
                         // disableClearable
                         value={customFormDrawerData?.paymentMethod || null}
@@ -3892,7 +3897,10 @@ const CustomFormDrawer = memo(function ({
                     </Box>
                   </Grid>
                   {customFormDrawerData?.paymentMethod &&
-                    !(customFormDrawerData?.paymentMethod?.key === "Cash") && (
+                    !(customFormDrawerData?.paymentMethod?.key === "Cash") &&
+                    !(
+                      customFormDrawerData?.paymentMethod?.key === "Online"
+                    ) && (
                       <Grid size={{ xs: 6, md: 4 }}>
                         <TextField
                           margin="normal"
@@ -5119,10 +5127,14 @@ const CustomFormDrawer = memo(function ({
                         <Autocomplete
                           fullWidth
                           options={
-                            allPaymentMethods?.data?.map((item) => ({
-                              key: item,
-                              name: item.replace(/_/g, " "),
-                            })) || []
+                            allPaymentMethods?.data
+                              ?.filter((item) =>
+                                ["Cash", "Online"].includes(item)
+                              )
+                              ?.map((item) => ({
+                                key: item,
+                                name: item.replace(/_/g, " "),
+                              })) || []
                           }
                           // disableClearable
                           value={customFormDrawerData?.paymentMethod || null}
@@ -5204,8 +5216,9 @@ const CustomFormDrawer = memo(function ({
                       </Box>
                     </Grid>
                     {customFormDrawerData?.paymentMethod &&
+                      !(customFormDrawerData?.paymentMethod?.key === "Cash") &&
                       !(
-                        customFormDrawerData?.paymentMethod?.key === "Cash"
+                        customFormDrawerData?.paymentMethod?.key === "Online"
                       ) && (
                         <Grid size={{ xs: 6, md: 4 }}>
                           <TextField
@@ -6477,11 +6490,21 @@ const ShowcaseDialog = memo(function ({
                             >
                               <Autocomplete
                                 fullWidth
+                                // options={
+                                //   allPaymentMethods?.data?.map((item) => ({
+                                //     key: item,
+                                //     name: item.replace(/_/g, " "),
+                                //   })) || []
+                                // }
                                 options={
-                                  allPaymentMethods?.data?.map((item) => ({
-                                    key: item,
-                                    name: item.replace(/_/g, " "),
-                                  })) || []
+                                  allPaymentMethods?.data
+                                    ?.filter((item) =>
+                                      ["Cash", "Online"].includes(item)
+                                    )
+                                    ?.map((item) => ({
+                                      key: item,
+                                      name: item.replace(/_/g, " "),
+                                    })) || []
                                 }
                                 disableClearable
                                 value={
@@ -6558,6 +6581,10 @@ const ShowcaseDialog = memo(function ({
                             !(
                               showcaseDialogFormData?.paymentMethod?.key ===
                               "Cash"
+                            ) &&
+                            !(
+                              showcaseDialogFormData?.paymentMethod?.key ===
+                              "Online"
                             ) && (
                               <Grid size={4}>
                                 <TextField
@@ -6718,7 +6745,10 @@ const Dashboard = () => {
     },
     {
       refetchOnMountOrArgChange: true,
-      skip: !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId),
+      skip:
+        !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId) ||
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
+          "Front_Desk_Staff",
     }
   );
   console.log("apiTodayCheckoutRoomData : ", apiTodayCheckoutRoomData);
@@ -6742,7 +6772,10 @@ const Dashboard = () => {
     },
     {
       refetchOnMountOrArgChange: true,
-      skip: !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId),
+      skip:
+        !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId) ||
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
+          "Front_Desk_Staff",
     }
   );
   console.log("apiRoomData : ", apiRoomData);
@@ -6750,13 +6783,27 @@ const Dashboard = () => {
   const {
     data: allGovtIdsData = { data: [] },
     isFetching: isAllGovtIdsDataFetching,
-  } = useGetAllGovtIdsQuery();
+  } = useGetAllGovtIdsQuery(
+    {},
+    {
+      skip:
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
+        "Front_Desk_Staff",
+    }
+  );
   console.log("allGovtIdsData : ", allGovtIdsData);
 
   const {
     data: allPaymentMethods = { data: [] },
     isFetching: isAllPaymentMethodsFetching,
-  } = useGetAllPaymentMethodsQuery();
+  } = useGetAllPaymentMethodsQuery(
+    {},
+    {
+      skip:
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
+        "Front_Desk_Staff",
+    }
+  );
   console.log("allPaymentMethods : ", allPaymentMethods);
 
   const {
@@ -6770,7 +6817,10 @@ const Dashboard = () => {
     },
     {
       refetchOnMountOrArgChange: true,
-      skip: !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId),
+      skip:
+        !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId) ||
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
+          "Front_Desk_Staff",
     }
   );
   console.log("roomtypeByHotelIdData : ", roomtypeByHotelIdData);
@@ -6787,7 +6837,10 @@ const Dashboard = () => {
     {
       refetchOnMountOrArgChange: true,
       pollingInterval: 50000,
-      skip: !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId),
+      skip:
+        !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId) ||
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
+          "Front_Desk_Staff",
     }
   );
   console.log(
@@ -6944,9 +6997,26 @@ const Dashboard = () => {
     severity: "",
   });
 
+  const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
+
+  const [paymentDialogFinalPayload, setPaymentDialogFinalPayload] =
+    useState(null);
+
+  const [paymentDialogMutationType, setPaymentDialogMutationType] =
+    useState("");
+
   // const handleFloorSelect = useCallback((selectedFloor) => {
   //   setIsSelectedFloor(selectedFloor || null);
   // }, []);
+
+  const handleChangeSetPaymentDialogFinalPayload = useCallback(
+    ({ open = false, mutationType = "", payloadValue = null } = {}) => {
+      setOpenPaymentDialog(open || false);
+      setPaymentDialogFinalPayload(payloadValue || null);
+      setPaymentDialogMutationType(mutationType || "");
+    },
+    []
+  );
 
   const handleRoomSelect = useCallback((selectedRoom) => {
     setIsSelectedRoom((prevState) => {
@@ -7448,6 +7518,99 @@ const Dashboard = () => {
     [handleRoomSelect, apiRoomData]
   );
 
+  const handleChangeShowcaseDialogFormData = useCallback(
+    (name, inputValue) => {
+      if (name) {
+        if (name === "fullChange") {
+          setShowcaseDialogFormData((prevData) => {
+            const totalExpense = inputValue?.bookingDto?.transactionDetails
+              ?.filter((item) => !Boolean(item?.isCredit))
+              ?.reduce((sum, item) => sum + (item.amount || 0), 0);
+            const totalAmountPaid = inputValue?.bookingDto?.transactionDetails
+              ?.filter((item) => Boolean(item?.isCredit))
+              ?.reduce((sum, item) => sum + (item.amount || 0), 0);
+
+            const remainingAmount = totalExpense - totalAmountPaid;
+            const parsedRemainingAmount =
+              parseFloat(remainingAmount).toFixed(3);
+
+            return {
+              ...prevData,
+              bookingRefNumber: inputValue?.bookingDto?.bookingRefNumber,
+              subTotalExpense: parseFloat(totalExpense).toFixed(3),
+              subTotalAmountPaid: parseFloat(totalAmountPaid).toFixed(3),
+              subTotalAmountRemaining: parsedRemainingAmount,
+              paymentMethod: null,
+              paymentMethodInputValue: "",
+              transactionReferenceNo: "",
+              paidAmount: parsedRemainingAmount > 0 ? parsedRemainingAmount : 0,
+              remarks: "",
+            };
+          });
+        } else {
+          setShowcaseDialogFormData((prevData) => ({
+            ...prevData,
+            [name]: inputValue,
+          }));
+        }
+      } else {
+        setShowcaseDialogFormData(initialShowcaseDialogFormData);
+      }
+    },
+    [initialShowcaseDialogFormData]
+  );
+
+  const HandleDynamicFinalApiMutationForPaymentDialog = useCallback(
+    (submitType = "") => {
+      let mutationFunction = () => {};
+      let afterMutationSuccessFunction = () => {};
+
+      if (submitType === "saveCheckIn") {
+        mutationFunction = saveCustomerCheckIn;
+
+        afterMutationSuccessFunction = () => {
+          handleOpenCustomFormDrawer();
+          handleChangeCustomFormDrawerData();
+          handleRoomSelect();
+          handleChangeSetPaymentDialogFinalPayload(); // MANDATORY FUNCTION
+        };
+      } else if (submitType === "roomBooking") {
+        mutationFunction = bookingByFrontDeskStaff;
+
+        afterMutationSuccessFunction = () => {
+          handleOpenCustomFormDrawer();
+          handleRoomSelect();
+          handleChangeSetPaymentDialogFinalPayload(); // MANDATORY FUNCTION
+        };
+      } else if (submitType === "finalCheckout") {
+        mutationFunction = finalRoomCheckOut;
+
+        afterMutationSuccessFunction = () => {
+          handleCloseShowcaseDialog();
+          handleChangeShowcaseDialogFormData();
+          handleRoomSelect();
+          handleChangeSetPaymentDialogFinalPayload(); // MANDATORY FUNCTION
+        };
+      }
+
+      return {
+        mutationFunction,
+        afterMutationSuccessFunction,
+      };
+    },
+    [
+      saveCustomerCheckIn,
+      bookingByFrontDeskStaff,
+      finalRoomCheckOut,
+      handleOpenCustomFormDrawer,
+      handleChangeCustomFormDrawerData,
+      handleRoomSelect,
+      handleChangeSetPaymentDialogFinalPayload,
+      handleCloseShowcaseDialog,
+      handleChangeShowcaseDialogFormData,
+    ]
+  );
+
   const handleSubmitRoomCheckIn = useCallback(() => {
     if (!Boolean(customFormDrawerData?.noOfPeoples)) {
       setSnack({
@@ -7486,20 +7649,22 @@ const Dashboard = () => {
         severity: "warning",
       });
       return;
-    } else if (
-      customFormDrawerData?.paymentMethod?.key &&
-      customFormDrawerData?.paymentMethod?.key !== "Cash" &&
-      customFormDrawerData?.paymentMethod?.key.trim() !== "" &&
-      !customFormDrawerData?.transactionReferenceNo?.trim()
-    ) {
-      setSnack({
-        open: true,
-        message:
-          "Please provide a valid transaction reference for the selected payment method.",
-        severity: "warning",
-      });
-      return;
-    } else if (
+    }
+    // else if (
+    //   customFormDrawerData?.paymentMethod?.key &&
+    //   customFormDrawerData?.paymentMethod?.key !== "Cash" &&
+    //   customFormDrawerData?.paymentMethod?.key.trim() !== "" &&
+    //   !customFormDrawerData?.transactionReferenceNo?.trim()
+    // ) {
+    //   setSnack({
+    //     open: true,
+    //     message:
+    //       "Please provide a valid transaction reference for the selected payment method.",
+    //     severity: "warning",
+    //   });
+    //   return;
+    // }
+    else if (
       Boolean(customFormDrawerData?.paymentMethod?.key) !==
       Boolean(parseFloat(customFormDrawerData?.paidAmount))
     ) {
@@ -7541,27 +7706,36 @@ const Dashboard = () => {
 
     console.log("handleSubmitRoomCheckIn payload : ", payload);
 
-    saveCustomerCheckIn(payload)
-      .unwrap()
-      .then((res) => {
-        setSnack({
-          open: true,
-          message: res?.message || "Check-In Success",
-          severity: "success",
-        });
-        handleOpenCustomFormDrawer();
-        handleChangeCustomFormDrawerData();
-        handleRoomSelect();
-      })
-      .catch((err) => {
-        setSnack({
-          open: true,
-          message: err?.data?.message || err?.data || "Check-In Failed",
-          severity: "error",
-        });
+    if (customFormDrawerData?.paymentMethod?.key === "Online") {
+      handleChangeSetPaymentDialogFinalPayload({
+        open: true,
+        mutationType: "saveCheckIn",
+        payloadValue: payload,
       });
+    } else {
+      saveCustomerCheckIn(payload)
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res?.message || "Check-In Success",
+            severity: "success",
+          });
+          handleOpenCustomFormDrawer();
+          handleChangeCustomFormDrawerData();
+          handleRoomSelect();
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err?.data?.message || err?.data || "Check-In Failed",
+            severity: "error",
+          });
+        });
+    }
   }, [
     customFormDrawerData,
+    handleChangeSetPaymentDialogFinalPayload,
     saveCustomerCheckIn,
     handleOpenCustomFormDrawer,
     handleChangeCustomFormDrawerData,
@@ -7653,48 +7827,6 @@ const Dashboard = () => {
     handleRoomSelect,
   ]);
 
-  const handleChangeShowcaseDialogFormData = useCallback(
-    (name, inputValue) => {
-      if (name) {
-        if (name === "fullChange") {
-          setShowcaseDialogFormData((prevData) => {
-            const totalExpense = inputValue?.bookingDto?.transactionDetails
-              ?.filter((item) => !Boolean(item?.isCredit))
-              ?.reduce((sum, item) => sum + (item.amount || 0), 0);
-            const totalAmountPaid = inputValue?.bookingDto?.transactionDetails
-              ?.filter((item) => Boolean(item?.isCredit))
-              ?.reduce((sum, item) => sum + (item.amount || 0), 0);
-
-            const remainingAmount = totalExpense - totalAmountPaid;
-            const parsedRemainingAmount =
-              parseFloat(remainingAmount).toFixed(3);
-
-            return {
-              ...prevData,
-              bookingRefNumber: inputValue?.bookingDto?.bookingRefNumber,
-              subTotalExpense: parseFloat(totalExpense).toFixed(3),
-              subTotalAmountPaid: parseFloat(totalAmountPaid).toFixed(3),
-              subTotalAmountRemaining: parsedRemainingAmount,
-              paymentMethod: null,
-              paymentMethodInputValue: "",
-              transactionReferenceNo: "",
-              paidAmount: parsedRemainingAmount > 0 ? parsedRemainingAmount : 0,
-              remarks: "",
-            };
-          });
-        } else {
-          setShowcaseDialogFormData((prevData) => ({
-            ...prevData,
-            [name]: inputValue,
-          }));
-        }
-      } else {
-        setShowcaseDialogFormData(initialShowcaseDialogFormData);
-      }
-    },
-    [initialShowcaseDialogFormData]
-  );
-
   const handleConfirmFinalCheckout = useCallback(() => {
     if (
       Boolean(showcaseDialogFormData?.subTotalAmountRemaining > 0) &&
@@ -7706,20 +7838,22 @@ const Dashboard = () => {
         severity: "warning",
       });
       return;
-    } else if (
-      showcaseDialogFormData?.paymentMethod?.key &&
-      showcaseDialogFormData?.paymentMethod?.key !== "Cash" &&
-      showcaseDialogFormData?.paymentMethod?.key.trim() !== "" &&
-      !showcaseDialogFormData?.transactionReferenceNo?.trim()
-    ) {
-      setSnack({
-        open: true,
-        message:
-          "Please provide a valid transaction reference for the selected payment method.",
-        severity: "warning",
-      });
-      return;
-    } else if (
+    }
+    //  else if (
+    //   showcaseDialogFormData?.paymentMethod?.key &&
+    //   showcaseDialogFormData?.paymentMethod?.key !== "Cash" &&
+    //   showcaseDialogFormData?.paymentMethod?.key.trim() !== "" &&
+    //   !showcaseDialogFormData?.transactionReferenceNo?.trim()
+    // ) {
+    //   setSnack({
+    //     open: true,
+    //     message:
+    //       "Please provide a valid transaction reference for the selected payment method.",
+    //     severity: "warning",
+    //   });
+    //   return;
+    // }
+    else if (
       Boolean(showcaseDialogFormData?.subTotalAmountRemaining > 0) &&
       Boolean(showcaseDialogFormData?.paymentMethod?.key) !==
         Boolean(parseFloat(showcaseDialogFormData?.paidAmount))
@@ -7745,56 +7879,54 @@ const Dashboard = () => {
       return;
     }
 
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const payload = {
-          bookingRefNumber: showcaseDialogFormData?.bookingRefNumber,
-          paidAmount: showcaseDialogFormData?.paidAmount,
-          paymentMethod: showcaseDialogFormData?.paymentMethod?.key,
-          ...(showcaseDialogFormData?.paymentMethod?.key !== "Cash" &&
-            showcaseDialogFormData?.transactionReferenceNo?.trim() && {
-              transactionReferenceNo:
-                showcaseDialogFormData?.transactionReferenceNo,
-            }),
-        };
-        finalRoomCheckOut(payload)
-          .unwrap()
-          .then((res) => {
-            setSnack({
-              open: true,
-              message: res?.message || "Final Check-Out Success",
-              severity: "success",
-            });
-            handleCloseShowcaseDialog();
-            handleChangeShowcaseDialogFormData();
-            handleRoomSelect();
-          })
-          .catch((err) => {
-            setSnack({
-              open: true,
-              message:
-                err?.data?.message ||
-                err?.data ||
-                "Final Check-Out Request Failed",
-              severity: "error",
-            });
+    const payload = {
+      bookingRefNumber: showcaseDialogFormData?.bookingRefNumber,
+      paidAmount: showcaseDialogFormData?.paidAmount,
+      paymentMethod: showcaseDialogFormData?.paymentMethod?.key,
+      ...(showcaseDialogFormData?.paymentMethod?.key !== "Cash" &&
+        showcaseDialogFormData?.transactionReferenceNo?.trim() && {
+          transactionReferenceNo:
+            showcaseDialogFormData?.transactionReferenceNo,
+        }),
+    };
+
+    if (showcaseDialogFormData?.paymentMethod?.key === "Online") {
+      handleChangeSetPaymentDialogFinalPayload({
+        open: true,
+        mutationType: "finalCheckout",
+        payloadValue: payload,
+      });
+    } else {
+      finalRoomCheckOut(payload)
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res?.message || "Final Check-Out Success",
+            severity: "success",
           });
-      }
-    });
+          handleCloseShowcaseDialog();
+          handleChangeShowcaseDialogFormData();
+          handleRoomSelect();
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message:
+              err?.data?.message ||
+              err?.data ||
+              "Final Check-Out Request Failed",
+            severity: "error",
+          });
+        });
+    }
   }, [
     finalRoomCheckOut,
     showcaseDialogFormData,
     handleCloseShowcaseDialog,
     handleChangeShowcaseDialogFormData,
     handleRoomSelect,
+    handleChangeSetPaymentDialogFinalPayload,
   ]);
 
   const handleRoomCleanRequest = useCallback(
@@ -7958,18 +8090,20 @@ const Dashboard = () => {
         severity: "warning",
       });
       return;
-    } else if (
-      Boolean(customFormDrawerData?.isAdvanceRequired) &&
-      Boolean(customFormDrawerData?.paymentMethod?.key !== "Cash") &&
-      !Boolean(customFormDrawerData?.transactionReferenceNo?.trim())
-    ) {
-      setSnack({
-        open: true,
-        message: "Please provide a valid transacion ref. no.",
-        severity: "warning",
-      });
-      return;
-    } else if (
+    }
+    //  else if (
+    //   Boolean(customFormDrawerData?.isAdvanceRequired) &&
+    //   Boolean(customFormDrawerData?.paymentMethod?.key !== "Cash") &&
+    //   !Boolean(customFormDrawerData?.transactionReferenceNo?.trim())
+    // ) {
+    //   setSnack({
+    //     open: true,
+    //     message: "Please provide a valid transacion ref. no.",
+    //     severity: "warning",
+    //   });
+    //   return;
+    // }
+    else if (
       Boolean(customFormDrawerData?.isAdvanceRequired) &&
       (isNaN(parseFloat(customFormDrawerData?.paidAmount)) ||
         parseFloat(customFormDrawerData?.paidAmount) <
@@ -7981,20 +8115,22 @@ const Dashboard = () => {
         severity: "warning",
       });
       return;
-    } else if (
-      customFormDrawerData?.paymentMethod?.key &&
-      customFormDrawerData?.paymentMethod?.key !== "Cash" &&
-      customFormDrawerData?.paymentMethod?.key.trim() !== "" &&
-      !customFormDrawerData?.transactionReferenceNo?.trim()
-    ) {
-      setSnack({
-        open: true,
-        message:
-          "Please provide a valid transaction reference for the selected payment method.",
-        severity: "warning",
-      });
-      return;
-    } else if (
+    }
+    //  else if (
+    //   customFormDrawerData?.paymentMethod?.key &&
+    //   customFormDrawerData?.paymentMethod?.key !== "Cash" &&
+    //   customFormDrawerData?.paymentMethod?.key.trim() !== "" &&
+    //   !customFormDrawerData?.transactionReferenceNo?.trim()
+    // ) {
+    //   setSnack({
+    //     open: true,
+    //     message:
+    //       "Please provide a valid transaction reference for the selected payment method.",
+    //     severity: "warning",
+    //   });
+    //   return;
+    // }
+    else if (
       Boolean(customFormDrawerData?.paymentMethod?.key) !==
       Boolean(parseFloat(customFormDrawerData?.paidAmount))
     ) {
@@ -8076,26 +8212,35 @@ const Dashboard = () => {
 
     console.log("handleSubmitBookingForGuestByFrontDesk payload : ", payload);
 
-    bookingByFrontDeskStaff(payload)
-      .unwrap()
-      .then((res) => {
-        setSnack({
-          open: true,
-          message: res?.message || "Booking Success",
-          severity: "success",
-        });
-        handleOpenCustomFormDrawer();
-        handleRoomSelect();
-      })
-      .catch((err) => {
-        setSnack({
-          open: true,
-          message: err?.data?.message || err?.data || "Booking Failed",
-          severity: "error",
-        });
+    if (customFormDrawerData?.paymentMethod?.key === "Online") {
+      handleChangeSetPaymentDialogFinalPayload({
+        open: true,
+        mutationType: "roomBooking",
+        payloadValue: payload,
       });
+    } else {
+      bookingByFrontDeskStaff(payload)
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res?.message || "Booking Success",
+            severity: "success",
+          });
+          handleOpenCustomFormDrawer();
+          handleRoomSelect();
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err?.data?.message || err?.data || "Booking Failed",
+            severity: "error",
+          });
+        });
+    }
   }, [
     customFormDrawerData,
+    handleChangeSetPaymentDialogFinalPayload,
     bookingByFrontDeskStaff,
     handleOpenCustomFormDrawer,
     handleRoomSelect,
@@ -8303,6 +8448,23 @@ const Dashboard = () => {
           bookingByFrontDeskStaffRes?.isLoading ||
           isPendingBookingRequestCountsDataLoading ||
           false
+        }
+      />
+
+      <PaymentDialog
+        openPaymentDialog={openPaymentDialog}
+        handlePaymentDialogClose={() => setOpenPaymentDialog(false)}
+        reservationPayload={paymentDialogFinalPayload}
+        setSnack={setSnack}
+        reserveHotelRoom={
+          HandleDynamicFinalApiMutationForPaymentDialog(
+            paymentDialogMutationType
+          )?.mutationFunction
+        }
+        handleAfterSuccessFunction={
+          HandleDynamicFinalApiMutationForPaymentDialog(
+            paymentDialogMutationType
+          )?.afterMutationSuccessFunction
         }
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
