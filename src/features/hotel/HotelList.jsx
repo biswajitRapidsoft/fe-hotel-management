@@ -57,6 +57,7 @@ const HotelList = () => {
     address: "",
     hotelImage: "",
     hotelImageUrl: "",
+    gstIn: "",
     email: "",
     phoneNumber: "",
   });
@@ -104,6 +105,7 @@ const HotelList = () => {
       selectedCityInputVal: "",
       address: "",
       hotelImageUrl: "",
+      gstIn: "",
       email: "",
       phoneNumber: "",
     });
@@ -124,6 +126,7 @@ const HotelList = () => {
           id: hotelToUpdate.id,
           name: formData.hotelName,
           logoUrl: formData.hotelImageUrl,
+          gstIn: formData.gstIn,
           email: formData.email,
           contactNo: formData.phoneNumber,
           company: {
@@ -170,6 +173,7 @@ const HotelList = () => {
         addHotel({
           name: formData.hotelName,
           logoUrl: formData.hotelImageUrl,
+          gstIn: formData.gstIn,
           email: formData.email,
           contactNo: formData.phoneNumber,
           company: {
@@ -253,6 +257,7 @@ const HotelList = () => {
       address,
       email,
       phoneNumber,
+      gstIn,
     } = formData;
     return (
       Boolean(
@@ -260,6 +265,7 @@ const HotelList = () => {
           selectedState &&
           selectedCity &&
           address &&
+          isValidGSTNo(gstIn) &&
           email &&
           phoneNumber
       ) && !floorList.map((item) => item.roomList.length).includes(0)
@@ -339,6 +345,7 @@ const HotelList = () => {
         address: hotelToUpdate.address,
         hotelImage: "",
         hotelImageUrl: hotelToUpdate.logoUrl || "",
+        gstIn: hotelToUpdate.gstIn || "",
         email: hotelToUpdate.email,
         phoneNumber: hotelToUpdate.contactNos
           ? hotelToUpdate.contactNos[0]
@@ -597,6 +604,28 @@ const HotelList = () => {
             <TextField
               label={
                 <React.Fragment>
+                  GST IN{" "}
+                  <Box
+                    component="span"
+                    sx={{
+                      color: (theme) => theme.palette.error.main,
+                    }}
+                  >
+                    *
+                  </Box>
+                </React.Fragment>
+              }
+              name="gstIn"
+              value={formData.gstIn}
+              onChange={handleChange}
+              variant="standard"
+              disabled={Boolean(hotelToUpdate)}
+            />
+          </Grid>
+          <Grid size={3}>
+            <TextField
+              label={
+                <React.Fragment>
                   Email{" "}
                   <Box
                     component="span"
@@ -787,8 +816,6 @@ function FloorFormComponent({
     roomNumber: "",
     selectedRoomType: null,
     selectedRoomTypeInputVal: "",
-    email: "",
-    phoneNumber: "",
   });
 
   const handleChange = React.useCallback((e) => {
@@ -1105,6 +1132,17 @@ function FloorFormComponent({
       </Box>
     </React.Fragment>
   );
+}
+
+function isValidGSTNo(str) {
+  if (str) {
+    let regex = new RegExp(
+      /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/
+    );
+
+    return regex.test(str);
+  }
+  return false;
 }
 
 export default HotelList;
