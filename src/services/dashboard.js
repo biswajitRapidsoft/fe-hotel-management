@@ -76,6 +76,13 @@ const dashboardApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["getAllBookingDetails"],
     }),
+    makePayment: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.makePayment,
+        method: "POST",
+        data: payload,
+      }),
+    }),
 
     // HOUSE-KEEPER DASHBOARD
     getServiceableRoomData: build.query({
@@ -290,4 +297,5 @@ export const {
   useGetPendingBookingRequestCountsQuery,
   useGetAllFiltersDataQuery,
   useAddRatingMutation,
+  useMakePaymentMutation,
 } = dashboardApi;
