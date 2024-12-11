@@ -4,7 +4,7 @@ import {
   Box,
   Avatar,
   Typography,
-  Badge,
+  // Badge,
   IconButton,
   Menu,
   MenuItem,
@@ -28,7 +28,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogTitle from "@mui/material/DialogTitle";
 
-import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
+// import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import Logout from "@mui/icons-material/Logout";
 import CloseIcon from "@mui/icons-material/Close";
@@ -101,9 +101,9 @@ const Header = () => {
     setAnchorEl(null);
   }, []);
 
-  const handleClickNotification = React.useCallback((e) => {
-    setNotificationEl(e.currentTarget);
-  }, []);
+  // const handleClickNotification = React.useCallback((e) => {
+  //   setNotificationEl(e.currentTarget);
+  // }, []);
 
   const handleCloseNotification = React.useCallback((e) => {
     setNotificationEl(null);
@@ -151,7 +151,7 @@ const Header = () => {
         }}
       >
         <Box sx={{ marginRight: 10 }}>
-          <IconButton
+          {/* <IconButton
             size="large"
             sx={{
               color: "#fff",
@@ -169,7 +169,7 @@ const Header = () => {
             >
               <NotificationsNoneIcon sx={{ fontSize: 29 }} />
             </Badge>
-          </IconButton>
+          </IconButton> */}
 
           <MenuComp
             anchorEl={notificationEl}

@@ -16,7 +16,7 @@ import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import AltRouteIcon from "@mui/icons-material/AltRoute";
 import KingBedIcon from "@mui/icons-material/KingBed";
 import RoofingIcon from "@mui/icons-material/Roofing";
-
+import RoomServiceIcon from "@mui/icons-material/RoomService";
 const drawerWidth = 300;
 
 const openedMixin = (theme) => ({
@@ -93,6 +93,13 @@ const sideBarMenuOptions = [
     menuIcon: <AltRouteIcon sx={{ color: "#fff" }} />,
     menuIconAlt: "Activity Logo",
     menuTitle: "Reservation",
+  },
+  {
+    pathname: "/HouseKeepingHistory",
+    isLibraryIcon: true,
+    menuIcon: <RoomServiceIcon sx={{ color: "#fff" }} />,
+    menuIconAlt: "Activity Logo",
+    menuTitle: "Service Request",
   },
 ];
 
