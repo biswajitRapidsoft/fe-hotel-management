@@ -29,7 +29,7 @@ import {
   useGetServiceableRoomDataQuery,
   useApproveHouseKeepingServiceMutation,
 } from "../../services/dashboard";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -80,7 +80,7 @@ const HouseKeeperDashboard = () => {
     severity: "",
   });
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const {
     data: serviceableRoomData = {
       data: [],
@@ -178,12 +178,12 @@ const HouseKeeperDashboard = () => {
             alignItems: "center",
           }}
         >
-          <Button
+          {/* <Button
             variant="contained"
             onClick={() => navigate("/LaundryHistory")}
           >
             Laundry History
-          </Button>
+          </Button> */}
         </Box>
         <HouseKeepingFilters
           houseKeepingFilterButtons={houseKeepingFilterButtons}

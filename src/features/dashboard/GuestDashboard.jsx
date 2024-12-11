@@ -8,7 +8,8 @@ import Maestro from "../../img/maestro.png";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import Confetti from "react-confetti";
+// import Confetti from "react-confetti";
+import Swal from "sweetalert2";
 
 // import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -1231,11 +1232,12 @@ export const PaymentDialog = memo(function ({
   handlePaymentDialogClose,
   reservationPayload,
   reserveHotelRoom,
-  handleResetForm,
-  setSnack,
-  setDrawerOpen,
+  handleResetForm = () => {},
+  setSnack = () => {},
+  setDrawerOpen = () => {},
   handleAfterSuccessFunction = () => {},
 }) {
+  // console.log("reserveHotelRoom", reserveHotelRoom);
   const [paymentMethod, setPaymentMethod] = React.useState("card");
   const [cardNumber, setCardNumber] = React.useState("");
   const [upiNumber, setUpiNumber] = React.useState("");
@@ -1322,6 +1324,13 @@ export const PaymentDialog = memo(function ({
             message: reservationResponse.message,
             severity: "success",
           });
+          Swal.fire({
+            position: "center",
+            icon: "success",
+            title: "Payment success",
+            showConfirmButton: false,
+            timer: 3000,
+          });
           handleAfterSuccessFunctionOnSuccess();
         } else {
           setSnack({
@@ -1389,6 +1398,7 @@ export const PaymentDialog = memo(function ({
       setSnack,
       isDebitCard,
       makePayment,
+      handleAfterSuccessFunctionOnSuccess,
     ]
   );
 
