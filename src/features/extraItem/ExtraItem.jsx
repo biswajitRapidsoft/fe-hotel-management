@@ -14,6 +14,9 @@ import {
   Grid2 as Grid,
   TextField,
   Button,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 
 import {
@@ -30,7 +33,10 @@ const ExtraItem = () => {
     severity: "",
   });
   const [addExtraItem, addExtraItemRes] = useAddExtraItemMutation();
-  const [extraItemName, setExtraItemName] = React.useState("");
+  const [formData, setFormData] = React.useState({
+    extraItemName: "",
+    isReusable: false,
+  });
   const {
     data: extraItemList = {
       data: [],
@@ -40,6 +46,31 @@ const ExtraItem = () => {
     JSON.parse(sessionStorage.getItem("data")).companyId,
     { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin" }
   );
+
+  const isFormValid = React.useCallback(() => {
+    return Boolean(formData.extraItemName.trim());
+  }, [formData]);
+
+  const handleResetForm = React.useCallback(() => {
+    setFormData({
+      extraItemName: "",
+      isReusable: false,
+    });
+  }, []);
+
+  const handleChange = React.useCallback((e) => {
+    if (e.target.type === "checkbox") {
+      setFormData((prevData) => ({
+        ...prevData,
+        [e.target.name]: e.target.checked,
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [e.target.name]: e.target.value,
+      }));
+    }
+  }, []);
 
   const handleSubmit = React.useCallback(
     (event) => {
@@ -54,14 +85,15 @@ const ExtraItem = () => {
         return;
       }
       addExtraItem({
-        name: extraItemName,
+        name: formData.extraItemName,
         company: {
           id: JSON.parse(sessionStorage.getItem("data")).companyId,
         },
+        isReusable: formData.isReusable,
       })
         .unwrap()
         .then((res) => {
-          setExtraItemName("");
+          handleResetForm();
           setSnack({
             open: true,
             severity: "success",
@@ -76,7 +108,21 @@ const ExtraItem = () => {
           });
         });
     },
-    [addExtraItem, extraItemName]
+    [addExtraItem, formData, handleResetForm]
+  );
+
+  const handleChangeReUsable = React.useCallback(
+    (e, extraItem) => {
+      addExtraItem({
+        id: extraItem.id,
+        name: extraItem.name,
+        company: {
+          id: JSON.parse(sessionStorage.getItem("data")).companyId,
+        },
+        isReusable: e.target.checked,
+      });
+    },
+    [addExtraItem]
   );
 
   return (
@@ -144,10 +190,24 @@ const ExtraItem = () => {
                 </React.Fragment>
               }
               name="extraItemName"
-              value={extraItemName}
-              onChange={(e) => setExtraItemName(e.target.value)}
+              value={formData.extraItemName}
+              onChange={handleChange}
               variant="standard"
             />
+          </Grid>
+          <Grid size={9}>
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formData.isReusable}
+                    name="isReusable"
+                    onChange={handleChange}
+                  />
+                }
+                label="Is Reusable"
+              />
+            </FormGroup>
           </Grid>
         </Grid>
         <Box
@@ -173,7 +233,7 @@ const ExtraItem = () => {
               },
             }}
             type="submit"
-            disabled={!Boolean(extraItemName.trim())}
+            disabled={!Boolean(isFormValid())}
           >
             Add Inventory Item
           </Button>
@@ -210,6 +270,7 @@ const ExtraItem = () => {
               >
                 <TableCell>Sl No.</TableCell>
                 <TableCell>Inventory Item Name</TableCell>
+                <TableCell>Is Reusable</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -227,6 +288,12 @@ const ExtraItem = () => {
                   >
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{item.name}</TableCell>
+                    <TableCell>
+                      <Checkbox
+                        checked={item.isReusable}
+                        onChange={(e) => handleChangeReUsable(e, item)}
+                      />
+                    </TableCell>
                   </TableRow>
                 );
               })}

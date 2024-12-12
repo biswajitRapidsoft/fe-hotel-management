@@ -28,6 +28,8 @@ import dayjs from "dayjs";
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 
+import { PaymentDialog } from "../dashboard/GuestDashboard";
+
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -401,6 +403,8 @@ const VehicleParkingDialog = ({ parkVehicleOpen, selectedSlot, onClose }) => {
     severity: "",
   });
 
+  const [openPaymentDialog, setOpenPaymentDialog] = React.useState(false);
+
   const calculateNumberOfDays = React.useMemo(() => {
     if (formData.fromDate && formData.toDate) {
       const startDate = dayjs(formData.fromDate);
@@ -435,7 +439,108 @@ const VehicleParkingDialog = ({ parkVehicleOpen, selectedSlot, onClose }) => {
       [field]: date,
     }));
   };
-  const handleSubmit = () => {
+  // const handleSubmit = () => {
+  //   if (Boolean(selectedSlot?.isOccupied)) {
+  //     // Call releaseVehicle API
+  //     const releaseVehiclePayload = {
+  //       id: selectedSlot?.id,
+  //       parkingVehicleData: {
+  //         id: selectedSlot?.parkingVehicleData?.id,
+  //       },
+  //     };
+  //     releaseVehicle(releaseVehiclePayload)
+  //       .unwrap()
+  //       .then((res) => {
+  //         setSnack({
+  //           open: true,
+  //           message: res.message,
+  //           severity: "success",
+  //         });
+
+  //         onClose();
+  //         setFormData({
+  //           vehicleNumber: "",
+  //           amount: "",
+  //           fromDate: null,
+  //           toDate: null,
+  //         });
+  //       })
+  //       .catch((err) => {
+  //         setSnack({
+  //           open: true,
+  //           message: err.data?.message || err.data || "Something Went Wrong",
+  //           severity: "error",
+  //         });
+  //       });
+  //   } else {
+  //     const isAmountValid =
+  //       formData.amount &&
+  //       Number(formData.amount) >=
+  //         Number(selectedSlot?.perDayPrice) * calculateNumberOfDays &&
+  //       Number(formData.amount) <=
+  //         Number(selectedSlot?.perDayPrice) * calculateNumberOfDays;
+
+  //     if (!isAmountValid) {
+  //       return setSnack({
+  //         open: true,
+  //         message:
+  //           calculateNumberOfDays > 0
+  //             ? Number(formData.amount) <
+  //               Number(selectedSlot?.perDayPrice) * calculateNumberOfDays
+  //               ? `Please pay ₹${
+  //                   selectedSlot?.perDayPrice * calculateNumberOfDays
+  //                 } in advance`
+  //               : `Advance amount cannot exceed ₹${
+  //                   selectedSlot?.perDayPrice * calculateNumberOfDays
+  //                 }`
+  //             : "Invalid  payment",
+  //         severity: "error",
+  //       });
+  //     }
+  //     // Call vehicleParking API
+  //     const parkingVehiclePayload = {
+  //       id: selectedSlot?.id,
+  //       parkingVehicleData: {
+  //         vehicleNo: formData.vehicleNumber,
+  //         vehicleType: selectedSlot?.vehicleType,
+  //         fromDate: formData.fromDate
+  //           ? dayjs(formData.fromDate).format("DD-MM-YYYY")
+  //           : null,
+  //         toDate: formData.toDate
+  //           ? dayjs(formData.toDate).format("DD-MM-YYYY")
+  //           : null,
+  //         totalAmount: selectedSlot?.perDayPrice,
+  //         paidAmount: formData.amount,
+  //         description: formData.description,
+  //       },
+  //     };
+  //     vehicleParking(parkingVehiclePayload)
+  //       .unwrap()
+  //       .then((res) => {
+  //         setSnack({
+  //           open: true,
+  //           message: res.message,
+  //           severity: "success",
+  //         });
+  //         onClose();
+  //         setFormData({
+  //           vehicleNumber: "",
+  //           amount: "",
+  //           fromDate: null,
+  //           toDate: null,
+  //         });
+  //       })
+  //       .catch((err) => {
+  //         setSnack({
+  //           open: true,
+  //           message: err.data?.message || err.data || "Something Went Wrong",
+  //           severity: "error",
+  //         });
+  //       });
+  //   }
+  // };
+
+  const validateAndOpenPaymentDialog = React.useCallback(() => {
     if (Boolean(selectedSlot?.isOccupied)) {
       // Call releaseVehicle API
       const releaseVehiclePayload = {
@@ -489,52 +594,20 @@ const VehicleParkingDialog = ({ parkVehicleOpen, selectedSlot, onClose }) => {
                 : `Advance amount cannot exceed ₹${
                     selectedSlot?.perDayPrice * calculateNumberOfDays
                   }`
-              : "Invalid  payment",
+              : "Invalid  Details",
           severity: "error",
         });
       }
-      // Call vehicleParking API
-      const parkingVehiclePayload = {
-        id: selectedSlot?.id,
-        parkingVehicleData: {
-          vehicleNo: formData.vehicleNumber,
-          vehicleType: selectedSlot?.vehicleType,
-          fromDate: formData.fromDate
-            ? dayjs(formData.fromDate).format("DD-MM-YYYY")
-            : null,
-          toDate: formData.toDate
-            ? dayjs(formData.toDate).format("DD-MM-YYYY")
-            : null,
-          totalAmount: selectedSlot?.perDayPrice,
-          paidAmount: formData.amount,
-          description: formData.description,
-        },
-      };
-      vehicleParking(parkingVehiclePayload)
-        .unwrap()
-        .then((res) => {
-          setSnack({
-            open: true,
-            message: res.message,
-            severity: "success",
-          });
-          onClose();
-          setFormData({
-            vehicleNumber: "",
-            amount: "",
-            fromDate: null,
-            toDate: null,
-          });
-        })
-        .catch((err) => {
-          setSnack({
-            open: true,
-            message: err.data?.message || err.data || "Something Went Wrong",
-            severity: "error",
-          });
-        });
+      setOpenPaymentDialog(true);
     }
-  };
+  }, [
+    calculateNumberOfDays,
+    formData.amount,
+    onClose,
+    releaseVehicle,
+    selectedSlot,
+  ]);
+
   console.log("selectedSlot", selectedSlot);
   return (
     <>
@@ -761,7 +834,7 @@ const VehicleParkingDialog = ({ parkVehicleOpen, selectedSlot, onClose }) => {
           {/* </Box> */}
         </DialogContent>
         <DialogActions>
-          <Button
+          {/* <Button
             onClick={onClose}
             variant="contained"
             sx={{ backgroundColor: "#E31837" }}
@@ -774,12 +847,63 @@ const VehicleParkingDialog = ({ parkVehicleOpen, selectedSlot, onClose }) => {
             onClick={handleSubmit}
           >
             Yes
+          </Button> */}
+          <Button
+            variant="contained"
+            sx={{
+              backgroundImage:
+                "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
+              backgroundColor: "inherit",
+              color: "white",
+              "&:hover": {
+                backgroundImage:
+                  "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
+              },
+            }}
+            onClick={validateAndOpenPaymentDialog}
+          >
+            {Boolean(selectedSlot?.isOccupied) ? "Release" : "Pay and Park"}
           </Button>
         </DialogActions>
       </Dialog>
 
       <LoadingComponent
         open={vehicleParkingRes?.isLoading || releaseVehicleRes?.isLoading}
+      />
+      <PaymentDialog
+        openPaymentDialog={openPaymentDialog}
+        handlePaymentDialogClose={() => setOpenPaymentDialog(false)}
+        reservationPayload={{
+          id: selectedSlot?.id,
+          parkingVehicleData: {
+            vehicleNo: formData.vehicleNumber,
+            vehicleType: selectedSlot?.vehicleType,
+            fromDate: formData.fromDate
+              ? dayjs(formData.fromDate).format("DD-MM-YYYY")
+              : null,
+            toDate: formData.toDate
+              ? dayjs(formData.toDate).format("DD-MM-YYYY")
+              : null,
+            // totalAmount: selectedSlot?.perDayPrice,
+            totalAmount: selectedSlot?.perDayPrice * calculateNumberOfDays,
+            paidAmount: formData.amount,
+            description: formData.description,
+          },
+        }}
+        reserveHotelRoom={vehicleParking}
+        setSnack={setSnack}
+        handleResetForm={() => {
+          setFormData({
+            vehicleNumber: "",
+            amount: "",
+            fromDate: null,
+            toDate: null,
+            description: "",
+          });
+        }}
+        handleAfterSuccessFunction={() => {
+          onClose();
+        }}
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </>
