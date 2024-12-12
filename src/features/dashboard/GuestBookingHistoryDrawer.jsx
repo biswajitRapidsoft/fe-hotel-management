@@ -10,6 +10,7 @@ import TimelineContent from "@mui/lab/TimelineContent";
 import TimelineDot from "@mui/lab/TimelineDot";
 import Tooltip from "@mui/material/Tooltip";
 import PaymentIcon from "@mui/icons-material/Payment";
+import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import { PaymentDialog } from "./GuestDashboard";
 
 import {
@@ -449,7 +450,7 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                                   <Grid
                                     container
                                     columnSpacing={3}
-                                    sx={{ ml: 2.5 }}
+                                    // sx={{ ml: 2.5 }}
                                   >
                                     <Grid size={{ xs: 2 }}>
                                       <Box
@@ -623,6 +624,37 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                                                 handleMakePayment(booking)
                                               }
                                               sx={{ color: "#D4AF37	" }}
+                                            />
+                                          </Button>
+                                        </Tooltip>
+                                      </Box>
+                                    </Grid>
+                                    <Grid size={{ xs: 2 }}>
+                                      <Box
+                                        sx={{
+                                          display: "flex",
+                                          gap: 1,
+                                          width: "100%",
+                                          justifyContent: "center",
+                                        }}
+                                      >
+                                        <Tooltip title="Vehicle Parking" arrow>
+                                          <Button
+                                            variant="outlined"
+                                            sx={{
+                                              minWidth: "unset",
+                                              width: "11px",
+                                              borderColor: (theme) =>
+                                                theme.palette.warning.main,
+                                            }}
+                                          >
+                                            {/* Laundry */}
+                                            <DirectionsCarIcon
+                                              onClick={() =>
+                                                handleMakePayment(booking)
+                                              }
+                                              // sx={{ color: "#D4AF37	" }}
+                                              color="warning"
                                             />
                                           </Button>
                                         </Tooltip>
