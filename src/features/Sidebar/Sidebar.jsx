@@ -17,6 +17,7 @@ import AltRouteIcon from "@mui/icons-material/AltRoute";
 import KingBedIcon from "@mui/icons-material/KingBed";
 import RoofingIcon from "@mui/icons-material/Roofing";
 import RoomServiceIcon from "@mui/icons-material/RoomService";
+import { FRONTDESK } from "../../helper/constants";
 const drawerWidth = 300;
 
 const openedMixin = (theme) => ({
@@ -65,6 +66,7 @@ const sideBarMenuOptions = [
     menuIcon: <KingBedIcon sx={{ color: "#fff" }} />,
     menuIconAlt: "Room Logo",
     menuTitle: "Rooms",
+    visibility: [FRONTDESK],
   },
   {
     pathname: "/hallBookings",
@@ -72,6 +74,7 @@ const sideBarMenuOptions = [
     menuIcon: <RoofingIcon sx={{ color: "#fff" }} />,
     menuIconAlt: "Hall Logo",
     menuTitle: "Halls",
+    visibility: [FRONTDESK],
   },
   {
     pathname: "/CustomerList",
@@ -100,6 +103,7 @@ const sideBarMenuOptions = [
     menuIcon: <RoomServiceIcon sx={{ color: "#fff" }} />,
     menuIconAlt: "Activity Logo",
     menuTitle: "Service Request",
+    visibility: [FRONTDESK],
   },
 ];
 
@@ -139,70 +143,76 @@ const Sidebar = () => {
       >
         <List sx={{ paddingX: open ? "15px" : "5px", mt: "5em" }}>
           {sideBarMenuOptions.length > 0 &&
-            sideBarMenuOptions.map((item, index) => (
-              <React.Fragment key={index}>
-                <ListItem
-                  key={index}
-                  disablePadding
-                  sx={{
-                    display: "flex",
-                    bgcolor:
-                      window.location.pathname === item?.pathname
-                        ? activeListBgColor
-                        : inactiveListBgColor,
-                    "&:hover": {
-                      //   bgcolor: "#B6D5E5",
-                      bgcolor: "#624598",
-                    },
-                    borderRadius: "8px",
-                    minHeight: "3.2em",
-                    mt: index === 0 ? 0 : "12px",
-                  }}
-                  onClick={() => handleSelectListItem(item?.pathname)}
-                >
-                  <ListItemButton
+            sideBarMenuOptions
+              ?.filter((item) =>
+                item?.visibility?.includes(
+                  JSON.parse(sessionStorage.getItem("data"))?.roleType
+                )
+              )
+              ?.map((item, index) => (
+                <React.Fragment key={index}>
+                  <ListItem
+                    key={index}
+                    disablePadding
                     sx={{
-                      minHeight: 48,
-                      justifyContent: open ? "initial" : "center",
-                      px: 2.5,
+                      display: "flex",
+                      bgcolor:
+                        window.location.pathname === item?.pathname
+                          ? activeListBgColor
+                          : inactiveListBgColor,
                       "&:hover": {
+                        //   bgcolor: "#B6D5E5",
                         bgcolor: "#624598",
                       },
-                      overflow: "hidden",
+                      borderRadius: "8px",
+                      minHeight: "3.2em",
+                      mt: index === 0 ? 0 : "12px",
                     }}
+                    onClick={() => handleSelectListItem(item?.pathname)}
                   >
-                    <ListItemIcon
+                    <ListItemButton
                       sx={{
-                        minWidth: 0,
-                        mr: open ? 3 : "auto",
-                        justifyContent: "center",
+                        minHeight: 48,
+                        justifyContent: open ? "initial" : "center",
+                        px: 2.5,
+                        "&:hover": {
+                          bgcolor: "#624598",
+                        },
+                        overflow: "hidden",
                       }}
                     >
-                      {item.isLibraryIcon ? (
-                        item.menuIcon
-                      ) : (
-                        <img src={item.menuIcon} alt={item.menuIconAlt} />
-                      )}
-                    </ListItemIcon>
-                    <ListItemText
-                      disableTypography
-                      primary={
-                        <Typography
-                          variant="body2"
-                          style={{ color: "#fff", fontSize: "20px" }}
-                        >
-                          {item?.menuTitle}
-                        </Typography>
-                      }
-                      sx={{ opacity: open ? 1 : 0 }}
-                    />
-                  </ListItemButton>
-                </ListItem>
-                {index !== sideBarMenuOptions.length - 1 && (
-                  <Divider sx={{ backgroundColor: "#fff" }} />
-                )}
-              </React.Fragment>
-            ))}
+                      <ListItemIcon
+                        sx={{
+                          minWidth: 0,
+                          mr: open ? 3 : "auto",
+                          justifyContent: "center",
+                        }}
+                      >
+                        {item.isLibraryIcon ? (
+                          item.menuIcon
+                        ) : (
+                          <img src={item.menuIcon} alt={item.menuIconAlt} />
+                        )}
+                      </ListItemIcon>
+                      <ListItemText
+                        disableTypography
+                        primary={
+                          <Typography
+                            variant="body2"
+                            style={{ color: "#fff", fontSize: "20px" }}
+                          >
+                            {item?.menuTitle}
+                          </Typography>
+                        }
+                        sx={{ opacity: open ? 1 : 0 }}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                  {index !== sideBarMenuOptions.length - 1 && (
+                    <Divider sx={{ backgroundColor: "#fff" }} />
+                  )}
+                </React.Fragment>
+              ))}
         </List>
       </Drawer>
     </Box>
