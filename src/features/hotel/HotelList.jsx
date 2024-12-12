@@ -352,7 +352,7 @@ const HotelList = () => {
           : "",
       });
       setFloorList(
-        hotelToUpdate.floorRoomMapData.map((floor) => {
+        hotelToUpdate.floorRoomMapData?.map((floor) => {
           return {
             id: floor.floorNo,
             roomList: floor.roomDto.map((room) => {
@@ -363,7 +363,12 @@ const HotelList = () => {
               };
             }),
           };
-        })
+        }) || [
+          {
+            id: uuidv4(),
+            roomList: [],
+          },
+        ]
       );
     }
   }, [hotelToUpdate, stateList.data, cityList.data]);
@@ -436,12 +441,12 @@ const HotelList = () => {
               value={formData.hotelName}
               onChange={handleChange}
               variant="standard"
-              disabled={Boolean(hotelToUpdate)}
+              // disabled={Boolean(hotelToUpdate)}
             />
           </Grid>
           <Grid size={3}>
             <Autocomplete
-              disabled={Boolean(hotelToUpdate)}
+              // disabled={Boolean(hotelToUpdate)}
               options={stateList.data}
               getOptionLabel={(option) => option.name}
               value={formData.selectedState}
@@ -509,7 +514,7 @@ const HotelList = () => {
           </Grid>
           <Grid size={3}>
             <Autocomplete
-              disabled={Boolean(hotelToUpdate)}
+              // disabled={Boolean(hotelToUpdate)}
               options={cityList.data}
               getOptionLabel={(option) => option.name}
               value={formData.selectedCity}
@@ -597,7 +602,7 @@ const HotelList = () => {
               value={formData.address}
               onChange={handleChange}
               variant="standard"
-              disabled={Boolean(hotelToUpdate)}
+              // disabled={Boolean(hotelToUpdate)}
             />
           </Grid>
           <Grid size={3}>
@@ -619,7 +624,7 @@ const HotelList = () => {
               value={formData.gstIn}
               onChange={handleChange}
               variant="standard"
-              disabled={Boolean(hotelToUpdate)}
+              // disabled={Boolean(hotelToUpdate)}
             />
           </Grid>
           <Grid size={3}>
@@ -641,7 +646,7 @@ const HotelList = () => {
               value={formData.email}
               onChange={handleChange}
               variant="standard"
-              disabled={Boolean(hotelToUpdate)}
+              // disabled={Boolean(hotelToUpdate)}
             />
           </Grid>
           <Grid size={3}>
@@ -663,7 +668,7 @@ const HotelList = () => {
               value={formData.phoneNumber}
               onChange={handleChange}
               variant="standard"
-              disabled={Boolean(hotelToUpdate)}
+              // disabled={Boolean(hotelToUpdate)}
             />
           </Grid>
           <Grid size={3}>
@@ -689,7 +694,7 @@ const HotelList = () => {
                   </Link>
                   <IconButton
                     onClick={handleClearImage}
-                    disabled={Boolean(hotelToUpdate)}
+                    // disabled={Boolean(hotelToUpdate)}
                   >
                     <ClearIcon
                       color={Boolean(hotelToUpdate) ? "disabled" : "error"}

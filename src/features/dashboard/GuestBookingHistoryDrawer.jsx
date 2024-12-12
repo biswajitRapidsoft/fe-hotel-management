@@ -61,6 +61,9 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
 
   const [openPaymentDialog, setOpenPaymentDialog] = React.useState(false);
 
+  const [openVehicleParkingDialog, setOpenVehicleParkingDialog] =
+    React.useState(false);
+
   const [reviewDialog, setReviewDialog] = React.useState(null);
   const [rateStay, rateStayRes] = useAddRatingMutation();
   const [snack, setSnack] = React.useState({
@@ -202,6 +205,11 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
     setSelectedBookingRefNumber(bookingRefNumber);
     setCancelBookingOpen(true);
   };
+
+  const handleOpenVehicleParkingModal = React.useCallback(() => {
+    setOpenVehicleParkingDialog(true);
+  }, []);
+
   const DrawerList = (
     <Box
       sx={{ width: 600, p: 2 }}
@@ -650,8 +658,8 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                                           >
                                             {/* Laundry */}
                                             <DirectionsCarIcon
-                                              onClick={() =>
-                                                handleMakePayment(booking)
+                                              onClick={
+                                                handleOpenVehicleParkingModal
                                               }
                                               // sx={{ color: "#D4AF37	" }}
                                               color="warning"
