@@ -16,6 +16,7 @@ import {
   Rating,
   TablePagination,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
@@ -1209,63 +1210,69 @@ const CustomRow = memo(function ({
                   justifyContent: "flex-start",
                 }}
               >
-                <Button
-                  variant="outlined"
-                  sx={{
-                    minWidth: "unset",
-                    width: "auto",
-                    paddingY: "4.8px",
-                    paddingX: "8px",
-                    color: "#0cb2e7",
-                    borderColor: "#0cb2e7",
-                    "&:hover": {
-                      borderColor: "#0a8db7",
-                      backgroundColor: "#ddf7ff",
-                    },
-                  }}
-                  onClick={() =>
-                    handleOpenShowcaseBookingDialogForDetailsOnClick(row)
-                  }
-                >
-                  <IoMdInformationCircleOutline
-                    style={{ fontSize: "14px", fontWeight: 600 }}
-                  />
-                </Button>
+                <Tooltip title={"View Details"} arrow>
+                  <Button
+                    variant="outlined"
+                    sx={{
+                      minWidth: "unset",
+                      width: "auto",
+                      paddingY: "4.8px",
+                      paddingX: "8px",
+                      color: "#0cb2e7",
+                      borderColor: "#0cb2e7",
+                      "&:hover": {
+                        borderColor: "#0a8db7",
+                        backgroundColor: "#ddf7ff",
+                      },
+                    }}
+                    onClick={() =>
+                      handleOpenShowcaseBookingDialogForDetailsOnClick(row)
+                    }
+                  >
+                    <IoMdInformationCircleOutline
+                      style={{ fontSize: "14px", fontWeight: 600 }}
+                    />
+                  </Button>
+                </Tooltip>
                 {row?.bookingStatus === "Pending_Confirmation" && (
                   <>
-                    <Button
-                      variant="outlined"
-                      // color="success"
-                      sx={{ minWidth: "unset", width: "11px" }}
-                      // onClick={() =>
-                      //   handleChangeBookingConfirmationOnConfirm(
-                      //     "confirmBooking",
-                      //     row
-                      //   )
-                      // }
+                    <Tooltip title={"Check Availability"} arrow>
+                      <Button
+                        variant="outlined"
+                        // color="success"
+                        sx={{ minWidth: "unset", width: "11px" }}
+                        // onClick={() =>
+                        //   handleChangeBookingConfirmationOnConfirm(
+                        //     "confirmBooking",
+                        //     row
+                        //   )
+                        // }
 
-                      onClick={() =>
-                        handleChangeSelectedBookingHistoryOnClick(row)
-                      }
-                    >
-                      <EventAvailableIcon
-                        sx={{ fontSize: "14px", fontWeight: 600 }}
-                      />
-                    </Button>
+                        onClick={() =>
+                          handleChangeSelectedBookingHistoryOnClick(row)
+                        }
+                      >
+                        <EventAvailableIcon
+                          sx={{ fontSize: "14px", fontWeight: 600 }}
+                        />
+                      </Button>
+                    </Tooltip>
 
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      sx={{ minWidth: "unset", width: "11px" }}
-                      onClick={() =>
-                        handleChangeBookingConfirmationOnConfirm(
-                          "cancelBooking",
-                          row
-                        )
-                      }
-                    >
-                      <CloseIcon sx={{ fontSize: "14px", fontWeight: 600 }} />
-                    </Button>
+                    <Tooltip title={"Cancel Booking"} arrow>
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        sx={{ minWidth: "unset", width: "11px" }}
+                        onClick={() =>
+                          handleChangeBookingConfirmationOnConfirm(
+                            "cancelBooking",
+                            row
+                          )
+                        }
+                      >
+                        <CloseIcon sx={{ fontSize: "14px", fontWeight: 600 }} />
+                      </Button>
+                    </Tooltip>
                   </>
                 )}
                 {row?.bookingStatus === "Booking_Cancellation_Requested" && (
