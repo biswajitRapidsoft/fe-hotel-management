@@ -1065,7 +1065,8 @@ const CustomAlertCard = memo(function ({ alertData }) {
           sx={{
             display: "flex",
             flexDirection: "row",
-            boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px;",
+            boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+            border: "2px solid #e65d1d",
             borderRadius: "5px",
             maxHeight: "35px",
             overflow: "hidden",
@@ -1128,6 +1129,7 @@ const CustomAlertCard = memo(function ({ alertData }) {
             display: "flex",
             flexDirection: "row",
             boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px;",
+            border: "2px solid #5a1de6",
             borderRadius: "5px",
             maxHeight: "35px",
             overflow: "hidden",

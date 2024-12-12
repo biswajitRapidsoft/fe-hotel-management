@@ -13,6 +13,8 @@ const config = Object.freeze({
     getAllRoomTypesByCompany: "api/get/room/type/by/company",
     fileUpload: "api/upload",
     addHotel: "api/add/hotel",
+    updateHotel: "api/update/hotel",
+    changeRoomStatus: "api/room/status/change/by/roomId",
     getHotelListByCompany: "api/get/all/hotels",
     getAllExtraItems: "api/get/all/extra/items",
     addRoomType: "api/save/master/room/type",
@@ -58,6 +60,7 @@ const config = Object.freeze({
     bookingByFrontDeskStaff: "api/booking/by/frontdesk/staff",
     getRoomBookingChart: "api/get/room/booking/chart/data",
     approveBookingCancelRequest: "api/approve/booking/cancel/request",
+    cancelRoomBookingFromBookingHistory: "api/cancel/booking/by/hotel",
     exportBookingHistory: "api/export/booking/history/data",
 
     // HALL BOOKING DASHBOARD
@@ -76,6 +79,7 @@ const config = Object.freeze({
     getAllBookingDetails: "public/booking/data",
     cancelHotelRoom: "public/cancel/booking",
     getUserDetailsForBooking: "public/customer/details",
+    getAllRestaurantPromocodeByHotelId: "public/get/all/resturant/promocode",
     getAllFiltersData: "public/get/all/search/filter/datas",
     addRating: "public/rate/room/booking",
     makePayment: "public/make/payment",

@@ -7,10 +7,13 @@ import {
   Box,
   Button,
   Collapse,
+  DialogContent,
+  DialogTitle,
   Divider,
   Drawer,
   IconButton,
   Paper,
+  Rating,
   TablePagination,
   TextField,
   Typography,
@@ -34,6 +37,7 @@ import {
   useGetRoomsByRoomTypeQuery,
   useGetRoomBookingChartQuery,
   useApproveBookingCancelRequestMutation,
+  useCancelRoomBookingFromBookingHistoryMutation,
   useExportBookingHistoryMutation,
 } from "../../services/frontdeskBookingHistory";
 import moment from "moment";
@@ -46,16 +50,15 @@ import TableRow from "@mui/material/TableRow";
 // import CheckIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
-import {
-  useCancelHotelRoomMutation,
-  useRoomtypeByHotelIdQuery,
-} from "../../services/dashboard";
+import { useRoomtypeByHotelIdQuery } from "../../services/dashboard";
 import dayjs from "dayjs";
-
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import BookingHistoryChartComponent from "./BookingHistoryChartComponent";
+import { IoMdInformationCircleOutline } from "react-icons/io";
+import { BootstrapDialog } from "../header/Header";
+import ReactDOM from "react-dom";
 
 dayjs.extend(customParseFormat);
 dayjs.extend(isSameOrBefore);
@@ -69,24 +72,20 @@ const filterBookingRooms = (
   //   "filterBookingRooms bookingRoomsTableData; ",
   //   bookingRoomsTableData
   // );
-  // If no date filters are set, return all data
   if (!bookingConfirmationFormData?.from || !bookingConfirmationFormData?.to) {
     return bookingRoomsTableData;
   }
 
-  // Convert date filters to Date objects for comparison
   const startDate = dayjs(bookingConfirmationFormData.from).startOf("day");
   const endDate = dayjs(bookingConfirmationFormData.to).startOf("day");
 
   console.log("filterBookingRooms startDate; ", startDate);
 
   return bookingRoomsTableData.filter((item) => {
-    // If no bookingList, skip this item
     if (!item?.bookingList || item.bookingList.length === 0) {
       return true;
     }
 
-    // Filter relevant bookings (Booked or Checked_In)
     const relevantBookings = item.bookingList.filter(
       (booking) =>
         booking.bookingStatus === "Booked" ||
@@ -94,12 +93,10 @@ const filterBookingRooms = (
     );
     // console.log("filterBookingRooms relevantBookings; ", relevantBookings);
 
-    // If no relevant bookings, skip this item
     if (relevantBookings.length === 0) {
       return false;
     }
 
-    // Parse dates for each booking
     const bookingDates = relevantBookings.map((booking) => ({
       startDate: dayjs(
         booking.bookingStatus === "Booked"
@@ -117,17 +114,14 @@ const filterBookingRooms = (
 
     // console.log("filterBookingRooms bookingDates; ", bookingDates);
 
-    // Sort booking dates by endDate
     bookingDates.sort((a, b) => a.endDate.diff(b.endDate));
 
     console.log("filterBookingRooms bookingDates; ", bookingDates);
 
-    // Check if startDate is less than or equal to ANY endDate
     const isStartDateBeforeOrEqualAnyEndDate = bookingDates.some((date) =>
       startDate.isSameOrBefore(date.endDate)
     );
 
-    // Check if startDate is greater than ALL endDates
     const isStartDateAfterAllEndDates = bookingDates.every((date) =>
       startDate.isSameOrAfter(date.endDate)
     );
@@ -142,11 +136,10 @@ const filterBookingRooms = (
     // );
 
     if (isStartDateAfterAllEndDates) {
-      return true; // Include the item if startDate is after all booking end dates
+      return true;
     }
 
     if (isStartDateBeforeOrEqualAnyEndDate) {
-      // Find the closest endDate where startDate is less than or equal
       const closestEndDateBooking = bookingDates.find((date) =>
         startDate.isSameOrBefore(date.endDate)
       );
@@ -157,7 +150,6 @@ const filterBookingRooms = (
       // );
 
       if (closestEndDateBooking) {
-        // Find the next booking's start date after the closest end date
         const nextBookingStartDate = bookingDates
           .filter((date) =>
             date.startDate.isAfter(closestEndDateBooking.endDate)
@@ -168,7 +160,6 @@ const filterBookingRooms = (
         //   "filterBookingRooms nextBookingStartDate ; ",
         //   nextBookingStartDate
         // );
-        // Check if the next booking's start date exists and is greater than or equal to endDate
         if (
           nextBookingStartDate &&
           nextBookingStartDate.isSameOrAfter(endDate)
@@ -176,7 +167,6 @@ const filterBookingRooms = (
           return true;
         }
 
-        // Alternative check: look for a start date where endDate is less than or equal
         const compatibleStartDate = bookingDates.find((date) =>
           endDate.isSameOrBefore(date.startDate)
         );
@@ -194,158 +184,6 @@ const filterBookingRooms = (
     return false;
   });
 };
-
-// function generateBookingHistoryResponse(totalRecords, rowsPerPage, pageNo) {
-//   const startIndex = pageNo * rowsPerPage;
-//   const endIndex = startIndex + rowsPerPage;
-
-//   const totalPages = Math.ceil(totalRecords / rowsPerPage);
-
-//   const data = Array.from({ length: totalRecords }, (_, i) => ({
-//     roomTypeId: null,
-//     firstName: `FirstName${i + 1}`,
-//     middleName: `MiddleName${i + 1}`,
-//     lastName: `LastName${i + 1}`,
-//     phoneNumber: `900000000${i}`,
-//     email: `user${i + 1}@example.com`,
-//     address: `Address${i + 1}`,
-//     fromDate: "27-11-2024",
-//     toDate: "30-11-2024",
-//     noOfPeoples: Math.floor(Math.random() * 5) + 1,
-//     hotelId: null,
-//     bookingStatus: [
-//       "Pending_Confirmation",
-//       "Booked",
-//       "Checked_In",
-//       "Checked_Out",
-//       "Cancelled",
-//     ][Math.floor(Math.random() * 5)],
-//     bookedOn: new Date().toISOString(),
-//     id: i + 1,
-//     roomType: {
-//       id: i + 1,
-//       type: `RoomType${i + 1}`,
-//       description: null,
-//       capacity: Math.floor(Math.random() * 5) + 1,
-//       basePrice: 5500 + i * 100,
-//       images: [
-//         `http://example.com/image${i + 1}-1.jpg`,
-//         `http://example.com/image${i + 1}-2.jpg`,
-//       ],
-//       roomTypeData: null,
-//       hotelId: null,
-//       companyId: null,
-//       hotelDto: null,
-//       extraItemsList: null,
-//       imageUrl: null,
-//       isAdvanceRequired: true,
-//       advanceAmount: 2000,
-//       extraItem: null,
-//     },
-//     hotel: {
-//       id: i + 2,
-//       name: `Hotel${i + 1}`,
-//       city: {
-//         id: 800 + i,
-//         name: `City${i + 1}`,
-//         state: {
-//           id: 20 + i,
-//           name: `State${i + 1}`,
-//         },
-//       },
-//       state: {
-//         id: 20 + i,
-//         name: `State${i + 1}`,
-//       },
-//       isActive: true,
-//       createdAt: new Date().toISOString(),
-//       createdBy: `User${i + 1}`,
-//       address: `HotelAddress${i + 1}`,
-//       noOfFloors: null,
-//       floorRoomMapData: null,
-//       company: null,
-//       createdByUser: null,
-//       logoUrl: null,
-//       email: `hotel${i + 1}@example.com`,
-//       contactNo: null,
-//       contactNos: [`180037600${i}`, `98776000${i}`],
-//     },
-//     bookingAmount: null,
-//     bookingRefNumber: `REF-2024-${i + 1}`,
-//     rejectionReason: null,
-//     bookingMapDatas: null,
-//     checkOutDate: "29-11-2024",
-//     paidAmount: null,
-//     paymentMethod: null,
-//     transactionReferenceNo: null,
-//     remarks: null,
-//     transactionDetails: null,
-//     isCheckoutProceed: null,
-//     isCheckedByKeepingStaff: null,
-//     isRoomCleaningRequested: null,
-//     roomDto: {
-//       id: i + 1,
-//       floorNo: Math.floor(Math.random() * 10) + 1,
-//       roomNo: `Room${i + 1}`,
-//       isActive: true,
-//       isAvailable: Math.random() > 0.5,
-//       roomType: {
-//         id: i + 1,
-//         type: `RoomType${i + 1}`,
-//         description: null,
-//         capacity: Math.floor(Math.random() * 5) + 1,
-//         basePrice: 5500 + i * 100,
-//         images: [
-//           `http://example.com/image${i + 1}-1.jpg`,
-//           `http://example.com/image${i + 1}-2.jpg`,
-//         ],
-//         roomTypeData: null,
-//         hotelId: null,
-//         companyId: null,
-//         hotelDto: null,
-//         extraItemsList: null,
-//         imageUrl: null,
-//         isAdvanceRequired: true,
-//         advanceAmount: 2000,
-//         extraItem: null,
-//       },
-//       createdAt: new Date().toISOString(),
-//       createdBy: `Creator${i + 1}`,
-//       createdUserName: `User${i + 1}`,
-//       isBooked: true,
-//       isServiceGoingOn: Math.random() > 0.5,
-//       bookingDto: null,
-//       isCheckoutProceed: null,
-//       isCheckedByKeepingStaff: null,
-//       isRoomCleaningRequested: Math.random() > 0.5,
-//       serviceTypeStatus: null,
-//       extraItemsList: null,
-//       hotelId: null,
-//       keyData: null,
-//       bookingList: null,
-//     },
-//     isForCheckoutRequest: null,
-//     extraItemsList: null,
-//     checkInDate: "27-11-2024",
-//     amountPaidVia: null,
-//     isBookingForToday: null,
-//     groupBookingList: null,
-//     isBookingConfirmed: Math.random() > 0.5,
-//     pageSize: rowsPerPage,
-//   }));
-
-//   console.log("generateBookingHistoryResponse inline data : ", data);
-
-//   return {
-//     responseCode: 200,
-//     paginationData: {
-//       totalPages,
-//       numberOfElements: rowsPerPage,
-//       totalElements: totalRecords,
-//       data: data.slice(startIndex, endIndex),
-//     },
-//   };
-// }
 
 export const CustomHeader = memo(function ({
   backNavigate = false,
@@ -390,11 +228,12 @@ export const CustomHeader = memo(function ({
         <Button
           variant="contained"
           color="secondary"
+          size="small"
           startIcon={<FileDownloadIcon />}
           sx={{
             color: "#fff",
             fontWeight: 600,
-            fontSize: 16,
+            fontSize: 13,
             textTransform: "none",
             letterSpacing: 1,
           }}
@@ -709,6 +548,564 @@ const getCellValue = (obj, key, fallback = "") => {
     );
 };
 
+const ShowcaseBookingDialog = memo(function ({
+  openShowcaseBookingDialog,
+  handleCloseShowcaseBookingDialog,
+  title = "",
+  type,
+  bookingDetailsData,
+}) {
+  console.log("type : ", type);
+  console.log(
+    "ShowcaseBookingDialog bookingDetailsData : ",
+    bookingDetailsData
+  );
+
+  const totalExpense = useMemo(
+    () =>
+      bookingDetailsData?.transactionDetails
+        ?.filter((item) => !Boolean(item?.isCredit))
+        ?.reduce((sum, item) => sum + (item.amount || 0), 0),
+    [bookingDetailsData]
+  );
+  const totalAmountPaid = useMemo(
+    () =>
+      bookingDetailsData?.transactionDetails
+        ?.filter((item) => Boolean(item?.isCredit))
+        ?.reduce((sum, item) => sum + (item.amount || 0), 0),
+    [bookingDetailsData]
+  );
+
+  const handleCloseShowcaseBookingDialogOnClose = useCallback(() => {
+    handleCloseShowcaseBookingDialog();
+  }, [handleCloseShowcaseBookingDialog]);
+
+  return ReactDOM.createPortal(
+    <React.Fragment>
+      <BootstrapDialog
+        open={openShowcaseBookingDialog}
+        onClose={handleCloseShowcaseBookingDialogOnClose}
+        aria-labelledby="booking-details-dialog-title"
+        // maxWidth="sm"
+        // fullWidth
+        maxWidth=""
+        sx={{
+          ".MuiDialogTitle-root": {
+            px: 2,
+          },
+        }}
+        PaperProps={{
+          sx: { borderRadius: 4 },
+        }}
+      >
+        <DialogTitle
+          id="password-change-dialog-title"
+          sx={{
+            fontSize: "20px",
+            lineHeight: "0.4",
+            fontWeight: 600,
+            letterSpacing: 0.7,
+          }}
+        >
+          {title}
+        </DialogTitle>
+        <IconButton
+          aria-label="close"
+          onClick={handleCloseShowcaseBookingDialogOnClose}
+          sx={{
+            position: "absolute",
+            right: 5,
+            top: 1,
+            color: "#280071",
+          }}
+        >
+          <CloseIcon sx={{ fontSize: 27 }} />
+        </IconButton>
+        <DialogContent>
+          <Box sx={{ width: "100%" }}>
+            {type === "bookingDetails" && (
+              <>
+                <Typography>
+                  <Typography
+                    component="span"
+                    sx={{ fontSize: "16px", fontWeight: 550 }}
+                  >
+                    Booking ID :
+                  </Typography>
+                  <Typography
+                    component="span"
+                    sx={{
+                      marginLeft: "5px",
+                      fontSize: "16px",
+                      fontWeight: 550,
+                    }}
+                  >
+                    {bookingDetailsData?.bookingRefNumber}
+                  </Typography>
+                </Typography>
+                <Typography
+                  sx={{ fontSize: "13px", color: "#717171", lineHeight: "0.7" }}
+                >
+                  {`Booked on ${moment(bookingDetailsData?.bookedOn)?.format(
+                    "DD-MM-YYYY hh:mm A"
+                  )}`}
+                </Typography>
+                <Divider sx={{ mt: 1.5, mb: 1 }} />
+
+                <Paper
+                  elevation={1}
+                  sx={{
+                    width: "100%",
+                    boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
+                    borderRadius: "10px",
+                    paddingY: "5px",
+                    paddingX: "10px",
+                    mb: 1.5,
+                  }}
+                >
+                  <Typography sx={{ fontSize: "14px", fontWeight: 550 }}>
+                    Customer Details :
+                  </Typography>
+                  <Divider sx={{ mb: 1.5 }} />
+                  <Grid container size={12} rowSpacing={1.5}>
+                    <Grid size={4}>
+                      <Box sx={{ width: "100%" }}>
+                        <Typography
+                          sx={{
+                            fontSize: "12.5px",
+                            fontWeight: 550,
+                            lineHeight: "0.5",
+                          }}
+                        >
+                          Name
+                        </Typography>
+                        <Typography
+                          component="span"
+                          sx={{ fontSize: "14.5px" }}
+                        >
+                          {[
+                            bookingDetailsData?.firstName,
+                            bookingDetailsData?.middleName,
+                            bookingDetailsData?.lastName,
+                          ]
+                            .filter(Boolean)
+                            .join(" ")}
+                        </Typography>
+                      </Box>
+                    </Grid>
+
+                    <Grid size={4}>
+                      <Box sx={{ width: "100%" }}>
+                        <Typography
+                          sx={{
+                            fontSize: "12.5px",
+                            fontWeight: 550,
+                            lineHeight: "0.5",
+                          }}
+                        >
+                          Phone No.
+                        </Typography>
+                        <Typography
+                          component="span"
+                          sx={{ fontSize: "14.5px" }}
+                        >
+                          {bookingDetailsData?.phoneNumber}
+                        </Typography>
+                      </Box>
+                    </Grid>
+
+                    {Boolean(bookingDetailsData?.email?.trim()) && (
+                      <Grid size={4}>
+                        <Box sx={{ width: "100%" }}>
+                          <Typography
+                            sx={{
+                              fontSize: "12.5px",
+                              fontWeight: 550,
+                              lineHeight: "0.5",
+                            }}
+                          >
+                            Email
+                          </Typography>
+                          <Typography
+                            component="span"
+                            sx={{ fontSize: "14.5px", wordWrap: "break-word" }}
+                          >
+                            {bookingDetailsData?.email}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                    )}
+
+                    {Boolean(bookingDetailsData?.address?.trim()) && (
+                      <Grid size={4}>
+                        <Box sx={{ width: "100%" }}>
+                          <Typography
+                            sx={{
+                              fontSize: "12.5px",
+                              fontWeight: 550,
+                              lineHeight: "0.5",
+                            }}
+                          >
+                            Address
+                          </Typography>
+                          <Typography
+                            component="span"
+                            sx={{ fontSize: "14.5px", wordWrap: "break-word" }}
+                          >
+                            {bookingDetailsData?.address}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                    )}
+
+                    {Boolean(bookingDetailsData?.fromDate?.trim()) && (
+                      <Grid size={4}>
+                        <Box sx={{ width: "100%" }}>
+                          <Typography
+                            sx={{
+                              fontSize: "12.5px",
+                              fontWeight: 550,
+                              lineHeight: "0.5",
+                            }}
+                          >
+                            From
+                          </Typography>
+                          <Typography
+                            component="span"
+                            sx={{ fontSize: "14.5px", wordWrap: "break-word" }}
+                          >
+                            {bookingDetailsData?.fromDate}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                    )}
+
+                    {Boolean(bookingDetailsData?.toDate?.trim()) && (
+                      <Grid size={4}>
+                        <Box sx={{ width: "100%" }}>
+                          <Typography
+                            sx={{
+                              fontSize: "12.5px",
+                              fontWeight: 550,
+                              lineHeight: "0.5",
+                            }}
+                          >
+                            To
+                          </Typography>
+                          <Typography
+                            component="span"
+                            sx={{ fontSize: "14.5px", wordWrap: "break-word" }}
+                          >
+                            {bookingDetailsData?.toDate}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                    )}
+
+                    {Boolean(bookingDetailsData?.checkInDate?.trim()) && (
+                      <Grid size={4}>
+                        <Box sx={{ width: "100%" }}>
+                          <Typography
+                            sx={{
+                              fontSize: "12.5px",
+                              fontWeight: 550,
+                              lineHeight: "0.5",
+                            }}
+                          >
+                            Check-In Date
+                          </Typography>
+                          <Typography
+                            component="span"
+                            sx={{ fontSize: "14.5px", wordWrap: "break-word" }}
+                          >
+                            {bookingDetailsData?.checkInDate}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                    )}
+
+                    {Boolean(bookingDetailsData?.checkOutDate?.trim()) && (
+                      <Grid size={4}>
+                        <Box sx={{ width: "100%" }}>
+                          <Typography
+                            sx={{
+                              fontSize: "12.5px",
+                              fontWeight: 550,
+                              lineHeight: "0.5",
+                            }}
+                          >
+                            Check-Out Date
+                          </Typography>
+                          <Typography
+                            component="span"
+                            sx={{ fontSize: "14.5px", wordWrap: "break-word" }}
+                          >
+                            {bookingDetailsData?.checkOutDate}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                    )}
+
+                    {Boolean(bookingDetailsData?.noOfPeoples) && (
+                      <Grid size={4}>
+                        <Box sx={{ width: "100%" }}>
+                          <Typography
+                            sx={{
+                              fontSize: "12.5px",
+                              fontWeight: 550,
+                              lineHeight: "0.5",
+                            }}
+                          >
+                            Stayers
+                          </Typography>
+                          <Typography
+                            component="span"
+                            sx={{ fontSize: "14.5px", wordWrap: "break-word" }}
+                          >
+                            {bookingDetailsData?.noOfPeoples}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                    )}
+
+                    <Grid size={4}>
+                      <Box sx={{ width: "100%" }}>
+                        <Typography
+                          sx={{
+                            fontSize: "12.5px",
+                            fontWeight: 550,
+                            lineHeight: "0.5",
+                          }}
+                        >
+                          Room Type
+                        </Typography>
+                        <Typography
+                          component="span"
+                          sx={{ fontSize: "14.5px", wordWrap: "break-word" }}
+                        >
+                          {bookingDetailsData?.roomType?.type
+                            ?.replace(/_/g, " ")
+                            ?.replace(/([a-z])([A-Z])/g, "$1 $2")
+                            ?.replace(/\b\w/g, (char) => char.toUpperCase()) ||
+                            ""}
+                        </Typography>
+                      </Box>
+                    </Grid>
+
+                    {Boolean(bookingDetailsData?.roomDto?.id) && (
+                      <Grid size={4}>
+                        <Box sx={{ width: "100%" }}>
+                          <Typography
+                            sx={{
+                              fontSize: "12.5px",
+                              fontWeight: 550,
+                              lineHeight: "0.5",
+                            }}
+                          >
+                            Room No.
+                          </Typography>
+                          <Typography
+                            component="span"
+                            sx={{ fontSize: "14.5px", wordWrap: "break-word" }}
+                          >
+                            {bookingDetailsData?.roomDto?.roomNo || ""}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                    )}
+                  </Grid>
+                </Paper>
+
+                <Paper
+                  elevation={1}
+                  sx={{
+                    width: "100%",
+                    boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
+                    borderRadius: "10px",
+                    paddingY: "5px",
+                    paddingX: "10px",
+                    mb: 1.5,
+                  }}
+                >
+                  <Typography sx={{ fontSize: "14px", fontWeight: 550 }}>
+                    Payments & Actions :
+                  </Typography>
+                  <Divider sx={{ mb: 1.5 }} />
+                  <Grid container size={12} rowSpacing={1.5}>
+                    <Grid size={4}>
+                      <Box sx={{ width: "100%" }}>
+                        <Typography
+                          sx={{
+                            fontSize: "12.5px",
+                            fontWeight: 550,
+                            lineHeight: "0.5",
+                          }}
+                        >
+                          Status
+                        </Typography>
+                        <Typography
+                          component="span"
+                          sx={{
+                            fontSize: "14px",
+                            wordWrap: "break-word",
+                            fontWeight: 550,
+                            color: getBookingStatusColor(
+                              bookingDetailsData?.bookingStatus
+                            )?.color,
+                          }}
+                        >
+                          {bookingDetailsData?.bookingStatus?.replace(
+                            /_/g,
+                            " "
+                          )}
+                        </Typography>
+                      </Box>
+                    </Grid>
+                    <Grid size={4}>
+                      <Box sx={{ width: "100%" }}>
+                        <Typography
+                          sx={{
+                            fontSize: "12.5px",
+                            fontWeight: 550,
+                            lineHeight: "0.5",
+                          }}
+                        >
+                          Expenses
+                        </Typography>
+                        <Typography
+                          component="span"
+                          sx={{ fontSize: "14.5px" }}
+                        >
+                          {totalExpense}
+                        </Typography>
+                      </Box>
+                    </Grid>
+
+                    <Grid size={4}>
+                      <Box sx={{ width: "100%" }}>
+                        <Typography
+                          sx={{
+                            fontSize: "12.5px",
+                            fontWeight: 550,
+                            lineHeight: "0.5",
+                          }}
+                        >
+                          Paid
+                        </Typography>
+                        <Typography
+                          component="span"
+                          sx={{ fontSize: "14.5px" }}
+                        >
+                          {totalAmountPaid}
+                        </Typography>
+                      </Box>
+                    </Grid>
+
+                    {Boolean(bookingDetailsData?.remarks?.trim()) && (
+                      <Grid size={6}>
+                        <Box sx={{ width: "100%" }}>
+                          <Typography
+                            sx={{
+                              fontSize: "12.5px",
+                              fontWeight: 550,
+                              lineHeight: "0.5",
+                            }}
+                          >
+                            Remarks
+                          </Typography>
+                          <Typography
+                            component="span"
+                            sx={{ fontSize: "14.5px", wordWrap: "break-word" }}
+                          >
+                            {bookingDetailsData?.remarks}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                    )}
+
+                    {Boolean(bookingDetailsData?.isRated) && (
+                      <Grid size={12}>
+                        <Grid container size={12} spacing={1}>
+                          <Grid size={12}>
+                            <Typography
+                              sx={{
+                                fontSize: "12.5px",
+                                fontWeight: 550,
+                                lineHeight: "0.5",
+                                marginBottom: "5px",
+                              }}
+                            >
+                              Rating
+                            </Typography>
+                            <Divider />
+                          </Grid>
+                          <Grid size={4}>
+                            <Box sx={{ width: "100%" }}>
+                              <Rating
+                                name="read-only"
+                                value={bookingDetailsData?.ratingPoints}
+                                precision={0.5}
+                                readOnly
+                              />
+                            </Box>
+                          </Grid>
+
+                          <Grid size={8}>
+                            <Box sx={{ width: "100%" }}>
+                              <Typography
+                                sx={{
+                                  fontSize: "12.5px",
+                                  fontWeight: 550,
+                                  lineHeight: "0.5",
+                                }}
+                              >
+                                Review
+                              </Typography>
+                              <Typography
+                                component="span"
+                                sx={{ fontSize: "14.5px" }}
+                              >
+                                {bookingDetailsData?.ratingMessage}
+                              </Typography>
+                            </Box>
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                    )}
+
+                    {Boolean(bookingDetailsData?.rejectionReason?.trim()) && (
+                      <Grid size={7}>
+                        <Box sx={{ width: "100%" }}>
+                          <Typography
+                            sx={{
+                              fontSize: "12.5px",
+                              fontWeight: 550,
+                              lineHeight: "0.5",
+                            }}
+                          >
+                            Rejection Reason
+                          </Typography>
+                          <Typography
+                            component="span"
+                            sx={{ fontSize: "14.5px", wordWrap: "break-word" }}
+                          >
+                            {bookingDetailsData?.rejectionReason}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                    )}
+                  </Grid>
+                </Paper>
+              </>
+            )}
+          </Box>
+        </DialogContent>
+      </BootstrapDialog>
+    </React.Fragment>,
+    document.getElementById("portal")
+  );
+});
+
 const CustomRow = memo(function ({
   tableHeaders,
   rowSerialNumber,
@@ -717,6 +1114,7 @@ const CustomRow = memo(function ({
   handleOpenCustomBookingHistoryDrawer,
   handleChangeSelectedBookingHistory,
   handleApproveBookingCancelRequest,
+  handleOpenShowcaseBookingDialogForDetails,
 }) {
   const handleChangeBookingConfirmationOnConfirm = useCallback(
     (name, rowDate) => {
@@ -741,6 +1139,12 @@ const CustomRow = memo(function ({
       handleApproveBookingCancelRequest(selectedBookingData);
     },
     [handleApproveBookingCancelRequest]
+  );
+  const handleOpenShowcaseBookingDialogForDetailsOnClick = useCallback(
+    (bookingValue) => {
+      handleOpenShowcaseBookingDialogForDetails(bookingValue);
+    },
+    [handleOpenShowcaseBookingDialogForDetails]
   );
   return (
     <TableRow
@@ -796,9 +1200,38 @@ const CustomRow = memo(function ({
               </Box>
             ) : // </Typography>
             subitem?.key === "bookingAction" ? (
-              <>
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 1,
+                  width: "100%",
+                  justifyContent: "flex-start",
+                }}
+              >
+                <Button
+                  variant="outlined"
+                  sx={{
+                    minWidth: "unset",
+                    width: "auto",
+                    paddingY: "4.8px",
+                    paddingX: "8px",
+                    color: "#0cb2e7",
+                    borderColor: "#0cb2e7",
+                    "&:hover": {
+                      borderColor: "#0a8db7",
+                      backgroundColor: "#ddf7ff",
+                    },
+                  }}
+                  onClick={() =>
+                    handleOpenShowcaseBookingDialogForDetailsOnClick(row)
+                  }
+                >
+                  <IoMdInformationCircleOutline
+                    style={{ fontSize: "14px", fontWeight: 600 }}
+                  />
+                </Button>
                 {row?.bookingStatus === "Pending_Confirmation" && (
-                  <Box sx={{ display: "flex", gap: 1, width: "100%" }}>
+                  <>
                     <Button
                       variant="outlined"
                       // color="success"
@@ -832,42 +1265,33 @@ const CustomRow = memo(function ({
                     >
                       <CloseIcon sx={{ fontSize: "14px", fontWeight: 600 }} />
                     </Button>
-                  </Box>
+                  </>
                 )}
                 {row?.bookingStatus === "Booking_Cancellation_Requested" && (
-                  <Box
+                  <Button
+                    variant="outlined"
                     sx={{
-                      display: "flex",
-                      gap: 1,
-                      width: "100%",
-                      justifyContent: "center",
+                      minWidth: "unset",
+                      width: "auto",
+                      paddingY: "4.8px",
+                      paddingX: "8px",
+                      color: "#FF5722",
+                      borderColor: "#FF5722",
+                      "&:hover": {
+                        borderColor: "#E64A19",
+                        backgroundColor: "rgba(255, 87, 34, 0.1)",
+                      },
                     }}
+                    onClick={() =>
+                      handleApproveBookingCancelRequestOnClick(row)
+                    }
                   >
-                    <Button
-                      variant="outlined"
-                      sx={{
-                        minWidth: "unset",
-                        width: "auto", // Allow the button to adjust based on icon size
-                        paddingY: "4.8px",
-                        paddingX: "8px",
-                        color: "#FF5722", // Text color (Deep Orange)
-                        borderColor: "#FF5722", // Border color (Deep Orange)
-                        "&:hover": {
-                          borderColor: "#E64A19", // Darker shade for hover
-                          backgroundColor: "rgba(255, 87, 34, 0.1)", // Optional hover background
-                        },
-                      }}
-                      onClick={() =>
-                        handleApproveBookingCancelRequestOnClick(row)
-                      }
-                    >
-                      <RiRefund2Line
-                        style={{ fontSize: "14px", fontWeight: 600 }}
-                      />
-                    </Button>
-                  </Box>
+                    <RiRefund2Line
+                      style={{ fontSize: "14px", fontWeight: 600 }}
+                    />
+                  </Button>
                 )}
-              </>
+              </Box>
             ) : (
               <Typography sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
                 {getCellValue(row, subitem?.key)}
@@ -891,8 +1315,10 @@ const CustomBookingHistoryTableContainer = memo(function ({
   handleChangeSelectedBookingHistory,
   handleOpenCustomBookingHistoryDrawer,
   handleApproveBookingCancelRequest,
+  handleOpenShowcaseBookingDialogForDetails,
 }) {
   console.log("CustomBookingHistoryTableContainer tableData : ", tableData);
+
   return (
     <React.Fragment>
       <TableContainer
@@ -900,8 +1326,10 @@ const CustomBookingHistoryTableContainer = memo(function ({
         sx={{
           overflow: "auto",
           maxHeight: {
-            xs: "calc(100vh - 465px)",
-            xl: "calc(100vh - 360px)",
+            xs: "calc(100vh - 135px)",
+            md: "calc(100vh - 290px)",
+            lg: "calc(100vh - 290px)",
+            xl: "calc(100vh - 495px)",
             "&::-webkit-scrollbar": {
               // height: "14px",
             },
@@ -934,6 +1362,8 @@ const CustomBookingHistoryTableContainer = memo(function ({
                       paddingY: "5px",
 
                       fontSize: "14px",
+                      whiteSpace: "nowrap",
+                      py: { xs: "8px", md: "10px", lg: "15px" },
                     }}
                   >
                     {item?.label}
@@ -965,6 +1395,9 @@ const CustomBookingHistoryTableContainer = memo(function ({
                   }
                   handleApproveBookingCancelRequest={
                     handleApproveBookingCancelRequest
+                  }
+                  handleOpenShowcaseBookingDialogForDetails={
+                    handleOpenShowcaseBookingDialogForDetails
                   }
                 />
               ))
@@ -2010,6 +2443,16 @@ const FrontdeskBookingHistory = () => {
     ],
     []
   );
+
+  const initialShowcaseBookingDialogData = useMemo(
+    () => ({
+      open: false,
+      title: "",
+      type: null,
+      bookingDetailsData: null,
+    }),
+    []
+  );
   const [bookingHistoryTableFilters, setBookingHistoryTableFilters] = useState(
     initialBookingHistoryTableFilters
   );
@@ -2147,7 +2590,7 @@ const FrontdeskBookingHistory = () => {
     useConFirmBookingMutation();
 
   const [cancelBookingByFrontDesk, cancelBookingByFrontDeskRes] =
-    useCancelHotelRoomMutation();
+    useCancelRoomBookingFromBookingHistoryMutation();
 
   const [approveBookingCancelRequest, approveBookingCancelRequestRes] =
     useApproveBookingCancelRequestMutation();
@@ -2187,6 +2630,11 @@ const FrontdeskBookingHistory = () => {
   console.log("bookingHistoryTableData : ", bookingHistoryTableData);
   const [selectedBookingHistory, setSelectedBookingHistory] = useState(null);
   console.log("selectedBookingHistory : ", selectedBookingHistory);
+
+  const [showcaseBookingDialogData, setShowcaseBookingDialogData] = useState(
+    initialShowcaseBookingDialogData
+  );
+  // console.log("showcaseBookingDialogData : ", showcaseBookingDialogData);
 
   const handleChangeBookingHistoryTableFilters = useCallback(
     (name, inputValue) => {
@@ -2497,6 +2945,22 @@ const FrontdeskBookingHistory = () => {
     },
     [exportBookingHistory]
   );
+
+  const handleOpenShowcaseBookingDialogForDetails = useCallback(
+    (bookingDetails) => {
+      setShowcaseBookingDialogData((prevData) => ({
+        ...prevData,
+        open: true,
+        title: "Booking Details",
+        type: "bookingDetails",
+        bookingDetailsData: bookingDetails || null,
+      }));
+    },
+    []
+  );
+  const handleCloseShowcaseBookingDialog = useCallback(() => {
+    setShowcaseBookingDialogData(initialShowcaseBookingDialogData);
+  }, [initialShowcaseBookingDialogData]);
   useEffect(() => {
     if (isRoomBookingHistoryByHotelIdSuccess) {
       setBookingHistoryTableData(
@@ -2552,7 +3016,7 @@ const FrontdeskBookingHistory = () => {
           width: "100%",
           display: "flex",
           flexDirection: "column",
-          gap: 1,
+          // gap: 1,
         }}
       >
         <Box
@@ -2560,7 +3024,7 @@ const FrontdeskBookingHistory = () => {
             width: "100%",
             display: "flex",
             flexDirection: "column",
-            gap: 2,
+            gap: 1,
           }}
         >
           <CustomHeader
@@ -2590,7 +3054,7 @@ const FrontdeskBookingHistory = () => {
                 <Grid size={6}>
                   <Box
                     sx={{
-                      width: "67%",
+                      width: "100%",
                     }}
                   >
                     <BookingHistoryChartComponent
@@ -2598,9 +3062,9 @@ const FrontdeskBookingHistory = () => {
                       customLabels={leftChartLabels}
                       isActionable={true}
                       showTotal={true}
-                      totalLabel={"Total Bookings"}
+                      // totalLabel={"Total Bookings"}
                       customTotalKey={"totalBookings"}
-                      totalLabelFontSize={14}
+                      // totalLabelFontSize={14}
                       pieSelectionFunction={
                         handleChangeSelectedFilterInChartComponent
                       }
@@ -2632,8 +3096,10 @@ const FrontdeskBookingHistory = () => {
               sx={{
                 width: "100%",
                 height: {
-                  xs: "calc(100vh - 410px)",
-                  xl: "calc(100vh - 410px)",
+                  xs: "calc(100vh - 80px)",
+                  md: "calc(100vh - 235px)",
+                  lg: "calc(100vh - 235px)",
+                  xl: "calc(100vh - 440px)",
                 },
                 overflowX: "hidden",
                 overflowY: "auto",
@@ -2660,6 +3126,9 @@ const FrontdeskBookingHistory = () => {
                 handleApproveBookingCancelRequest={
                   handleApproveBookingCancelRequest
                 }
+                handleOpenShowcaseBookingDialogForDetails={
+                  handleOpenShowcaseBookingDialogForDetails
+                }
               />
             </Box>
           </Grid>
@@ -2684,6 +3153,13 @@ const FrontdeskBookingHistory = () => {
         // bookingRoomsTableData={getRoomsByRoomTypeData?.data || []}
         bookingRoomsTableData={filteredRooms || []}
         handleChangeBookingConfirmation={handleChangeBookingConfirmation}
+      />
+      <ShowcaseBookingDialog
+        openShowcaseBookingDialog={showcaseBookingDialogData?.open}
+        handleCloseShowcaseBookingDialog={handleCloseShowcaseBookingDialog}
+        title={showcaseBookingDialogData?.title}
+        type={showcaseBookingDialogData?.type}
+        bookingDetailsData={showcaseBookingDialogData?.bookingDetailsData}
       />
       <LoadingComponent
         open={

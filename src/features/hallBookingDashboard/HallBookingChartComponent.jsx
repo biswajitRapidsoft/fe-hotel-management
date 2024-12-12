@@ -70,9 +70,10 @@ const HallBookingChartComponent = ({
       },
       legend: {
         show: true,
-        position: "right",
+        position: "top",
         horizontalAlign: "center",
-        fontSize: 14,
+        floating: false,
+        fontSize: 12.5,
       },
       stroke: {
         show: false,

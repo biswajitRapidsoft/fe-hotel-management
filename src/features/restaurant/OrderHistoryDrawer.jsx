@@ -134,11 +134,92 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
                       justifyContent: "space-between",
                     }}
                   >
-                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                    <Typography sx={{ fontWeight: "bold", fontSize: "17px" }}>
                       Total Price
                     </Typography>
-                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                    <Typography sx={{ fontWeight: "bold", fontSize: "17px" }}>
                       Rs. {order.bookingDetails.totalPrice}
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Typography sx={{ fontWeight: "bold", fontSize: "17px" }}>
+                      GST Price
+                    </Typography>
+                    <Typography sx={{ fontWeight: "bold", fontSize: "17px" }}>
+                      Rs. {order?.bookingDetails?.gstPrice}
+                    </Typography>
+                  </Box>
+
+                  {order?.bookingDetails?.promocode?.id && (
+                    <>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <Typography
+                          sx={{ fontWeight: "bold", fontSize: "17px" }}
+                        >
+                          Discount
+                        </Typography>
+                        <Typography
+                          sx={{ fontWeight: "bold", fontSize: "17px" }}
+                        >
+                          Rs. {order?.bookingDetails?.discountPrice}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          width: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          paddingY: "2px",
+                          paddingX: "7px",
+                          borderRadius: "5px",
+                          bgcolor: "#DBEAFE",
+                          color: "#1E40AF",
+                        }}
+                      >
+                        <Typography
+                          sx={{ fontSize: "13.3px", fontWeight: 550 }}
+                        >
+                          {`${order?.bookingDetails?.promocode?.codeName} - ${
+                            order?.bookingDetails?.promocode?.discountPercentage
+                          }% off upto Rs. ${order?.bookingDetails?.promocode?.maxDiscountAmount?.toFixed(
+                            2
+                          )}`}
+                        </Typography>
+                      </Box>
+                    </>
+                  )}
+                  <Divider sx={{ mt: 1 }} />
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Typography
+                      variant="h6"
+                      sx={{ fontWeight: "bold", letterSpacing: 1 }}
+                    >
+                      Total{" "}
+                      <span style={{ fontSize: "10px" }}>(Including GST)</span>
+                    </Typography>
+                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                      Rs.{" "}
+                      {(order?.bookingDetails?.totalPrice || 0) +
+                        (order?.bookingDetails?.gstPrice || 0) -
+                        (order?.bookingDetails?.discountPrice || 0)}
                     </Typography>
                   </Box>
                   {![CANCELLED, REJECTED, DELIVERED].includes(

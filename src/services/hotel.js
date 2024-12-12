@@ -32,7 +32,22 @@ const hotelApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["getHotelListByCompany"],
     }),
-
+    updateHotel: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.updateHotel,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getHotelListByCompany"],
+    }),
+    changeRoomStatus: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.changeRoomStatus,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getHotelListByCompany"],
+    }),
     getHotelListByCompany: build.query({
       query: (payload) => ({
         url: config.apiName.getHotelListByCompany,
@@ -112,6 +127,8 @@ export const {
   useGetCityListQuery,
   useUploadFileMutation,
   useAddHotelMutation,
+  useUpdateHotelMutation,
+  useChangeRoomStatusMutation,
   useGetHotelListByCompanyQuery,
   useAddHallMutation,
   useGetAllHallsQuery,

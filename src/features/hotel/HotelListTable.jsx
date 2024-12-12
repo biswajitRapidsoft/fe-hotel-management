@@ -4,6 +4,7 @@ import {
   Collapse,
   IconButton,
   Paper,
+  Switch,
   Table,
   TableBody,
   TableCell,
@@ -14,10 +15,13 @@ import {
   Typography,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-
+import EditIcon from "@mui/icons-material/Edit";
 import LoadingComponent from "../../components/LoadingComponent";
 
-import { useGetHotelListByCompanyQuery } from "../../services/hotel";
+import {
+  useChangeRoomStatusMutation,
+  useGetHotelListByCompanyQuery,
+} from "../../services/hotel";
 import { useNavigate } from "react-router-dom";
 
 const tableHeader = [
@@ -33,9 +37,10 @@ const tableHeader = [
   { label: "Halls" },
   { label: "Banquets" },
   { label: "PromoCode" },
+  { label: "Action" },
 ];
 
-const HotelListTable = () => {
+const HotelListTable = ({ setHotelToUpdate }) => {
   const {
     data: hotelList = {
       data: [],
@@ -44,6 +49,14 @@ const HotelListTable = () => {
   } = useGetHotelListByCompanyQuery(
     JSON.parse(sessionStorage.getItem("data")).companyId
   );
+  const [changeRoomStatus, changeRoomStatusRes] = useChangeRoomStatusMutation();
+  const handleChangeStatus = React.useCallback(
+    (room) => {
+      changeRoomStatus({ id: room.id });
+    },
+    [changeRoomStatus]
+  );
+
   return (
     <React.Fragment>
       <Paper>
@@ -86,19 +99,25 @@ const HotelListTable = () => {
             <TableBody>
               {hotelList.data.map((hotel, index) => {
                 return (
-                  <Row hotel={hotel} key={hotel.id} sequence={index + 1} />
+                  <Row
+                    hotel={hotel}
+                    key={hotel.id}
+                    sequence={index + 1}
+                    setHotelToUpdate={setHotelToUpdate}
+                    handleChangeStatus={handleChangeStatus}
+                  />
                 );
               })}
             </TableBody>
           </Table>
         </TableContainer>
       </Paper>
-      <LoadingComponent open={isLoading} />
+      <LoadingComponent open={isLoading || changeRoomStatusRes.isLoading} />
     </React.Fragment>
   );
 };
 
-function Row({ hotel, sequence }) {
+function Row({ hotel, sequence, setHotelToUpdate, handleChangeStatus }) {
   const [open, setOpen] = React.useState(false);
   const navigate = useNavigate();
 
@@ -166,6 +185,11 @@ function Row({ hotel, sequence }) {
           </Typography>
         </TableCell>
         <TableCell>
+          <IconButton onClick={() => setHotelToUpdate(hotel)}>
+            <EditIcon />
+          </IconButton>
+        </TableCell>
+        <TableCell>
           <IconButton
             sx={{ ml: "auto", display: "block" }}
             size="small"
@@ -176,7 +200,7 @@ function Row({ hotel, sequence }) {
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={8}>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box>
               <Table size="small">
@@ -194,6 +218,7 @@ function Row({ hotel, sequence }) {
                     <TableCell>Floor</TableCell>
                     <TableCell>Room number</TableCell>
                     <TableCell>Room Type</TableCell>
+                    <TableCell>Status</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -214,6 +239,13 @@ function Row({ hotel, sequence }) {
                           )}
                           <TableCell>{room.roomNo}</TableCell>
                           <TableCell>{room.roomType.type}</TableCell>
+                          <TableCell>
+                            <Switch
+                              checked={room.isActive}
+                              color="success"
+                              onChange={() => handleChangeStatus(room)}
+                            />
+                          </TableCell>
                         </TableRow>
                       );
                     });

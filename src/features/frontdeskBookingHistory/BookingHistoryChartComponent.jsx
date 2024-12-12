@@ -72,9 +72,10 @@ const BookingHistoryChartComponent = ({
       },
       legend: {
         show: true,
-        position: "right",
+        position: "top",
         horizontalAlign: "center",
-        fontSize: 14,
+        // floating: false,
+        fontSize: 11,
       },
       stroke: {
         show: false,

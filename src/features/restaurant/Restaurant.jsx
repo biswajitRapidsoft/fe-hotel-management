@@ -12,6 +12,7 @@ import {
   Checkbox,
   FormControlLabel,
   FormGroup,
+  IconButton,
 } from "@mui/material";
 import { TabContext, TabList } from "@mui/lab";
 import {
@@ -23,6 +24,15 @@ import {
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 import OrderHistoryDrawer from "./OrderHistoryDrawer";
+import { useGetAllRestaurantPromocodeByHotelIdQuery } from "../../services/dashboard";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+
+import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
+import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
+import { RiDiscountPercentLine } from "react-icons/ri";
+import { RiDiscountPercentFill } from "react-icons/ri";
+import CloseIcon from "@mui/icons-material/Close";
+import { FaArrowAltCircleLeft } from "react-icons/fa";
 
 const drawerWidth = 399;
 
@@ -34,6 +44,169 @@ export const DrawerHeader = styled("div")(({ theme }) => ({
   ...theme.mixins.toolbar,
   justifyContent: "flex-start",
 }));
+
+const CustomCouponCard = React.memo(function ({
+  couponData,
+  handleCheckboxClick,
+  isAnyCheckboxSelected,
+  isThisCheckboxSelected,
+  calculateTotalAmountOfCartItems,
+  calculateDiscountOnOrder,
+}) {
+  const calculateTotalAmountOfCartItemsResult = React.useMemo(
+    () => calculateTotalAmountOfCartItems(),
+    [calculateTotalAmountOfCartItems]
+  );
+  console.log(
+    "calculateTotalAmountOfCartItemsResult : ",
+    calculateTotalAmountOfCartItemsResult
+  );
+  const calculateDiscountOnOrderResult = React.useMemo(() => {
+    return calculateDiscountOnOrder({
+      cartPrice: calculateTotalAmountOfCartItemsResult,
+      coupon: couponData,
+    });
+  }, [
+    calculateDiscountOnOrder,
+    calculateTotalAmountOfCartItemsResult,
+    couponData,
+  ]);
+  const handleCheckBoxClickOnChange = React.useCallback(
+    (couponValue) => {
+      handleCheckboxClick(couponValue);
+    },
+    [handleCheckboxClick]
+  );
+
+  console.log(
+    "calculateDiscountOnOrderResult : ",
+    calculateDiscountOnOrderResult
+  );
+
+  return (
+    <Grid size={12} key={couponData?.id}>
+      <Box
+        sx={{
+          display: "flex",
+          gap: 2,
+          boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+          borderRadius: "5px",
+          cursor:
+            isAnyCheckboxSelected && !isThisCheckboxSelected
+              ? "default"
+              : "pointer",
+          px: 2,
+          py: 1,
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (
+            Boolean(
+              calculateDiscountOnOrderResult?.isApplicable &&
+                !isAnyCheckboxSelected
+            )
+          ) {
+            handleCheckBoxClickOnChange(couponData);
+          } else if (
+            calculateDiscountOnOrderResult?.isApplicable &&
+            Boolean(isAnyCheckboxSelected && isThisCheckboxSelected)
+          ) {
+            handleCheckBoxClickOnChange(couponData);
+          }
+        }}
+      >
+        <Box sx={{ width: "90%" }}>
+          <Typography sx={{ fontSize: "12.5px", fontWeight: 550 }}>{`Flat ${
+            couponData?.discountPercentage
+          }% off upto Rs. ${couponData?.maxDiscountAmount?.toFixed(
+            2
+          )} on minimum order of Rs. ${couponData?.minOrderValue?.toFixed(
+            2
+          )}.`}</Typography>
+          <Typography sx={{ mt: "5px" }}>
+            <Typography
+              component="span"
+              sx={{
+                fontSize: "11.5px",
+                fontWeight: 550,
+                color: "#737373",
+              }}
+            >
+              Coupon code
+            </Typography>
+            <Typography
+              component="span"
+              sx={{
+                fontSize: "11.5px",
+                fontWeight: 550,
+                color: "#737373",
+              }}
+            >
+              {" "}
+              :{" "}
+            </Typography>
+            <Typography
+              component="span"
+              sx={{
+                border: "1px dashed #9c9c9c",
+                paddingX: "8px",
+                paddingY: "3px",
+                borderRadius: "4px",
+                fontSize: "12.5px",
+                fontWeight: 550,
+                color: "#0e36b3",
+              }}
+            >
+              {couponData?.codeName}
+            </Typography>
+          </Typography>
+
+          {calculateDiscountOnOrderResult?.isApplicable ? (
+            <Typography
+              sx={{
+                fontSize: "10.5px",
+                fontWeight: 550,
+                color: "#0000ff",
+                mt: 0.5,
+              }}
+            >
+              {`You will save Rs. ${calculateDiscountOnOrderResult?.discountPrice?.toFixed(
+                2
+              )} on this order.`}
+            </Typography>
+          ) : (
+            <Typography
+              sx={{
+                fontSize: "10px",
+                fontWeight: 550,
+                color: "#ff0000",
+                mt: 0.5,
+              }}
+            >
+              Coupon is not applicable!
+            </Typography>
+          )}
+        </Box>
+        <Box
+          sx={{
+            width: "10%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Checkbox
+            defaultChecked={false}
+            disabled={isAnyCheckboxSelected && !isThisCheckboxSelected}
+            checked={isThisCheckboxSelected}
+            icon={<RadioButtonUncheckedIcon />}
+            checkedIcon={<RadioButtonCheckedIcon />}
+          />
+        </Box>
+      </Box>
+    </Grid>
+  );
+});
 
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
   ({ theme }) => ({
@@ -98,6 +271,13 @@ const getFilterdMenuList = (menuList, mealType, foodType) => {
 
 const Restaurant = () => {
   const [isOrderHistoryDrawer, setIsOrderHistoryDrawer] = React.useState(false);
+  const [selectedRestaurantCoupon, setSelectedRestaurantCoupon] =
+    React.useState(null);
+  console.log("selectedRestaurantCoupon : ", selectedRestaurantCoupon);
+  const [isViewAllCouponsSelected, setIsViewAllCouponsSelected] =
+    React.useState(false);
+
+  console.log("isViewAllCouponsSelected : ", isViewAllCouponsSelected);
   const [orderFood, orderFoodRes] = useOrderFoodMutation();
   const {
     data: dineTypes = {
@@ -108,6 +288,7 @@ const Restaurant = () => {
   const [mealType, setMealType] = React.useState("ALL");
   const [dineType, setDineType] = React.useState("");
   const [cartItems, setCartItems] = React.useState([]);
+  console.log("cartItems : ", cartItems);
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
@@ -127,6 +308,25 @@ const Restaurant = () => {
   } = useGetCustomerOrdeHistoryQuery(
     sessionStorage.getItem("bookingRefNumber")
   );
+
+  const {
+    data: allRestaurantPromocodeByHotelIdData = {
+      data: [],
+    },
+    isLoading: isAllRestaurantPromocodeByHotelIdDataLoading,
+  } = useGetAllRestaurantPromocodeByHotelIdQuery(
+    { hotelId: JSON.parse(sessionStorage.getItem("hotelId")) },
+    {
+      refetchOnMountOrArgChange: true,
+      skip: !Boolean(JSON.parse(sessionStorage.getItem("hotelId"))),
+    }
+  );
+
+  console.log(
+    "allRestaurantPromocodeByHotelIdData : ",
+    allRestaurantPromocodeByHotelIdData
+  );
+
   const handleTabChange = React.useCallback((e, value) => {
     setMealType(value);
   }, []);
@@ -167,6 +367,99 @@ const Restaurant = () => {
     setDineType(e.target.value);
   }, []);
 
+  // const calculateDiscountOnOrder = React.useCallback((cartPrice, coupon) => {
+  //   // Initialize default response
+  //   let discountedPrice = cartPrice + cartPrice * 0.18;
+  //   let discountPrice = 0;
+  //   let isApplicable = false;
+
+  //   // Check for null or invalid values
+  //   if (!cartPrice || cartPrice <= 0 || !coupon) {
+  //     return { discountedPrice, discountPrice, isApplicable };
+  //   }
+
+  //   // Ensure coupon has valid properties
+  //   const { discountPercentage, maxDiscountAmount, minOrderValue } = coupon;
+
+  //   if (!discountPercentage || !maxDiscountAmount || !minOrderValue) {
+  //     return { discountedPrice, discountPrice, isApplicable };
+  //   }
+
+  //   // Validate if the cart price qualifies for the coupon
+  //   if (cartPrice >= minOrderValue) {
+  //     // Calculate potential discount
+  //     discountPrice = (cartPrice * discountPercentage) / 100;
+
+  //     // Cap the discount price at the maximum discount amount
+  //     discountPrice = Math.min(discountPrice, maxDiscountAmount);
+
+  //     // Calculate the final discounted price
+  //     discountedPrice = cartPrice - discountPrice;
+
+  //     // Mark the coupon as applicable
+  //     isApplicable = true;
+  //   }
+
+  //   // Return the result
+  //   return { discountedPrice, discountPrice, isApplicable };
+  // }, []);
+
+  const calculateDiscountOnOrder = React.useCallback(
+    ({ cartPrice, gst = 0.18, coupon }) => {
+      // Initialize default response
+      let discountedPrice = 0;
+      let discountPrice = 0;
+      let gstPrice = 0;
+      let isApplicable = false;
+
+      // Validate inputs
+      if (!cartPrice || cartPrice <= 0) {
+        return { discountedPrice, discountPrice, gstPrice, isApplicable };
+      }
+
+      // Calculate GST
+      gstPrice = cartPrice * gst;
+
+      // Add GST to cart price
+      const cartPriceWithGST = cartPrice + gstPrice;
+
+      // If no coupon is provided, return the GST-included price
+      if (!coupon) {
+        return {
+          discountedPrice: cartPriceWithGST,
+          discountPrice,
+          gstPrice,
+          isApplicable,
+        };
+      }
+
+      // Destructure coupon properties
+      const {
+        discountPercentage = 0,
+        maxDiscountAmount = 0,
+        minOrderValue = 0,
+      } = coupon;
+
+      // Validate coupon properties
+      if (
+        cartPriceWithGST >= minOrderValue &&
+        discountPercentage > 0 &&
+        maxDiscountAmount > 0
+      ) {
+        discountPrice = (cartPriceWithGST * discountPercentage) / 100; // Calculate discount
+        discountPrice = Math.min(discountPrice, maxDiscountAmount); // Cap discount
+        discountedPrice = cartPriceWithGST - discountPrice; // Subtract discount
+        isApplicable = true;
+      } else {
+        discountedPrice = cartPriceWithGST; // No discount, only GST applied
+      }
+
+      // Return all values
+      return { discountedPrice, discountPrice, gstPrice, isApplicable };
+    },
+    []
+  );
+
   const handlePlaceOrder = React.useCallback(() => {
     orderFood({
       bookingRefNo: sessionStorage.getItem("bookingRefNumber"),
@@ -178,11 +471,24 @@ const Restaurant = () => {
       })),
       totalGstPrice: (calculateTotalAmountOfCartItems() * 0.18).toFixed(2),
       totalPrice: calculateTotalAmountOfCartItems(),
+
+      ...(Boolean(selectedRestaurantCoupon?.id) && {
+        discountPrice: parseFloat(
+          calculateDiscountOnOrder({
+            cartPrice: calculateTotalAmountOfCartItems(),
+            coupon: selectedRestaurantCoupon,
+          })?.discountPrice.toFixed(2)
+        ),
+        promocode: {
+          id: selectedRestaurantCoupon?.id,
+        },
+      }),
     })
       .unwrap()
       .then((res) => {
         setSnack({ open: true, message: res.message, severity: "success" });
         setCartItems([]);
+        setSelectedRestaurantCoupon(null);
       })
       .catch((err) => {
         setSnack({
@@ -191,7 +497,39 @@ const Restaurant = () => {
           severity: "error",
         });
       });
-  }, [cartItems, orderFood, dineType, calculateTotalAmountOfCartItems]);
+  }, [
+    cartItems,
+    orderFood,
+    dineType,
+    calculateTotalAmountOfCartItems,
+    calculateDiscountOnOrder,
+    selectedRestaurantCoupon,
+  ]);
+
+  const handleChangeIsViewAllCouponsSelected = React.useCallback(() => {
+    setIsViewAllCouponsSelected((prev) => !prev);
+  }, []);
+
+  const handleChangeSelectedRestaurantCoupon = React.useCallback(
+    (checkboxValue) => {
+      console.log(
+        "handleChangeSelectedRestaurantCoupon checkboxValue: ",
+        checkboxValue
+      );
+      if (selectedRestaurantCoupon?.id !== checkboxValue?.id) {
+        if (checkboxValue?.id) {
+          console.log(
+            "handleChangeSelectedRestaurantCoupon handleChangeIsViewAllCouponsSelected"
+          );
+          handleChangeIsViewAllCouponsSelected();
+        }
+        setSelectedRestaurantCoupon(checkboxValue || null);
+      } else {
+        setSelectedRestaurantCoupon(null);
+      }
+    },
+    [handleChangeIsViewAllCouponsSelected, selectedRestaurantCoupon]
+  );
 
   return (
     <React.Fragment>
@@ -301,55 +639,222 @@ const Restaurant = () => {
             </Typography>
           </DrawerHeader>
           <Divider />
-          <Box sx={{ p: 2 }}>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: 600, letterSpacing: 1, marginBottom: 3 }}
-            >
-              My Order
-            </Typography>
-            <Divider />
-            <Box
-              sx={{
-                height: 350,
-                overflowY: "auto",
-                // backgroundColor: "#f7f0ff",
-                p: 0.75,
-              }}
-            >
-              <Grid container spacing={2}>
-                {cartItems.map((cartItem) => {
-                  return (
-                    <Grid size={12} key={cartItem.id}>
-                      <Box sx={{ display: "flex", gap: 2 }}>
-                        <Box
-                          component="img"
-                          src={cartItem.image}
-                          sx={{ width: 50 }}
-                        />
-                        <Box
-                          sx={{
-                            flexGrow: 1,
-                            display: "flex",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <Box>
-                            <Typography>{cartItem.itemName}</Typography>
-                            <Typography>{`x${cartItem.quantity}`}</Typography>
-                          </Box>
-                          <Typography sx={{ fontWeight: 600 }}>{`Rs. ${
-                            cartItem.perUnitPrice * cartItem.quantity
-                          }`}</Typography>
-                        </Box>
-                      </Box>
-                    </Grid>
-                  );
-                })}
-              </Grid>
+          {isViewAllCouponsSelected ? (
+            <Box sx={{ p: 2 }}>
+              <Box sx={{ display: "flex", gap: 0.45 }}>
+                <FaArrowAltCircleLeft
+                  style={{
+                    color: "#164e80",
+                    cursor: "pointer",
+                    marginTop: "6px",
+                    fontSize: "20px",
+                  }}
+                  onClick={() => handleChangeIsViewAllCouponsSelected()}
+                />
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 600, letterSpacing: 1, marginBottom: 3 }}
+                >
+                  Coupons
+                </Typography>
+              </Box>
+              <Divider />
+              <Box
+                sx={{
+                  height: 320,
+                  overflowY: "auto",
+                  // backgroundColor: "#f7f0ff",
+                  p: 0.75,
+                }}
+              >
+                <Grid container spacing={2}>
+                  {allRestaurantPromocodeByHotelIdData?.data?.map(
+                    (promoItem) => (
+                      <CustomCouponCard
+                        couponData={promoItem}
+                        calculateTotalAmountOfCartItems={
+                          calculateTotalAmountOfCartItems
+                        }
+                        calculateDiscountOnOrder={calculateDiscountOnOrder}
+                        isAnyCheckboxSelected={
+                          Boolean(selectedRestaurantCoupon?.id) ? true : false
+                        }
+                        isThisCheckboxSelected={
+                          Boolean(
+                            selectedRestaurantCoupon?.id === promoItem?.id
+                          )
+                            ? true
+                            : false
+                        }
+                        handleCheckboxClick={
+                          handleChangeSelectedRestaurantCoupon
+                        }
+                      />
+                    )
+                  )}
+
+                  {/* {Array.from({ length: 5 }, (_, i) => ({
+                    id: i + 1,
+                    discountPercentage: 20 + i * 10,
+                    maxDiscountAmount: 200 + i * 100,
+                    minOrderValue: 1200 + i * 1000,
+                    codeName: `CODE-${100 + i}`,
+                  }))?.map((promoItem) => (
+                    <CustomCouponCard
+                      couponData={promoItem}
+                      calculateTotalAmountOfCartItems={
+                        calculateTotalAmountOfCartItems
+                      }
+                      calculateDiscountOnOrder={calculateDiscountOnOrder}
+                      isAnyCheckboxSelected={
+                        Boolean(selectedRestaurantCoupon?.id) ? true : false
+                      }
+                      isThisCheckboxSelected={
+                        Boolean(selectedRestaurantCoupon?.id === promoItem?.id)
+                          ? true
+                          : false
+                      }
+                      handleCheckboxClick={handleChangeSelectedRestaurantCoupon}
+                    />
+                  ))} */}
+                </Grid>
+              </Box>
+
+              <Divider sx={{ mt: 1 }} />
             </Box>
-            <Divider sx={{ mt: 2 }} />
-          </Box>
+          ) : (
+            <Box sx={{ p: 2 }}>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 600, letterSpacing: 1, marginBottom: 3 }}
+              >
+                My Order
+              </Typography>
+              <Divider />
+              <Box
+                sx={{
+                  height: 300,
+                  overflowY: "auto",
+                  // backgroundColor: "#f7f0ff",
+                  p: 0.75,
+                }}
+              >
+                <Grid container spacing={2}>
+                  {cartItems.map((cartItem) => {
+                    return (
+                      <Grid size={12} key={cartItem.id}>
+                        <Box sx={{ display: "flex", gap: 2 }}>
+                          <Box
+                            component="img"
+                            src={cartItem.image}
+                            sx={{ width: 50 }}
+                          />
+                          <Box
+                            sx={{
+                              flexGrow: 1,
+                              display: "flex",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <Box>
+                              <Typography>{cartItem.itemName}</Typography>
+                              <Typography>{`x${cartItem.quantity}`}</Typography>
+                            </Box>
+                            <Typography sx={{ fontWeight: 600 }}>{`Rs. ${
+                              cartItem.perUnitPrice * cartItem.quantity
+                            }`}</Typography>
+                          </Box>
+                        </Box>
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+              </Box>
+              <Divider sx={{ mt: 1 }} />
+              {Boolean(allRestaurantPromocodeByHotelIdData?.data?.length) && (
+                <>
+                  {Boolean(selectedRestaurantCoupon?.id) ? (
+                    <Box
+                      sx={{
+                        px: 2,
+                        py: 0.8,
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        mt: 1,
+                        backgroundColor: "#ffffff",
+                        boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+                        transition: "all 0.3s ease",
+
+                        "&:hover": {
+                          backgroundColor: "#f3f3f3",
+                        },
+                      }}
+                    >
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+                      >
+                        <RiDiscountPercentFill />
+                        <Typography>
+                          <Typography
+                            component="span"
+                            sx={{ fontSize: "13px" }}
+                          >
+                            Coupon applied!{"  "}
+                          </Typography>
+                          <Typography
+                            component="span"
+                            sx={{ fontSize: "13px", fontWeight: 550 }}
+                          >{`${selectedRestaurantCoupon?.codeName} ${selectedRestaurantCoupon?.discountPercentage}% off`}</Typography>
+                        </Typography>
+                      </Box>
+
+                      <IconButton
+                        sx={{ padding: 0.3 }}
+                        onClick={() => handleChangeSelectedRestaurantCoupon()}
+                      >
+                        <CloseIcon sx={{ fontSize: "19px" }} />
+                      </IconButton>
+                    </Box>
+                  ) : (
+                    <Box
+                      sx={{
+                        px: 2,
+                        py: 0.8,
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        mt: 1,
+                        backgroundColor: "#ffffff",
+                        boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+                        transition: "all 0.3s ease",
+                        cursor: "pointer",
+                        "&:hover": {
+                          backgroundColor: "#f3f3f3",
+                        },
+                      }}
+                      onClick={() => handleChangeIsViewAllCouponsSelected()}
+                    >
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+                      >
+                        <RiDiscountPercentLine />
+                        <Typography sx={{ fontSize: "14px", fontWeight: 550 }}>
+                          View All Coupons
+                        </Typography>
+                      </Box>
+
+                      <KeyboardArrowRightIcon />
+                    </Box>
+                  )}
+                  <Divider sx={{ mt: 1 }} />
+                </>
+              )}
+            </Box>
+          )}
+
           <Box
             sx={{
               position: "absolute",
@@ -364,6 +869,21 @@ const Restaurant = () => {
                 variant="body2"
                 sx={{ fontWeight: "bold", letterSpacing: 1 }}
               >
+                Total
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: "bold", letterSpacing: 1 }}
+              >
+                {`Rs. ${calculateTotalAmountOfCartItems().toFixed(2)}`}
+              </Typography>
+            </Box>
+
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: "bold", letterSpacing: 1 }}
+              >
                 GST (18%)
               </Typography>
               <Typography
@@ -373,6 +893,25 @@ const Restaurant = () => {
                 {`Rs. ${(calculateTotalAmountOfCartItems() * 0.18).toFixed(2)}`}
               </Typography>
             </Box>
+            {selectedRestaurantCoupon?.id && (
+              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: "bold", letterSpacing: 1 }}
+                >
+                  Discount
+                </Typography>
+                <Typography
+                  variant="body2"
+                  sx={{ fontWeight: "bold", letterSpacing: 1 }}
+                >
+                  {`Rs. ${calculateDiscountOnOrder({
+                    cartPrice: calculateTotalAmountOfCartItems(),
+                    coupon: selectedRestaurantCoupon,
+                  })?.discountPrice.toFixed(2)}`}
+                </Typography>
+              </Box>
+            )}
             <Box
               sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}
             >
@@ -380,16 +919,16 @@ const Restaurant = () => {
                 variant="h6"
                 sx={{ fontWeight: "bold", letterSpacing: 1 }}
               >
-                Total
+                Total <span style={{ fontSize: "10px" }}>(Including GST)</span>
               </Typography>
               <Typography
                 variant="h6"
                 sx={{ fontWeight: "bold", letterSpacing: 1 }}
               >
-                {`Rs. ${(
-                  calculateTotalAmountOfCartItems() +
-                  calculateTotalAmountOfCartItems() * 0.18
-                ).toFixed(2)}`}
+                {`Rs. ${calculateDiscountOnOrder({
+                  cartPrice: calculateTotalAmountOfCartItems(),
+                  coupon: selectedRestaurantCoupon,
+                })?.discountedPrice.toFixed(2)}`}
               </Typography>
             </Box>
             <FormGroup row>
@@ -437,7 +976,13 @@ const Restaurant = () => {
           orderHistory={orderHistory.data}
         />
       </Box>
-      <LoadingComponent open={isLoading || orderFoodRes.isLoading} />
+      <LoadingComponent
+        open={
+          isLoading ||
+          orderFoodRes.isLoading ||
+          isAllRestaurantPromocodeByHotelIdDataLoading
+        }
+      />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </React.Fragment>
   );

@@ -62,6 +62,16 @@ const dashboardApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["getUserDetailsForBooking"],
     }),
+    getAllRestaurantPromocodeByHotelId: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllRestaurantPromocodeByHotelId,
+        method: "GET",
+        params: {
+          hotelId: payload?.hotelId,
+        },
+      }),
+      providesTags: ["getAllRestaurantPromocodeByHotelId"],
+    }),
     getAllFiltersData: build.query({
       query: () => ({
         url: config.apiName.getAllFiltersData,
@@ -304,6 +314,7 @@ export const {
   useChangeLaundryStatusMutation,
   useAddRatingForLaundryMutation,
   useGetPendingBookingRequestCountsQuery,
+  useGetAllRestaurantPromocodeByHotelIdQuery,
   useGetAllFiltersDataQuery,
   useAddRatingMutation,
   useMakePaymentMutation,
