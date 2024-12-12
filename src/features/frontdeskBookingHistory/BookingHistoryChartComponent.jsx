@@ -44,12 +44,14 @@ const BookingHistoryChartComponent = ({
       chart: {
         events: {
           dataPointSelection: (e, chartContext, config) => {
-            e.target.attributes.selected.value = "false";
-            const dataPointIndex = config.dataPointIndex;
-            if (isActionable) {
-              pieSelectionFunctionOnClick(
-                sanitizedLabels[dataPointIndex]?.key || null
-              );
+            if (e?.target?.attributes?.selected?.value) {
+              e.target.attributes.selected.value = "false";
+              const dataPointIndex = config.dataPointIndex;
+              if (isActionable) {
+                pieSelectionFunctionOnClick(
+                  sanitizedLabels[dataPointIndex]?.key || null
+                );
+              }
             }
             // setSelectedChartLabel(
             //   config.w.config.labels[config.dataPointIndex]
@@ -62,7 +64,7 @@ const BookingHistoryChartComponent = ({
 
       dataLabels: {
         formatter: function (val, opts) {
-          return opts.w.config.series[opts.seriesIndex];
+          return opts?.w?.config?.series[opts?.seriesIndex];
         },
         style: {
           fontSize: 18,

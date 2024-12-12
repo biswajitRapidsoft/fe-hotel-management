@@ -44,7 +44,9 @@ const BanquetList = () => {
     isLoading,
     isFetching,
   } = useGetAllBanquetQuery(sessionStorage.getItem("hotelIdForBanquet"), {
-    skip: !Boolean(sessionStorage.getItem("hotelIdForBanquet")),
+    skip:
+      !Boolean(sessionStorage.getItem("hotelIdForBanquet")) ||
+      JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin",
   });
 
   const handleResetForm = React.useCallback(() => {

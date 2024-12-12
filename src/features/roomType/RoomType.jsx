@@ -53,6 +53,7 @@ const RoomType = () => {
     basePrice: "",
     advanceAmount: "",
     isAdvance: false,
+    rewardPoints: "",
   });
   const [extraItemsArr, setExtraItemsArr] = React.useState([]);
   const [uploadedImageArr, setUploadedImageArr] = React.useState([]);
@@ -62,7 +63,8 @@ const RoomType = () => {
     },
     isLoading,
   } = useGetAllExtraItemsQuery(
-    JSON.parse(sessionStorage.getItem("data")).companyId
+    JSON.parse(sessionStorage.getItem("data")).companyId,
+    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin" }
   );
   const handleUploadImage = React.useCallback(
     (imgSource) => {
@@ -94,7 +96,11 @@ const RoomType = () => {
   }, []);
 
   const handleChange = React.useCallback((e) => {
-    if (["capacity", "basePrice", "advanceAmount"].includes(e.target.name)) {
+    if (
+      ["capacity", "basePrice", "advanceAmount", "rewardPoints"].includes(
+        e.target.name
+      )
+    ) {
       setFormData((prevData) => ({
         ...prevData,
         [e.target.name]: e.target.value.replace(/\D/g, ""),
@@ -131,13 +137,21 @@ const RoomType = () => {
         formData.description.trim() &&
         formData.capacity.trim() &&
         formData.basePrice.trim() &&
-        formData.advanceAmount.trim()
+        formData.advanceAmount.trim() &&
+        formData.rewardPoints
     );
   }, [formData]);
 
   const handleSubmit = React.useCallback(
     (event) => {
       event.preventDefault();
+      if (parseInt(formData.rewardPoints) > 200) {
+        return setSnack({
+          open: true,
+          severity: "error",
+          message: "Reward Points can be up to 200.",
+        });
+      }
       addRoomType({
         type: formData.roomType,
         description: formData.description,
@@ -146,6 +160,7 @@ const RoomType = () => {
         companyId: JSON.parse(sessionStorage.getItem("data")).companyId,
         isAdvanceRequired: formData.isAdvance,
         advanceAmount: formData.advanceAmount,
+        rewardsPoints: formData.rewardPoints,
         imageUrl: uploadedImageArr.join(","),
         extraItemsList: extraItemsArr.map((extra) => ({
           extraItems: {
@@ -339,6 +354,27 @@ const RoomType = () => {
               }
               name="advanceAmount"
               value={formData.advanceAmount}
+              onChange={handleChange}
+              variant="standard"
+            />
+          </Grid>
+          <Grid size={3}>
+            <TextField
+              label={
+                <React.Fragment>
+                  Reward Points{" "}
+                  <Box
+                    component="span"
+                    sx={{
+                      color: (theme) => theme.palette.error.main,
+                    }}
+                  >
+                    *
+                  </Box>
+                </React.Fragment>
+              }
+              name="rewardPoints"
+              value={formData.rewardPoints}
               onChange={handleChange}
               variant="standard"
             />

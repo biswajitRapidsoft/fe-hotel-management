@@ -77,7 +77,8 @@ const RoomTypeTable = () => {
     },
     isLoading,
   } = useGetAllRoomTypesByCompanyQuery(
-    JSON.parse(sessionStorage.getItem("data")).companyId
+    JSON.parse(sessionStorage.getItem("data")).companyId,
+    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin" }
   );
 
   const [viewImageDialog, setViewImageDialog] = React.useState(null);
@@ -148,7 +149,8 @@ const RoomTypeTable = () => {
               >
                 <TableCell>Sl No.</TableCell>
                 <TableCell>Room Type</TableCell>
-                <TableCell sx={{ width: "50%" }}>Extra items</TableCell>
+                <TableCell sx={{ width: "40%" }}>Extra items</TableCell>
+                <TableCell>Reward Points</TableCell>
                 <TableCell>Images</TableCell>
               </TableRow>
             </TableHead>
@@ -172,6 +174,7 @@ const RoomTypeTable = () => {
                         <CustomChips itemList={roomType.extraItem} />
                       )}
                     </TableCell>
+                    <TableCell>{roomType.rewardsPoints}</TableCell>
                     <TableCell sx={{ display: "flex", alignItems: "center" }}>
                       {Boolean(roomType.images.length) && (
                         <Box

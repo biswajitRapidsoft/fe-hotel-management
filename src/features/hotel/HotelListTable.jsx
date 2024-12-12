@@ -30,6 +30,7 @@ const tableHeader = [
   { label: "State" },
   { label: "City" },
   { label: "Address" },
+  { label: "GST IN" },
   {
     label: "Email",
   },
@@ -47,7 +48,8 @@ const HotelListTable = ({ setHotelToUpdate }) => {
     },
     isLoading,
   } = useGetHotelListByCompanyQuery(
-    JSON.parse(sessionStorage.getItem("data")).companyId
+    JSON.parse(sessionStorage.getItem("data")).companyId,
+    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin" }
   );
   const [changeRoomStatus, changeRoomStatusRes] = useChangeRoomStatusMutation();
   const handleChangeStatus = React.useCallback(
@@ -154,6 +156,7 @@ function Row({ hotel, sequence, setHotelToUpdate, handleChangeStatus }) {
         <TableCell>{hotel.state.name}</TableCell>
         <TableCell>{hotel.city.name}</TableCell>
         <TableCell sx={{ minWidth: 200 }}>{hotel.address}</TableCell>
+        <TableCell>{hotel.gstIn}</TableCell>
         <TableCell>{hotel.email}</TableCell>
         <TableCell>{hotel.contactNos?.join(", ")}</TableCell>
         <TableCell
@@ -260,4 +263,4 @@ function Row({ hotel, sequence, setHotelToUpdate, handleChangeStatus }) {
   );
 }
 
-export default HotelListTable;
+export default React.memo(HotelListTable);

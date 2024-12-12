@@ -15,6 +15,8 @@ import {
   Button,
   Checkbox,
   Collapse,
+  DialogContent,
+  DialogTitle,
   Divider,
   Drawer,
   FormControlLabel,
@@ -54,6 +56,9 @@ import isBetween from "dayjs/plugin/isBetween";
 import { useGetAllPaymentMethodsQuery } from "../../services/dashboard";
 import Swal from "sweetalert2";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
+import { PaymentDialog } from "../dashboard/GuestDashboard";
+import ReactDOM from "react-dom";
+import { BootstrapDialog } from "../header/Header";
 
 dayjs.extend(customParseFormat);
 dayjs.extend(isSameOrBefore);
@@ -587,17 +592,502 @@ const CustomHallBookingAlertSection = memo(function ({
   );
 });
 
+const ShowcaseHallBookingDialog = memo(function ({
+  openShowcaseHallBookingDialog,
+  handleCloseShowcaseHallBookingDialog,
+  title = "",
+  type,
+  hallBookingDetailsData,
+  hallBookingFormData,
+  handleChangeHallBookingFormData,
+  allPaymentMethods,
+  handleChangeHallBookingStatusToComplete,
+}) {
+  console.log("type : ", type);
+  console.log(
+    "ShowcaseBookingDialog hallBookingDetailsData : ",
+    hallBookingDetailsData
+  );
+
+  // const totalExpense = useMemo(
+  //   () =>
+  //     hallBookingDetailsData?.transactionDetails
+  //       ?.filter((item) => !Boolean(item?.isCredit))
+  //       ?.reduce((sum, item) => sum + (item.amount || 0), 0),
+  //   [hallBookingDetailsData]
+  // );
+  // const totalAmountPaid = useMemo(
+  //   () =>
+  //     hallBookingDetailsData?.transactionDetails
+  //       ?.filter((item) => Boolean(item?.isCredit))
+  //       ?.reduce((sum, item) => sum + (item.amount || 0), 0),
+  //   [hallBookingDetailsData]
+  // );
+
+  const remainingAmountToPay = useMemo(() => {
+    return (
+      (hallBookingDetailsData?.totalPrice || 0) +
+      (hallBookingDetailsData?.totalBanquetPrice || 0) -
+      (hallBookingDetailsData?.paidAmount || 0)
+    );
+  }, [hallBookingDetailsData]);
+
+  const handleChangeHallBookingFormDataOnChange = useCallback(
+    (name, value) => {
+      handleChangeHallBookingFormData(name, value);
+    },
+    [handleChangeHallBookingFormData]
+  );
+
+  const handleCloseShowcaseHallBookingDialogOnClose = useCallback(() => {
+    handleCloseShowcaseHallBookingDialog();
+  }, [handleCloseShowcaseHallBookingDialog]);
+
+  const handleChangeHallBookingStatusToCompleteOnClick = useCallback(
+    (hallValue, remainingAmountToPayout) => {
+      handleChangeHallBookingStatusToComplete(
+        hallValue,
+        remainingAmountToPayout
+      );
+    },
+    [handleChangeHallBookingStatusToComplete]
+  );
+
+  return ReactDOM.createPortal(
+    <React.Fragment>
+      <BootstrapDialog
+        open={openShowcaseHallBookingDialog}
+        onClose={handleCloseShowcaseHallBookingDialogOnClose}
+        aria-labelledby="booking-details-dialog-title"
+        maxWidth="sm"
+        fullWidth
+        // maxWidth=""
+        sx={{
+          ".MuiDialogTitle-root": {
+            px: 2,
+          },
+        }}
+        PaperProps={{
+          sx: { borderRadius: 4 },
+        }}
+      >
+        <DialogTitle
+          id="hall-booking-dialog-title"
+          sx={{
+            fontSize: "20px",
+            lineHeight: "0.4",
+            fontWeight: 600,
+            letterSpacing: 0.7,
+          }}
+        >
+          {title}
+        </DialogTitle>
+        <IconButton
+          aria-label="close"
+          onClick={handleCloseShowcaseHallBookingDialogOnClose}
+          sx={{
+            position: "absolute",
+            right: 5,
+            top: 1,
+            color: "#280071",
+          }}
+        >
+          <CloseIcon sx={{ fontSize: 27 }} />
+        </IconButton>
+        <DialogContent>
+          <Box sx={{ width: "100%" }}>
+            <Grid container size={12} spacing={1}>
+              <Grid size={3}>
+                <Typography
+                  sx={{
+                    fontSize: "15.5px",
+                    // color: "#707070",
+                    // fontWeight: 600,
+                  }}
+                >
+                  Hall Charges
+                </Typography>
+              </Grid>
+              <Grid size={3}>
+                <Typography>
+                  <Typography
+                    component="span"
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      // fontWeight: 600,
+                      marginRight: "5px",
+                    }}
+                  >
+                    :
+                  </Typography>
+                  <Typography
+                    component="span"
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 550,
+                    }}
+                  >
+                    {hallBookingDetailsData?.totalPrice || "0"}
+                  </Typography>
+                </Typography>
+              </Grid>
+              {hallBookingDetailsData?.isBanquetRequired && (
+                <Grid size={3}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      // fontWeight: 600,
+                    }}
+                  >
+                    Banquet Charges
+                  </Typography>
+                </Grid>
+              )}
+              {hallBookingDetailsData?.isBanquetRequired && (
+                <Grid size={3}>
+                  <Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 550,
+                      }}
+                    >
+                      {hallBookingDetailsData?.totalBanquetPrice || "0"}
+                    </Typography>
+                  </Typography>
+                </Grid>
+              )}
+
+              <Grid size={3}>
+                <Typography
+                  sx={{
+                    fontSize: "15.5px",
+                    // color: "#707070",
+                    // fontWeight: 600,
+                  }}
+                >
+                  Paid
+                </Typography>
+              </Grid>
+              <Grid size={3}>
+                <Typography>
+                  <Typography
+                    component="span"
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      // fontWeight: 600,
+                      marginRight: "5px",
+                    }}
+                  >
+                    :
+                  </Typography>
+                  <Typography
+                    component="span"
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 550,
+                    }}
+                  >
+                    {hallBookingDetailsData?.paidAmount || "0"}
+                  </Typography>
+                </Typography>
+              </Grid>
+
+              <Grid size={3}>
+                <Typography
+                  sx={{
+                    fontSize: "15.5px",
+                    // color: "#707070",
+                    // fontWeight: 600,
+                  }}
+                >
+                  Remaining
+                </Typography>
+              </Grid>
+              <Grid size={3}>
+                <Typography>
+                  <Typography
+                    component="span"
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      // fontWeight: 600,
+                      marginRight: "5px",
+                    }}
+                  >
+                    :
+                  </Typography>
+                  <Typography
+                    component="span"
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 550,
+                    }}
+                  >
+                    {remainingAmountToPay > 0 ? remainingAmountToPay : "0"}
+                  </Typography>
+                </Typography>
+              </Grid>
+
+              {Boolean(remainingAmountToPay > 0) && (
+                <Grid size={12}>
+                  <Grid container size={12} spacing={1}>
+                    <Grid size={6}>
+                      <Box
+                        sx={{
+                          paddingTop: "1.5px",
+                          ".MuiTextField-root": {
+                            width: "100%",
+                            backgroundColor: "transparent",
+                            ".MuiInputBase-root": {
+                              color: "#B4B4B4",
+                              background: "rgba(255, 255, 255, 0.25)",
+                            },
+                          },
+                          ".MuiFormLabel-root": {
+                            color: (theme) => theme.palette.primary.main,
+                            fontWeight: 600,
+                            fontSize: 14,
+                          },
+                          ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before":
+                            {
+                              borderBottom: (theme) =>
+                                `1px solid ${theme.palette.primary.main}`,
+                            },
+                          ".css-iwadjf-MuiInputBase-root-MuiInput-root:before":
+                            {
+                              borderBottom: (theme) =>
+                                `1px solid ${theme.palette.primary.main}`,
+                            },
+                          "& .MuiOutlinedInput-root": {
+                            height: "35px",
+                            minHeight: "35px",
+                          },
+                          "& .MuiInputBase-input": {
+                            padding: "13px",
+                            height: "100%",
+                            boxSizing: "border-box",
+                            fontSize: "13px",
+                          },
+                        }}
+                      >
+                        <Autocomplete
+                          fullWidth
+                          options={
+                            allPaymentMethods?.data
+                              ?.filter((item) =>
+                                ["Cash", "Online"].includes(item)
+                              )
+                              ?.map((item) => ({
+                                key: item,
+                                name: item.replace(/_/g, " "),
+                              })) || []
+                          }
+                          disableClearable
+                          value={hallBookingFormData?.paymentMethod || null}
+                          onChange={(e, newVal) =>
+                            handleChangeHallBookingFormDataOnChange(
+                              "paymentMethod",
+                              newVal
+                            )
+                          }
+                          inputValue={
+                            hallBookingFormData?.paymentMethodInputValue || ""
+                          }
+                          onInputChange={(e, newVal) =>
+                            handleChangeHallBookingFormDataOnChange(
+                              "paymentMethodInputValue",
+                              newVal
+                            )
+                          }
+                          getOptionLabel={(option) => option?.name}
+                          clearOnEscape
+                          disablePortal
+                          popupIcon={<KeyboardArrowDownIcon color="primary" />}
+                          sx={{
+                            // width: 200,
+                            ".MuiInputBase-root": {
+                              color: "#fff",
+                            },
+                            "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover":
+                              {
+                                backgroundColor: "#E9E5F1",
+                                color: "#280071",
+                                fontWeight: 600,
+                              },
+                            "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                              {
+                                backgroundColor: "#E9E5F1",
+                                color: "#280071",
+                                fontWeight: 600,
+                              },
+                          }}
+                          componentsProps={{
+                            popper: {
+                              sx: {
+                                "& .MuiAutocomplete-listbox": {
+                                  maxHeight: "150px",
+                                  overflow: "auto",
+                                },
+                                "& .MuiAutocomplete-option": {
+                                  fontSize: "13px", // Specifically targeting individual options
+                                },
+                              },
+                            },
+                          }}
+                          size="small"
+                          clearIcon={<ClearIcon color="primary" />}
+                          PaperComponent={(props) => (
+                            <Paper
+                              sx={{
+                                background: "#fff",
+                                color: "#B4B4B4",
+                                // borderRadius: "10px",
+                              }}
+                              {...props}
+                            />
+                          )}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="Payment Method"
+                              variant="standard"
+                              // sx={{
+                              //   "& .MuiOutlinedInput-root": {
+                              //     borderRadius: 2,
+                              //   },
+                              // }}
+                            />
+                          )}
+                        />
+                      </Box>
+                    </Grid>
+                    <Grid size={6}>
+                      <TextField
+                        fullWidth
+                        disabled={!Boolean(hallBookingFormData?.paymentMethod)}
+                        id={`paidAmount`}
+                        label="Amount"
+                        name="paidAmount"
+                        autoComplete="paidAmount"
+                        variant="standard"
+                        inputProps={{
+                          maxLength: 20,
+                          style: {
+                            fontSize: "14px",
+                          },
+                        }}
+                        InputLabelProps={{
+                          style: {
+                            fontSize: "13px",
+                          },
+                        }}
+                        sx={{
+                          "& .MuiInputBase-root": {
+                            height: "23px",
+                          },
+                          "& .MuiTextField-root": {
+                            maxHeight: "30px",
+                            backgroundColor: "transparent",
+                          },
+                        }}
+                        value={hallBookingFormData?.paidAmount || ""}
+                        onChange={(e) =>
+                          handleChangeHallBookingFormDataOnChange(
+                            "paidAmount",
+                            e?.target?.value
+                          )
+                        }
+                      />
+                    </Grid>
+                  </Grid>
+                </Grid>
+              )}
+
+              {Boolean(remainingAmountToPay < 0) && (
+                <Typography>{`An amount of Rs. ${Math.abs(
+                  remainingAmountToPay
+                )} to be paid to the customer`}</Typography>
+              )}
+
+              <Grid size={{ xs: 12 }}>
+                <Box
+                  sx={{
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Button
+                    variant="contained"
+                    sx={{
+                      backgroundImage:
+                        "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
+                      color: "white",
+                      "&:hover": {
+                        backgroundImage:
+                          "linear-gradient(to right, #0acffe 10%, #495aff 90%)", // Optional hover adjustment
+                      },
+                    }}
+                    onClick={() =>
+                      handleChangeHallBookingStatusToCompleteOnClick(
+                        hallBookingDetailsData,
+                        remainingAmountToPay
+                      )
+                    }
+                  >
+                    Complete Event
+                  </Button>
+                </Box>
+              </Grid>
+            </Grid>
+          </Box>
+        </DialogContent>
+      </BootstrapDialog>
+    </React.Fragment>,
+    document.getElementById("portal")
+  );
+});
+
 const CustomRow = memo(function ({
   tableHeaders,
   rowSerialNumber,
   row,
   handleChangeHallBookingStatus,
+  handleOpenShowcaseHallBookingDialogForDetails,
 }) {
   const handleChangeHallBookingStatusOnClick = useCallback(
     (name, selectedHallBookingData) => {
       handleChangeHallBookingStatus(name, selectedHallBookingData);
     },
     [handleChangeHallBookingStatus]
+  );
+
+  const handleOpenShowcaseHallBookingDialogForDetailsOnClick = useCallback(
+    (rowValue) => {
+      handleOpenShowcaseHallBookingDialogForDetails(rowValue);
+    },
+    [handleOpenShowcaseHallBookingDialogForDetails]
   );
   return (
     <TableRow
@@ -704,7 +1194,7 @@ const CustomRow = memo(function ({
                       </Button>
                     </Tooltip>
 
-                    <Tooltip title={"Complete Event"} arrow>
+                    <Tooltip title={"Cancel Event"} arrow>
                       <Button
                         variant="outlined"
                         color="error"
@@ -729,8 +1219,7 @@ const CustomRow = memo(function ({
                         color="success"
                         sx={{ minWidth: "unset", width: "11px" }}
                         onClick={() =>
-                          handleChangeHallBookingStatusOnClick(
-                            "completeHallEvent",
+                          handleOpenShowcaseHallBookingDialogForDetailsOnClick(
                             row
                           )
                         }
@@ -761,6 +1250,7 @@ const CustomHallBookingTableContainer = memo(function ({
   handlePageChange,
   handleChangeRowsPerPage,
   handleChangeHallBookingStatus,
+  handleOpenShowcaseHallBookingDialogForDetails,
 }) {
   console.log("CustomHallBookingTableContainer tableData : ", tableData);
   return (
@@ -825,6 +1315,9 @@ const CustomHallBookingTableContainer = memo(function ({
                   key={row.id}
                   row={row}
                   handleChangeHallBookingStatus={handleChangeHallBookingStatus}
+                  handleOpenShowcaseHallBookingDialogForDetails={
+                    handleOpenShowcaseHallBookingDialogForDetails
+                  }
                 />
               ))
             ) : (
@@ -2030,10 +2523,14 @@ const CustomHallBookingDrawer = memo(function ({
                       <Autocomplete
                         fullWidth
                         options={
-                          allPaymentMethods?.data?.map((item) => ({
-                            key: item,
-                            name: item.replace(/_/g, " "),
-                          })) || []
+                          allPaymentMethods?.data
+                            ?.filter((item) =>
+                              ["Cash", "Online"].includes(item)
+                            )
+                            ?.map((item) => ({
+                              key: item,
+                              name: item.replace(/_/g, " "),
+                            })) || []
                         }
                         disableClearable
                         value={hallBookingFormData?.paymentMethod || null}
@@ -2115,7 +2612,8 @@ const CustomHallBookingDrawer = memo(function ({
                     </Box>
                   </Grid>
                   {hallBookingFormData?.paymentMethod &&
-                    !(hallBookingFormData?.paymentMethod?.key === "Cash") && (
+                    !(hallBookingFormData?.paymentMethod?.key === "Cash") &&
+                    !(hallBookingFormData?.paymentMethod?.key === "Online") && (
                       <Grid size={{ xs: 6, md: 4 }}>
                         <TextField
                           required
@@ -2387,6 +2885,16 @@ const HallBookingDashboard = () => {
     []
   );
 
+  const initialShowcaseHallBookingDialogData = useMemo(
+    () => ({
+      open: false,
+      title: "",
+      type: null,
+      hallBookingDetailsData: null,
+    }),
+    []
+  );
+
   const [hallBookingTableFilters, sethallBookingTableFilters] = useState(
     initialHallBookingTableFilters
   );
@@ -2429,7 +2937,10 @@ const HallBookingDashboard = () => {
     },
     {
       refetchOnMountOrArgChange: true,
-      skip: !JSON.parse(sessionStorage.getItem("data"))?.hotelId,
+      skip:
+        !JSON.parse(sessionStorage.getItem("data"))?.hotelId ||
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
+          "Front_Desk_Staff",
     }
   );
   console.log("getAllHallBookingsData : ", getAllHallBookingsData);
@@ -2437,7 +2948,14 @@ const HallBookingDashboard = () => {
   const {
     data: allHallStatusTypeData = { data: [] },
     isFetching: isAllHallStatusTypeDataFetching,
-  } = useGetAllHallStatusQuery();
+  } = useGetAllHallStatusQuery(
+    {},
+    {
+      skip:
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
+        "Front_Desk_Staff",
+    }
+  );
 
   console.log("allHallStatusTypeData : ", allHallStatusTypeData);
 
@@ -2448,7 +2966,10 @@ const HallBookingDashboard = () => {
     { hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId },
     {
       refetchOnMountOrArgChange: true,
-      skip: !JSON.parse(sessionStorage.getItem("data"))?.hotelId,
+      skip:
+        !JSON.parse(sessionStorage.getItem("data"))?.hotelId ||
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
+          "Front_Desk_Staff",
     }
   );
 
@@ -2466,7 +2987,10 @@ const HallBookingDashboard = () => {
     { hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId },
     {
       refetchOnMountOrArgChange: true,
-      skip: !JSON.parse(sessionStorage.getItem("data"))?.hotelId,
+      skip:
+        !JSON.parse(sessionStorage.getItem("data"))?.hotelId ||
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
+          "Front_Desk_Staff",
     }
   );
 
@@ -2501,7 +3025,10 @@ const HallBookingDashboard = () => {
     },
     {
       refetchOnMountOrArgChange: true,
-      skip: !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId),
+      skip:
+        !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId) ||
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
+          "Front_Desk_Staff",
     }
   );
 
@@ -2518,7 +3045,10 @@ const HallBookingDashboard = () => {
     },
     {
       refetchOnMountOrArgChange: true,
-      skip: !selectedHallChip?.id,
+      skip:
+        !selectedHallChip?.id ||
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
+          "Front_Desk_Staff",
     }
   );
 
@@ -2527,7 +3057,14 @@ const HallBookingDashboard = () => {
   const {
     data: allPaymentMethods = { data: [] },
     isFetching: isAllPaymentMethodsFetching,
-  } = useGetAllPaymentMethodsQuery();
+  } = useGetAllPaymentMethodsQuery(
+    {},
+    {
+      skip:
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
+        "Front_Desk_Staff",
+    }
+  );
   console.log("allPaymentMethods : ", allPaymentMethods);
 
   const { sortedArray, warnDates } = useMemo(
@@ -2569,6 +3106,43 @@ const HallBookingDashboard = () => {
     "selectedFilterInChartComponent : ",
     selectedFilterInChartComponent
   );
+
+  const [showcaseHallBookingDialogData, setShowcaseHallBookingDialogData] =
+    useState(initialShowcaseHallBookingDialogData);
+
+  const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
+
+  const [paymentDialogFinalPayload, setPaymentDialogFinalPayload] =
+    useState(null);
+
+  const [paymentDialogMutationType, setPaymentDialogMutationType] =
+    useState("");
+
+  const handleChangeSetPaymentDialogFinalPayload = useCallback(
+    ({ open = false, mutationType = "", payloadValue = null } = {}) => {
+      setOpenPaymentDialog(open || false);
+      setPaymentDialogFinalPayload(payloadValue || null);
+      setPaymentDialogMutationType(mutationType || "");
+    },
+    []
+  );
+
+  const handleOpenShowcaseHallBookingDialogForDetails = useCallback(
+    (hallBookingDetails) => {
+      setShowcaseHallBookingDialogData((prevData) => ({
+        ...prevData,
+        open: true,
+        title: "Complete Booking",
+        type: "completeHallBookings",
+        hallBookingDetailsData: hallBookingDetails || null,
+      }));
+    },
+    []
+  );
+
+  const handleCloseShowcaseHallBookingDialog = useCallback(() => {
+    setShowcaseHallBookingDialogData(initialShowcaseHallBookingDialogData);
+  }, [initialShowcaseHallBookingDialogData]);
 
   const handleChangeSelectedHallChip = useCallback((selectedHall) => {
     setSelectedHallChip((prevData) => {
@@ -2971,20 +3545,22 @@ const HallBookingDashboard = () => {
         severity: "warning",
       });
       return;
-    } else if (
-      hallBookingFormData?.paymentMethod?.key &&
-      hallBookingFormData?.paymentMethod?.key !== "Cash" &&
-      hallBookingFormData?.paymentMethod?.key.trim() !== "" &&
-      !hallBookingFormData?.transactionReferenceNo?.trim()
-    ) {
-      setSnack({
-        open: true,
-        message:
-          "Please provide a valid transaction reference for the selected payment method.",
-        severity: "warning",
-      });
-      return;
-    } else if (
+    }
+    //  else if (
+    //   hallBookingFormData?.paymentMethod?.key &&
+    //   hallBookingFormData?.paymentMethod?.key !== "Cash" &&
+    //   hallBookingFormData?.paymentMethod?.key.trim() !== "" &&
+    //   !hallBookingFormData?.transactionReferenceNo?.trim()
+    // ) {
+    //   setSnack({
+    //     open: true,
+    //     message:
+    //       "Please provide a valid transaction reference for the selected payment method.",
+    //     severity: "warning",
+    //   });
+    //   return;
+    // }
+    else if (
       parseFloat(hallBookingFormData?.paidAmount)?.toFixed(3) <
       hallBookingFormData?.advanceAmount
     ) {
@@ -3038,6 +3614,7 @@ const HallBookingDashboard = () => {
       paidAmount: hallBookingFormData?.paidAmount,
       paymentMethod: hallBookingFormData?.paymentMethod?.key,
       ...(hallBookingFormData?.paymentMethod?.key !== "Cash" &&
+        hallBookingFormData?.paymentMethod?.key !== "Online" &&
         hallBookingFormData?.transactionReferenceNo?.trim() && {
           transactionReferenceNo: hallBookingFormData?.transactionReferenceNo,
         }),
@@ -3058,70 +3635,81 @@ const HallBookingDashboard = () => {
 
     console.log("handleSubmitBookHallFromFrontdesk payload : ", payload);
 
-    bookHallFromFrontdesk(payload)
-      .unwrap()
-      .then((res) => {
-        setSnack({
-          open: true,
-          message: res?.message || "Hall Booking Success",
-          severity: "success",
-        });
-        handleOpenCustomHallBookingDrawer();
-      })
-      .catch((err) => {
-        setSnack({
-          open: true,
-          message: err?.data?.message || err?.data || "Hall Booking Failed",
-          severity: "error",
-        });
+    if (hallBookingFormData?.paymentMethod?.key === "Online") {
+      handleChangeSetPaymentDialogFinalPayload({
+        open: true,
+        mutationType: "saveHallBooking",
+        payloadValue: payload,
       });
+    } else {
+      bookHallFromFrontdesk(payload)
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res?.message || "Hall Booking Success",
+            severity: "success",
+          });
+          handleOpenCustomHallBookingDrawer();
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err?.data?.message || err?.data || "Hall Booking Failed",
+            severity: "error",
+          });
+        });
+    }
   }, [
     hallBookingFormData,
     selectedHallChip,
     bookHallFromFrontdesk,
     handleOpenCustomHallBookingDrawer,
     sortedArray,
+    handleChangeSetPaymentDialogFinalPayload,
   ]);
 
   const handleChangeHallBookingStatus = useCallback(
     (name, hallBookingData) => {
-      if (name === "completeHallEvent") {
-        Swal.fire({
-          title: "Complete Event!",
-          text: "Are you Sure To Complete The Event?",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#3085d6",
-          cancelButtonColor: "#d33",
-          confirmButtonText: "Yes",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            const payload = {
-              id: hallBookingData?.id || null,
-              hallStatus: "COMPLETED",
-            };
-            changeHallBookingStatus(payload)
-              .unwrap()
-              .then((res) => {
-                setSnack({
-                  open: true,
-                  message: res?.message || "Hall Event Completion Success",
-                  severity: "success",
-                });
-              })
-              .catch((err) => {
-                setSnack({
-                  open: true,
-                  message:
-                    err?.data?.message ||
-                    err?.data ||
-                    "Hall Event Completion Failed",
-                  severity: "error",
-                });
-              });
-          }
-        });
-      } else if (name === "startlHallEvent") {
+      // if (name === "completeHallEvent") {
+      //   Swal.fire({
+      //     title: "Complete Event!",
+      //     text: "Are you Sure To Complete The Event?",
+      //     icon: "warning",
+      //     showCancelButton: true,
+      //     confirmButtonColor: "#3085d6",
+      //     cancelButtonColor: "#d33",
+      //     confirmButtonText: "Yes",
+      //   }).then((result) => {
+      //     if (result.isConfirmed) {
+      //       const payload = {
+      //         id: hallBookingData?.id || null,
+      //         hallStatus: "COMPLETED",
+      //       };
+      //       changeHallBookingStatus(payload)
+      //         .unwrap()
+      //         .then((res) => {
+      //           setSnack({
+      //             open: true,
+      //             message: res?.message || "Hall Event Completion Success",
+      //             severity: "success",
+      //           });
+      //         })
+      //         .catch((err) => {
+      //           setSnack({
+      //             open: true,
+      //             message:
+      //               err?.data?.message ||
+      //               err?.data ||
+      //               "Hall Event Completion Failed",
+      //             severity: "error",
+      //           });
+      //         });
+      //     }
+      //   });
+      // }
+
+      if (name === "startlHallEvent") {
         Swal.fire({
           title: "Start Event!",
           text: "Are You Sure To Start The Event?",
@@ -3198,6 +3786,102 @@ const HallBookingDashboard = () => {
       }
     },
     [changeHallBookingStatus]
+  );
+
+  // const handleOpenShowcaseSialogForHallBooking = useCallback((hallRowData)=>{}, [] )
+
+  const handleChangeHallBookingStatusToComplete = useCallback(
+    (hallBookingData, remainingAmountToPayout) => {
+      if (
+        Boolean(remainingAmountToPayout > 0) &&
+        !hallBookingFormData?.paymentMethod?.key
+      ) {
+        setSnack({
+          open: true,
+          message: "Please Select A Payment Method",
+          severity: "warning",
+        });
+        return;
+      } else if (
+        Boolean(remainingAmountToPayout > 0) &&
+        Boolean(
+          Boolean(hallBookingFormData?.paymentMethod?.key) !==
+            Boolean(parseFloat(hallBookingFormData?.paidAmount))
+        )
+      ) {
+        setSnack({
+          open: true,
+          message:
+            "Please provide both payment method and advance amount to proceed.",
+          severity: "warning",
+        });
+        return;
+      } else if (
+        Boolean(remainingAmountToPayout > 0) &&
+        Boolean(
+          parseFloat(hallBookingFormData?.paidAmount) !==
+            parseFloat(remainingAmountToPayout)
+        )
+      ) {
+        setSnack({
+          open: true,
+          message: "please provide remaining amount.",
+          severity: "warning",
+        });
+        return;
+      }
+      const payload = {
+        id: hallBookingData?.id || null,
+        hallStatus: "COMPLETED",
+        ...(remainingAmountToPayout > 0 && {
+          paymentMethod: hallBookingFormData?.paymentMethod?.key,
+          paidAmount: hallBookingFormData?.paidAmount,
+        }),
+      };
+
+      console.log(
+        "handleChangeHallBookingStatusToComplete payload : ",
+        payload
+      );
+
+      if (hallBookingFormData?.paymentMethod?.key === "Online") {
+        handleChangeSetPaymentDialogFinalPayload({
+          open: true,
+          mutationType: "completeHallBooking",
+          payloadValue: payload,
+        });
+      } else {
+        changeHallBookingStatus(payload)
+          .unwrap()
+          .then((res) => {
+            setSnack({
+              open: true,
+              message: res?.message || "Hall Event Completion Success",
+              severity: "success",
+            });
+
+            handleCloseShowcaseHallBookingDialog();
+            handleChangeHallBookingFormData();
+          })
+          .catch((err) => {
+            setSnack({
+              open: true,
+              message:
+                err?.data?.message ||
+                err?.data ||
+                "Hall Event Completion Failed",
+              severity: "error",
+            });
+          });
+      }
+    },
+    [
+      changeHallBookingStatus,
+      hallBookingFormData,
+      handleChangeSetPaymentDialogFinalPayload,
+      handleChangeHallBookingFormData,
+      handleCloseShowcaseHallBookingDialog,
+    ]
   );
 
   const handleChangeSelectedFilterInChartComponent = useCallback(
@@ -3280,6 +3964,43 @@ const HallBookingDashboard = () => {
       });
     },
     [initialHallBookingTableFilters]
+  );
+
+  const HandleDynamicFinalApiMutationForPaymentDialog = useCallback(
+    (submitType = "") => {
+      let mutationFunction = () => {};
+      let afterMutationSuccessFunction = () => {};
+
+      if (submitType === "saveHallBooking") {
+        mutationFunction = bookHallFromFrontdesk;
+
+        afterMutationSuccessFunction = () => {
+          handleOpenCustomHallBookingDrawer();
+          handleChangeSetPaymentDialogFinalPayload(); // MANDATORY FUNCTION
+        };
+      } else if (submitType === "completeHallBooking") {
+        mutationFunction = changeHallBookingStatus;
+
+        afterMutationSuccessFunction = () => {
+          handleCloseShowcaseHallBookingDialog();
+          handleChangeHallBookingFormData();
+          handleChangeSetPaymentDialogFinalPayload(); // MANDATORY FUNCTION
+        };
+      }
+
+      return {
+        mutationFunction,
+        afterMutationSuccessFunction,
+      };
+    },
+    [
+      handleChangeSetPaymentDialogFinalPayload,
+      handleOpenCustomHallBookingDrawer,
+      bookHallFromFrontdesk,
+      handleChangeHallBookingFormData,
+      changeHallBookingStatus,
+      handleCloseShowcaseHallBookingDialog,
+    ]
   );
 
   return (
@@ -3386,6 +4107,9 @@ const HallBookingDashboard = () => {
                   handleChangeHallBookingTableRowsPerPage
                 }
                 handleChangeHallBookingStatus={handleChangeHallBookingStatus}
+                handleOpenShowcaseHallBookingDialogForDetails={
+                  handleOpenShowcaseHallBookingDialogForDetails
+                }
               />
             </Box>
           </Grid>
@@ -3409,6 +4133,23 @@ const HallBookingDashboard = () => {
         allPaymentMethods={allPaymentMethods}
         handleSubmitBookHallFromFrontdesk={handleSubmitBookHallFromFrontdesk}
       />
+      <ShowcaseHallBookingDialog
+        hallBookingFormData={hallBookingFormData}
+        handleChangeHallBookingFormData={handleChangeHallBookingFormData}
+        allPaymentMethods={allPaymentMethods}
+        openShowcaseHallBookingDialog={showcaseHallBookingDialogData?.open}
+        handleCloseShowcaseHallBookingDialog={
+          handleCloseShowcaseHallBookingDialog
+        }
+        title={showcaseHallBookingDialogData?.title}
+        type={showcaseHallBookingDialogData?.type}
+        hallBookingDetailsData={
+          showcaseHallBookingDialogData?.hallBookingDetailsData
+        }
+        handleChangeHallBookingStatusToComplete={
+          handleChangeHallBookingStatusToComplete
+        }
+      />
       <LoadingComponent
         open={
           isGetAllHallBookingsDataLoading ||
@@ -3421,6 +4162,22 @@ const HallBookingDashboard = () => {
           isAllPaymentMethodsFetching ||
           changeHallBookingStatusRes?.isLoading ||
           false
+        }
+      />
+      <PaymentDialog
+        openPaymentDialog={openPaymentDialog}
+        handlePaymentDialogClose={() => setOpenPaymentDialog(false)}
+        reservationPayload={paymentDialogFinalPayload}
+        setSnack={setSnack}
+        reserveHotelRoom={
+          HandleDynamicFinalApiMutationForPaymentDialog(
+            paymentDialogMutationType
+          )?.mutationFunction
+        }
+        handleAfterSuccessFunction={
+          HandleDynamicFinalApiMutationForPaymentDialog(
+            paymentDialogMutationType
+          )?.afterMutationSuccessFunction
         }
       />
       <SnackAlert snack={snack} setSnack={setSnack} />

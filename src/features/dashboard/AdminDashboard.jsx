@@ -34,7 +34,10 @@ const AdminDashboard = () => {
     },
     isLoading,
   } = useGetMasterDataListQuery(
-    JSON.parse(sessionStorage.getItem("data")).companyId
+    JSON.parse(sessionStorage.getItem("data")).companyId,
+    {
+      skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin",
+    }
   );
 
   const handleClick = React.useCallback(

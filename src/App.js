@@ -71,15 +71,15 @@ function App() {
             <Route path="/HallList" element={<HallList />} />
             <Route path="/BanquetList" element={<BanquetList />} />
             <Route path="/PromocodeList" element={<PromocodeList />} />
+            <Route path="/guest-dashboard" element={<GuestDashboard />} />
+            <Route path="/resturant" element={<Restaurant />} />
+            <Route path="/restaurant-admin" element={<RestaurantAdmin />} />
             <Route element={<Layout />}>
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/guest-dashboard" element={<GuestDashboard />} />
               <Route
                 path="/housekeeper-dashboard"
                 element={<HouseKeeperDashboard />}
               />
-              <Route path="/resturant" element={<Restaurant />} />
-              <Route path="/restaurant-admin" element={<RestaurantAdmin />} />
               <Route
                 path="/frontdeskBookingHistory"
                 element={<FrontdeskBookingHistory />}

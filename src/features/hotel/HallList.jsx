@@ -42,7 +42,9 @@ const HallList = () => {
     isLoading,
     isFetching,
   } = useGetAllHallsQuery(sessionStorage.getItem("hotelIdForHall"), {
-    skip: !Boolean(sessionStorage.getItem("hotelIdForHall")),
+    skip:
+      !Boolean(sessionStorage.getItem("hotelIdForHall")) ||
+      JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin",
   });
   console.log("hallListData", hallListData);
   const handleResetForm = React.useCallback(() => {
