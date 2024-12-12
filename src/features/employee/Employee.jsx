@@ -392,7 +392,7 @@ const Employee = () => {
           </Button>
         </Box>
       </Box>
-      <EmployeeListTable />
+      <EmployeeListTable roleList={roleList.data} hotelList={hotelList.data} />
       <LoadingComponent open={saveUserRes.isLoading} />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </Container>

@@ -16,9 +16,9 @@ import {
   TableBody,
   TableCell,
   IconButton,
-  FormGroup,
-  FormControlLabel,
-  Checkbox,
+  // FormGroup,
+  // FormControlLabel,
+  // Checkbox,
   InputAdornment,
 } from "@mui/material";
 import AttachmentIcon from "@mui/icons-material/Attachment";
@@ -323,7 +323,7 @@ const RoomType = () => {
               variant="standard"
             />
           </Grid>
-          <Grid size={3}>
+          {/* <Grid size={3}>
             <FormGroup>
               <FormControlLabel
                 control={
@@ -336,7 +336,7 @@ const RoomType = () => {
                 label="Is Advance"
               />
             </FormGroup>
-          </Grid>
+          </Grid> */}
           <Grid size={3}>
             <TextField
               label={
@@ -746,7 +746,7 @@ function ExtraItemFormComponent({
               variant="standard"
             />
           </Grid>
-          <Grid size={3}>
+          {/* <Grid size={3}>
             <FormGroup>
               <FormControlLabel
                 control={
@@ -759,7 +759,7 @@ function ExtraItemFormComponent({
                 label="Is Reusable"
               />
             </FormGroup>
-          </Grid>
+          </Grid> */}
           <Grid size={3}>
             <Button
               color="secondary"

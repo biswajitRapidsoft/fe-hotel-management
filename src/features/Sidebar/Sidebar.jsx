@@ -11,9 +11,9 @@ import ListItemText from "@mui/material/ListItemText";
 import { Divider, Typography } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import GroupsIcon from "@mui/icons-material/Groups";
+// import GroupsIcon from "@mui/icons-material/Groups";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
-import AltRouteIcon from "@mui/icons-material/AltRoute";
+// import AltRouteIcon from "@mui/icons-material/AltRoute";
 import KingBedIcon from "@mui/icons-material/KingBed";
 import RoofingIcon from "@mui/icons-material/Roofing";
 import RoomServiceIcon from "@mui/icons-material/RoomService";
@@ -76,13 +76,13 @@ const sideBarMenuOptions = [
     menuTitle: "Halls",
     visibility: [FRONTDESK],
   },
-  {
-    pathname: "/CustomerList",
-    isLibraryIcon: true,
-    menuIcon: <GroupsIcon sx={{ color: "#fff" }} />,
-    menuIconAlt: "Group Logo",
-    menuTitle: "Restaurant",
-  },
+  // {
+  //   pathname: "/CustomerList",
+  //   isLibraryIcon: true,
+  //   menuIcon: <GroupsIcon sx={{ color: "#fff" }} />,
+  //   menuIconAlt: "Group Logo",
+  //   menuTitle: "Restaurant",
+  // },
   {
     pathname: "/registerlist",
     isLibraryIcon: true,
@@ -90,13 +90,13 @@ const sideBarMenuOptions = [
     menuIconAlt: "Dashboard Logo",
     menuTitle: "Parking area",
   },
-  {
-    pathname: "/Reservation",
-    isLibraryIcon: true,
-    menuIcon: <AltRouteIcon sx={{ color: "#fff" }} />,
-    menuIconAlt: "Activity Logo",
-    menuTitle: "Reservation",
-  },
+  // {
+  //   pathname: "/Reservation",
+  //   isLibraryIcon: true,
+  //   menuIcon: <AltRouteIcon sx={{ color: "#fff" }} />,
+  //   menuIconAlt: "Activity Logo",
+  //   menuTitle: "Reservation",
+  // },
   {
     pathname: "/HouseKeepingHistory",
     isLibraryIcon: true,

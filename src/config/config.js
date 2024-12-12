@@ -84,6 +84,7 @@ const config = Object.freeze({
     addRating: "public/rate/room/booking",
     makePayment: "public/make/payment",
     makePartialPayment: "public/make/payment/for/room/booking",
+    getParkingDataForGuest: "public/get/vehicle/park/data",
 
     // HOUSE-KEEPER DASHBOARD API ENDPOINTS
     getServiceableRoomData: "api/get/service/requested/rooms",
