@@ -57,6 +57,14 @@ const BookingHistoryChartComponent = ({
             //   config.w.config.labels[config.dataPointIndex]
             // );
           },
+          legendClick: (chartContext, seriesIndex, config) => {
+            // This will trigger when a legend item is clicked
+            if (isActionable) {
+              pieSelectionFunctionOnClick(
+                sanitizedLabels[seriesIndex]?.key || null
+              );
+            }
+          },
         },
       },
 

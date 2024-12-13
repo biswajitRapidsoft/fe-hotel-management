@@ -48,7 +48,6 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ClearIcon from "@mui/icons-material/Clear";
 import {
   useBookingByFrontDeskStaffMutation,
-  useCancelHotelRoomMutation,
   useFinalRoomCheckOutMutation,
   useGetAllGovtIdsQuery,
   useGetAllPaymentMethodsQuery,
@@ -74,6 +73,7 @@ import CleaningServicesIcon from "@mui/icons-material/CleaningServices";
 import { useNavigate } from "react-router-dom";
 import InfoIcon from "@mui/icons-material/Info";
 import { PaymentDialog } from "./GuestDashboard";
+import { useCancelRoomBookingFromBookingHistoryMutation } from "../../services/frontdeskBookingHistory";
 
 export const StyledCalendarIcon = styled(CalendarMonthIcon)({
   color: "#9380B8",
@@ -6739,7 +6739,8 @@ const Dashboard = () => {
   console.log("roomFilters : ", roomFilters);
   const [saveCustomerCheckIn, saveCustomerCheckInRes] =
     useSaveCustomerCheckInMutation();
-  const [cancelReservation, cancelReservtionRes] = useCancelHotelRoomMutation();
+  const [cancelReservation, cancelReservtionRes] =
+    useCancelRoomBookingFromBookingHistoryMutation();
   const [requestRoomCheckout, requestRoomCheckoutRes] =
     useRequestRoomCheckoutMutation();
   const [finalRoomCheckOut, finalRoomCheckOutRes] =
