@@ -35,7 +35,11 @@ import LoadingComponent from "../../components/LoadingComponent";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ClearIcon from "@mui/icons-material/Clear";
-import { CUSTOMER, ADMIN } from "../../helper/constants";
+import {
+  CUSTOMER,
+  //  ADMIN,
+  FRONTDESK,
+} from "../../helper/constants";
 
 const LaundryHistory = () => {
   const LaundryHistoryTableHeaders = React.useMemo(() => {
@@ -51,7 +55,7 @@ const LaundryHistory = () => {
       { label: "Laundry Status", key: "laundryStatus" },
       ...(roleType === "Customer"
         ? [{ label: "Rating", key: "rating" }]
-        : roleType === "Admin"
+        : roleType === "Front_Desk_Staff"
         ? [
             { label: "Rating", key: "rating" },
             { label: "Rating Message", key: "ratingMessage" },
@@ -280,7 +284,7 @@ function calculateSerialNumber(index, pageNumber, rowsPerPage) {
 
 const CustomRow = memo(function ({ tableHeaders, rowSerialNumber, row }) {
   const roleType = JSON.parse(sessionStorage.getItem("data"))?.roleType;
-  const isAdmin = roleType === ADMIN;
+  const isAdmin = roleType === FRONTDESK;
 
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [statusDialogOpen, setStatusDialogOpen] = React.useState(false);
@@ -394,7 +398,7 @@ const CustomRow = memo(function ({ tableHeaders, rowSerialNumber, row }) {
                     JSON.parse(sessionStorage.getItem("data"))?.roleType ===
                       CUSTOMER ||
                       JSON.parse(sessionStorage.getItem("data"))?.roleType ===
-                        ADMIN
+                        FRONTDESK
                   ) &&
                   Boolean(row?.laundryStatus === "Completed") ? (
                   <Box>
@@ -403,7 +407,7 @@ const CustomRow = memo(function ({ tableHeaders, rowSerialNumber, row }) {
                     ) : (
                       <Box>
                         {JSON.parse(sessionStorage.getItem("data"))
-                          ?.roleType === ADMIN ? (
+                          ?.roleType === FRONTDESK ? (
                           "-"
                         ) : (
                           <Button
