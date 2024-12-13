@@ -40,6 +40,8 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ClearIcon from "@mui/icons-material/Clear";
 import { saveAs } from "file-saver";
 
+// import { data } from "./data";
+
 const HouseKeepingHistory = () => {
   const HouseKeepingHistoryTableHeaders = React.useMemo(() => {
     return [
@@ -70,11 +72,16 @@ const HouseKeepingHistory = () => {
   console.log("HouseKeepingHistoryTableData", HouseKeepingHistoryTableData);
   const [HouseKeepingHistoryTablePageNo, setHouseKeepingHistoryTablePageNo] =
     React.useState(0);
+
   const [
     HouseKeepingHistoryTableRowsPerPage,
     setHouseKeepingHistoryTableRowsPerPage,
   ] = React.useState(10);
 
+  console.log(
+    "HouseKeepingHistoryTableRowsPerPage",
+    HouseKeepingHistoryTableRowsPerPage
+  );
   const initialHouseKeepingHistoryTableFilters = React.useMemo(
     () => ({
       HouseKeepingStatus: null,
@@ -89,18 +96,33 @@ const HouseKeepingHistory = () => {
     HouseKeepingHistoryTableFilters,
     //  setHouseKeepingHistoryTableFilters
   ] = React.useState(initialHouseKeepingHistoryTableFilters);
-
+  console.log(
+    "HouseKeepingHistoryTableFilters",
+    HouseKeepingHistoryTableFilters
+  );
   const {
     data: houseKeepingHistoryData = {
-      paginationData: {},
+      paginationData: {
+        numberOfElements: 0,
+        totalElements: 0,
+        totalPages: 0,
+        data: [],
+      },
     },
     isLoading: isHouseKeepingHistoryLoading,
     isSuccess: isHouseKeepingHistorySuccess,
-  } = useGetAllRoomServiceHistoryQuery({
-    hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId,
-    pageNo: HouseKeepingHistoryTableFilters?.pageNo,
-    pageSize: HouseKeepingHistoryTableFilters?.pageSize,
-  });
+  } = useGetAllRoomServiceHistoryQuery(
+    {
+      hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId,
+      pageNo: HouseKeepingHistoryTablePageNo,
+      // pageNo: HouseKeepingHistoryTableFilters?.pageNo,
+      // pageSize: HouseKeepingHistoryTableFilters?.pageSize,
+      pageSize: HouseKeepingHistoryTableRowsPerPage,
+    },
+    {
+      refetchOnMountOrArgChange: true,
+    }
+  );
 
   // House-Keeping History Export api
   const [exportHouseKeepingData, exportHouseKeepingDataRes] =
@@ -214,6 +236,7 @@ const HouseKeepingHistory = () => {
               <CustomHouseKeepingHistoryTableContainer
                 tableHeaders={HouseKeepingHistoryTableHeaders}
                 tableData={houseKeepingHistoryData?.paginationData}
+                // tableData={{ data: data }}
                 pageNo={HouseKeepingHistoryTablePageNo}
                 pageSize={HouseKeepingHistoryTableRowsPerPage}
                 handlePageChange={handleChangeHouseKeepingHistoryTablePageNo}
@@ -379,7 +402,7 @@ const CustomHouseKeepingHistoryTableContainer = memo(
     handlePageChange,
     handleChangeRowsPerPage,
   }) => {
-    console.log("tableHeaders", tableHeaders);
+    console.log("tableData", tableData);
     return (
       <>
         <TableContainer
