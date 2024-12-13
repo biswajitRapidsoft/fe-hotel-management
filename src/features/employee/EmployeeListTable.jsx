@@ -18,6 +18,7 @@ import {
 
 import { useGetAllUsersByCompanyQuery } from "../../services/users";
 import LoadingComponent from "../../components/LoadingComponent";
+import { ADMIN } from "../../helper/constants";
 
 const EmployeeListTable = ({ roleList, hotelList }) => {
   const [filterData, setFilterData] = React.useState({
@@ -34,7 +35,7 @@ const EmployeeListTable = ({ roleList, hotelList }) => {
     isLoading,
   } = useGetAllUsersByCompanyQuery(
     JSON.parse(sessionStorage.getItem("data")).companyId,
-    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin" }
+    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN }
   );
 
   const handleChange = React.useCallback((name, value) => {

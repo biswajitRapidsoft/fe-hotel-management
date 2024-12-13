@@ -23,6 +23,7 @@ import {
   useAddBanquetMutation,
   useGetAllBanquetQuery,
 } from "../../services/hotel";
+import { ADMIN } from "../../helper/constants";
 
 const BanquetList = () => {
   const [formData, setFormData] = React.useState({
@@ -46,7 +47,7 @@ const BanquetList = () => {
   } = useGetAllBanquetQuery(sessionStorage.getItem("hotelIdForBanquet"), {
     skip:
       !Boolean(sessionStorage.getItem("hotelIdForBanquet")) ||
-      JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin",
+      JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN,
   });
 
   const handleResetForm = React.useCallback(() => {

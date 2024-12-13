@@ -30,6 +30,7 @@ import {
   useCreatePromoCodeMutation,
   useGetAllPromocodeTypesQuery,
 } from "../../services/hotel";
+import { ADMIN } from "../../helper/constants";
 
 const PromcodeList = () => {
   const [formData, setFormData] = React.useState({
@@ -59,7 +60,7 @@ const PromcodeList = () => {
   } = useGetAllPromoCodeQuery(sessionStorage.getItem("hotelIdForPromoCode"), {
     skip:
       !Boolean(sessionStorage.getItem("hotelIdForPromoCode")) ||
-      JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin",
+      JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN,
   });
 
   const {

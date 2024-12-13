@@ -23,6 +23,7 @@ import { useGetAllRoomTypesByCompanyQuery } from "../../services/roomType";
 import LoadingComponent from "../../components/LoadingComponent";
 import { BootstrapDialog } from "../header/Header";
 import CloseIcon from "@mui/icons-material/Close";
+import { ADMIN } from "../../helper/constants";
 
 const CustomChips = ({ itemList }) => {
   const [showMore, setShowMore] = React.useState(false);
@@ -78,7 +79,7 @@ const RoomTypeTable = () => {
     isLoading,
   } = useGetAllRoomTypesByCompanyQuery(
     JSON.parse(sessionStorage.getItem("data")).companyId,
-    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin" }
+    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN }
   );
 
   const [viewImageDialog, setViewImageDialog] = React.useState(null);

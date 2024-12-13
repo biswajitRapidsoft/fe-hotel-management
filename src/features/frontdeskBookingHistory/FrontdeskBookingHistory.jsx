@@ -16,6 +16,7 @@ import {
   Rating,
   TablePagination,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
@@ -60,6 +61,7 @@ import { IoMdInformationCircleOutline } from "react-icons/io";
 import { BootstrapDialog } from "../header/Header";
 import ReactDOM from "react-dom";
 import { PaymentDialog } from "../dashboard/GuestDashboard";
+import { FRONTDESK } from "../../helper/constants";
 
 dayjs.extend(customParseFormat);
 dayjs.extend(isSameOrBefore);
@@ -74,7 +76,8 @@ const filterBookingRooms = (
   //   bookingRoomsTableData
   // );
   if (!bookingConfirmationFormData?.from || !bookingConfirmationFormData?.to) {
-    return bookingRoomsTableData;
+    // return bookingRoomsTableData;
+    return [];
   }
 
   const startDate = dayjs(bookingConfirmationFormData.from).startOf("day");
@@ -120,13 +123,13 @@ const filterBookingRooms = (
     console.log("filterBookingRooms bookingDates; ", bookingDates);
 
     const isStartDateBeforeOrEqualAnyEndDate = bookingDates.some((date) =>
-      startDate.isSameOrBefore(date.endDate)
+      startDate.isBefore(date.endDate)
     );
 
     const isStartDateAfterAllEndDates = bookingDates.every((date) =>
-      startDate.isSameOrAfter(date.endDate)
+      startDate.isAfter(date.endDate)
     );
-    // const isStartDateAfterAllEndDates = startDate.isSameOrAfter(
+    // const isStartDateAfterAllEndDates = startDate.isAfter(
     //   bookingDates[bookingDates.length - 1].endDate
     // );
 
@@ -142,7 +145,7 @@ const filterBookingRooms = (
 
     if (isStartDateBeforeOrEqualAnyEndDate) {
       const closestEndDateBooking = bookingDates.find((date) =>
-        startDate.isSameOrBefore(date.endDate)
+        startDate.isBefore(date.endDate)
       );
 
       // console.log(
@@ -161,15 +164,12 @@ const filterBookingRooms = (
         //   "filterBookingRooms nextBookingStartDate ; ",
         //   nextBookingStartDate
         // );
-        if (
-          nextBookingStartDate &&
-          nextBookingStartDate.isSameOrAfter(endDate)
-        ) {
+        if (nextBookingStartDate && nextBookingStartDate.isAfter(endDate)) {
           return true;
         }
 
         const compatibleStartDate = bookingDates.find((date) =>
-          endDate.isSameOrBefore(date.startDate)
+          endDate.isBefore(date.startDate)
         );
 
         // console.log(
@@ -1209,63 +1209,69 @@ const CustomRow = memo(function ({
                   justifyContent: "flex-start",
                 }}
               >
-                <Button
-                  variant="outlined"
-                  sx={{
-                    minWidth: "unset",
-                    width: "auto",
-                    paddingY: "4.8px",
-                    paddingX: "8px",
-                    color: "#0cb2e7",
-                    borderColor: "#0cb2e7",
-                    "&:hover": {
-                      borderColor: "#0a8db7",
-                      backgroundColor: "#ddf7ff",
-                    },
-                  }}
-                  onClick={() =>
-                    handleOpenShowcaseBookingDialogForDetailsOnClick(row)
-                  }
-                >
-                  <IoMdInformationCircleOutline
-                    style={{ fontSize: "14px", fontWeight: 600 }}
-                  />
-                </Button>
+                <Tooltip title={"View Details"} arrow>
+                  <Button
+                    variant="outlined"
+                    sx={{
+                      minWidth: "unset",
+                      width: "auto",
+                      paddingY: "4.8px",
+                      paddingX: "8px",
+                      color: "#0cb2e7",
+                      borderColor: "#0cb2e7",
+                      "&:hover": {
+                        borderColor: "#0a8db7",
+                        backgroundColor: "#ddf7ff",
+                      },
+                    }}
+                    onClick={() =>
+                      handleOpenShowcaseBookingDialogForDetailsOnClick(row)
+                    }
+                  >
+                    <IoMdInformationCircleOutline
+                      style={{ fontSize: "14px", fontWeight: 600 }}
+                    />
+                  </Button>
+                </Tooltip>
                 {row?.bookingStatus === "Pending_Confirmation" && (
                   <>
-                    <Button
-                      variant="outlined"
-                      // color="success"
-                      sx={{ minWidth: "unset", width: "11px" }}
-                      // onClick={() =>
-                      //   handleChangeBookingConfirmationOnConfirm(
-                      //     "confirmBooking",
-                      //     row
-                      //   )
-                      // }
+                    <Tooltip title={"Check Availability"} arrow>
+                      <Button
+                        variant="outlined"
+                        // color="success"
+                        sx={{ minWidth: "unset", width: "11px" }}
+                        // onClick={() =>
+                        //   handleChangeBookingConfirmationOnConfirm(
+                        //     "confirmBooking",
+                        //     row
+                        //   )
+                        // }
 
-                      onClick={() =>
-                        handleChangeSelectedBookingHistoryOnClick(row)
-                      }
-                    >
-                      <EventAvailableIcon
-                        sx={{ fontSize: "14px", fontWeight: 600 }}
-                      />
-                    </Button>
+                        onClick={() =>
+                          handleChangeSelectedBookingHistoryOnClick(row)
+                        }
+                      >
+                        <EventAvailableIcon
+                          sx={{ fontSize: "14px", fontWeight: 600 }}
+                        />
+                      </Button>
+                    </Tooltip>
 
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      sx={{ minWidth: "unset", width: "11px" }}
-                      onClick={() =>
-                        handleChangeBookingConfirmationOnConfirm(
-                          "cancelBooking",
-                          row
-                        )
-                      }
-                    >
-                      <CloseIcon sx={{ fontSize: "14px", fontWeight: 600 }} />
-                    </Button>
+                    <Tooltip title={"Cancel Booking"} arrow>
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        sx={{ minWidth: "unset", width: "11px" }}
+                        onClick={() =>
+                          handleChangeBookingConfirmationOnConfirm(
+                            "cancelBooking",
+                            row
+                          )
+                        }
+                      >
+                        <CloseIcon sx={{ fontSize: "14px", fontWeight: 600 }} />
+                      </Button>
+                    </Tooltip>
                   </>
                 )}
                 {row?.bookingStatus === "Booking_Cancellation_Requested" && (
@@ -2479,9 +2485,7 @@ const FrontdeskBookingHistory = () => {
   } = useGetAllBookingStatusTypeQuery(
     {},
     {
-      skip:
-        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
-        "Front_Desk_Staff",
+      skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== FRONTDESK,
     }
   );
 
@@ -2519,8 +2523,7 @@ const FrontdeskBookingHistory = () => {
       refetchOnMountOrArgChange: true,
       skip:
         !JSON.parse(sessionStorage.getItem("data"))?.hotelId ||
-        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
-          "Front_Desk_Staff",
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !== FRONTDESK,
     }
   );
 
@@ -2542,8 +2545,7 @@ const FrontdeskBookingHistory = () => {
       refetchOnMountOrArgChange: true,
       skip:
         !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId) ||
-        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
-          "Front_Desk_Staff",
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !== FRONTDESK,
     }
   );
   console.log(
@@ -2571,8 +2573,7 @@ const FrontdeskBookingHistory = () => {
       refetchOnMountOrArgChange: true,
       skip:
         !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId) ||
-        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
-          "Front_Desk_Staff",
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !== FRONTDESK,
     }
   );
 
@@ -2591,8 +2592,7 @@ const FrontdeskBookingHistory = () => {
       skip:
         !JSON.parse(sessionStorage.getItem("data"))?.hotelId ||
         !bookingConfirmationFormData?.roomType?.id ||
-        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
-          "Front_Desk_Staff",
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !== FRONTDESK,
     }
   );
 

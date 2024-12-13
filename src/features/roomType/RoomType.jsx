@@ -37,6 +37,7 @@ import { useAddRoomTypeMutation } from "../../services/roomType";
 import LoadingComponent from "../../components/LoadingComponent";
 
 import SnackAlert from "../../components/Alert";
+import { ADMIN } from "../../helper/constants";
 
 const RoomType = () => {
   const [uploadImage, uploadImageRes] = useUploadFileMutation();
@@ -64,7 +65,7 @@ const RoomType = () => {
     isLoading,
   } = useGetAllExtraItemsQuery(
     JSON.parse(sessionStorage.getItem("data")).companyId,
-    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin" }
+    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN }
   );
   const handleUploadImage = React.useCallback(
     (imgSource) => {

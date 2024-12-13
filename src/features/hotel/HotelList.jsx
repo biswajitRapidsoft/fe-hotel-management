@@ -36,6 +36,7 @@ import { v4 as uuidv4 } from "uuid";
 import SnackAlert from "../../components/Alert";
 import LoadingComponent from "../../components/LoadingComponent";
 import HotelListTable from "./HotelListTable";
+import { ADMIN } from "../../helper/constants";
 
 const HotelList = () => {
   const [hotelToUpdate, setHotelToUpdate] = React.useState(null);
@@ -75,7 +76,7 @@ const HotelList = () => {
   } = useGetStateListQuery(
     {},
     {
-      skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin",
+      skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN,
     }
   );
   const {
@@ -85,7 +86,7 @@ const HotelList = () => {
   } = useGetCityListQuery(formData.selectedState?.id, {
     skip:
       !Boolean(formData.selectedState) ||
-      JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin",
+      JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN,
   });
   const {
     data: roomTypeByCompany = {
@@ -93,7 +94,7 @@ const HotelList = () => {
     },
   } = useGetAllRoomTypesByCompanyQuery(
     JSON.parse(sessionStorage.getItem("data")).companyId,
-    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin" }
+    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN }
   );
 
   const handleResetForm = React.useCallback(() => {

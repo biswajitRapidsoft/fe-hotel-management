@@ -29,6 +29,7 @@ import Grid from "@mui/material/Grid2";
 import {
   AVAILABLE,
   BEING_SERVICED,
+  FRONTDESK,
   NOT_AVAILABLE,
   OCCUPIED,
   RESERVED,
@@ -397,7 +398,8 @@ const CustomRoomFilters = memo(function ({
       }}
     >
       <Grid container size={12} columnSpacing={0.5} rowSpacing={1}>
-        <Grid size={{ xs: 3, lg: 2.2, xl: 1.7 }}>
+        {/* <Grid size={{ xs: 3, lg: 2.2, xl: 1.7 }}> */}
+        <Grid>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               disablePast
@@ -441,7 +443,7 @@ const CustomRoomFilters = memo(function ({
             />
           </LocalizationProvider>
         </Grid>
-        <Grid size={{ xs: 3, lg: 2.2, xl: 1.7 }}>
+        <Grid>
           <Box
             sx={{
               ".MuiTextField-root": {
@@ -557,7 +559,7 @@ const CustomRoomFilters = memo(function ({
             />
           </Box>
         </Grid>
-        <Grid size={{ xs: 3, lg: 2.2, xl: 1.7 }}>
+        <Grid>
           <Box
             sx={{
               ".MuiTextField-root": {
@@ -672,7 +674,7 @@ const CustomRoomFilters = memo(function ({
             />
           </Box>
         </Grid>
-        <Grid size={{ xs: 3, md: 2.5, lg: 2, xl: 1.5 }}>
+        <Grid>
           <Button
             variant="contained"
             size="small"
@@ -696,7 +698,7 @@ const CustomRoomFilters = memo(function ({
             Booking History
           </Button>
         </Grid>
-        <Grid size={{ xs: 0, xl: 1 }} />
+        {/* <Grid size={{ xs: 0, xl: 1 }} /> */}
         <Grid size={12}>
           <Box
             sx={{
@@ -713,7 +715,7 @@ const CustomRoomFilters = memo(function ({
                 <Box
                   key={`Floor Filter ${index}`}
                   sx={{
-                    minHeight: "40px",
+                    minHeight: "35px",
                     display: "flex",
                     fontWeight: 600,
                     userSelect: "none",
@@ -748,31 +750,6 @@ const CustomRoomFilters = memo(function ({
                 >
                   <Box
                     sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      fontSize: "20px",
-                      // bgcolor: "cyan",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      color:
-                        item?.name === AVAILABLE.key
-                          ? "hsla(202, 100%, 73%, 0.99)"
-                          : item?.name === RESERVED.key
-                          ? "hsla(32, 98%, 65%, 0.99)"
-                          : item?.name === OCCUPIED.key
-                          ? "hsla(140, 100%, 36%, 0.99)"
-                          : item?.name === NOT_AVAILABLE.key
-                          ? "hsla(0, 100%, 65%, 0.99)"
-                          : item?.name === BEING_SERVICED.key
-                          ? "hsla(281, 100%, 63%, 0.99)"
-                          : "hsla(0, 0%, 17%, 0.99)",
-                    }}
-                  >
-                    {item?.icon}
-                  </Box>
-
-                  <Box
-                    sx={{
                       overflow: "hidden", // Prevents content from visually overflowing
                       maxWidth: "100%",
                       // bgcolor: "red",
@@ -782,7 +759,8 @@ const CustomRoomFilters = memo(function ({
                       variant="body1"
                       sx={{
                         letterSpacing: 1,
-                        fontSize: "15px",
+                        fontSize: "13.5px",
+                        fontWeight: 550,
                         // whiteSpace: "normal", // Ensures text wraps properly
                         // wordWrap: "break-word",
                         // wordBreak: "break-word",
@@ -791,28 +769,63 @@ const CustomRoomFilters = memo(function ({
                     >
                       {item?.name}
                     </Typography>
-                    <Typography
+
+                    <Box
                       sx={{
-                        fontSize: "18px",
-                        fontWeight: 550,
-                        lineHeight: 0.8,
-                        color:
-                          item?.name === AVAILABLE.key
-                            ? "hsla(202, 100%, 73%, 0.99)"
-                            : item?.name === RESERVED.key
-                            ? "hsla(32, 98%, 65%, 0.99)"
-                            : item?.name === OCCUPIED.key
-                            ? "hsla(140, 100%, 36%, 0.99)"
-                            : item?.name === NOT_AVAILABLE.key
-                            ? "hsla(0, 100%, 65%, 0.99)"
-                            : item?.name === BEING_SERVICED.key
-                            ? "hsla(281, 100%, 63%, 0.99)"
-                            : "hsla(0, 0%, 17%, 0.99)",
-                        letterSpacing: 1,
+                        display: "flex",
+                        flexDirection: "row",
+                        gap: 0.5,
+                        alignItems: "center",
                       }}
                     >
-                      {finalCount[item?.name] || 0}
-                    </Typography>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          // flexDirection: "column",
+                          fontSize: "20px",
+                          // bgcolor: "cyan",
+                          justifyContent: "flex-start",
+                          // alignItems: "center",
+                          color:
+                            item?.name === AVAILABLE.key
+                              ? "hsla(202, 100%, 73%, 0.99)"
+                              : item?.name === RESERVED.key
+                              ? "hsla(32, 98%, 65%, 0.99)"
+                              : item?.name === OCCUPIED.key
+                              ? "hsla(140, 100%, 36%, 0.99)"
+                              : item?.name === NOT_AVAILABLE.key
+                              ? "hsla(0, 100%, 65%, 0.99)"
+                              : item?.name === BEING_SERVICED.key
+                              ? "hsla(281, 100%, 63%, 0.99)"
+                              : "hsla(0, 0%, 17%, 0.99)",
+                        }}
+                      >
+                        {item?.icon}
+                      </Box>
+                      <Typography
+                        sx={{
+                          fontSize: "18px",
+                          fontWeight: 550,
+                          lineHeight: 0.1,
+                          // marginTop: "-8px",
+                          color:
+                            item?.name === AVAILABLE.key
+                              ? "hsla(202, 100%, 73%, 0.99)"
+                              : item?.name === RESERVED.key
+                              ? "hsla(32, 98%, 65%, 0.99)"
+                              : item?.name === OCCUPIED.key
+                              ? "hsla(140, 100%, 36%, 0.99)"
+                              : item?.name === NOT_AVAILABLE.key
+                              ? "hsla(0, 100%, 65%, 0.99)"
+                              : item?.name === BEING_SERVICED.key
+                              ? "hsla(281, 100%, 63%, 0.99)"
+                              : "hsla(0, 0%, 17%, 0.99)",
+                          letterSpacing: 1,
+                        }}
+                      >
+                        {finalCount[item?.name] || 0}
+                      </Typography>
+                    </Box>
                   </Box>
                 </Box>
               );
@@ -6747,8 +6760,7 @@ const Dashboard = () => {
       refetchOnMountOrArgChange: true,
       skip:
         !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId) ||
-        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
-          "Front_Desk_Staff",
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !== FRONTDESK,
     }
   );
   console.log("apiTodayCheckoutRoomData : ", apiTodayCheckoutRoomData);
@@ -6774,8 +6786,7 @@ const Dashboard = () => {
       refetchOnMountOrArgChange: true,
       skip:
         !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId) ||
-        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
-          "Front_Desk_Staff",
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !== FRONTDESK,
     }
   );
   console.log("apiRoomData : ", apiRoomData);
@@ -6786,9 +6797,7 @@ const Dashboard = () => {
   } = useGetAllGovtIdsQuery(
     {},
     {
-      skip:
-        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
-        "Front_Desk_Staff",
+      skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== FRONTDESK,
     }
   );
   console.log("allGovtIdsData : ", allGovtIdsData);
@@ -6799,9 +6808,7 @@ const Dashboard = () => {
   } = useGetAllPaymentMethodsQuery(
     {},
     {
-      skip:
-        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
-        "Front_Desk_Staff",
+      skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== FRONTDESK,
     }
   );
   console.log("allPaymentMethods : ", allPaymentMethods);
@@ -6819,8 +6826,7 @@ const Dashboard = () => {
       refetchOnMountOrArgChange: true,
       skip:
         !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId) ||
-        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
-          "Front_Desk_Staff",
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !== FRONTDESK,
     }
   );
   console.log("roomtypeByHotelIdData : ", roomtypeByHotelIdData);
@@ -6839,8 +6845,7 @@ const Dashboard = () => {
       pollingInterval: 50000,
       skip:
         !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId) ||
-        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
-          "Front_Desk_Staff",
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !== FRONTDESK,
     }
   );
   console.log(

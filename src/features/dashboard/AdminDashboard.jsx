@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useGetMasterDataListQuery } from "../../services/dashboard";
 import LoadingComponent from "../../components/LoadingComponent";
+import { ADMIN } from "../../helper/constants";
 
 const tabList = [
   { label: "Hotel List", path: "/hotel-list", key: "noOfHotels" },
@@ -36,7 +37,7 @@ const AdminDashboard = () => {
   } = useGetMasterDataListQuery(
     JSON.parse(sessionStorage.getItem("data")).companyId,
     {
-      skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin",
+      skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN,
     }
   );
 
