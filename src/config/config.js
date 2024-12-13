@@ -38,7 +38,11 @@ const config = Object.freeze({
     createPromocode: "api/create/new/promocode",
     getAllPromoCode: "public/get/all/resturant/promocode",
     getAllPromocodeTypes: "api/get/all/promocode/type",
-
+    getAllBarItemList: "public/bar/items/list",
+    getBarPromoCodeList: "public/get/all/bar/promocode",
+    orderFromBar: "public/order/from/bar",
+    barOrderHistory: "public/get/customer/bar/order/history",
+    changeBarOrderStatus: "public/change/bar/order/status",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",

@@ -211,11 +211,14 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
     setOpenVehicleParkingDialog(true);
   }, []);
 
-  const handleOpenBar = React.useCallback((bookingRefNumber, hotelId) => {
-    sessionStorage.setItem("bookingRefNumber", bookingRefNumber);
-    sessionStorage.setItem("hotelId", hotelId);
-    navigate("/bar");
-  }, []);
+  const handleOpenBar = React.useCallback(
+    (bookingRefNumber, hotelId) => {
+      sessionStorage.setItem("bookingRefNumber", bookingRefNumber);
+      sessionStorage.setItem("hotelId", hotelId);
+      navigate("/bar");
+    },
+    [navigate]
+  );
 
   const DrawerList = (
     <Box
