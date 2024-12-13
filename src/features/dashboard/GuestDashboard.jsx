@@ -1191,7 +1191,6 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                     <Box
                       sx={{
                         display: "flex",
-                        alignItems: "center",
                         justifyContent: "space-between",
                         alignItems: "flex-start",
                       }}
