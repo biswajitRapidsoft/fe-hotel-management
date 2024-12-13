@@ -15,6 +15,7 @@ import {
 
 import { useGetAllUsersByCompanyQuery } from "../../services/users";
 import LoadingComponent from "../../components/LoadingComponent";
+import { ADMIN } from "../../helper/constants";
 
 const EmployeeListTable = () => {
   const {
@@ -24,7 +25,7 @@ const EmployeeListTable = () => {
     isLoading,
   } = useGetAllUsersByCompanyQuery(
     JSON.parse(sessionStorage.getItem("data")).companyId,
-    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin" }
+    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN }
   );
   return (
     <React.Fragment>

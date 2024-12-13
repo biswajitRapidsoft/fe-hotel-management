@@ -18,6 +18,7 @@ import { useGetHotelListByCompanyQuery } from "../../services/hotel";
 
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ClearIcon from "@mui/icons-material/Clear";
+import { ADMIN } from "../../helper/constants";
 
 const Employee = () => {
   const [snack, setSnack] = React.useState({
@@ -32,7 +33,7 @@ const Employee = () => {
     },
   } = useGetAllRolesQuery(
     {},
-    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin" }
+    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN }
   );
 
   const {
@@ -41,7 +42,7 @@ const Employee = () => {
     },
   } = useGetHotelListByCompanyQuery(
     JSON.parse(sessionStorage.getItem("data")).companyId,
-    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin" }
+    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN }
   );
 
   const [formData, setFormData] = React.useState({

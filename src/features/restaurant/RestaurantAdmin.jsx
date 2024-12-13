@@ -36,6 +36,7 @@ import SnackAlert from "../../components/Alert";
 import {
   CANCELLED,
   DELIVERED,
+  KITCHENSTAFF,
   ORDER_PLACED,
   REJECTED,
 } from "../../helper/constants";
@@ -410,8 +411,7 @@ const RestaurantAdmin = () => {
     JSON.parse(sessionStorage.getItem("data")).hotelId,
     {
       skip:
-        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
-        "Kitchen_Staff",
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !== KITCHENSTAFF,
     }
   );
   const {

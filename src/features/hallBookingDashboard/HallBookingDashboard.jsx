@@ -59,6 +59,7 @@ import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 import { PaymentDialog } from "../dashboard/GuestDashboard";
 import ReactDOM from "react-dom";
 import { BootstrapDialog } from "../header/Header";
+import { FRONTDESK } from "../../helper/constants";
 
 dayjs.extend(customParseFormat);
 dayjs.extend(isSameOrBefore);
@@ -2939,8 +2940,7 @@ const HallBookingDashboard = () => {
       refetchOnMountOrArgChange: true,
       skip:
         !JSON.parse(sessionStorage.getItem("data"))?.hotelId ||
-        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
-          "Front_Desk_Staff",
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !== FRONTDESK,
     }
   );
   console.log("getAllHallBookingsData : ", getAllHallBookingsData);
@@ -2951,9 +2951,7 @@ const HallBookingDashboard = () => {
   } = useGetAllHallStatusQuery(
     {},
     {
-      skip:
-        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
-        "Front_Desk_Staff",
+      skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== FRONTDESK,
     }
   );
 
@@ -2968,8 +2966,7 @@ const HallBookingDashboard = () => {
       refetchOnMountOrArgChange: true,
       skip:
         !JSON.parse(sessionStorage.getItem("data"))?.hotelId ||
-        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
-          "Front_Desk_Staff",
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !== FRONTDESK,
     }
   );
 
@@ -2989,8 +2986,7 @@ const HallBookingDashboard = () => {
       refetchOnMountOrArgChange: true,
       skip:
         !JSON.parse(sessionStorage.getItem("data"))?.hotelId ||
-        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
-          "Front_Desk_Staff",
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !== FRONTDESK,
     }
   );
 
@@ -3027,8 +3023,7 @@ const HallBookingDashboard = () => {
       refetchOnMountOrArgChange: true,
       skip:
         !Boolean(JSON.parse(sessionStorage.getItem("data"))?.hotelId) ||
-        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
-          "Front_Desk_Staff",
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !== FRONTDESK,
     }
   );
 
@@ -3047,8 +3042,7 @@ const HallBookingDashboard = () => {
       refetchOnMountOrArgChange: true,
       skip:
         !selectedHallChip?.id ||
-        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
-          "Front_Desk_Staff",
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !== FRONTDESK,
     }
   );
 
@@ -3060,9 +3054,7 @@ const HallBookingDashboard = () => {
   } = useGetAllPaymentMethodsQuery(
     {},
     {
-      skip:
-        JSON.parse(sessionStorage.getItem("data"))?.roleType !==
-        "Front_Desk_Staff",
+      skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== FRONTDESK,
     }
   );
   console.log("allPaymentMethods : ", allPaymentMethods);

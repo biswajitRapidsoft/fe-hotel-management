@@ -22,6 +22,7 @@ import {
 } from "../../services/extraItem";
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
+import { ADMIN } from "../../helper/constants";
 
 const ExtraItem = () => {
   const [snack, setSnack] = React.useState({
@@ -38,14 +39,14 @@ const ExtraItem = () => {
     isLoading,
   } = useGetAllExtraItemsQuery(
     JSON.parse(sessionStorage.getItem("data")).companyId,
-    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin" }
+    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN }
   );
 
   const handleSubmit = React.useCallback(
     (event) => {
       event.preventDefault();
 
-      if (JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin") {
+      if (JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN) {
         setSnack({
           open: true,
           severity: "warning",

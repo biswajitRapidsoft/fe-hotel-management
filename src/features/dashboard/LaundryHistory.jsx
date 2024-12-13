@@ -51,7 +51,7 @@ const LaundryHistory = () => {
       { label: "Laundry Status", key: "laundryStatus" },
       ...(roleType === "Customer"
         ? [{ label: "Rating", key: "rating" }]
-        : roleType === "Admin"
+        : roleType === ADMIN
         ? [
             { label: "Rating", key: "rating" },
             { label: "Rating Message", key: "ratingMessage" },

@@ -23,6 +23,7 @@ import {
   useGetHotelListByCompanyQuery,
 } from "../../services/hotel";
 import { useNavigate } from "react-router-dom";
+import { ADMIN } from "../../helper/constants";
 
 const tableHeader = [
   { label: "Sl No." },
@@ -49,7 +50,7 @@ const HotelListTable = ({ setHotelToUpdate }) => {
     isLoading,
   } = useGetHotelListByCompanyQuery(
     JSON.parse(sessionStorage.getItem("data")).companyId,
-    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin" }
+    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN }
   );
   const [changeRoomStatus, changeRoomStatusRes] = useChangeRoomStatusMutation();
   const handleChangeStatus = React.useCallback(
