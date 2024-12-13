@@ -74,7 +74,7 @@ function App() {
             <Route path="/guest-dashboard" element={<GuestDashboard />} />
             <Route path="/resturant" element={<Restaurant />} />
             <Route path="/restaurant-admin" element={<RestaurantAdmin />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+
             <Route
               path="/housekeeper-dashboard"
               element={<HouseKeeperDashboard />}
@@ -83,6 +83,7 @@ function App() {
           </Route>
 
           <Route element={<Layout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route
               path="/frontdeskBookingHistory"
               element={<FrontdeskBookingHistory />}

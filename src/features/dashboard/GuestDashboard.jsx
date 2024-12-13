@@ -26,6 +26,8 @@ import {
   Slide,
   Typography,
   Paper,
+  FormGroup,
+  Checkbox,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import {
@@ -530,6 +532,7 @@ const CustomRoomFilters = memo(function ({
   );
 });
 const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
+  const [isClaimPoints, setIsClaimPoints] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [openPaymentDialog, setOpenPaymentDialog] = React.useState(false);
   const [reservationPayload, setReservationPayload] = React.useState(null);
@@ -691,7 +694,13 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
       roomTypeId: hotelDetails?.id,
       hotelId: hotelDetails?.hotelDto?.id,
       paidAmount: formData.advancePayment,
-      bookingAmount: calculateNumberOfDays * Number(hotelDetails?.basePrice),
+      bookingAmount: isClaimPoints
+        ? hotelDetails.basePrice * calculateNumberOfDays -
+            userDetails?.data?.rewardsPointPrice || 0
+        : calculateNumberOfDays * Number(hotelDetails?.basePrice),
+      isRewardsPointsUsed: isClaimPoints,
+      noOfRewardsPointsUsed: userDetails?.data?.noOfRewardsPointsAvailable,
+      rewardsPointPrice: userDetails?.data?.rewardsPointPrice,
     };
 
     setReservationPayload(payload);
@@ -787,7 +796,13 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
         roomTypeId: hotelDetails?.id,
         hotelId: hotelDetails?.hotelDto?.id,
         paidAmount: formData.advancePayment,
-        bookingAmount: calculateNumberOfDays * Number(hotelDetails?.basePrice),
+        bookingAmount: isClaimPoints
+          ? hotelDetails.basePrice * calculateNumberOfDays -
+              userDetails?.data?.rewardsPointPrice || 0
+          : calculateNumberOfDays * Number(hotelDetails?.basePrice),
+        isRewardsPointsUsed: isClaimPoints,
+        noOfRewardsPointsUsed: userDetails?.data?.noOfRewardsPointsAvailable,
+        rewardsPointPrice: userDetails?.data?.rewardsPointPrice,
         // paymentDetails: Boolean(sessionStorage.getItem("paymentDetail"))
         //   ? sessionStorage.getItem("paymentDetail")
         //   : "",
@@ -824,6 +839,8 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
       reserveHotelRoom,
       handleResetForm,
       calculateNumberOfDays,
+      isClaimPoints,
+      userDetails.data,
     ]
   );
 
@@ -1167,6 +1184,87 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                   />
                 </Grid>
               )}
+
+              {Boolean(userDetails?.data?.noOfRewardsPointsAvailable) &&
+                Boolean(calculateNumberOfDays) && (
+                  <Grid size={12}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                      }}
+                    >
+                      <Typography variant="h6">Total Price: </Typography>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          flexDirection: "column",
+                        }}
+                      >
+                        {isClaimPoints && (
+                          <Typography variant="h6">
+                            Rs.{" "}
+                            {(
+                              hotelDetails.basePrice * calculateNumberOfDays -
+                                userDetails?.data?.rewardsPointPrice || 0
+                            ).toFixed(2)}
+                          </Typography>
+                        )}
+                        <Typography
+                          variant={isClaimPoints ? "body2" : "h6"}
+                          sx={{
+                            textDecoration: isClaimPoints
+                              ? "line-through"
+                              : "none",
+                          }}
+                        >
+                          Rs.{" "}
+                          {(
+                            calculateNumberOfDays * hotelDetails.basePrice
+                          ).toFixed(2)}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box>
+                      <FormGroup>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              defaultChecked
+                              size="small"
+                              checked={isClaimPoints}
+                              onChange={(e) =>
+                                setIsClaimPoints(e.target.checked)
+                              }
+                            />
+                          }
+                          label="Claim Points"
+                        />
+                      </FormGroup>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Typography variant="body1">
+                        Available Points:{" "}
+                      </Typography>
+                      <Typography variant="body1">
+                        {`${
+                          userDetails?.data?.noOfRewardsPointsAvailable || 0
+                        } (Rs. ${(
+                          userDetails?.data?.rewardsPointPrice || 0
+                        ).toFixed(2)})`}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                )}
 
               <Grid size={{ xs: 12 }}>
                 <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
