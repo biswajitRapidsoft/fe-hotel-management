@@ -10,6 +10,7 @@ import TimelineDot from "@mui/lab/TimelineDot";
 import Tooltip from "@mui/material/Tooltip";
 import PaymentIcon from "@mui/icons-material/Payment";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
+import LiquorIcon from "@mui/icons-material/Liquor";
 import { PaymentDialog } from "./GuestDashboard";
 
 import {
@@ -209,6 +210,15 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
   const handleOpenVehicleParkingModal = React.useCallback(() => {
     setOpenVehicleParkingDialog(true);
   }, []);
+
+  const handleOpenBar = React.useCallback(
+    (bookingRefNumber, hotelId) => {
+      sessionStorage.setItem("bookingRefNumber", bookingRefNumber);
+      sessionStorage.setItem("hotelId", hotelId);
+      navigate("/bar");
+    },
+    [navigate]
+  );
 
   const DrawerList = (
     <Box
@@ -455,220 +465,237 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                                 //   )
 
                                 <>
-                                  <Grid
-                                    container
-                                    columnSpacing={3}
-                                    // sx={{ ml: 2.5 }}
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      gap: 1,
+                                      width: "100%",
+                                      justifyContent: "center",
+                                    }}
                                   >
-                                    <Grid size={{ xs: 2 }}>
-                                      <Box
+                                    <Tooltip title="Order Food" arrow>
+                                      <Button
+                                        variant="outlined"
                                         sx={{
-                                          display: "flex",
-                                          gap: 1,
-                                          width: "100%",
-                                          justifyContent: "center",
+                                          minWidth: "unset",
+                                          width: "11px",
+                                        }}
+                                        // startIcon={<RestaurantIcon />}
+                                        onClick={() => {
+                                          sessionStorage.setItem(
+                                            "bookingRefNumber",
+                                            booking?.bookingRefNumber
+                                          );
+                                          sessionStorage.setItem(
+                                            "hotelId",
+                                            booking?.hotel?.id
+                                          );
+                                          navigate("/resturant");
                                         }}
                                       >
-                                        <Tooltip title="Order Food" arrow>
-                                          <Button
-                                            variant="outlined"
-                                            sx={{
-                                              minWidth: "unset",
-                                              width: "11px",
-                                            }}
-                                            // startIcon={<RestaurantIcon />}
-                                            onClick={() => {
-                                              sessionStorage.setItem(
-                                                "bookingRefNumber",
-                                                booking?.bookingRefNumber
-                                              );
-                                              sessionStorage.setItem(
-                                                "hotelId",
-                                                booking?.hotel?.id
-                                              );
-                                              navigate("/resturant");
-                                            }}
-                                          >
-                                            {/* Order Food */}
-                                            <RestaurantIcon />
-                                          </Button>
-                                        </Tooltip>
-                                      </Box>
-                                    </Grid>
-                                    <Grid size={{ xs: 2 }}>
-                                      <Box
+                                        {/* Order Food */}
+                                        <RestaurantIcon />
+                                      </Button>
+                                    </Tooltip>
+                                  </Box>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      gap: 1,
+                                      width: "100%",
+                                      justifyContent: "center",
+                                    }}
+                                  >
+                                    <Tooltip
+                                      title="Room cleaning Request"
+                                      arrow
+                                    >
+                                      <Button
+                                        variant="outlined"
                                         sx={{
-                                          display: "flex",
-                                          gap: 1,
-                                          width: "100%",
-                                          justifyContent: "center",
+                                          minWidth: "unset",
+                                          width: "11px",
+                                          borderColor: "#1CAC78",
+                                        }}
+                                        // startIcon={<CleaningServicesIcon />}
+                                        onClick={() =>
+                                          handleRoomCleanRequest(
+                                            booking.roomDto?.id,
+                                            booking.hotel?.id
+                                          )
+                                        }
+                                      >
+                                        <CleaningServicesIcon
+                                          sx={{ color: "#1CAC78" }}
+                                        />
+                                      </Button>
+                                    </Tooltip>
+                                  </Box>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      gap: 1,
+                                      width: "100%",
+                                      justifyContent: "center",
+                                    }}
+                                  >
+                                    <Tooltip title="Request Checkout" arrow>
+                                      <Button
+                                        variant="outlined"
+                                        // sx={{
+                                        //   textTransform: "none",
+                                        //   width: "100%",
+                                        //   color: "#E60026",
+                                        //   borderColor: "#E60026",
+                                        // }}
+                                        sx={{
+                                          minWidth: "unset",
+                                          width: "11px",
+                                          borderColor: "#E60026",
+                                        }}
+                                        // startIcon={<ExitToAppIcon />}
+                                        onClick={() =>
+                                          handleRequestRoomCheckout(
+                                            booking.bookingRefNumber
+                                          )
+                                        }
+                                      >
+                                        <ExitToAppIcon
+                                          sx={{
+                                            color: "#E60026",
+                                          }}
+                                        />
+                                      </Button>
+                                    </Tooltip>
+                                  </Box>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      gap: 1,
+                                      width: "100%",
+                                      justifyContent: "center",
+                                    }}
+                                  >
+                                    <Tooltip title="Request Laundry" arrow>
+                                      <Button
+                                        variant="outlined"
+                                        sx={{
+                                          minWidth: "unset",
+                                          width: "11px",
+                                          borderColor: "#3e4a61",
+                                        }}
+                                        // startIcon={<DryCleaningIcon />}
+                                        onClick={() =>
+                                          // handleRequestLaundryService(
+                                          //   booking.bookingRefNumber
+                                          // )
+                                          {
+                                            sessionStorage.setItem(
+                                              "bookingRefNumberForLaundry",
+                                              booking?.bookingRefNumber
+                                            );
+                                            navigate("/LaundryHistory");
+                                          }
+                                        }
+                                      >
+                                        {/* Laundry */}
+                                        <DryCleaningIcon
+                                          sx={{ color: "#3e4a61" }}
+                                        />
+                                      </Button>
+                                    </Tooltip>
+                                  </Box>
+
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      gap: 1,
+                                      width: "100%",
+                                      justifyContent: "center",
+                                    }}
+                                  >
+                                    <Tooltip title="Make Payment" arrow>
+                                      <Button
+                                        variant="outlined"
+                                        sx={{
+                                          minWidth: "unset",
+                                          width: "11px",
+                                          borderColor: "#D4AF37	",
                                         }}
                                       >
-                                        <Tooltip
-                                          title="Room cleaning Request"
-                                          arrow
-                                        >
-                                          <Button
-                                            variant="outlined"
-                                            sx={{
-                                              minWidth: "unset",
-                                              width: "11px",
-                                              borderColor: "#1CAC78",
-                                            }}
-                                            // startIcon={<CleaningServicesIcon />}
-                                            onClick={() =>
-                                              handleRoomCleanRequest(
-                                                booking.roomDto?.id,
-                                                booking.hotel?.id
-                                              )
-                                            }
-                                          >
-                                            <CleaningServicesIcon
-                                              sx={{ color: "#1CAC78" }}
-                                            />
-                                          </Button>
-                                        </Tooltip>
-                                      </Box>
-                                    </Grid>
-                                    <Grid size={{ xs: 2 }}>
-                                      <Box
+                                        {/* Laundry */}
+                                        <PaymentIcon
+                                          onClick={() =>
+                                            handleMakePayment(booking)
+                                          }
+                                          sx={{ color: "#D4AF37	" }}
+                                        />
+                                      </Button>
+                                    </Tooltip>
+                                  </Box>
+
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      gap: 1,
+                                      width: "100%",
+                                      justifyContent: "center",
+                                    }}
+                                  >
+                                    <Tooltip title="Vehicle Parking" arrow>
+                                      <Button
+                                        variant="outlined"
                                         sx={{
-                                          display: "flex",
-                                          gap: 1,
-                                          width: "100%",
-                                          justifyContent: "center",
+                                          minWidth: "unset",
+                                          width: "11px",
+                                          borderColor: (theme) =>
+                                            theme.palette.warning.main,
                                         }}
                                       >
-                                        <Tooltip title="Request Checkout" arrow>
-                                          <Button
-                                            variant="outlined"
-                                            // sx={{
-                                            //   textTransform: "none",
-                                            //   width: "100%",
-                                            //   color: "#E60026",
-                                            //   borderColor: "#E60026",
-                                            // }}
-                                            sx={{
-                                              minWidth: "unset",
-                                              width: "11px",
-                                              borderColor: "#E60026",
-                                            }}
-                                            // startIcon={<ExitToAppIcon />}
-                                            onClick={() =>
-                                              handleRequestRoomCheckout(
-                                                booking.bookingRefNumber
-                                              )
-                                            }
-                                          >
-                                            <ExitToAppIcon
-                                              sx={{
-                                                color: "#E60026",
-                                              }}
-                                            />
-                                          </Button>
-                                        </Tooltip>
-                                      </Box>
-                                    </Grid>
-                                    <Grid size={{ xs: 2 }}>
-                                      <Box
+                                        {/* Laundry */}
+                                        <DirectionsCarIcon
+                                          onClick={
+                                            handleOpenVehicleParkingModal
+                                          }
+                                          // sx={{ color: "#D4AF37	" }}
+                                          color="warning"
+                                        />
+                                      </Button>
+                                    </Tooltip>
+                                  </Box>
+
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      gap: 1,
+                                      width: "100%",
+                                      justifyContent: "center",
+                                    }}
+                                  >
+                                    <Tooltip title="Bar" arrow>
+                                      <Button
+                                        variant="outlined"
                                         sx={{
-                                          display: "flex",
-                                          gap: 1,
-                                          width: "100%",
-                                          justifyContent: "center",
+                                          minWidth: "unset",
+                                          width: "11px",
+                                          borderColor: (theme) =>
+                                            theme.palette.info.main,
                                         }}
                                       >
-                                        <Tooltip title="Request Laundry" arrow>
-                                          <Button
-                                            variant="outlined"
-                                            sx={{
-                                              minWidth: "unset",
-                                              width: "11px",
-                                              borderColor: "#3e4a61",
-                                            }}
-                                            // startIcon={<DryCleaningIcon />}
-                                            onClick={() =>
-                                              // handleRequestLaundryService(
-                                              //   booking.bookingRefNumber
-                                              // )
-                                              {
-                                                sessionStorage.setItem(
-                                                  "bookingRefNumberForLaundry",
-                                                  booking?.bookingRefNumber
-                                                );
-                                                navigate("/LaundryHistory");
-                                              }
-                                            }
-                                          >
-                                            {/* Laundry */}
-                                            <DryCleaningIcon
-                                              sx={{ color: "#3e4a61" }}
-                                            />
-                                          </Button>
-                                        </Tooltip>
-                                      </Box>
-                                    </Grid>
-                                    <Grid size={{ xs: 2 }}>
-                                      <Box
-                                        sx={{
-                                          display: "flex",
-                                          gap: 1,
-                                          width: "100%",
-                                          justifyContent: "center",
-                                        }}
-                                      >
-                                        <Tooltip title="Make Payment" arrow>
-                                          <Button
-                                            variant="outlined"
-                                            sx={{
-                                              minWidth: "unset",
-                                              width: "11px",
-                                              borderColor: "#D4AF37	",
-                                            }}
-                                          >
-                                            {/* Laundry */}
-                                            <PaymentIcon
-                                              onClick={() =>
-                                                handleMakePayment(booking)
-                                              }
-                                              sx={{ color: "#D4AF37	" }}
-                                            />
-                                          </Button>
-                                        </Tooltip>
-                                      </Box>
-                                    </Grid>
-                                    <Grid size={{ xs: 2 }}>
-                                      <Box
-                                        sx={{
-                                          display: "flex",
-                                          gap: 1,
-                                          width: "100%",
-                                          justifyContent: "center",
-                                        }}
-                                      >
-                                        <Tooltip title="Vehicle Parking" arrow>
-                                          <Button
-                                            variant="outlined"
-                                            sx={{
-                                              minWidth: "unset",
-                                              width: "11px",
-                                              borderColor: (theme) =>
-                                                theme.palette.warning.main,
-                                            }}
-                                          >
-                                            {/* Laundry */}
-                                            <DirectionsCarIcon
-                                              onClick={
-                                                handleOpenVehicleParkingModal
-                                              }
-                                              // sx={{ color: "#D4AF37	" }}
-                                              color="warning"
-                                            />
-                                          </Button>
-                                        </Tooltip>
-                                      </Box>
-                                    </Grid>
-                                  </Grid>
+                                        {/* Laundry */}
+                                        <LiquorIcon
+                                          onClick={() =>
+                                            handleOpenBar(
+                                              booking.bookingRefNumber,
+                                              booking.hotel.id
+                                            )
+                                          }
+                                          // sx={{ color: "#D4AF37	" }}
+                                          color="info"
+                                        />
+                                      </Button>
+                                    </Tooltip>
+                                  </Box>
                                 </>
                               )}
                           </Box>

@@ -45,7 +45,7 @@ const CustomChips = ({ itemList }) => {
       })}
       {showMore ? (
         <React.Fragment>
-          {itemList.slice(2).map((item) => {
+          {itemList.slice(3).map((item) => {
             return (
               <Chip
                 key={item.itemName}
@@ -60,7 +60,7 @@ const CustomChips = ({ itemList }) => {
         Boolean(itemList.length - 2 > 0) && (
           <Chip
             color="primary"
-            label={`${itemList.length - 2} More`}
+            label={`+${itemList.length - 3} More`}
             sx={{ mx: 0.2, my: 0.1, cursor: "pointer" }}
             variant="outlined"
             onClick={() => setShowMore(true)}

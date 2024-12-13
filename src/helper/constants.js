@@ -1,3 +1,9 @@
+// BAR ORDER STATUS
+export const CANCELLED_BAR = "CANCELLED";
+export const DELIVERED_BAR = "DELIVERED";
+export const PROCESSING_BAR = "PROCESSING";
+export const PLACED_BAR = "PLACED";
+
 //FOOD ORDER STATUSES
 export const ORDER_PLACED = "Order_Placed";
 export const FOOD_PREPARING = "Food Preparing";
