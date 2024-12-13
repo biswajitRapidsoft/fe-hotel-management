@@ -10,8 +10,9 @@ const SuperLayout = () => {
   return (
     <Box>
       <Header />
-
-      <Outlet />
+      <Box sx={{ p: 2 }}>
+        <Outlet />
+      </Box>
     </Box>
   );
 };

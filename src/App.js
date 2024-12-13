@@ -74,24 +74,26 @@ function App() {
             <Route path="/guest-dashboard" element={<GuestDashboard />} />
             <Route path="/resturant" element={<Restaurant />} />
             <Route path="/restaurant-admin" element={<RestaurantAdmin />} />
-            <Route element={<Layout />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route
-                path="/housekeeper-dashboard"
-                element={<HouseKeeperDashboard />}
-              />
-              <Route
-                path="/frontdeskBookingHistory"
-                element={<FrontdeskBookingHistory />}
-              />
-              <Route path="/hallBookings" element={<HallBookingDashboard />} />
-              <Route path="/Parking" element={<Parking />} />
-              <Route path="/LaundryHistory" element={<LaundryHistory />} />
-              <Route
-                path="/HouseKeepingHistory"
-                element={<HouseKeepingHistory />}
-              />
-            </Route>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route
+              path="/housekeeper-dashboard"
+              element={<HouseKeeperDashboard />}
+            />
+            <Route path="/LaundryHistory" element={<LaundryHistory />} />
+          </Route>
+
+          <Route element={<Layout />}>
+            <Route
+              path="/frontdeskBookingHistory"
+              element={<FrontdeskBookingHistory />}
+            />
+            <Route path="/hallBookings" element={<HallBookingDashboard />} />
+            <Route path="/Parking" element={<Parking />} />
+
+            <Route
+              path="/HouseKeepingHistory"
+              element={<HouseKeepingHistory />}
+            />
           </Route>
         </Routes>
       </React.Suspense>

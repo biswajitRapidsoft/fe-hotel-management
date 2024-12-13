@@ -226,8 +226,8 @@ function Row({ hotel, sequence, setHotelToUpdate, handleChangeStatus }) {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {hotel.floorRoomMapData.map((floor) => {
-                    return floor.roomDto.map((room, roomIndex) => {
+                  {hotel.floorRoomMapData?.map((floor) => {
+                    return floor.roomDto?.map((room, roomIndex) => {
                       //   roomSlNo += 1;
                       return (
                         <TableRow key={room.id}>

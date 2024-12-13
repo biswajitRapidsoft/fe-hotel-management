@@ -449,7 +449,7 @@ const HouseKeepingDialog = ({
       // Checkout request logic
       const extraItemsList = selectedRoom.extraItemsList?.map((item) => ({
         id: item.id,
-        noOfItemsRequired: item.noOfItemsRequired || 1,
+        noOfItemsRequired: item.noOfItems || 1,
         noOfItems: Number(itemCounts[item.id]) || 0,
         isAvailable: !checkboxStates[item.id],
       }));

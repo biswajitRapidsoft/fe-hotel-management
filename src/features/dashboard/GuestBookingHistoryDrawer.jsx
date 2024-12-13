@@ -1,7 +1,6 @@
 import React from "react";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
-import Grid from "@mui/material/Grid2";
 import Timeline from "@mui/lab/Timeline";
 import TimelineItem, { timelineItemClasses } from "@mui/lab/TimelineItem";
 import TimelineSeparator from "@mui/lab/TimelineSeparator";
@@ -10,6 +9,7 @@ import TimelineContent from "@mui/lab/TimelineContent";
 import TimelineDot from "@mui/lab/TimelineDot";
 import Tooltip from "@mui/material/Tooltip";
 import PaymentIcon from "@mui/icons-material/Payment";
+import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import { PaymentDialog } from "./GuestDashboard";
 
 import {
@@ -18,17 +18,17 @@ import {
   IconButton,
   Typography,
   Dialog,
-  DialogActions,
   DialogContent,
-  DialogTitle,
   Slide,
   TextField,
   Rating,
+  Grid2 as Grid,
 } from "@mui/material";
 import moment from "moment";
 // import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { PiWarningCircleLight } from "react-icons/pi";
-
+import DialogActions from "@mui/material/DialogActions";
+import DialogTitle from "@mui/material/DialogTitle";
 import CloseIcon from "@mui/icons-material/Close";
 import {
   useCancelHotelRoomMutation,
@@ -36,6 +36,7 @@ import {
   useRoomCleanRequestMutation,
   useAddRatingMutation,
   useMakePartialPaymentMutation,
+  useLazyGetParkingDataForGuestQuery,
 } from "../../services/dashboard";
 
 import SnackAlert from "../../components/Alert";
@@ -59,6 +60,9 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
     React.useState(null);
 
   const [openPaymentDialog, setOpenPaymentDialog] = React.useState(false);
+
+  const [openVehicleParkingDialog, setOpenVehicleParkingDialog] =
+    React.useState(false);
 
   const [reviewDialog, setReviewDialog] = React.useState(null);
   const [rateStay, rateStayRes] = useAddRatingMutation();
@@ -201,6 +205,11 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
     setSelectedBookingRefNumber(bookingRefNumber);
     setCancelBookingOpen(true);
   };
+
+  const handleOpenVehicleParkingModal = React.useCallback(() => {
+    setOpenVehicleParkingDialog(true);
+  }, []);
+
   const DrawerList = (
     <Box
       sx={{ width: 600, p: 2 }}
@@ -449,7 +458,7 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                                   <Grid
                                     container
                                     columnSpacing={3}
-                                    sx={{ ml: 2.5 }}
+                                    // sx={{ ml: 2.5 }}
                                   >
                                     <Grid size={{ xs: 2 }}>
                                       <Box
@@ -628,6 +637,37 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                                         </Tooltip>
                                       </Box>
                                     </Grid>
+                                    <Grid size={{ xs: 2 }}>
+                                      <Box
+                                        sx={{
+                                          display: "flex",
+                                          gap: 1,
+                                          width: "100%",
+                                          justifyContent: "center",
+                                        }}
+                                      >
+                                        <Tooltip title="Vehicle Parking" arrow>
+                                          <Button
+                                            variant="outlined"
+                                            sx={{
+                                              minWidth: "unset",
+                                              width: "11px",
+                                              borderColor: (theme) =>
+                                                theme.palette.warning.main,
+                                            }}
+                                          >
+                                            {/* Laundry */}
+                                            <DirectionsCarIcon
+                                              onClick={
+                                                handleOpenVehicleParkingModal
+                                              }
+                                              // sx={{ color: "#D4AF37	" }}
+                                              color="warning"
+                                            />
+                                          </Button>
+                                        </Tooltip>
+                                      </Box>
+                                    </Grid>
                                   </Grid>
                                 </>
                               )}
@@ -650,6 +690,12 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
         open={cancelBookingOpen}
         onClose={() => setCancelBookingOpen(false)}
         selectedBookingRefNumber={selectedBookingRefNumber}
+      />
+
+      <VehicleParkingDialog
+        open={openVehicleParkingDialog}
+        handleClose={() => setOpenVehicleParkingDialog(false)}
+        setSnack={setSnack}
       />
 
       <LoadingComponent
@@ -992,5 +1038,269 @@ const CancelRoomDialog = ({ open, onClose, selectedBookingRefNumber }) => {
     </>
   );
 };
+
+function VehicleParkingDialog({ open, handleClose, setSnack }) {
+  const [vehicleParkingDetails, setVehicleParkingDetails] =
+    React.useState(null);
+  const [vehicleNumber, setVehicleNumber] = React.useState("");
+  const [getParkingDetails, getParkingDetailsRes] =
+    useLazyGetParkingDataForGuestQuery();
+  const handleGetSetParkingRes = React.useCallback(() => {
+    getParkingDetails(vehicleNumber)
+      .unwrap()
+      .then((res) => {
+        setSnack({
+          open: true,
+          message: res.message,
+          severity: "success",
+        });
+        setVehicleParkingDetails(res.data);
+      })
+      .catch((err) => {
+        setVehicleParkingDetails(null);
+        setSnack({
+          open: true,
+          message: err.data?.message || err.data,
+          severity: "error",
+        });
+      });
+  }, [getParkingDetails, vehicleNumber, setSnack]);
+
+  React.useEffect(() => {
+    setVehicleParkingDetails(null);
+    setVehicleNumber("");
+  }, [open]);
+  return (
+    <Dialog
+      open={open}
+      maxWidth="sm"
+      fullWidth
+      sx={{
+        ".MuiDialogTitle-root": {
+          px: 5,
+          py: 3,
+        },
+      }}
+      PaperProps={{
+        sx: { borderRadius: 4 },
+      }}
+    >
+      <DialogTitle sx={{ fontSize: 24 }}>Vehicle Parking Details</DialogTitle>
+      <IconButton
+        aria-label="close"
+        onClick={handleClose}
+        sx={{
+          position: "absolute",
+          right: 30,
+          top: 16,
+          color: "#280071",
+        }}
+      >
+        <CloseIcon sx={{ fontSize: 30 }} />
+      </IconButton>
+      <DialogContent>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+            ".MuiTextField-root": {
+              backgroundColor: "transparent",
+              ".MuiInputBase-root": {
+                // color: "#B4B4B4",
+              },
+            },
+            ".MuiFormLabel-root": {
+              color: (theme) => theme.palette.primary.main,
+              // fontWeight: 600,
+              // fontSize: 18,
+            },
+            ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+              borderBottom: (theme) =>
+                `1px solid ${theme.palette.primary.main}`,
+            },
+            ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+              borderBottom: (theme) =>
+                `1px solid ${theme.palette.primary.main}`,
+            },
+          }}
+        >
+          <TextField
+            size="small"
+            name="vehicleNumber"
+            // onChange={(e) => handleChange(e.target.name, e.target.value)}
+            label="Vehicle Number *"
+            value={vehicleNumber}
+            onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
+            fullWidth
+          />
+          <Button
+            sx={{
+              display: "block",
+              // margin: "1rem auto",
+              color: "#fff",
+              textTransform: "none",
+              // fontSize: 18,
+              px: 6,
+              // py: 1,
+              borderRadius: 2,
+              "&.Mui-disabled": {
+                background: "#B2E5F6",
+                color: "#FFFFFF",
+              },
+            }}
+            onClick={handleGetSetParkingRes}
+            variant="contained"
+            color="secondary"
+            disabled={!Boolean(vehicleNumber.trim())}
+          >
+            Submit
+          </Button>
+        </Box>
+        {Boolean(vehicleParkingDetails) && (
+          <Box sx={{ display: "flex", flexDirection: "column", mt: 1 }}>
+            <Divider sx={{ borderWidth: "2px", borderColor: "#000" }} />
+            <Box sx={{ margin: "auto" }}>
+              <Typography
+                sx={{
+                  fontWeight: "bold",
+                  fontFamily: "'Times New Roman', Times, serif",
+                  fontSize: "1.3rem",
+                }}
+              >
+                BOOKING RECEIPT
+              </Typography>
+            </Box>
+            <Divider sx={{ borderWidth: "2px", borderColor: "#000" }} />
+            <Box
+              sx={{
+                // backgroundColor: "yellow",
+                width: "58%",
+                margin: "auto",
+                mt: 2,
+              }}
+            >
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 6 }}>
+                  <Typography
+                    sx={{
+                      fontFamily: "'Times New Roman', Times, serif",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Vehicle Number :
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography>
+                    {
+                      vehicleParkingDetails.parkingSlotData.parkingVehicleData
+                        .vehicleNo
+                    }
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography
+                    sx={{
+                      fontFamily: "'Times New Roman', Times, serif",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Area Name :
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography>{vehicleParkingDetails.areaName}</Typography>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography
+                    sx={{
+                      fontFamily: "'Times New Roman', Times, serif",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Slot Number :
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography>
+                    {vehicleParkingDetails.parkingSlotData.slotNumber}
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography
+                    sx={{
+                      fontFamily: "'Times New Roman', Times, serif",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    From Date:
+                  </Typography>
+                </Grid>
+
+                <Grid size={{ xs: 6 }}>
+                  {
+                    vehicleParkingDetails.parkingSlotData.parkingVehicleData
+                      .fromDate
+                  }
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography
+                    sx={{
+                      fontFamily: "'Times New Roman', Times, serif",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    To Date:
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  {
+                    vehicleParkingDetails.parkingSlotData.parkingVehicleData
+                      .toDate
+                  }
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography
+                    sx={{
+                      fontFamily: "'Times New Roman', Times, serif",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Token No.
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  {
+                    vehicleParkingDetails.parkingSlotData.parkingVehicleData
+                      .digitalTokenNo
+                  }
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography
+                    sx={{
+                      fontFamily: "'Times New Roman', Times, serif",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Paid Amount
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  ₹{" "}
+                  {
+                    vehicleParkingDetails.parkingSlotData.parkingVehicleData
+                      .paidAmount
+                  }
+                </Grid>
+              </Grid>
+            </Box>
+          </Box>
+        )}
+      </DialogContent>
+      <LoadingComponent open={getParkingDetailsRes.isLoading} />
+    </Dialog>
+  );
+}
 
 export default GuestBookingHistoryDrawer;

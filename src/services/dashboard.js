@@ -15,6 +15,16 @@ const dashboardApi = apiSlice.injectEndpoints({
       providesTags: ["getMasterDataList"],
     }),
     //GUEST DASHBOARD
+    getParkingDataForGuest: build.query({
+      query: (payload) => ({
+        url: config.apiName.getParkingDataForGuest,
+        method: "GET",
+        params: {
+          vehicleNo: payload,
+        },
+      }),
+    }),
+
     getAllHotels: build.query({
       query: (payload) => ({
         url: config.apiName.getAllHotels,
@@ -319,4 +329,5 @@ export const {
   useAddRatingMutation,
   useMakePaymentMutation,
   useMakePartialPaymentMutation,
+  useLazyGetParkingDataForGuestQuery,
 } = dashboardApi;
