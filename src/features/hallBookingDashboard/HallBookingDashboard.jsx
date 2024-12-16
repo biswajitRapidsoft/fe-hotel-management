@@ -495,18 +495,52 @@ const CustomHallBookingAlertSection = memo(function ({
     <Box sx={{ width: "100%" }}>
       <Box
         sx={{
-          borderBottom: "2px solid #ccc",
-          bgcolor: "#e3e3e3",
-          py: 0.2,
-          px: 1,
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          position: "relative",
+          gap: 2,
         }}
       >
-        <Typography
-          variant="h6"
-          sx={{ fontWeight: 550, letterSpacing: 1, fontSize: "18px" }}
-        >
-          {`Alerts`}
-        </Typography>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            transform: "translateY(-50%)",
+            left: 1,
+            width: 24,
+            height: 24,
+            boxShadow: "1.5px 1.5px 3px 0px rgba(197, 51, 255, 0.6)",
+            backgroundImage:
+              "linear-gradient(to right bottom, #d139fc, #b32edc, #9722bc, #7b179d, #610b7f)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            borderRadius: "4px",
+            zIndex: 2,
+          }}
+        />
+        <Box sx={{ width: "96.5%", ml: 1.3 }}>
+          <Paper
+            elevation={3}
+            sx={{
+              position: "relative",
+              py: "5px",
+              pl: 2.5,
+              borderRadius: "5px",
+            }}
+          >
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 550,
+                letterSpacing: 1,
+                fontSize: "18px",
+              }}
+            >
+              {`Alerts`}
+            </Typography>
+          </Paper>
+        </Box>
       </Box>
       <Box
         sx={{
