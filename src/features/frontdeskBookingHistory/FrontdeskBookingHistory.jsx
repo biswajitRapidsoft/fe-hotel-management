@@ -1851,6 +1851,10 @@ function getBookingStatusColor(key) {
       return { color: "#c60000", bgcolor: "#ffd6d6" };
     case "Booking_Cancellation_Requested":
       return { color: "#f72585", bgcolor: "#ffd6e8" };
+    case "Room_Checkout_Requested":
+      return { color: "#1b8b60", bgcolor: "#b9ffe5" };
+    case "Room_Checkout_Request_Approved":
+      return { color: "#648816", bgcolor: "#e8ffb4" };
     default:
       return { color: "#4b4b4b", bgcolor: "#dedede" };
   }
@@ -2410,6 +2414,18 @@ const FrontdeskBookingHistory = () => {
         key: "noOfCheckedInCounts",
         color: "#0fd87c",
         filterationKey: "Checked_In",
+      },
+      {
+        name: "Checkout Requested",
+        key: "noOfCheckOutRequestSubmitted",
+        color: "#6A9C89",
+        filterationKey: "Room_Checkout_Requested",
+      },
+      {
+        name: "Checkout Request Apprroved",
+        key: "noOfCheckOutRequestApproved",
+        color: "#648816",
+        filterationKey: "Room_Checkout_Request_Approved",
       },
       {
         name: "Checked Out",

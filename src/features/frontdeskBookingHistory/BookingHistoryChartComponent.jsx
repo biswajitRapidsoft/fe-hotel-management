@@ -57,14 +57,14 @@ const BookingHistoryChartComponent = ({
             //   config.w.config.labels[config.dataPointIndex]
             // );
           },
-          legendClick: (chartContext, seriesIndex, config) => {
-            // This will trigger when a legend item is clicked
-            if (isActionable) {
-              pieSelectionFunctionOnClick(
-                sanitizedLabels[seriesIndex]?.key || null
-              );
-            }
-          },
+          // legendClick: (chartContext, seriesIndex, config) => {
+          //   // This will trigger when a legend item is clicked
+          //   if (isActionable) {
+          //     pieSelectionFunctionOnClick(
+          //       sanitizedLabels[seriesIndex]?.key || null
+          //     );
+          //   }
+          // },
         },
       },
 
@@ -86,6 +86,12 @@ const BookingHistoryChartComponent = ({
         horizontalAlign: "center",
         // floating: false,
         fontSize: 11,
+        onItemClick: {
+          toggleDataSeries: false, // Disable click on legend items
+        },
+        onItemHover: {
+          highlightDataSeries: false, // Disable hover effect on legend items
+        },
       },
       stroke: {
         show: false,
