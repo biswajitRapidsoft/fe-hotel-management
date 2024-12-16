@@ -7,6 +7,7 @@ import {
   Box,
   Button,
   Collapse,
+  DialogActions,
   DialogContent,
   DialogTitle,
   Divider,
@@ -62,6 +63,11 @@ import { BootstrapDialog } from "../header/Header";
 import ReactDOM from "react-dom";
 import { PaymentDialog } from "../dashboard/GuestDashboard";
 import { FRONTDESK } from "../../helper/constants";
+import AssignmentLateIcon from "@mui/icons-material/AssignmentLate";
+import {
+  useAssignHouseKeepingRequestMutation,
+  useGetAllHouseKeepingStaffQuery,
+} from "../../services/houseKeepingHistory";
 
 dayjs.extend(customParseFormat);
 dayjs.extend(isSameOrBefore);
@@ -185,6 +191,19 @@ const filterBookingRooms = (
     return false;
   });
 };
+
+function getRoomServiceStatusColor(key) {
+  switch (key) {
+    case "Request_Submitted":
+      return { color: "#cd5000", bgcolor: "#ffe3d1" };
+    case "Staff_Asssigned":
+      return { color: "#0068b7", bgcolor: "#d3ecff" };
+    case "Completed":
+      return { color: "#01a837", bgcolor: "#c7ffd9" };
+    default:
+      return { color: "#4b4b4b", bgcolor: "#dedede" };
+  }
+}
 
 export const CustomHeader = memo(function ({
   backNavigate = false,
@@ -549,12 +568,380 @@ const getCellValue = (obj, key, fallback = "") => {
     );
 };
 
+const HouseKeepingRequestDialog = memo(function ({
+  open,
+  onClose,
+  selectedStaffForService,
+  houseKeepingStaffList,
+  handleChangeSelectedStaffForService,
+  handleAssignRequest,
+}) {
+  const handleCloseOnClose = useCallback(() => {
+    onClose();
+  }, [onClose]);
+
+  const handleChangeSelectedStaffForServiceOnChange = useCallback(
+    (selectedStaff) => {
+      handleChangeSelectedStaffForService(selectedStaff);
+    },
+    [handleChangeSelectedStaffForService]
+  );
+
+  const handleAssignRequestOnAccept = useCallback(() => {
+    handleAssignRequest();
+  }, [handleAssignRequest]);
+
+  return (
+    <>
+      <BootstrapDialog
+        open={open}
+        onClose={handleCloseOnClose}
+        // maxWidth="md"
+        // fullWidth
+        sx={{ "& .MuiDialog-paper": { minHeight: "450px", minWidth: "700px" } }}
+      >
+        <DialogTitle>
+          <Typography
+            sx={{
+              fontWeight: "bold",
+              fontSize: "1.4rem",
+              fontFamily: "'Times New Roman', Times, serif",
+            }}
+          >
+            Assign HouseKeeping Request
+          </Typography>
+        </DialogTitle>
+        <DialogContent dividers>
+          <Grid size={{ xs: 4, lg: 2, xl: 1.5 }}>
+            <Box
+              sx={{
+                ".MuiTextField-root": {
+                  width: "100%",
+                  backgroundColor: "transparent",
+                  ".MuiInputBase-root": {
+                    color: "#B4B4B4",
+                    background: "rgba(255, 255, 255, 0.25)",
+                  },
+                },
+                ".MuiFormLabel-root": {
+                  color: (theme) => theme.palette.primary.main,
+                  fontWeight: 600,
+                  fontSize: 18,
+                },
+                ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+                  borderBottom: (theme) =>
+                    `1px solid ${theme.palette.primary.main}`,
+                },
+                ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+                  borderBottom: (theme) =>
+                    `1px solid ${theme.palette.primary.main}`,
+                },
+              }}
+            >
+              <Autocomplete
+                options={houseKeepingStaffList || []}
+                value={selectedStaffForService || null}
+                onChange={(event, newValue) =>
+                  handleChangeSelectedStaffForServiceOnChange(newValue)
+                }
+                fullWidth
+                getOptionLabel={(option) => option?.name}
+                clearOnEscape
+                disablePortal
+                // isOptionDisabled={(option) => isOptionDisabled(option.key)}
+                popupIcon={<KeyboardArrowDownIcon color="primary" />}
+                sx={{
+                  // width: 200,
+                  ".MuiInputBase-root": {
+                    color: "#fff",
+                  },
+
+                  "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover": {
+                    backgroundColor: "#E9E5F1",
+                    color: "#280071",
+                    fontWeight: 600,
+                  },
+                  "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                    {
+                      backgroundColor: "#E9E5F1",
+                      color: "#280071",
+                      fontWeight: 600,
+                    },
+                }}
+                size="small"
+                clearIcon={<ClearIcon color="primary" />}
+                PaperComponent={(props) => (
+                  <Paper
+                    sx={{
+                      background: "#fff",
+                      color: "#B4B4B4",
+                      borderRadius: "10px",
+                    }}
+                    {...props}
+                  />
+                )}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="HouseKeeping Staff"
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: 2,
+                      },
+                    }}
+                  />
+                )}
+                renderOption={(props, option) => {
+                  const serviceCount = option?.servicesList?.length || 0;
+                  let color = "#FFBF00";
+                  if (serviceCount >= 3) {
+                    color = "#AA0000";
+                  } else if (serviceCount <= 1) {
+                    color = "#018749";
+                  } else if (serviceCount === 2) {
+                    color = "#FFBF00	";
+                  }
+
+                  return (
+                    <Box
+                      component="li"
+                      {...props}
+                      sx={{
+                        // backgroundColor,
+                        color: color,
+                        fontWeight: 600,
+                        // "&:hover": {
+                        //   backgroundColor: backgroundColor,
+                        //   opacity: 0.8,
+                        // },
+                      }}
+                    >
+                      {option.name}
+                    </Box>
+                  );
+                }}
+              />
+            </Box>
+          </Grid>
+        </DialogContent>
+
+        <DialogActions>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => handleCloseOnClose()}
+          >
+            cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="success"
+            onClick={() => handleAssignRequestOnAccept()}
+          >
+            yes
+          </Button>
+        </DialogActions>
+      </BootstrapDialog>
+    </>
+  );
+});
+
+const CustomServiceHistoryTableRow = memo(function ({
+  tableHeaders,
+  rowSerialNumber,
+  row,
+  handleOpenAssignServiceDialog,
+}) {
+  const handleOpenAssignServiceDialogOnClick = useCallback(
+    (selectedRow) => {
+      handleOpenAssignServiceDialog(selectedRow);
+    },
+    [handleOpenAssignServiceDialog]
+  );
+  return (
+    <TableRow
+      hover
+      key={row?.id}
+      sx={{
+        // cursor: "pointer",
+        height: 30,
+        backgroundColor: "inherit",
+        "&:hover": {
+          backgroundColor: "inherit",
+        },
+      }}
+    >
+      {tableHeaders?.map((subitem, subIndex) => {
+        return (
+          <TableCell key={`table-body-cell=${subIndex}`} align="center">
+            {subitem?.key === "sno" ? (
+              <Typography sx={{ fontSize: "12.5px" }}>
+                {rowSerialNumber}
+              </Typography>
+            ) : subitem?.key === "createdAt" || subitem?.key === "updatedAt" ? (
+              <Typography sx={{ fontSize: "12.5px", whiteSpace: "nowrap" }}>
+                {row?.[subitem?.key] &&
+                  moment(row?.[subitem?.key]).format("DD-MM-YYYY hh:mm A")}
+              </Typography>
+            ) : subitem?.key === "serviceTypeStatus" ? (
+              <Typography sx={{ fontSize: "12.5px", whiteSpace: "nowrap" }}>
+                {row?.serviceTypeStatus?.replace(/_/g, " ")}
+              </Typography>
+            ) : subitem?.key === "serviceRequestStatus" ? (
+              <Box
+                sx={{
+                  color: getRoomServiceStatusColor(row?.serviceRequestStatus)
+                    ?.color,
+                  backgroundColor: getRoomServiceStatusColor(
+                    row?.serviceRequestStatus
+                  )?.bgcolor,
+                  fontWeight: 600,
+                  border: `0.5px solid ${
+                    getRoomServiceStatusColor(row?.serviceRequestStatus)?.color
+                  }`,
+                  py: 0.2,
+                  px: "5px",
+                  textAlign: "center",
+                  // width: "178px",
+                  width: "auto",
+                  borderRadius: 2,
+                  whiteSpace: "nowrap",
+                  fontSize: "12.7px",
+                }}
+              >
+                {row?.serviceRequestStatus?.replace(/_/g, " ")}
+              </Box>
+            ) : // </Typography>
+            subitem?.key === "serviceHistoryAction" ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  gap: 1,
+                  width: "100%",
+                  justifyContent: "flex-start",
+                }}
+              >
+                {!Boolean(row?.assignedPerson) && (
+                  <Tooltip title={"Assign"} arrow>
+                    <Button
+                      variant="outlined"
+                      // color="success"
+                      sx={{ minWidth: "unset", width: "7px" }}
+                      onClick={() => handleOpenAssignServiceDialogOnClick(row)}
+                    >
+                      <AssignmentLateIcon
+                        sx={{ fontSize: "12px", fontWeight: 600 }}
+                      />
+                    </Button>
+                  </Tooltip>
+                )}
+              </Box>
+            ) : (
+              <Typography sx={{ fontSize: "12.5px", whiteSpace: "nowrap" }}>
+                {getCellValue(row, subitem?.key)}
+              </Typography>
+            )}
+          </TableCell>
+        );
+      })}
+    </TableRow>
+  );
+});
+
+const CustomServiceHistoryTableContainer = memo(function ({
+  tableHeaders,
+  tableData,
+  handleOpenAssignServiceDialog,
+}) {
+  console.log("CustomServiceHistoryTableContainer tableData : ", tableData);
+
+  return (
+    <React.Fragment>
+      <TableContainer
+        component={Paper}
+        sx={{
+          overflow: "auto",
+          maxHeight: "165px",
+
+          "&::-webkit-scrollbar": {
+            // height: "14px",
+          },
+          "&::-webkit-scrollbar-track": {
+            backgroundColor: "#ffffff00",
+            width: "none",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#280071",
+            borderRadius: "4px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: "#3b0b92",
+          },
+        }}
+      >
+        <Table aria-label="simple table" stickyHeader size="small">
+          <TableHead>
+            <TableRow>
+              {tableHeaders?.map((item, index) => {
+                return (
+                  <TableCell
+                    key={`table-head-${index}`}
+                    align="center"
+                    sx={{
+                      color: "white",
+                      backgroundColor: "primary.main",
+                      fontWeight: "bold",
+                      paddingY: "5px",
+
+                      fontSize: "13px",
+                      whiteSpace: "nowrap",
+                      py: { xs: "6px", lg: "6px" },
+                    }}
+                  >
+                    {item?.label}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {Boolean(tableData?.length > 0) ? (
+              tableData?.map((row, index) => (
+                <CustomServiceHistoryTableRow
+                  tableHeaders={tableHeaders}
+                  rowSerialNumber={index + 1}
+                  key={row.id}
+                  row={row}
+                  handleOpenAssignServiceDialog={handleOpenAssignServiceDialog}
+                />
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  align="center"
+                  colSpan={
+                    Boolean(tableHeaders?.length) ? tableHeaders?.length : 1
+                  }
+                >
+                  No data available
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </React.Fragment>
+  );
+});
+
 const ShowcaseBookingDialog = memo(function ({
   openShowcaseBookingDialog,
   handleCloseShowcaseBookingDialog,
   title = "",
   type,
   bookingDetailsData,
+  serviceHistoryTableHeaders,
+  handleOpenAssignServiceDialog,
 }) {
   console.log("type : ", type);
   console.log(
@@ -1097,6 +1484,38 @@ const ShowcaseBookingDialog = memo(function ({
                     )}
                   </Grid>
                 </Paper>
+
+                {Boolean(bookingDetailsData?.roomServiceDataList?.length) && (
+                  <Paper
+                    elevation={1}
+                    sx={{
+                      width: "100%",
+                      boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
+                      borderRadius: "10px",
+                      paddingY: "5px",
+                      paddingX: "10px",
+                      mb: 1.5,
+                    }}
+                  >
+                    <Typography sx={{ fontSize: "14px", fontWeight: 550 }}>
+                      Services :
+                    </Typography>
+                    <Divider sx={{ mb: 1.5 }} />
+                    <Grid container size={12} rowSpacing={1.5}>
+                      <Grid size={12}>
+                        <Box sx={{ width: "100%" }}>
+                          <CustomServiceHistoryTableContainer
+                            tableHeaders={serviceHistoryTableHeaders}
+                            tableData={bookingDetailsData?.roomServiceDataList}
+                            handleOpenAssignServiceDialog={
+                              handleOpenAssignServiceDialog
+                            }
+                          />
+                        </Box>
+                      </Grid>
+                    </Grid>
+                  </Paper>
+                )}
               </>
             )}
           </Box>
@@ -2476,6 +2895,20 @@ const FrontdeskBookingHistory = () => {
     }),
     []
   );
+
+  const serviceHistoryTableHeaders = React.useMemo(() => {
+    return [
+      { label: "Sl. No.", key: "sno" },
+      { label: "Service Type", key: "serviceTypeStatus" },
+      { label: "Floor", key: "roomData.floorNo" },
+      { label: "Room No.", key: "roomData.roomNo" },
+      { label: "Created At", key: "createdAt" },
+      { label: "Updated At", key: "updatedAt" },
+      { label: "Assigned Person", key: "assignedPerson.name" },
+      { label: "Status", key: "serviceRequestStatus" },
+      { label: "Action", key: "serviceHistoryAction" },
+    ];
+  }, []);
   const [bookingHistoryTableFilters, setBookingHistoryTableFilters] = useState(
     initialBookingHistoryTableFilters
   );
@@ -2614,6 +3047,17 @@ const FrontdeskBookingHistory = () => {
 
   console.log("getRoomsByRoomTypeData : ", getRoomsByRoomTypeData);
 
+  const {
+    data: houseKeepingStaffList = {
+      data: [],
+    },
+  } = useGetAllHouseKeepingStaffQuery({
+    hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId,
+  });
+
+  const [assignHouseKeepingRequest, assignHouseKeepingRequestRes] =
+    useAssignHouseKeepingRequestMutation();
+
   const filteredRooms = useMemo(() => {
     return filterBookingRooms(
       getRoomsByRoomTypeData?.data,
@@ -2670,6 +3114,13 @@ const FrontdeskBookingHistory = () => {
     initialShowcaseBookingDialogData
   );
   // console.log("showcaseBookingDialogData : ", showcaseBookingDialogData);
+
+  const [openAssignServiceDialog, setOpenAssignServiceDialog] = useState(false);
+
+  const [selectedServiceHistory, setSelectedServiceHistory] = useState(null);
+
+  const [selectedStaffForService, setSelectedStaffForService] = useState(null);
+  console.log("selectedStaffForService", selectedStaffForService);
 
   const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
 
@@ -3045,6 +3496,61 @@ const FrontdeskBookingHistory = () => {
     [handleChangeSetPaymentDialogFinalPayload]
   );
 
+  const handleOpenAssignServiceDialog = useCallback((rowValue) => {
+    setOpenAssignServiceDialog(true);
+    setSelectedServiceHistory(rowValue);
+  }, []);
+
+  const handleCloseAssignServiceDialog = useCallback(() => {
+    setOpenAssignServiceDialog(false);
+    setSelectedServiceHistory(null);
+    setSelectedStaffForService(null);
+  }, []);
+
+  const handleChangeSelectedStaffForService = useCallback((value) => {
+    setSelectedStaffForService(value || null);
+  }, []);
+
+  const handleAssignRequest = useCallback(() => {
+    if (!selectedStaffForService) {
+      setSnack({
+        open: true,
+        message: "Please select staff",
+        severity: "error",
+      });
+      return;
+    }
+
+    const payload = {
+      id: selectedServiceHistory?.id,
+      createdBy: selectedStaffForService?.id,
+    };
+    assignHouseKeepingRequest(payload)
+      .unwrap()
+      .then((res) => {
+        setSnack({
+          open: true,
+          message: res.message,
+          severity: "success",
+        });
+        handleCloseAssignServiceDialog();
+        handleCloseShowcaseBookingDialog();
+      })
+      .catch((err) => {
+        setSnack({
+          open: true,
+          message: err.data?.message || err.data || "Something Went Wrong",
+          severity: "error",
+        });
+      });
+  }, [
+    selectedStaffForService,
+    assignHouseKeepingRequest,
+    handleCloseAssignServiceDialog,
+    selectedServiceHistory,
+    handleCloseShowcaseBookingDialog,
+  ]);
+
   useEffect(() => {
     const timerId = setTimeout(() => {
       setDebouncedBookingRefNoSearch(
@@ -3236,6 +3742,8 @@ const FrontdeskBookingHistory = () => {
         title={showcaseBookingDialogData?.title}
         type={showcaseBookingDialogData?.type}
         bookingDetailsData={showcaseBookingDialogData?.bookingDetailsData}
+        serviceHistoryTableHeaders={serviceHistoryTableHeaders}
+        handleOpenAssignServiceDialog={handleOpenAssignServiceDialog}
       />
       <LoadingComponent
         open={
@@ -3249,6 +3757,7 @@ const FrontdeskBookingHistory = () => {
           isRoomBookingHistoryByHotelIdFetching ||
           approveBookingCancelRequestRes.isLoading ||
           exportBookingHistoryRes.isLoading ||
+          assignHouseKeepingRequestRes?.isLoading ||
           false
         }
       />
@@ -3268,6 +3777,16 @@ const FrontdeskBookingHistory = () => {
             paymentDialogMutationType
           )?.afterMutationSuccessFunction
         }
+      />
+      <HouseKeepingRequestDialog
+        open={openAssignServiceDialog}
+        onClose={handleCloseAssignServiceDialog}
+        selectedServiceHistory={selectedServiceHistory}
+        houseKeepingStaffList={houseKeepingStaffList?.data || []}
+        handleChangeSelectedStaffForService={
+          handleChangeSelectedStaffForService
+        }
+        handleAssignRequest={handleAssignRequest}
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </>

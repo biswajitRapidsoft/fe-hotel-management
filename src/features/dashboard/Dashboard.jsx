@@ -1172,7 +1172,7 @@ const CustomAlertCard = memo(function ({ alertChipData, alertData }) {
         sx={{
           width: "100%",
           mt: 1,
-          height: "100px",
+          // height: "100px",
           overflowY: "auto",
           display: "flex",
           flexWrap: "wrap",
@@ -1560,7 +1560,9 @@ const RoomServiceCard = memo(function ({
           sx={{
             width: "100",
             overflowY: "auto",
-            height: "310px",
+            // height:
+            //   selectedRoomStatusType?.key === AVAILABLE?.key ? "230px" : "auto",
+            // // maxHeight: "400px",
             mt: 1,
           }}
         >
@@ -5091,7 +5093,7 @@ const CustomFormDrawer = memo(function ({
                           fontWeight: 600,
                         }}
                       >
-                        Room Base Price
+                        Room Base Price (per day)
                       </Typography>
                     </Grid>
                     <Grid size={7}>
@@ -5134,7 +5136,7 @@ const CustomFormDrawer = memo(function ({
                           fontWeight: 600,
                         }}
                       >
-                        Accumulate Charge
+                        Total Charge
                       </Typography>
                     </Grid>
                     <Grid size={7}>
@@ -8921,11 +8923,12 @@ const Dashboard = () => {
               sx={{
                 width: "100%",
                 height: {
-                  xs: "calc(100vh - 220px)",
-                  xl: "calc(100vh - 190px)",
+                  xs: "calc(100vh - 230px)",
+                  xl: "calc(100vh - 200px)",
                 },
                 overflowX: "hidden",
                 overflowY: "auto",
+                pt: "3px",
               }}
             >
               <Grid container size={12} spacing={2}>
@@ -8952,11 +8955,12 @@ const Dashboard = () => {
               sx={{
                 width: "100%",
                 height: {
-                  xs: "calc(100vh - 220px)",
-                  xl: "calc(100vh - 190px)",
+                  xs: "calc(100vh - 230px)",
+                  xl: "calc(100vh - 200px)",
                 },
                 overflowX: "hidden",
                 overflowY: "auto",
+                pt: "3px",
               }}
             >
               <Grid container size={12} spacing={1.5}>
