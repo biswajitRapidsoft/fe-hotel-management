@@ -26,9 +26,10 @@ import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 
 import {
-  useGetAllPromoCodeQuery,
+  // useGetAllPromoCodeQuery,
   useCreatePromoCodeMutation,
   useGetAllPromocodeTypesQuery,
+  useGetAllPromoCodeListForAdminQuery,
 } from "../../services/hotel";
 import { ADMIN } from "../../helper/constants";
 
@@ -57,11 +58,14 @@ const PromcodeList = () => {
       data: [],
     },
     isLoading: isPromoCodeListDataLoading,
-  } = useGetAllPromoCodeQuery(sessionStorage.getItem("hotelIdForPromoCode"), {
-    skip:
-      !Boolean(sessionStorage.getItem("hotelIdForPromoCode")) ||
-      JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN,
-  });
+  } = useGetAllPromoCodeListForAdminQuery(
+    JSON.parse(sessionStorage.getItem("data")).hotelId,
+    {
+      skip:
+        !Boolean(sessionStorage.getItem("hotelIdForPromoCode")) ||
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN,
+    }
+  );
 
   const {
     data: promoCodeTypeList = {
@@ -539,6 +543,7 @@ const PromcodeList = () => {
               >
                 <TableCell>Sl No.</TableCell>
                 <TableCell> Code Name</TableCell>
+                <TableCell>Type</TableCell>
                 <TableCell>From Date</TableCell>
                 <TableCell>To Date</TableCell>
                 <TableCell>Discount Percentage</TableCell>
@@ -561,8 +566,11 @@ const PromcodeList = () => {
                   >
                     <TableCell> {index + 1}</TableCell>
                     <TableCell>{item?.codeName}</TableCell>
-                    <TableCell>{item?.fromDate}</TableCell>
-                    <TableCell>{item?.toDate}</TableCell>
+                    <TableCell>{item.promocodeType}</TableCell>
+                    <TableCell sx={{ width: "15%" }}>
+                      {item?.fromDate}
+                    </TableCell>
+                    <TableCell sx={{ width: "15%" }}>{item?.toDate}</TableCell>
                     <TableCell>{item?.discountPercentage}</TableCell>
                     <TableCell>{item?.maxDiscountAmount}</TableCell>
                     <TableCell>{item?.minOrderValue}</TableCell>
