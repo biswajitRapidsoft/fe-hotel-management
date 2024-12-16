@@ -26,9 +26,10 @@ import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 
 import {
-  useGetAllPromoCodeQuery,
+  // useGetAllPromoCodeQuery,
   useCreatePromoCodeMutation,
   useGetAllPromocodeTypesQuery,
+  useGetAllPromoCodeListForAdminQuery,
 } from "../../services/hotel";
 import { ADMIN } from "../../helper/constants";
 
@@ -57,11 +58,14 @@ const PromcodeList = () => {
       data: [],
     },
     isLoading: isPromoCodeListDataLoading,
-  } = useGetAllPromoCodeQuery(sessionStorage.getItem("hotelIdForPromoCode"), {
-    skip:
-      !Boolean(sessionStorage.getItem("hotelIdForPromoCode")) ||
-      JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN,
-  });
+  } = useGetAllPromoCodeListForAdminQuery(
+    JSON.parse(sessionStorage.getItem("data")).hotelId,
+    {
+      skip:
+        !Boolean(sessionStorage.getItem("hotelIdForPromoCode")) ||
+        JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN,
+    }
+  );
 
   const {
     data: promoCodeTypeList = {

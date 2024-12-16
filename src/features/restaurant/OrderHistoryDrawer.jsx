@@ -48,20 +48,11 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
   const [rateFood, rateFoodRes] = useRateFoodMutation();
   const handleDownloadInvoice = React.useCallback((order) => {
     const doc = new jsPDF();
-
-    // Restaurant Details
     doc.setFontSize(16);
     doc.text("Restaurant Invoice", 20, 20);
     doc.setFontSize(12);
     doc.text(order.bookingDetails.address, 20, 30);
-    // doc.text("Phone: (123) 456-7890", 20, 35);
-    // doc.text("Website: www.thegourmethaven.com", 20, 40);
 
-    // Invoice Title
-    // doc.setFontSize(14);
-    // doc.text("Invoice", 150, 20);
-
-    // Customer & Order Details
     doc.setFontSize(12);
     doc.text(
       `Customer Name: ${order.bookingDetails.firstName} ${
@@ -103,7 +94,7 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
     doc.text(`Rs. ${total.toFixed(2)}`, 180, yPosition);
     yPosition += 10;
 
-    const gst = order.bookingDetails.totalPrice * 0.18;
+    const gst = total * 0.18;
     doc.text("GST (18%):", 140, yPosition);
     doc.text(`Rs. ${gst.toFixed(2)}`, 180, yPosition);
     yPosition += 10;

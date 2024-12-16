@@ -104,13 +104,23 @@ const hotelApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["getAllPromoCode"],
     }),
+    getAllPromoCodeListForAdmin: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllPromoCodeListForAdmin,
+        method: "GET",
+        params: {
+          hotelId: payload,
+        },
+      }),
+      providesTags: ["getAllPromoCodeListForAdmin"],
+    }),
     createPromoCode: build.mutation({
       query: (payload) => ({
         url: config.apiName.createPromocode,
         method: "POST",
         data: payload,
       }),
-      invalidatesTags: ["getAllPromoCode"],
+      invalidatesTags: ["getAllPromoCode", "getAllPromoCodeListForAdmin"],
     }),
     getAllPromocodeTypes: build.query({
       query: (payload) => ({
@@ -135,6 +145,7 @@ export const {
   useAddBanquetMutation,
   useGetAllBanquetQuery,
   useGetAllPromoCodeQuery,
+  useGetAllPromoCodeListForAdminQuery,
   useCreatePromoCodeMutation,
   useGetAllPromocodeTypesQuery,
 } = hotelApi;
