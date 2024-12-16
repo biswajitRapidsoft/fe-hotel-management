@@ -1560,7 +1560,7 @@ const RoomServiceCard = memo(function ({
           sx={{
             width: "100",
             overflowY: "auto",
-            height: "310px",
+            // height: "310px",
             mt: 1,
           }}
         >
@@ -4683,6 +4683,15 @@ const CustomFormDrawer = memo(function ({
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
                             disablePast
+                            shouldDisableDate={(date) => {
+                              // if (customFormDrawerData?.isBookingForToday) {
+                              //   return false;
+                              // }
+                              return (
+                                new Date(date.toString()).toDateString() ===
+                                new Date().toDateString()
+                              );
+                            }}
                             value={customFormDrawerData?.fromDate || null}
                             onChange={(newVal) =>
                               handleChangeCustomFormDrawerDataOnChange(
@@ -4793,273 +4802,284 @@ const CustomFormDrawer = memo(function ({
                       </Box>
                     </Grid>
                   )}
-
-                  <Grid size={12}>
-                    <Grid container size={12}>
-                      {/* STAYERS */}
+                  {customFormDrawerData?.isBookingForToday && (
+                    <React.Fragment>
                       <Grid size={12}>
-                        <Typography
+                        <Grid container size={12}>
+                          {/* STAYERS */}
+                          <Grid size={12}>
+                            <Typography
+                              sx={{
+                                fontSize: "16px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                                marginTop: "5px",
+                              }}
+                            >
+                              Guests Verification Details :
+                            </Typography>
+                            <Divider />
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                      <Grid size={{ xs: 12 }}>
+                        <Box
                           sx={{
-                            fontSize: "16px",
-                            // color: "#707070",
-                            fontWeight: 600,
-                            marginTop: "5px",
+                            width: "100%",
+                            // maxHeight: "calc(100vh - 550px)",
+                            maxHeight: "270px",
+                            overflowX: "hidden",
+                            overflowY: "auto",
+                            marginTop: "10px",
                           }}
                         >
-                          Guests Verification Details :
-                        </Typography>
-                        <Divider />
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                  <Grid size={{ xs: 12 }}>
-                    <Box
-                      sx={{
-                        width: "100%",
-                        // maxHeight: "calc(100vh - 550px)",
-                        maxHeight: "270px",
-                        overflowX: "hidden",
-                        overflowY: "auto",
-                        marginTop: "10px",
-                      }}
-                    >
-                      {customFormDrawerData?.bookingMapDatas?.map(
-                        (item, index) => {
-                          return (
-                            <Box
-                              key={`verification-${index}`}
-                              sx={{ width: "100%", marginBottom: "10px" }}
-                            >
-                              <Grid container size={12} columnSpacing={1}>
-                                <Grid size={12}>
-                                  <Typography
-                                    sx={{
-                                      fontSize: "15px",
-                                      // color: "#707070",
-                                      fontWeight: 600,
-                                      width: "100%",
-                                      bgcolor: "#e8e8e8",
-                                    }}
-                                  >
-                                    Customer {index + 1} :
-                                  </Typography>
-                                </Grid>
-                                <Grid size={{ xs: 6, md: 4 }}>
-                                  <TextField
-                                    margin="normal"
-                                    required
-                                    fullWidth
-                                    id={`customerName${index}`}
-                                    label="Guest Name"
-                                    name="customerName"
-                                    inputProps={{
-                                      maxLength: 90,
-                                      style: {
-                                        fontSize: "14px",
-                                      },
-                                    }}
-                                    InputLabelProps={{
-                                      style: {
-                                        fontSize: "13px",
-                                      },
-                                    }}
-                                    // autoComplete="noOfPeoples"
-                                    variant="standard"
-                                    value={item?.customerName || ""}
-                                    onChange={(e) =>
-                                      handleChangeCustomFormDrawerDataOnChange(
-                                        "customerName",
-                                        e?.target?.value,
-                                        index
-                                      )
-                                    }
-                                    sx={{
-                                      "& .MuiInputBase-root": {
-                                        height: "23px",
-                                      },
-                                      "& .MuiTextField-root": {
-                                        maxHeight: "30px",
-                                        backgroundColor: "transparent",
-                                      },
-                                    }}
-                                  />
-                                </Grid>
-                                <Grid size={{ xs: 6, md: 4 }}>
-                                  <Box
-                                    sx={{
-                                      height: "100%",
-                                      display: "flex",
-                                      alignItems: "end",
-                                      paddingBottom: "7px",
-                                      ".MuiTextField-root": {
-                                        width: "100%",
-                                        backgroundColor: "transparent",
-                                        ".MuiInputBase-root": {
-                                          color: "#B4B4B4",
-                                          background:
-                                            "rgba(255, 255, 255, 0.25)",
-                                        },
-                                      },
-                                      ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before":
-                                        {
-                                          borderBottom: (theme) =>
-                                            `1px solid ${theme.palette.primary.main}`,
-                                        },
-                                      ".css-iwadjf-MuiInputBase-root-MuiInput-root:before":
-                                        {
-                                          borderBottom: (theme) =>
-                                            `1px solid ${theme.palette.primary.main}`,
-                                        },
-                                      "& .MuiInputLabel-root": {
-                                        fontSize: "13px",
-                                      },
-                                      "& .MuiOutlinedInput-root": {
-                                        height: "35px",
-                                        minHeight: "35px",
-                                      },
-                                      "& .MuiInputBase-input": {
-                                        padding: "13px",
-                                        height: "100%",
-                                        boxSizing: "border-box",
-                                        fontSize: "13px",
-                                      },
-                                    }}
-                                  >
-                                    <Autocomplete
-                                      fullWidth
-                                      options={
-                                        allGovtIdsData?.data?.map((item) => ({
-                                          key: item,
-                                          name: item.replace(/_/g, " "),
-                                        })) || []
-                                      }
-                                      disableClearable
-                                      value={item?.govtIdType || null}
-                                      onChange={(e, newVal) =>
-                                        handleChangeCustomFormDrawerDataOnChange(
-                                          "govtIdType",
-                                          newVal,
-                                          index
-                                        )
-                                      }
-                                      inputValue={item?.govtIdTypeInputValue}
-                                      onInputChange={(e, newVal) =>
-                                        handleChangeCustomFormDrawerDataOnChange(
-                                          "govtIdTypeInputValue",
-                                          newVal,
-                                          index
-                                        )
-                                      }
-                                      getOptionLabel={(option) => option?.name}
-                                      clearOnEscape
-                                      // disablePortal
-                                      popupIcon={
-                                        <KeyboardArrowDownIcon color="primary" />
-                                      }
-                                      sx={{
-                                        // width: 200,
-                                        ".MuiInputBase-root": {
-                                          color: "#fff",
-                                        },
-                                      }}
-                                      componentsProps={{
-                                        popper: {
-                                          sx: {
-                                            "& .MuiAutocomplete-listbox": {
-                                              maxHeight: "150px",
-                                              overflow: "auto",
-                                            },
-                                            "& .MuiAutocomplete-option": {
-                                              fontSize: "13px", // Specifically targeting individual options
-                                            },
-                                            "& .MuiAutocomplete-listbox .MuiAutocomplete-option:hover":
-                                              {
-                                                backgroundColor:
-                                                  "#E9E5F1 !important",
-                                                color: "#280071 !important",
-                                                fontWeight: 600,
-                                              },
-                                            "& .MuiAutocomplete-listbox .MuiAutocomplete-option[aria-selected='true']":
-                                              {
-                                                backgroundColor:
-                                                  "#E9E5F1 !important",
-                                                color: "#280071 !important",
-                                                fontWeight: 600,
-                                              },
+                          {customFormDrawerData?.bookingMapDatas?.map(
+                            (item, index) => {
+                              return (
+                                <Box
+                                  key={`verification-${index}`}
+                                  sx={{ width: "100%", marginBottom: "10px" }}
+                                >
+                                  <Grid container size={12} columnSpacing={1}>
+                                    <Grid size={12}>
+                                      <Typography
+                                        sx={{
+                                          fontSize: "15px",
+                                          // color: "#707070",
+                                          fontWeight: 600,
+                                          width: "100%",
+                                          bgcolor: "#e8e8e8",
+                                        }}
+                                      >
+                                        Customer {index + 1} :
+                                      </Typography>
+                                    </Grid>
+                                    <Grid size={{ xs: 6, md: 4 }}>
+                                      <TextField
+                                        margin="normal"
+                                        required
+                                        fullWidth
+                                        id={`customerName${index}`}
+                                        label="Guest Name"
+                                        name="customerName"
+                                        inputProps={{
+                                          maxLength: 90,
+                                          style: {
+                                            fontSize: "14px",
                                           },
-                                        },
-                                      }}
-                                      size="small"
-                                      clearIcon={<ClearIcon color="primary" />}
-                                      PaperComponent={(props) => (
-                                        <Paper
+                                        }}
+                                        InputLabelProps={{
+                                          style: {
+                                            fontSize: "13px",
+                                          },
+                                        }}
+                                        // autoComplete="noOfPeoples"
+                                        variant="standard"
+                                        value={item?.customerName || ""}
+                                        onChange={(e) =>
+                                          handleChangeCustomFormDrawerDataOnChange(
+                                            "customerName",
+                                            e?.target?.value,
+                                            index
+                                          )
+                                        }
+                                        sx={{
+                                          "& .MuiInputBase-root": {
+                                            height: "23px",
+                                          },
+                                          "& .MuiTextField-root": {
+                                            maxHeight: "30px",
+                                            backgroundColor: "transparent",
+                                          },
+                                        }}
+                                      />
+                                    </Grid>
+                                    <Grid size={{ xs: 6, md: 4 }}>
+                                      <Box
+                                        sx={{
+                                          height: "100%",
+                                          display: "flex",
+                                          alignItems: "end",
+                                          paddingBottom: "7px",
+                                          ".MuiTextField-root": {
+                                            width: "100%",
+                                            backgroundColor: "transparent",
+                                            ".MuiInputBase-root": {
+                                              color: "#B4B4B4",
+                                              background:
+                                                "rgba(255, 255, 255, 0.25)",
+                                            },
+                                          },
+                                          ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before":
+                                            {
+                                              borderBottom: (theme) =>
+                                                `1px solid ${theme.palette.primary.main}`,
+                                            },
+                                          ".css-iwadjf-MuiInputBase-root-MuiInput-root:before":
+                                            {
+                                              borderBottom: (theme) =>
+                                                `1px solid ${theme.palette.primary.main}`,
+                                            },
+                                          "& .MuiInputLabel-root": {
+                                            fontSize: "13px",
+                                          },
+                                          "& .MuiOutlinedInput-root": {
+                                            height: "35px",
+                                            minHeight: "35px",
+                                          },
+                                          "& .MuiInputBase-input": {
+                                            padding: "13px",
+                                            height: "100%",
+                                            boxSizing: "border-box",
+                                            fontSize: "13px",
+                                          },
+                                        }}
+                                      >
+                                        <Autocomplete
+                                          fullWidth
+                                          options={
+                                            allGovtIdsData?.data?.map(
+                                              (item) => ({
+                                                key: item,
+                                                name: item.replace(/_/g, " "),
+                                              })
+                                            ) || []
+                                          }
+                                          disableClearable
+                                          value={item?.govtIdType || null}
+                                          onChange={(e, newVal) =>
+                                            handleChangeCustomFormDrawerDataOnChange(
+                                              "govtIdType",
+                                              newVal,
+                                              index
+                                            )
+                                          }
+                                          inputValue={
+                                            item?.govtIdTypeInputValue
+                                          }
+                                          onInputChange={(e, newVal) =>
+                                            handleChangeCustomFormDrawerDataOnChange(
+                                              "govtIdTypeInputValue",
+                                              newVal,
+                                              index
+                                            )
+                                          }
+                                          getOptionLabel={(option) =>
+                                            option?.name
+                                          }
+                                          clearOnEscape
+                                          // disablePortal
+                                          popupIcon={
+                                            <KeyboardArrowDownIcon color="primary" />
+                                          }
                                           sx={{
-                                            background: "#fff",
-                                            color: "#B4B4B4",
-                                            // borderRadius: "10px",
+                                            // width: 200,
+                                            ".MuiInputBase-root": {
+                                              color: "#fff",
+                                            },
                                           }}
-                                          {...props}
+                                          componentsProps={{
+                                            popper: {
+                                              sx: {
+                                                "& .MuiAutocomplete-listbox": {
+                                                  maxHeight: "150px",
+                                                  overflow: "auto",
+                                                },
+                                                "& .MuiAutocomplete-option": {
+                                                  fontSize: "13px", // Specifically targeting individual options
+                                                },
+                                                "& .MuiAutocomplete-listbox .MuiAutocomplete-option:hover":
+                                                  {
+                                                    backgroundColor:
+                                                      "#E9E5F1 !important",
+                                                    color: "#280071 !important",
+                                                    fontWeight: 600,
+                                                  },
+                                                "& .MuiAutocomplete-listbox .MuiAutocomplete-option[aria-selected='true']":
+                                                  {
+                                                    backgroundColor:
+                                                      "#E9E5F1 !important",
+                                                    color: "#280071 !important",
+                                                    fontWeight: 600,
+                                                  },
+                                              },
+                                            },
+                                          }}
+                                          size="small"
+                                          clearIcon={
+                                            <ClearIcon color="primary" />
+                                          }
+                                          PaperComponent={(props) => (
+                                            <Paper
+                                              sx={{
+                                                background: "#fff",
+                                                color: "#B4B4B4",
+                                                // borderRadius: "10px",
+                                              }}
+                                              {...props}
+                                            />
+                                          )}
+                                          renderInput={(params) => (
+                                            <TextField
+                                              {...params}
+                                              label="Govt. ID Type"
+                                              variant="standard"
+                                            />
+                                          )}
                                         />
-                                      )}
-                                      renderInput={(params) => (
-                                        <TextField
-                                          {...params}
-                                          label="Govt. ID Type"
-                                          variant="standard"
-                                        />
-                                      )}
-                                    />
-                                  </Box>
-                                </Grid>
-                                <Grid size={{ xs: 6, md: 4 }}>
-                                  <TextField
-                                    margin="normal"
-                                    required
-                                    fullWidth
-                                    disabled={!Boolean(item?.govtIdType)}
-                                    id={`govtIdNo${index}`}
-                                    label="Govt. Id"
-                                    name="govtIdNo"
-                                    autoComplete="govtIdNo"
-                                    variant="standard"
-                                    inputProps={{
-                                      maxLength: 50,
-                                      style: {
-                                        fontSize: "14px",
-                                      },
-                                    }}
-                                    InputLabelProps={{
-                                      style: {
-                                        fontSize: "13px",
-                                      },
-                                    }}
-                                    value={item?.govtIdNo || ""}
-                                    onChange={(e) =>
-                                      handleChangeCustomFormDrawerDataOnChange(
-                                        "govtIdNo",
-                                        e?.target?.value,
-                                        index
-                                      )
-                                    }
-                                    sx={{
-                                      "& .MuiInputBase-root": {
-                                        height: "23px",
-                                      },
-                                      "& .MuiTextField-root": {
-                                        maxHeight: "30px",
-                                        backgroundColor: "transparent",
-                                      },
-                                    }}
-                                  />
-                                </Grid>
-                              </Grid>
-                            </Box>
-                          );
-                        }
-                      )}
-                      {/* <Grid size={{ xs: 12 }}></Grid> */}
-                    </Box>
-                  </Grid>
+                                      </Box>
+                                    </Grid>
+                                    <Grid size={{ xs: 6, md: 4 }}>
+                                      <TextField
+                                        margin="normal"
+                                        required
+                                        fullWidth
+                                        disabled={!Boolean(item?.govtIdType)}
+                                        id={`govtIdNo${index}`}
+                                        label="Govt. Id"
+                                        name="govtIdNo"
+                                        autoComplete="govtIdNo"
+                                        variant="standard"
+                                        inputProps={{
+                                          maxLength: 50,
+                                          style: {
+                                            fontSize: "14px",
+                                          },
+                                        }}
+                                        InputLabelProps={{
+                                          style: {
+                                            fontSize: "13px",
+                                          },
+                                        }}
+                                        value={item?.govtIdNo || ""}
+                                        onChange={(e) =>
+                                          handleChangeCustomFormDrawerDataOnChange(
+                                            "govtIdNo",
+                                            e?.target?.value,
+                                            index
+                                          )
+                                        }
+                                        sx={{
+                                          "& .MuiInputBase-root": {
+                                            height: "23px",
+                                          },
+                                          "& .MuiTextField-root": {
+                                            maxHeight: "30px",
+                                            backgroundColor: "transparent",
+                                          },
+                                        }}
+                                      />
+                                    </Grid>
+                                  </Grid>
+                                </Box>
+                              );
+                            }
+                          )}
+                          {/* <Grid size={{ xs: 12 }}></Grid> */}
+                        </Box>
+                      </Grid>
+                    </React.Fragment>
+                  )}
                 </Grid>
 
                 <Grid size={12}>
