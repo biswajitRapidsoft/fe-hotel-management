@@ -543,6 +543,7 @@ const PromcodeList = () => {
               >
                 <TableCell>Sl No.</TableCell>
                 <TableCell> Code Name</TableCell>
+                <TableCell>Type</TableCell>
                 <TableCell>From Date</TableCell>
                 <TableCell>To Date</TableCell>
                 <TableCell>Discount Percentage</TableCell>
@@ -565,8 +566,11 @@ const PromcodeList = () => {
                   >
                     <TableCell> {index + 1}</TableCell>
                     <TableCell>{item?.codeName}</TableCell>
-                    <TableCell>{item?.fromDate}</TableCell>
-                    <TableCell>{item?.toDate}</TableCell>
+                    <TableCell>{item.promocodeType}</TableCell>
+                    <TableCell sx={{ width: "15%" }}>
+                      {item?.fromDate}
+                    </TableCell>
+                    <TableCell sx={{ width: "15%" }}>{item?.toDate}</TableCell>
                     <TableCell>{item?.discountPercentage}</TableCell>
                     <TableCell>{item?.maxDiscountAmount}</TableCell>
                     <TableCell>{item?.minOrderValue}</TableCell>
