@@ -9,6 +9,8 @@ import {
   Grid2 as Grid,
   Button,
   Rating,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import TextField from "@mui/material/TextField";
 import Dialog from "@mui/material/Dialog";
@@ -27,6 +29,9 @@ import {
   ORDER_PLACED,
   REJECTED,
 } from "../../helper/constants";
+import { jsPDF } from "jspdf";
+
+import ReceiptIcon from "@mui/icons-material/Receipt";
 
 const drawerWidth = 430;
 
@@ -40,7 +45,7 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
   const [reviewDialog, setReviewDialog] = React.useState(null);
   const [cancelFood, cancelFoodRes] = useUpdateFoodOrderStatusMutation();
   const [rateFood, rateFoodRes] = useRateFoodMutation();
-
+  const handleDownloadInvoice = React.useCallback(() => {}, []);
   return (
     <Drawer
       sx={{
@@ -73,6 +78,13 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
                     backgroundColor: "#F1F1F1",
                   }}
                 >
+                  <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Tooltip title="Download Invoice" arrow>
+                      <IconButton onClick={handleDownloadInvoice}>
+                        <ReceiptIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
                   <Box
                     sx={{
                       display: "flex",
