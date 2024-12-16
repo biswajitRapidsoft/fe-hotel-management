@@ -32,6 +32,7 @@ import {
 import { jsPDF } from "jspdf";
 
 import ReceiptIcon from "@mui/icons-material/Receipt";
+import moment from "moment";
 
 const drawerWidth = 430;
 
@@ -45,7 +46,75 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
   const [reviewDialog, setReviewDialog] = React.useState(null);
   const [cancelFood, cancelFoodRes] = useUpdateFoodOrderStatusMutation();
   const [rateFood, rateFoodRes] = useRateFoodMutation();
-  const handleDownloadInvoice = React.useCallback(() => {}, []);
+  const handleDownloadInvoice = React.useCallback((order) => {
+    const doc = new jsPDF();
+
+    // Restaurant Details
+    doc.setFontSize(16);
+    doc.text("Restaurant Invoice", 20, 20);
+    doc.setFontSize(12);
+    doc.text(order.bookingDetails.address, 20, 30);
+    // doc.text("Phone: (123) 456-7890", 20, 35);
+    // doc.text("Website: www.thegourmethaven.com", 20, 40);
+
+    // Invoice Title
+    // doc.setFontSize(14);
+    // doc.text("Invoice", 150, 20);
+
+    // Customer & Order Details
+    doc.setFontSize(12);
+    doc.text(
+      `Customer Name: ${order.bookingDetails.firstName} ${
+        order.bookingDetails.middleName || ""
+      } ${order.bookingDetails.lastName || ""}`,
+      20,
+      50
+    );
+    doc.text(
+      `Order Status: ${order.bookingDetails.foodBookingStatus.replace(
+        "_",
+        " "
+      )}`,
+      20,
+      55
+    );
+    doc.text(
+      `Invoice Date: ${moment(order.bookingDetails.bookedOn).format(
+        "DD/MM/YYYY hh:mma"
+      )}`,
+      20,
+      60
+    );
+    doc.text(`Invoice Number: ${order.bookingDetails.orderId}`, 20, 65);
+
+    const tableTop = 80;
+    doc.text("Items", 20, tableTop);
+    doc.text("Quantity", 120, tableTop);
+
+    let yPosition = tableTop + 10;
+    order.itemsList.forEach((item) => {
+      doc.text(item.itemName, 20, yPosition);
+      doc.text(item.noOfItems.toString(), 120, yPosition);
+      yPosition += 10;
+    });
+
+    const total = order.bookingDetails.totalPrice;
+    doc.text("Subtotal:", 140, yPosition);
+    doc.text(`Rs. ${total.toFixed(2)}`, 180, yPosition);
+    yPosition += 10;
+
+    const gst = order.bookingDetails.totalPrice * 0.18;
+    doc.text("GST (18%):", 140, yPosition);
+    doc.text(`Rs. ${gst.toFixed(2)}`, 180, yPosition);
+    yPosition += 10;
+
+    const grandTotal = total + gst;
+    doc.text("Total Amount:", 140, yPosition);
+    doc.text(`Rs. ${grandTotal.toFixed(2)}`, 180, yPosition);
+    yPosition += 10;
+
+    doc.save("restaurant_invoice.pdf");
+  }, []);
   return (
     <Drawer
       sx={{
@@ -80,7 +149,7 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
                 >
                   <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                     <Tooltip title="Download Invoice" arrow>
-                      <IconButton onClick={handleDownloadInvoice}>
+                      <IconButton onClick={() => handleDownloadInvoice(order)}>
                         <ReceiptIcon />
                       </IconButton>
                     </Tooltip>
