@@ -10,12 +10,28 @@ import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 // import Confetti from "react-confetti";
 import Swal from "sweetalert2";
+import SportsGymnasticsIcon from "@mui/icons-material/SportsGymnastics";
+import WeekendIcon from "@mui/icons-material/Weekend";
+import LiquorIcon from "@mui/icons-material/Liquor";
+import RoomServiceOutlinedIcon from "@mui/icons-material/RoomServiceOutlined";
+import { PiWarningCircleLight } from "react-icons/pi";
 
+import PaymentIcon from "@mui/icons-material/Payment";
+import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 // import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ClearIcon from "@mui/icons-material/Clear";
 
+import RestaurantIcon from "@mui/icons-material/Restaurant";
+import CleaningServicesIcon from "@mui/icons-material/CleaningServices";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import DryCleaningIcon from "@mui/icons-material/DryCleaning";
+
+// import { getStatusColour } from "./GuestBookingHistoryDrawer";
 import {
+  Rating,
   Autocomplete,
   Box,
   Button,
@@ -28,7 +44,13 @@ import {
   Paper,
   FormGroup,
   Checkbox,
+  DialogTitle,
+  Tooltip,
+  DialogActions,
 } from "@mui/material";
+import Timeline from "@mui/lab/Timeline";
+import { timelineItemClasses } from "@mui/lab/TimelineItem";
+
 import CloseIcon from "@mui/icons-material/Close";
 import {
   useGetAllHotelsQuery,
@@ -37,6 +59,12 @@ import {
   useGetUserDetailsForBookingQuery,
   useGetAllFiltersDataQuery,
   useMakePaymentMutation,
+  useRoomCleanRequestMutation,
+  useRequestRoomCheckoutMutation,
+  useCancelHotelRoomMutation,
+  useLazyGetParkingDataForGuestQuery,
+  useMakePartialPaymentMutation,
+  useAddRatingMutation,
 } from "../../services/dashboard";
 import TextField from "@mui/material/TextField";
 import { CUSTOMER } from "../../helper/constants";
@@ -48,23 +76,100 @@ import LoadingComponent from "../../components/LoadingComponent";
 import GuestBookingHistoryDrawer from "./GuestBookingHistoryDrawer";
 import { IoCardOutline } from "react-icons/io5";
 import { RiSecurePaymentLine } from "react-icons/ri";
+import {
+  // TimelineConnector,
+  TimelineContent,
+  // TimelineDot,
+  TimelineItem,
+  TimelineSeparator,
+} from "@mui/lab";
+// import moment from "moment";
+import { useNavigate } from "react-router-dom";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
 const GuestDashboard = () => {
+  const navigate = useNavigate();
   const [bookingHistoryDrawerOpen, setBookingHistoryDrawerOpen] =
     React.useState(false);
+  const [selectedBookingRefNumber, setSelectedBookingRefNumber] =
+    React.useState(null);
+
+  const [cancelBookingOpen, setCancelBookingOpen] = React.useState(false);
+  const [reviewDialog, setReviewDialog] = React.useState(null);
+  const [roomCleanRequest, roomCleanRequestRes] = useRoomCleanRequestMutation();
+
+  const [makePartialPayment, makePartialPaymentRes] =
+    useMakePartialPaymentMutation();
+  const [requestRoomCheckout, requestRoomCheckoutRes] =
+    useRequestRoomCheckoutMutation();
+
+  const [rateStay, rateStayRes] = useAddRatingMutation();
+
+  const [openPaymentDialog, setOpenPaymentDialog] = React.useState(false);
+
+  const [openVehicleParkingDialog, setOpenVehicleParkingDialog] =
+    React.useState(false);
+  const [snack, setSnack] = React.useState({
+    open: false,
+    message: "",
+    severity: "",
+  });
+
   const [filters, setFilters] = React.useState({
     hotel: null,
     roomType: null,
     priceRange: null,
   });
 
+  const [makePartialPaymentPayload, setMakePartialPaymentPayload] =
+    React.useState(null);
+  const handleOpenBar = React.useCallback(
+    (bookingRefNumber, hotelId) => {
+      sessionStorage.setItem("bookingRefNumber", bookingRefNumber);
+      sessionStorage.setItem("hotelId", hotelId);
+      navigate("/bar");
+    },
+    [navigate]
+  );
+
   const toggleBookingHistoryDrawer = (open) => () => {
     setBookingHistoryDrawerOpen(open);
   };
+
+  const handleMakePayment = React.useCallback((booking) => {
+    console.log("bookinggg", booking);
+    const totalDebit = booking?.transactionDetails
+      ?.filter((item) => !item.isCredit)
+      ?.reduce((sum, item) => sum + item.amount, 0);
+
+    const totalCredit = booking?.transactionDetails
+      ?.filter((item) => item.isCredit)
+      ?.reduce((sum, item) => sum + item.amount, 0);
+
+    const difference = totalDebit - totalCredit;
+
+    console.log("difference", difference);
+    if (Boolean(difference <= 0)) {
+      Swal.fire({
+        position: "center",
+        icon: "error",
+        title: "You don't have any outstanding amount to pay",
+        showConfirmButton: false,
+        timer: 3000,
+      });
+    } else {
+      const payload = {
+        transactionReferenceNo: booking?.transactionReferenceNo,
+        bookingRefNumber: booking?.bookingRefNumber,
+        paidAmount: difference,
+      };
+      setMakePartialPaymentPayload(payload);
+      setOpenPaymentDialog(true);
+    }
+  }, []);
   const {
     data: hotelList = {
       data: [],
@@ -114,6 +219,73 @@ const GuestDashboard = () => {
     }
   );
 
+  const handleCancelClick = (bookingRefNumber) => {
+    setSelectedBookingRefNumber(bookingRefNumber);
+    setCancelBookingOpen(true);
+  };
+
+  // api call for room cleaning
+  const handleRoomCleanRequest = React.useCallback(
+    (roomId, hotelId) => {
+      const payload = {
+        id: roomId,
+        hotelId: hotelId,
+      };
+      roomCleanRequest(payload)
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res?.message || "Room clean request submitted",
+            severity: "success",
+          });
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message:
+              err?.data?.message ||
+              err?.data ||
+              "Unable to submit room clean request",
+            severity: "error",
+          });
+        });
+    },
+    [roomCleanRequest]
+  );
+
+  // api call for room checkout
+  const handleRequestRoomCheckout = React.useCallback(
+    (bookingRefNumber) => {
+      const payload = {
+        bookingRefNumber: bookingRefNumber,
+      };
+      requestRoomCheckout(payload)
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res?.message || "Check-out Request applied",
+            severity: "success",
+          });
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message:
+              err?.data?.message ||
+              err?.data ||
+              "Unable to submit checkout request",
+            severity: "error",
+          });
+        });
+    },
+    [requestRoomCheckout]
+  );
+
+  const handleOpenVehicleParkingModal = React.useCallback(() => {
+    setOpenVehicleParkingDialog(true);
+  }, []);
   return (
     <>
       <Box
@@ -156,11 +328,34 @@ const GuestDashboard = () => {
             </Button>
           </Box>
         </Box>
-        <Grid container size={12}>
-          <Grid size={{ xs: 12 }}>
+        <Grid container size={12} spacing={1}>
+          <Grid size={{ xs: 8 }}>
             <Box
               sx={{
                 width: "100%",
+                // backgroundColor: "#fff",
+                // height: "700px",
+                height: {
+                  xs: "calc(100vh - 220px)",
+                  xl: "calc(100vh - 220px)",
+                },
+                "&::-webkit-scrollbar": {
+                  width: "8px",
+                },
+                "&::-webkit-scrollbar-track": {
+                  backgroundColor: "transparent",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  backgroundColor: "transparent",
+                },
+                "&::-webkit-scrollbar-thumb:hover": {
+                  backgroundColor: "transparent",
+                },
+                p: 2,
+                overflowY: "auto",
+                boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
+                borderRadius: "1rem",
+                // box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
               }}
             >
               <Grid container size={12} spacing={2}>
@@ -168,8 +363,7 @@ const GuestDashboard = () => {
                   return (
                     <Grid
                       key={`hotel${index}`}
-                      // size={{ xs: 12, sm: 6, md: 4, lg: 4, xl: 4 }}
-                      size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 3 }}
+                      size={{ xs: 12, sm: 12, md: 12, lg: 4, xl: 3 }}
                     >
                       <CustomHotelCard
                         hotelDetails={item}
@@ -181,6 +375,523 @@ const GuestDashboard = () => {
               </Grid>
             </Box>
           </Grid>
+          <Grid size={{ xs: 4 }}>
+            <Box
+              sx={{
+                // border: "1px solid black",
+                // height: "700px",
+                height: {
+                  xs: "calc(100vh - 220px)",
+                  xl: "calc(100vh - 220px)",
+                },
+                // backgroundColor: "white",
+                overflowY: "auto",
+                boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
+                borderRadius: "1rem",
+                py: 2,
+
+                "&::-webkit-scrollbar": {
+                  width: "8px",
+                },
+                "&::-webkit-scrollbar-track": {
+                  backgroundColor: "transparent",
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  backgroundColor: "transparent",
+                },
+                "&::-webkit-scrollbar-thumb:hover": {
+                  backgroundColor: "transparent",
+                },
+              }}
+            >
+              <Box
+                sx={{
+                  px: 2,
+                  // backgroundColor: "green",
+                  boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
+                  width: "97%",
+                  margin: "0 auto",
+                  backgroundColor: "#fff",
+                  // position: "fixed",
+                  // top: 0,
+                  p: 1,
+                  borderRadius: "1rem",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <Typography
+                  sx={{
+                    // fontFamily: "'Times New Roman', Times, serif",
+                    fontWeight: "bold",
+                    fontSize: "1.5rem",
+                    // letterSpacing: 0.8,
+                  }}
+                >
+                  Current Booking
+                </Typography>
+              </Box>
+              <Timeline
+                sx={{
+                  [`& .${timelineItemClasses.root}:before`]: {
+                    flex: 0,
+                    padding: 0,
+                  },
+                }}
+              >
+                {bookingDetails && bookingDetails?.data?.length > 0 ? (
+                  bookingDetails?.data
+                    ?.filter(
+                      (booking) =>
+                        booking.bookingStatus !== "Cancelled" &&
+                        booking.bookingStatus !== "Checked_Out"
+                    )
+                    ?.map((booking, index) => (
+                      <TimelineItem key={booking.id}>
+                        <TimelineSeparator>
+                          {/* <TimelineDot /> */}
+                          {/* {index < bookingDetails?.data?.length - 1 && (
+                            <TimelineConnector />
+                          )} */}
+                        </TimelineSeparator>
+                        <TimelineContent>
+                          <Box
+                            sx={{
+                              boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
+                              backgroundColor: "#fff",
+                              p: 1,
+                              borderRadius: "1rem",
+                            }}
+                          >
+                            <Grid container spacing={1}>
+                              <Grid size={{ xs: 12 }}>
+                                <Box
+                                  sx={{
+                                    width: "100%",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: 0.5,
+                                    // backgroundColor: "red",
+                                  }}
+                                >
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      gap: 1,
+                                    }}
+                                  >
+                                    <Typography sx={{ fontWeight: "bold" }}>
+                                      Hotel Name :
+                                    </Typography>
+                                    <Typography>
+                                      {booking?.hotel?.name || "N/A"}
+                                    </Typography>
+                                  </Box>
+
+                                  <Box sx={{ display: "flex", gap: 1 }}>
+                                    <Typography
+                                      sx={{
+                                        fontWeight: "bold",
+                                        wordWrap: "break-word",
+                                      }}
+                                    >
+                                      Ref Number:
+                                    </Typography>
+                                    <Typography>
+                                      {booking?.bookingRefNumber || "N/A"}
+                                    </Typography>
+                                  </Box>
+                                  {/* {Boolean(booking?.roomDto?.roomNo) && ( */}
+                                  <>
+                                    <Box
+                                      sx={{
+                                        display: "flex",
+                                        gap: 1,
+                                        alignItems: "center",
+                                        width: "100%",
+                                        p: 1,
+                                        borderRadius: "1rem",
+                                        // backgroundColor: "#89CFF0",
+                                      }}
+                                    >
+                                      {Boolean(booking?.roomDto?.roomNo) && (
+                                        <Box
+                                          sx={{
+                                            borderRadius: "1rem",
+                                            backgroundColor: "#00A877",
+                                            width: "5rem",
+                                            p: 0.9,
+                                            display: "flex",
+                                            justifyContent: "center",
+                                          }}
+                                        >
+                                          <Typography sx={{ color: "#fff" }}>
+                                            {booking?.roomDto?.roomNo || "N/A"}
+                                          </Typography>
+                                        </Box>
+                                      )}
+
+                                      <Box sx={{ display: "flex", gap: 1 }}>
+                                        {booking?.bookingStatus ===
+                                          "Pending_Confirmation" && (
+                                          <Button
+                                            variant="contained"
+                                            sx={{
+                                              backgroundImage:
+                                                "linear-gradient(to right, #ff512f 0%, #dd2476 100%)",
+                                              color: "white",
+                                              "&:hover": {
+                                                backgroundImage:
+                                                  "linear-gradient(to right, #ff512f 10%, #dd2476 90%)",
+                                              },
+                                              textTransform: "none",
+                                            }}
+                                            onClick={() => {
+                                              handleCancelClick(
+                                                booking?.bookingRefNumber
+                                              );
+                                              // handleBookingCancel(booking.bookingRefNumber);
+                                            }}
+                                          >
+                                            Cancel
+                                          </Button>
+                                        )}
+
+                                        {booking?.bookingStatus ===
+                                          "Checked_Out" &&
+                                          !Boolean(booking?.isRated) && (
+                                            <Button
+                                              variant="contained"
+                                              sx={{
+                                                backgroundImage:
+                                                  "linear-gradient(to right, #ff512f 0%, #dd2476 100%)",
+                                                color: "white",
+                                                "&:hover": {
+                                                  backgroundImage:
+                                                    "linear-gradient(to right, #ff512f 10%, #dd2476 90%)",
+                                                },
+                                                textTransform: "none",
+                                              }}
+                                              onClick={() =>
+                                                setReviewDialog(booking)
+                                              }
+                                            >
+                                              Please Rate Us
+                                            </Button>
+                                          )}
+                                        {booking?.bookingStatus ===
+                                          "Checked_Out" &&
+                                          Boolean(booking?.isRated) && (
+                                            <Rating
+                                              value={booking?.ratingPoints}
+                                              disabled
+                                              size="large"
+                                            />
+                                          )}
+
+                                        {booking?.bookingStatus ===
+                                          "Checked_In" && (
+                                          <Box
+                                            sx={{
+                                              width: "100%",
+                                              // backgroundColor: "yellow",
+                                            }}
+                                          >
+                                            <Grid
+                                              container
+                                              size={{ xs: 12 }}
+                                              // sx={{ backgroundColor: "yellow" }}
+                                              fullWidth
+                                              spacing={1}
+                                            >
+                                              <Grid size={{ xs: 1.7 }}>
+                                                <Box
+                                                  sx={{
+                                                    display: "flex",
+                                                    gap: 1,
+                                                    width: "100%",
+                                                    justifyContent: "center",
+                                                  }}
+                                                >
+                                                  <Tooltip
+                                                    title="Order Food"
+                                                    arrow
+                                                  >
+                                                    <Button
+                                                      variant="outlined"
+                                                      sx={{
+                                                        minWidth: "unset",
+                                                        width: "11px",
+                                                      }}
+                                                      // startIcon={<RestaurantIcon />}
+                                                      onClick={() => {
+                                                        sessionStorage.setItem(
+                                                          "bookingRefNumber",
+                                                          booking?.bookingRefNumber
+                                                        );
+                                                        sessionStorage.setItem(
+                                                          "hotelId",
+                                                          booking?.hotel?.id
+                                                        );
+                                                        navigate("/resturant");
+                                                      }}
+                                                    >
+                                                      {/* Order Food */}
+                                                      <RestaurantIcon />
+                                                    </Button>
+                                                  </Tooltip>
+                                                </Box>
+                                              </Grid>
+                                              <Grid size={{ xs: 1.7 }}>
+                                                <Box
+                                                  sx={{
+                                                    display: "flex",
+                                                    gap: 1,
+                                                    width: "100%",
+                                                    justifyContent: "center",
+                                                  }}
+                                                >
+                                                  <Tooltip
+                                                    title="Room cleaning Request"
+                                                    arrow
+                                                  >
+                                                    <Button
+                                                      variant="outlined"
+                                                      sx={{
+                                                        minWidth: "unset",
+                                                        width: "11px",
+                                                        borderColor: "#1CAC78",
+                                                      }}
+                                                      // startIcon={<CleaningServicesIcon />}
+                                                      onClick={() =>
+                                                        handleRoomCleanRequest(
+                                                          booking.roomDto?.id,
+                                                          booking.hotel?.id
+                                                        )
+                                                      }
+                                                    >
+                                                      <CleaningServicesIcon
+                                                        sx={{
+                                                          color: "#1CAC78",
+                                                        }}
+                                                      />
+                                                    </Button>
+                                                  </Tooltip>
+                                                </Box>
+                                              </Grid>
+
+                                              <Grid size={{ xs: 1.7 }}>
+                                                <Box
+                                                  sx={{
+                                                    display: "flex",
+                                                    gap: 1,
+                                                    width: "100%",
+                                                    justifyContent: "center",
+                                                  }}
+                                                >
+                                                  <Tooltip
+                                                    title="Request Checkout"
+                                                    arrow
+                                                  >
+                                                    <Button
+                                                      variant="outlined"
+                                                      sx={{
+                                                        minWidth: "unset",
+                                                        width: "11px",
+                                                        borderColor: "#E60026",
+                                                      }}
+                                                      // startIcon={<ExitToAppIcon />}
+                                                      onClick={() =>
+                                                        handleRequestRoomCheckout(
+                                                          booking.bookingRefNumber
+                                                        )
+                                                      }
+                                                    >
+                                                      <ExitToAppIcon
+                                                        sx={{
+                                                          color: "#E60026",
+                                                        }}
+                                                      />
+                                                    </Button>
+                                                  </Tooltip>
+                                                </Box>
+                                              </Grid>
+
+                                              <Grid size={{ xs: 1.7 }}>
+                                                <Box
+                                                  sx={{
+                                                    display: "flex",
+                                                    gap: 1,
+                                                    width: "100%",
+                                                    justifyContent: "center",
+                                                  }}
+                                                >
+                                                  <Tooltip
+                                                    title="Request Laundry"
+                                                    arrow
+                                                  >
+                                                    <Button
+                                                      variant="outlined"
+                                                      sx={{
+                                                        minWidth: "unset",
+                                                        width: "11px",
+                                                        borderColor: "#3e4a61",
+                                                      }}
+                                                      // startIcon={<DryCleaningIcon />}
+                                                      onClick={() =>
+                                                        // handleRequestLaundryService(
+                                                        //   booking.bookingRefNumber
+                                                        // )
+                                                        {
+                                                          sessionStorage.setItem(
+                                                            "bookingRefNumberForLaundry",
+                                                            booking?.bookingRefNumber
+                                                          );
+                                                          navigate(
+                                                            "/LaundryHistory"
+                                                          );
+                                                        }
+                                                      }
+                                                    >
+                                                      {/* Laundry */}
+                                                      <DryCleaningIcon
+                                                        sx={{
+                                                          color: "#3e4a61",
+                                                        }}
+                                                      />
+                                                    </Button>
+                                                  </Tooltip>
+                                                </Box>
+                                              </Grid>
+
+                                              <Grid size={{ xs: 1.7 }}>
+                                                <Box
+                                                  sx={{
+                                                    display: "flex",
+                                                    gap: 1,
+                                                    width: "100%",
+                                                    justifyContent: "center",
+                                                  }}
+                                                >
+                                                  <Tooltip
+                                                    title="Make Payment"
+                                                    arrow
+                                                  >
+                                                    <Button
+                                                      variant="outlined"
+                                                      sx={{
+                                                        minWidth: "unset",
+                                                        width: "11px",
+                                                        borderColor: "#D4AF37	",
+                                                      }}
+                                                    >
+                                                      {/* Laundry */}
+                                                      <PaymentIcon
+                                                        onClick={() =>
+                                                          handleMakePayment(
+                                                            booking
+                                                          )
+                                                        }
+                                                        sx={{
+                                                          color: "#D4AF37	",
+                                                        }}
+                                                      />
+                                                    </Button>
+                                                  </Tooltip>
+                                                </Box>
+                                              </Grid>
+
+                                              <Grid size={{ xs: 1.7 }}>
+                                                <Box
+                                                  sx={{
+                                                    display: "flex",
+                                                    gap: 1,
+                                                    width: "100%",
+                                                    justifyContent: "center",
+                                                  }}
+                                                >
+                                                  <Tooltip
+                                                    title="Vehicle Parking"
+                                                    arrow
+                                                  >
+                                                    <Button
+                                                      variant="outlined"
+                                                      sx={{
+                                                        minWidth: "unset",
+                                                        width: "11px",
+                                                        borderColor: (theme) =>
+                                                          theme.palette.warning
+                                                            .main,
+                                                      }}
+                                                    >
+                                                      {/* Laundry */}
+                                                      <DirectionsCarIcon
+                                                        onClick={
+                                                          handleOpenVehicleParkingModal
+                                                        }
+                                                        // sx={{ color: "#D4AF37	" }}
+                                                        color="warning"
+                                                      />
+                                                    </Button>
+                                                  </Tooltip>
+                                                </Box>
+                                              </Grid>
+
+                                              <Grid size={{ xs: 1.7 }}>
+                                                <Box
+                                                  sx={{
+                                                    display: "flex",
+                                                    gap: 1,
+                                                    width: "100%",
+                                                    justifyContent: "center",
+                                                  }}
+                                                >
+                                                  <Tooltip title="Bar" arrow>
+                                                    <Button
+                                                      variant="outlined"
+                                                      sx={{
+                                                        minWidth: "unset",
+                                                        width: "11px",
+                                                        borderColor: (theme) =>
+                                                          theme.palette.info
+                                                            .main,
+                                                      }}
+                                                    >
+                                                      {/* Laundry */}
+                                                      <LiquorIcon
+                                                        onClick={() =>
+                                                          handleOpenBar(
+                                                            booking.bookingRefNumber,
+                                                            booking.hotel.id
+                                                          )
+                                                        }
+                                                        // sx={{ color: "#D4AF37	" }}
+                                                        color="info"
+                                                      />
+                                                    </Button>
+                                                  </Tooltip>
+                                                </Box>
+                                              </Grid>
+                                            </Grid>
+                                          </Box>
+                                        )}
+                                      </Box>
+                                    </Box>
+                                  </>
+                                  {/* )} */}
+                                </Box>
+                              </Grid>
+                            </Grid>
+                          </Box>
+                        </TimelineContent>
+                      </TimelineItem>
+                    ))
+                ) : (
+                  <Typography>No data found</Typography>
+                )}
+              </Timeline>
+            </Box>
+          </Grid>
         </Grid>
       </Box>
       <GuestBookingHistoryDrawer
@@ -188,10 +899,151 @@ const GuestDashboard = () => {
         setOpen={setBookingHistoryDrawerOpen}
         bookingDetails={bookingDetails}
       />
-      <LoadingComponent open={isLoading} />
+
+      <CancelRoomDialog
+        open={cancelBookingOpen}
+        onClose={() => setCancelBookingOpen(false)}
+        selectedBookingRefNumber={selectedBookingRefNumber}
+      />
+
+      <VehicleParkingDialog
+        open={openVehicleParkingDialog}
+        handleClose={() => setOpenVehicleParkingDialog(false)}
+        setSnack={setSnack}
+      />
+
+      <PaymentDialog
+        // openPaymentDialog={openPaymentDialog}
+        openPaymentDialog={openPaymentDialog}
+        handlePaymentDialogClose={() => setOpenPaymentDialog(false)}
+        reservationPayload={makePartialPaymentPayload}
+        reserveHotelRoom={makePartialPayment}
+      />
+
+      <ReviewDialog
+        open={Boolean(reviewDialog)}
+        handleClose={() => setReviewDialog(null)}
+        setSnack={setSnack}
+        rateStay={rateStay}
+        orderObj={reviewDialog}
+      />
+      <LoadingComponent
+        open={
+          isLoading ||
+          roomCleanRequestRes.isLoading ||
+          makePartialPaymentRes.isLoading ||
+          requestRoomCheckoutRes.isLoading ||
+          rateStayRes.isLoading
+        }
+      />
+      <SnackAlert snack={snack} setSnack={setSnack} />
     </>
   );
 };
+
+// Dialog for rating
+function ReviewDialog({ open, handleClose, rateStay, setSnack, orderObj }) {
+  const [rating, setRating] = React.useState(0);
+  const [review, setReview] = React.useState("");
+
+  console.log("orderObj", orderObj);
+  const handleSubmitReview = React.useCallback(
+    (event) => {
+      event.preventDefault();
+      rateStay({
+        // id: orderObj.id,
+        bookingRefNumber: orderObj.bookingRefNumber,
+        ratingPoints: rating,
+        ratingMessage: review,
+      })
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            severity: "success",
+          });
+          setRating(0);
+          setReview("");
+          handleClose();
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data,
+            severity: "error",
+          });
+        });
+    },
+    [rateStay, setSnack, rating, review, handleClose, orderObj]
+  );
+
+  return (
+    <React.Fragment>
+      <Dialog
+        maxWidth="sm"
+        fullWidth
+        open={open}
+        onClose={handleClose}
+        PaperProps={{
+          component: "form",
+          onSubmit: handleSubmitReview,
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 600, fontSize: 24 }}>
+          Review Your Stay
+        </DialogTitle>
+        <DialogContent>
+          <Grid container>
+            <Grid size={12}>
+              <Typography component="legend">Rating</Typography>
+              <Rating
+                value={rating}
+                onChange={(e, newVal) => setRating(newVal)}
+                size="large"
+              />
+            </Grid>
+            <Grid size={12}>
+              <TextField
+                autoFocus
+                margin="dense"
+                name="review"
+                label="Review Message"
+                fullWidth
+                variant="standard"
+                value={review}
+                onChange={(e) => setReview(e.target.value)}
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            color="secondary"
+            variant="contained"
+            sx={{
+              color: "#fff",
+              display: "block",
+              mx: "auto",
+              letterSpacing: 1,
+              fontWeight: 600,
+              textTransform: "none",
+              fontSize: 18,
+              "&.Mui-disabled": {
+                background: "#B2E5F6",
+                color: "#FFFFFF",
+              },
+            }}
+            disabled={!Boolean(rating)}
+            type="submit"
+          >
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </React.Fragment>
+  );
+}
 
 const CustomRoomFilters = memo(function ({
   filterOptions,
@@ -537,6 +1389,18 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
   const [openPaymentDialog, setOpenPaymentDialog] = React.useState(false);
   const [reservationPayload, setReservationPayload] = React.useState(null);
 
+  const [openHotelDetailsDialog, setOpenHotelDetailsDialog] =
+    React.useState(false);
+  const [hotelDetailsData, setHotelDetailsData] = React.useState(null);
+
+  const handleHotelDetails = (item) => {
+    setOpenHotelDetailsDialog(true);
+    setHotelDetailsData(item);
+  };
+  const handleHotelDetailsDialogClose = () => {
+    setOpenHotelDetailsDialog(false);
+    setHotelDetailsData(null);
+  };
   const [formData, setFormData] = React.useState({
     firstName: "",
     middleName: "",
@@ -916,9 +1780,12 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
         <Box
           sx={{
             width: "100%",
-            height: "15rem",
+            height: "9rem",
             borderRadius: "8px",
+            cursor: "pointer",
           }}
+          // onClick={() => setOpenHotelDetailsDialog(true)}
+          onClick={() => handleHotelDetails(hotelDetails)}
         >
           {hotelDetails?.images?.[0] && (
             <img
@@ -939,26 +1806,32 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
         <Box
           sx={{
             px: 1,
+
             py: 1,
             display: "flex",
-            justifyContent: "space-between",
+            flexDirection: "column",
+            // justifyContent: "space-between",
           }}
         >
+          <Box>
+            <Rating value={hotelDetails?.averageRatingPoints} readOnly />
+          </Box>
           {/* Box for hotel details */}
           <Box
             sx={{
               display: "flex",
               flexDirection: "column",
               // border: "1px solid black",
-              // width: "70%",
+
+              width: "100%",
             }}
           >
             <Typography sx={{ fontWeight: "bold" }}>
               {hotelDetails?.hotelDto?.name}
             </Typography>
-            <Typography sx={{ fontWeight: "bold", color: "#929aab" }}>
+            {/* <Typography sx={{ fontWeight: "bold", color: "#929aab" }}>
               {hotelDetails?.type}
-            </Typography>
+            </Typography> */}
             <Typography sx={{ color: "gray" }}>
               {`${hotelDetails?.hotelDto?.address}
               , ${hotelDetails?.hotelDto?.state?.name
@@ -966,13 +1839,50 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                 ?.replace(/\b\w/g, (char) => char.toUpperCase())}`}
             </Typography>
 
-            <Typography>₹{hotelDetails?.basePrice}</Typography>
+            {/* <Typography>₹{hotelDetails?.basePrice}</Typography> */}
           </Box>
 
           {/* -------- */}
 
+          <Box
+            sx={{
+              width: "100%",
+              borderRadius: "1rem",
+              display: "flex",
+              py: 2,
+              px: 1,
+              backgroundColor: "#E5F5FF",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Typography>
+              <strong>₹{hotelDetails?.basePrice}</strong> per night
+            </Typography>
+            <Box sx={{ display: "flex", marginY: "auto" }}>
+              <Button
+                variant="contained"
+                sx={{
+                  // backgroundImage:
+                  //   "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
+                  // color: "white",
+                  // "&:hover": {
+                  //   backgroundImage:
+                  //     "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
+                  // },
+                  backgroundColor: "#0079C2",
+                  textTransform: "none",
+                  borderRadius: "0.6rem",
+                }}
+                onClick={toggleDrawer(true)}
+              >
+                Book Now
+              </Button>
+            </Box>
+          </Box>
+
           {/* Box for book now button */}
-          <Box sx={{ display: "flex", marginY: "auto" }}>
+          {/* <Box sx={{ display: "flex", marginY: "auto" }}>
             <Button
               variant="contained"
               sx={{
@@ -988,7 +1898,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
             >
               Book Now
             </Button>
-          </Box>
+          </Box> */}
           {/* -------- */}
         </Box>
 
@@ -1320,6 +2230,11 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
         setDrawerOpen={setDrawerOpen}
         reserveHotelRoom={reserveHotelRoom}
       />
+      <HotelDetailsDialog
+        open={openHotelDetailsDialog}
+        handleHotelDetailsDialogClose={handleHotelDetailsDialogClose}
+        hotelDetailsData={hotelDetailsData}
+      />
     </>
   );
 });
@@ -1438,9 +2353,6 @@ export const PaymentDialog = memo(function ({
           return;
         }
 
-        // setShowConfetti(true); // Trigger confetti
-        // setTimeout(() => setShowConfetti(false), 5000);
-
         // handleAfterSuccessFunctionOnSuccess();
       } catch (err) {
         setSnack({
@@ -1456,32 +2368,6 @@ export const PaymentDialog = memo(function ({
         handleResetForm();
         setDrawerOpen(false);
       }
-
-      // makePayment(paymentPayload);
-
-      // reserveHotelRoom(finalPayload)
-      //   .unwrap()
-      //   .then((res) => {
-      //     setSnack({
-      //       open: true,
-      //       message: res.message,
-      //       severity: "success",
-      //     });
-      //     handleResetForm();
-      //     setDrawerOpen(false);
-      //   })
-      //   .catch((err) => {
-      //     setSnack({
-      //       open: true,
-      //       message: err.data?.message || err.data || "Something Went Wrong",
-      //       severity: "error",
-      //     });
-      //   });
-
-      // setCardNumber("");
-      // setUpiNumber("");
-      // setCvv("");
-      // handlePaymentDialogClose();
     },
     [
       cardNumber,
@@ -1800,18 +2686,727 @@ export const PaymentDialog = memo(function ({
   );
 });
 
-// const HotelDetailsDialog = ({ open, onClose }) => {
-//   <Dialog
-//     TransitionComponent={Transition}
-//     open={open}
-//     onClose={handleDialogClose}
-//     maxWidth="sm"
-//     fullWidth
-//   >
-//     <DialogContent>
-//       <Typography>hello</Typography>
-//     </DialogContent>
-//   </Dialog>;
-// };
+const HotelDetailsDialog = memo(function ({
+  open,
+  handleHotelDetailsDialogClose,
+  hotelDetailsData,
+}) {
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+
+  const goToPrevious = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? hotelDetailsData?.images?.length - 1 : prevIndex - 1
+    );
+  };
+
+  const goToNext = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === hotelDetailsData?.images?.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  const goToSlide = (index) => {
+    setCurrentIndex(index);
+  };
+
+  // Auto-slide effect
+  // React.useEffect(() => {
+  //   const timer = setInterval(() => {
+  //     setCurrentIndex((prevIndex) =>
+  //       prevIndex === hotelDetailsData?.images?.length - 1 ? 0 : prevIndex + 1
+  //     );
+  //   }, 5000);
+
+  //   return () => clearInterval(timer);
+  // }, [hotelDetailsData?.images?.length]);
+
+  console.log("hotelDetailsData", hotelDetailsData);
+  return (
+    <Dialog
+      TransitionComponent={Transition}
+      open={open}
+      onClose={handleHotelDetailsDialogClose}
+      maxWidth="md"
+      fullWidth
+    >
+      <DialogTitle sx={{ fontWeight: 600, fontSize: 24 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Typography
+            sx={{
+              fontSize: "1.7rem",
+              fontFamily: "'Times New Roman', Times, serif",
+              fontWeight: "bold",
+              // color: "#606470",
+              color: "#0f0f0f",
+            }}
+          >
+            {hotelDetailsData?.hotelDto?.name}
+          </Typography>
+
+          <Rating
+            value={hotelDetailsData?.averageRatingPoints}
+            disabled
+            // size="large"
+            sx={{ color: "#0f0f0f", fontSize: "1.1rem" }}
+          />
+        </Box>
+      </DialogTitle>
+      <DialogContent>
+        <Box
+          sx={{
+            width: "100%",
+            margin: "0 auto",
+            position: "relative",
+          }}
+        >
+          {hotelDetailsData?.images?.length === 0 ? (
+            <Box
+              sx={{
+                textAlign: "center",
+                fontSize: "1.5rem",
+                color: "#555",
+                // margin: "20px 0",
+              }}
+            >
+              No images found
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                height: "400px",
+                overflow: "hidden",
+                borderRadius: "8px",
+                position: "relative",
+                // border: "2px solid black",
+                width: "100%",
+              }}
+            >
+              {/* Main image slider */}
+              <Box
+                sx={{
+                  display: "flex",
+                  transform: `translateX(-${currentIndex * 100}%)`,
+                  transition: "transform 0.5s ease-in-out",
+                }}
+              >
+                {hotelDetailsData?.images?.map((image, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      flex: "0 0 100%",
+                      width: "100%",
+                      height: "100%",
+                    }}
+                  >
+                    <Box
+                      component="img"
+                      src={image}
+                      alt={`Image ${index + 1}`}
+                      sx={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  </Box>
+                ))}
+              </Box>
+
+              {/* Navigation buttons */}
+              <IconButton
+                onClick={goToPrevious}
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "16px",
+                  transform: "translateY(-50%)",
+                  width: "40px",
+                  height: "40px",
+                  backgroundColor: "rgba(0, 0, 0, 0.5)",
+                  color: "#fff",
+                  "&:hover": {
+                    backgroundColor: "rgba(0, 0, 0, 0.7)",
+                  },
+                }}
+              >
+                <ChevronLeftIcon />
+              </IconButton>
+              <IconButton
+                onClick={goToNext}
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  right: "16px",
+                  transform: "translateY(-50%)",
+                  width: "40px",
+                  height: "40px",
+                  backgroundColor: "rgba(0, 0, 0, 0.5)",
+                  color: "#fff",
+                  "&:hover": {
+                    backgroundColor: "rgba(0, 0, 0, 0.7)",
+                  },
+                }}
+              >
+                <ChevronRightIcon />
+              </IconButton>
+
+              {/* Dots navigation */}
+              <Box
+                sx={{
+                  position: "absolute",
+                  bottom: "16px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  display: "flex",
+                  gap: "8px",
+                }}
+              >
+                {hotelDetailsData?.images?.map((_, index) => (
+                  <Box
+                    key={index}
+                    onClick={() => goToSlide(index)}
+                    sx={{
+                      width: "8px",
+                      height: "8px",
+                      borderRadius: "50%",
+                      backgroundColor:
+                        index === currentIndex
+                          ? "rgba(255, 255, 255, 1)"
+                          : "rgba(255, 255, 255, 0.5)",
+                      cursor: "pointer",
+                      transition: "background-color 0.3s ease",
+                    }}
+                  />
+                ))}
+              </Box>
+            </Box>
+          )}
+
+          <Box sx={{ py: 1 }}>
+            <Box sx={{ mb: 1 }}>
+              <Typography
+                sx={{
+                  fontSize: "1.2rem",
+                  fontWeight: "bold",
+                  fontFamily: "'Times New Roman', Times, serif",
+                }}
+              >
+                Amenities :
+              </Typography>
+            </Box>
+            {/* amenities box */}
+            <Box>
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 1.4 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      borderRadius: "1rem",
+                      p: 1,
+                      boxShadow: " rgba(0, 0, 0, 0.35) 0px 5px 15px",
+                      justifyContent: "space-evenly",
+                    }}
+                  >
+                    <SportsGymnasticsIcon sx={{ color: "gray" }} />
+                    <Typography sx={{ color: "gray" }}>Gym</Typography>
+                  </Box>
+                </Grid>
+                <Grid size={{ xs: 2.4 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      borderRadius: "1rem",
+                      p: 1,
+                      boxShadow: " rgba(0, 0, 0, 0.35) 0px 5px 15px",
+                      justifyContent: "space-evenly",
+                    }}
+                  >
+                    <RestaurantIcon sx={{ color: "gray" }} />
+                    <Typography sx={{ color: "gray" }}>Restaurant</Typography>
+                  </Box>
+                </Grid>
+                <Grid size={{ xs: 1.9 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      borderRadius: "1rem",
+                      p: 1,
+                      boxShadow: " rgba(0, 0, 0, 0.35) 0px 5px 15px",
+                      justifyContent: "space-evenly",
+                    }}
+                  >
+                    <WeekendIcon sx={{ color: "gray" }} />
+                    <Typography sx={{ color: "gray" }}>Lounge</Typography>
+                  </Box>
+                </Grid>
+                <Grid size={{ xs: 1.7 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      borderRadius: "1rem",
+                      p: 1,
+                      boxShadow: " rgba(0, 0, 0, 0.35) 0px 5px 15px",
+                      justifyContent: "space-evenly",
+                    }}
+                  >
+                    <LiquorIcon sx={{ color: "gray" }} />
+                    <Typography sx={{ color: "gray" }}>Bar</Typography>
+                  </Box>
+                </Grid>
+                <Grid size={{ xs: 2.5 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      borderRadius: "1rem",
+                      p: 1,
+                      boxShadow: " rgba(0, 0, 0, 0.35) 0px 5px 15px",
+                      justifyContent: "space-evenly",
+                    }}
+                  >
+                    <RoomServiceOutlinedIcon sx={{ color: "gray" }} />
+                    <Typography sx={{ color: "gray" }}>Room Service</Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Box>
+
+            {/* details box */}
+            <Box>
+              <Box sx={{ mt: 1 }}>
+                <Typography
+                  sx={{
+                    fontSize: "1.2rem",
+                    fontWeight: "bold",
+                    fontFamily: "'Times New Roman', Times, serif",
+                  }}
+                >
+                  Details :
+                </Typography>
+              </Box>
+
+              <Grid container>
+                <Grid size={{ xs: 1 }}>Bathroom</Grid>
+              </Grid>
+            </Box>
+          </Box>
+        </Box>
+      </DialogContent>
+    </Dialog>
+  );
+});
+
+const CancelRoomDialog = ({ open, onClose, selectedBookingRefNumber }) => {
+  const [rejectionReason, setRejectionReason] = React.useState("");
+  const [cancelBooking, cancelBookingRes] = useCancelHotelRoomMutation();
+  const [snack, setSnack] = React.useState({
+    open: false,
+    message: "",
+    severity: "",
+  });
+
+  const handleDialogClose = () => {
+    setRejectionReason("");
+    onClose();
+  };
+  const handleSubmit = () => {
+    if (Boolean(!rejectionReason || rejectionReason.trim() === "")) {
+      return setSnack({
+        open: true,
+        message: "Please provide reason for booking cancellation",
+        severity: "error",
+      });
+    }
+    cancelBooking({
+      bookingRefNumber: selectedBookingRefNumber,
+      rejectionReason: rejectionReason,
+    })
+      .unwrap()
+      .then((res) => {
+        handleDialogClose();
+        setSnack({
+          open: true,
+          message: res.message,
+          severity: "success",
+        });
+        setRejectionReason("");
+      })
+      .catch((err) => {
+        setSnack({
+          open: true,
+          message: err.data?.message || err.data || "Something Went Wrong",
+          severity: "error",
+        });
+      });
+  };
+  // console.log("hello");
+  return (
+    <>
+      <Dialog
+        TransitionComponent={Transition}
+        open={open}
+        onClose={handleDialogClose}
+        maxWidth="sm"
+        fullWidth
+        sx={{ "& .MuiDialog-paper": { minHeight: "430px" } }}
+      >
+        <DialogContent>
+          <Box
+            sx={{
+              width: "100%",
+              // backgroundColor: "red",
+              display: "flex",
+              gap: 1,
+              flexDirection: "column",
+            }}
+          >
+            <Box sx={{ margin: "auto", mt: 3 }}>
+              <PiWarningCircleLight
+                style={{ fontSize: "6.9rem", color: "#FAD5A5" }}
+              />
+            </Box>
+            <Box sx={{ margin: "auto" }}>
+              <Typography
+                sx={{
+                  fontSize: "2.3rem",
+                  fontFamily: "'Times New Roman', Times, serif",
+                  fontWeight: "bold",
+                  color: "#606470",
+                }}
+              >
+                Cancel Booking!
+              </Typography>
+            </Box>
+            <Box sx={{ margin: "auto" }}>
+              <Typography
+                sx={{
+                  fontFamily: "'Times New Roman', Times, serif",
+                  fontSize: "1.2rem",
+                  color: "#606470",
+                }}
+              >
+                Are you sure you want to cancel booking ?
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                mt: 2,
+              }}
+            >
+              <TextField
+                id="outlined-basic"
+                name="firstName"
+                placeholder="Enter a remark for cancellation"
+                variant="outlined"
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                inputProps={{ maxLength: 25 }}
+                required
+                size="small"
+                sx={{ mb: 2, width: 500 }}
+                InputProps={{
+                  style: { height: "45px" },
+                }}
+              />
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                gap: 2,
+                mt: 1.7,
+              }}
+            >
+              <Button
+                variant="contained"
+                onClick={handleSubmit}
+                sx={{ backgroundColor: "#318CE7", textTransform: "none" }}
+                // disabled={Boolean(rejectionReason) ? "" : true}
+              >
+                Yes
+              </Button>
+              <Button
+                variant="contained"
+                // onClick={onClose}
+                onClick={handleDialogClose}
+                sx={{ backgroundColor: "#E31837", textTransform: "none" }}
+              >
+                Cancel
+              </Button>
+            </Box>
+          </Box>
+        </DialogContent>
+      </Dialog>
+      <LoadingComponent open={cancelBookingRes.isLoading} />
+      <SnackAlert snack={snack} setSnack={setSnack} />
+    </>
+  );
+};
+
+function VehicleParkingDialog({ open, handleClose, setSnack }) {
+  const [vehicleParkingDetails, setVehicleParkingDetails] =
+    React.useState(null);
+  const [vehicleNumber, setVehicleNumber] = React.useState("");
+  const [getParkingDetails, getParkingDetailsRes] =
+    useLazyGetParkingDataForGuestQuery();
+  const handleGetSetParkingRes = React.useCallback(() => {
+    getParkingDetails(vehicleNumber)
+      .unwrap()
+      .then((res) => {
+        setSnack({
+          open: true,
+          message: res.message,
+          severity: "success",
+        });
+        setVehicleParkingDetails(res.data);
+      })
+      .catch((err) => {
+        setVehicleParkingDetails(null);
+        setSnack({
+          open: true,
+          message: err.data?.message || err.data,
+          severity: "error",
+        });
+      });
+  }, [getParkingDetails, vehicleNumber, setSnack]);
+
+  React.useEffect(() => {
+    setVehicleParkingDetails(null);
+    setVehicleNumber("");
+  }, [open]);
+  return (
+    <Dialog
+      open={open}
+      maxWidth="sm"
+      fullWidth
+      sx={{
+        ".MuiDialogTitle-root": {
+          px: 5,
+          py: 3,
+        },
+      }}
+      PaperProps={{
+        sx: { borderRadius: 4 },
+      }}
+    >
+      <DialogTitle sx={{ fontSize: 24 }}>Vehicle Parking Details</DialogTitle>
+      <IconButton
+        aria-label="close"
+        onClick={handleClose}
+        sx={{
+          position: "absolute",
+          right: 30,
+          top: 16,
+          color: "#280071",
+        }}
+      >
+        <CloseIcon sx={{ fontSize: 30 }} />
+      </IconButton>
+      <DialogContent>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+            ".MuiTextField-root": {
+              backgroundColor: "transparent",
+              ".MuiInputBase-root": {
+                // color: "#B4B4B4",
+              },
+            },
+            ".MuiFormLabel-root": {
+              color: (theme) => theme.palette.primary.main,
+              // fontWeight: 600,
+              // fontSize: 18,
+            },
+            ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+              borderBottom: (theme) =>
+                `1px solid ${theme.palette.primary.main}`,
+            },
+            ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+              borderBottom: (theme) =>
+                `1px solid ${theme.palette.primary.main}`,
+            },
+          }}
+        >
+          <TextField
+            size="small"
+            name="vehicleNumber"
+            // onChange={(e) => handleChange(e.target.name, e.target.value)}
+            label="Vehicle Number *"
+            value={vehicleNumber}
+            onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
+            fullWidth
+          />
+          <Button
+            sx={{
+              display: "block",
+              // margin: "1rem auto",
+              color: "#fff",
+              textTransform: "none",
+              // fontSize: 18,
+              px: 6,
+              // py: 1,
+              borderRadius: 2,
+              "&.Mui-disabled": {
+                background: "#B2E5F6",
+                color: "#FFFFFF",
+              },
+            }}
+            onClick={handleGetSetParkingRes}
+            variant="contained"
+            color="secondary"
+            disabled={!Boolean(vehicleNumber.trim())}
+          >
+            Submit
+          </Button>
+        </Box>
+        {Boolean(vehicleParkingDetails) && (
+          <Box sx={{ display: "flex", flexDirection: "column", mt: 1 }}>
+            <Divider sx={{ borderWidth: "2px", borderColor: "#000" }} />
+            <Box sx={{ margin: "auto" }}>
+              <Typography
+                sx={{
+                  fontWeight: "bold",
+                  fontFamily: "'Times New Roman', Times, serif",
+                  fontSize: "1.3rem",
+                }}
+              >
+                BOOKING RECEIPT
+              </Typography>
+            </Box>
+            <Divider sx={{ borderWidth: "2px", borderColor: "#000" }} />
+            <Box
+              sx={{
+                // backgroundColor: "yellow",
+                width: "58%",
+                margin: "auto",
+                mt: 2,
+              }}
+            >
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 6 }}>
+                  <Typography
+                    sx={{
+                      fontFamily: "'Times New Roman', Times, serif",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Vehicle Number :
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography>
+                    {
+                      vehicleParkingDetails.parkingSlotData.parkingVehicleData
+                        .vehicleNo
+                    }
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography
+                    sx={{
+                      fontFamily: "'Times New Roman', Times, serif",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Area Name :
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography>{vehicleParkingDetails.areaName}</Typography>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography
+                    sx={{
+                      fontFamily: "'Times New Roman', Times, serif",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Slot Number :
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography>
+                    {vehicleParkingDetails.parkingSlotData.slotNumber}
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography
+                    sx={{
+                      fontFamily: "'Times New Roman', Times, serif",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    From Date:
+                  </Typography>
+                </Grid>
+
+                <Grid size={{ xs: 6 }}>
+                  {
+                    vehicleParkingDetails.parkingSlotData.parkingVehicleData
+                      .fromDate
+                  }
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography
+                    sx={{
+                      fontFamily: "'Times New Roman', Times, serif",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    To Date:
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  {
+                    vehicleParkingDetails.parkingSlotData.parkingVehicleData
+                      .toDate
+                  }
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography
+                    sx={{
+                      fontFamily: "'Times New Roman', Times, serif",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Token No.
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  {
+                    vehicleParkingDetails.parkingSlotData.parkingVehicleData
+                      .digitalTokenNo
+                  }
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Typography
+                    sx={{
+                      fontFamily: "'Times New Roman', Times, serif",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Paid Amount
+                  </Typography>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  ₹{" "}
+                  {
+                    vehicleParkingDetails.parkingSlotData.parkingVehicleData
+                      .paidAmount
+                  }
+                </Grid>
+              </Grid>
+            </Box>
+          </Box>
+        )}
+      </DialogContent>
+      <LoadingComponent open={getParkingDetailsRes.isLoading} />
+    </Dialog>
+  );
+}
 
 export default GuestDashboard;

@@ -574,6 +574,24 @@ const VehicleParkingDialog = ({ parkVehicleOpen, selectedSlot, onClose }) => {
           });
         });
     } else {
+      const vehicleNumberRegex =
+        /^[A-Z]{2}[ -][0-9]{1,2}(?: [A-Z])?(?: [A-Z]*)? [0-9]{4}$/;
+
+      if (!formData.vehicleNumber) {
+        return setSnack({
+          open: true,
+          message: "Please enter a vehicle number",
+          severity: "error",
+        });
+      }
+      if (!vehicleNumberRegex.test(formData.vehicleNumber)) {
+        return setSnack({
+          open: true,
+          message:
+            "Invalid vehicle number. Use format like KA-01 AB 1234 or KA 01 1234",
+          severity: "error",
+        });
+      }
       const isAmountValid =
         formData.amount &&
         Number(formData.amount) >=
@@ -601,6 +619,7 @@ const VehicleParkingDialog = ({ parkVehicleOpen, selectedSlot, onClose }) => {
       setOpenPaymentDialog(true);
     }
   }, [
+    formData.vehicleNumber,
     calculateNumberOfDays,
     formData.amount,
     onClose,
@@ -781,6 +800,7 @@ const VehicleParkingDialog = ({ parkVehicleOpen, selectedSlot, onClose }) => {
                   inputProps={{ maxLength: 25 }}
                   required
                   sx={{ width: "100%" }}
+                  helperText="Example: OD-05 AB 1234"
                 />
               </Grid>
               <Grid size={{ xs: 6 }}>
