@@ -681,103 +681,66 @@ const VehicleParkingDialog = ({ parkVehicleOpen, selectedSlot, onClose }) => {
         </DialogTitle>
         <DialogContent dividers>
           {Boolean(selectedSlot?.isOccupied) ? (
-            <Box
-              sx={{ display: "flex", flexDirection: "column" }}
+            <div
+              style={{ display: "flex", flexDirection: "column" }}
               id="bookingReceipt"
             >
               <Divider sx={{ borderWidth: "2px", borderColor: "#000" }} />
-              <Box sx={{ margin: "auto" }}>
-                <Typography
-                  sx={{
-                    fontWeight: "bold",
-                    fontFamily: "'Times New Roman', Times, serif",
-                    fontSize: "1.3rem",
-                  }}
-                >
-                  BOOKING RECEIPT
-                </Typography>
-              </Box>
+              <div style={{ textAlign: "center" }}>
+                <h3>BOOKING RECEIPT</h3>
+              </div>
               <Divider sx={{ borderWidth: "2px", borderColor: "#000" }} />
-              <Box
-                sx={{
-                  // backgroundColor: "yellow",
-                  width: "58%",
+              <div
+                style={{
+                  width: "550px",
                   margin: "auto",
-                  mt: 2,
+                  marginTop: 20,
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 20,
                 }}
               >
-                <Grid container spacing={2}>
-                  <Grid size={{ xs: 6 }}>
-                    <Typography
-                      sx={{
-                        fontFamily: "'Times New Roman', Times, serif",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Vehicle Number :
-                    </Typography>
-                  </Grid>
-                  <Grid size={{ xs: 6 }}>
-                    <Typography>
-                      {selectedSlot?.parkingVehicleData?.vehicleNo}
-                    </Typography>
-                  </Grid>
-                  <Grid size={{ xs: 6 }}>
-                    <Typography
-                      sx={{
-                        fontFamily: "'Times New Roman', Times, serif",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      From Date:
-                    </Typography>
-                  </Grid>
+                <div style={{ display: "flex" }}>
+                  <div
+                    style={{
+                      width: "50%",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Vehicle Number :
+                  </div>
+                  <div>{selectedSlot?.parkingVehicleData?.vehicleNo}</div>
+                </div>
 
-                  <Grid size={{ xs: 6 }}>
-                    {selectedSlot?.parkingVehicleData?.fromDate}
-                  </Grid>
-                  <Grid size={{ xs: 6 }}>
-                    <Typography
-                      sx={{
-                        fontFamily: "'Times New Roman', Times, serif",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      To Date:
-                    </Typography>
-                  </Grid>
-                  <Grid size={{ xs: 6 }}>
-                    {selectedSlot?.parkingVehicleData?.toDate}
-                  </Grid>
-                  <Grid size={{ xs: 6 }}>
-                    <Typography
-                      sx={{
-                        fontFamily: "'Times New Roman', Times, serif",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Token No.
-                    </Typography>
-                  </Grid>
-                  <Grid size={{ xs: 6 }}>
-                    {selectedSlot?.parkingVehicleData?.digitalTokenNo}
-                  </Grid>
-                  <Grid size={{ xs: 6 }}>
-                    <Typography
-                      sx={{
-                        fontFamily: "'Times New Roman', Times, serif",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Paid Amount
-                    </Typography>
-                  </Grid>
-                  <Grid size={{ xs: 6 }}>
-                    ₹ {selectedSlot?.parkingVehicleData?.paidAmount}
-                  </Grid>
-                </Grid>
-              </Box>
-            </Box>
+                <div style={{ display: "flex" }}>
+                  <div style={{ width: "50%", fontWeight: "bold" }}>
+                    From Date:
+                  </div>
+                  <div>{selectedSlot?.parkingVehicleData?.fromDate}</div>
+                </div>
+
+                <div style={{ display: "flex" }}>
+                  <div style={{ width: "50%", fontWeight: "bold" }}>
+                    To Date:
+                  </div>
+                  <div>{selectedSlot?.parkingVehicleData?.toDate}</div>
+                </div>
+
+                <div style={{ display: "flex" }}>
+                  <div style={{ width: "50%", fontWeight: "bold" }}>
+                    Token No.
+                  </div>
+                  <div>{selectedSlot?.parkingVehicleData?.digitalTokenNo}</div>
+                </div>
+
+                <div style={{ display: "flex" }}>
+                  <div style={{ width: "50%", fontWeight: "bold" }}>
+                    Paid Amount
+                  </div>
+                  <div>₹ {selectedSlot?.parkingVehicleData?.paidAmount}</div>
+                </div>
+              </div>
+            </div>
           ) : (
             <Grid container spacing={2}>
               <Grid size={{ xs: 6 }}>
@@ -896,7 +859,7 @@ const VehicleParkingDialog = ({ parkVehicleOpen, selectedSlot, onClose }) => {
           >
             Yes
           </Button> */}
-          {/* {Boolean(selectedSlot?.isOccupied) && (
+          {Boolean(selectedSlot?.isOccupied) && (
             <Button
               variant="contained"
               color="secondary"
@@ -907,7 +870,7 @@ const VehicleParkingDialog = ({ parkVehicleOpen, selectedSlot, onClose }) => {
             >
               Print Receipt
             </Button>
-          )} */}
+          )}
           <Button
             variant="contained"
             sx={{

@@ -47,6 +47,7 @@ const config = Object.freeze({
     getBarOrderHistoryAdmin: "api/get/today/all/bar/request/history",
     changeBarOrderStatus: "public/change/bar/order/status",
     getAllBarOrderStatus: "public/get/all/bar/status/type",
+    getPerRewardPointValue: "api/get/per/reward/point/value",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",

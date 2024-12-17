@@ -1247,4 +1247,284 @@ export const getStatusColour = (status) => {
       return "gray";
   }
 };
+
+function VehicleParkingDialog({ open, handleClose, setSnack }) {
+  const [vehicleParkingDetails, setVehicleParkingDetails] =
+    React.useState(null);
+  const [vehicleNumber, setVehicleNumber] = React.useState("");
+  const [getParkingDetails, getParkingDetailsRes] =
+    useLazyGetParkingDataForGuestQuery();
+  const handleGetSetParkingRes = React.useCallback(() => {
+    getParkingDetails(vehicleNumber)
+      .unwrap()
+      .then((res) => {
+        setSnack({
+          open: true,
+          message: res.message,
+          severity: "success",
+        });
+        setVehicleParkingDetails(res.data);
+      })
+      .catch((err) => {
+        setVehicleParkingDetails(null);
+        setSnack({
+          open: true,
+          message: err.data?.message || err.data,
+          severity: "error",
+        });
+      });
+  }, [getParkingDetails, vehicleNumber, setSnack]);
+
+  const handlePrintReceipt = () => {
+    const prtContent = document.getElementById("bookingReceiptCustomer");
+    var WinPrint = window.open(
+      "",
+      "",
+      "left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0"
+    );
+    WinPrint.document.write(prtContent.innerHTML);
+    WinPrint.document.close();
+    WinPrint.focus();
+    WinPrint.print();
+    WinPrint.close();
+  };
+
+  React.useEffect(() => {
+    setVehicleParkingDetails(null);
+    setVehicleNumber("");
+  }, [open]);
+  return (
+    <Dialog
+      open={open}
+      maxWidth="sm"
+      fullWidth
+      sx={{
+        ".MuiDialogTitle-root": {
+          px: 5,
+          py: 3,
+        },
+      }}
+      PaperProps={{
+        sx: { borderRadius: 4 },
+      }}
+    >
+      <DialogTitle sx={{ fontSize: 24 }}>Vehicle Parking Details</DialogTitle>
+      <IconButton
+        aria-label="close"
+        onClick={handleClose}
+        sx={{
+          position: "absolute",
+          right: 30,
+          top: 16,
+          color: "#280071",
+        }}
+      >
+        <CloseIcon sx={{ fontSize: 30 }} />
+      </IconButton>
+      <DialogContent>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+            ".MuiTextField-root": {
+              backgroundColor: "transparent",
+              ".MuiInputBase-root": {
+                // color: "#B4B4B4",
+              },
+            },
+            ".MuiFormLabel-root": {
+              color: (theme) => theme.palette.primary.main,
+              // fontWeight: 600,
+              // fontSize: 18,
+            },
+            ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+              borderBottom: (theme) =>
+                `1px solid ${theme.palette.primary.main}`,
+            },
+            ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+              borderBottom: (theme) =>
+                `1px solid ${theme.palette.primary.main}`,
+            },
+          }}
+        >
+          <TextField
+            size="small"
+            name="vehicleNumber"
+            // onChange={(e) => handleChange(e.target.name, e.target.value)}
+            label="Vehicle Number *"
+            value={vehicleNumber}
+            onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
+            fullWidth
+          />
+          <Button
+            sx={{
+              display: "block",
+              // margin: "1rem auto",
+              color: "#fff",
+              textTransform: "none",
+              // fontSize: 18,
+              px: 6,
+              // py: 1,
+              borderRadius: 2,
+              "&.Mui-disabled": {
+                background: "#B2E5F6",
+                color: "#FFFFFF",
+              },
+            }}
+            onClick={handleGetSetParkingRes}
+            variant="contained"
+            color="secondary"
+            disabled={!Boolean(vehicleNumber.trim())}
+          >
+            Submit
+          </Button>
+        </Box>
+        {Boolean(vehicleParkingDetails) && (
+          <div
+            style={{ display: "flex", flexDirection: "column", marginTop: 10 }}
+            id="bookingReceiptCustomer"
+          >
+            <Divider sx={{ borderWidth: "2px", borderColor: "#000" }} />
+            <div style={{ textAlign: "center" }}>
+              <h3>BOOKING RECEIPT</h3>
+            </div>
+            <Divider sx={{ borderWidth: "2px", borderColor: "#000" }} />
+            <div
+              style={{
+                width: "550px",
+                margin: "auto",
+                marginTop: 20,
+                display: "flex",
+                flexDirection: "column",
+                gap: 20,
+              }}
+            >
+              <div style={{ display: "flex" }}>
+                <div
+                  style={{
+                    width: "50%",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Vehicle Number :
+                </div>
+                <div>
+                  {
+                    vehicleParkingDetails.parkingSlotData.parkingVehicleData
+                      .vehicleNo
+                  }
+                </div>
+              </div>
+              <div style={{ display: "flex" }}>
+                <div
+                  style={{
+                    width: "50%",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Area Name :
+                </div>
+                <div>{vehicleParkingDetails.areaName}</div>
+              </div>
+              <div style={{ display: "flex" }}>
+                <div
+                  style={{
+                    width: "50%",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Slot Number :
+                </div>
+                <div>{vehicleParkingDetails.parkingSlotData.slotNumber}</div>
+              </div>
+              <div style={{ display: "flex" }}>
+                <div
+                  style={{
+                    width: "50%",
+                    fontWeight: "bold",
+                  }}
+                >
+                  From Date:
+                </div>
+                <div>
+                  {
+                    vehicleParkingDetails.parkingSlotData.parkingVehicleData
+                      .fromDate
+                  }
+                </div>
+              </div>
+              <div style={{ display: "flex" }}>
+                <div
+                  style={{
+                    width: "50%",
+                    fontWeight: "bold",
+                  }}
+                >
+                  To Date:
+                </div>
+                <div>
+                  {
+                    vehicleParkingDetails.parkingSlotData.parkingVehicleData
+                      .toDate
+                  }
+                </div>
+              </div>
+              <div style={{ display: "flex" }}>
+                <div
+                  style={{
+                    width: "50%",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Token No.
+                </div>
+                <div>
+                  {
+                    vehicleParkingDetails.parkingSlotData.parkingVehicleData
+                      .digitalTokenNo
+                  }
+                </div>
+              </div>
+              <div style={{ display: "flex" }}>
+                <div
+                  style={{
+                    width: "50%",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Paid Amount
+                </div>
+                <div>
+                  ₹{" "}
+                  {
+                    vehicleParkingDetails.parkingSlotData.parkingVehicleData
+                      .paidAmount
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {Boolean(vehicleParkingDetails) && (
+          <Button
+            variant="contained"
+            color="secondary"
+            sx={{
+              color: "#fff",
+              display: "block",
+              mx: "auto",
+              mt: 2,
+            }}
+            onClick={handlePrintReceipt}
+          >
+            Print Receipt
+          </Button>
+        )}
+      </DialogContent>
+      <LoadingComponent open={getParkingDetailsRes.isLoading} />
+    </Dialog>
+  );
+}
+
 export default GuestBookingHistoryDrawer;

@@ -87,6 +87,7 @@ function App() {
               element={<HouseKeeperDashboard />}
             />
             <Route path="/LaundryHistory" element={<LaundryHistory />} />
+            <Route path="/Parking" element={<Parking />} />
           </Route>
 
           <Route element={<Layout />}>
@@ -96,7 +97,6 @@ function App() {
               element={<FrontdeskBookingHistory />}
             />
             <Route path="/hallBookings" element={<HallBookingDashboard />} />
-            <Route path="/Parking" element={<Parking />} />
 
             <Route
               path="/HouseKeepingHistory"

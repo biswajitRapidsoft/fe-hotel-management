@@ -691,7 +691,7 @@ const HotelList = () => {
                     }}
                     sx={{ fontSize: 18 }}
                   >
-                    Hotel Image
+                    Hotel Logo
                   </Link>
                   <IconButton
                     onClick={handleClearImage}
@@ -731,7 +731,7 @@ const HotelList = () => {
                 onChange={handleUploadImage}
                 label={
                   <React.Fragment>
-                    Hotel Image{" "}
+                    Hotel Logo{" "}
                     <Box
                       component="span"
                       sx={{
