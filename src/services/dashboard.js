@@ -242,6 +242,7 @@ const dashboardApi = apiSlice.injectEndpoints({
       invalidatesTags: [
         "getAllRoomListByHotelId",
         "roomBookingHistoryByHotelId",
+        "getAllBookingDetails",
       ],
     }),
     finalRoomCheckOut: build.mutation({

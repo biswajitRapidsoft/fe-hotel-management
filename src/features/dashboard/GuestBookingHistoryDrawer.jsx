@@ -7,11 +7,11 @@ import TimelineSeparator from "@mui/lab/TimelineSeparator";
 import TimelineConnector from "@mui/lab/TimelineConnector";
 import TimelineContent from "@mui/lab/TimelineContent";
 import TimelineDot from "@mui/lab/TimelineDot";
-import Tooltip from "@mui/material/Tooltip";
-import PaymentIcon from "@mui/icons-material/Payment";
-import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
-import LiquorIcon from "@mui/icons-material/Liquor";
-import { PaymentDialog } from "./GuestDashboard";
+// import Tooltip from "@mui/material/Tooltip";
+// import PaymentIcon from "@mui/icons-material/Payment";
+// import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
+// import LiquorIcon from "@mui/icons-material/Liquor";
+// import { PaymentDialog } from "./GuestDashboard";
 
 import {
   Button,
@@ -20,50 +20,50 @@ import {
   Typography,
   Dialog,
   DialogContent,
-  Slide,
+  // Slide,
   TextField,
   Rating,
   Grid2 as Grid,
 } from "@mui/material";
 import moment from "moment";
 // import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import { PiWarningCircleLight } from "react-icons/pi";
+// import { PiWarningCircleLight } from "react-icons/pi";
 import DialogActions from "@mui/material/DialogActions";
 import DialogTitle from "@mui/material/DialogTitle";
 import CloseIcon from "@mui/icons-material/Close";
 import {
-  useCancelHotelRoomMutation,
-  useRequestRoomCheckoutMutation,
-  useRoomCleanRequestMutation,
+  // useCancelHotelRoomMutation,
+  // useRequestRoomCheckoutMutation,
+  // useRoomCleanRequestMutation,
   useAddRatingMutation,
-  useMakePartialPaymentMutation,
-  useLazyGetParkingDataForGuestQuery,
+  // useMakePartialPaymentMutation,
+  // useLazyGetParkingDataForGuestQuery,
 } from "../../services/dashboard";
 
 import SnackAlert from "../../components/Alert";
 import LoadingComponent from "../../components/LoadingComponent";
-import { useNavigate } from "react-router-dom";
-import RestaurantIcon from "@mui/icons-material/Restaurant";
-import CleaningServicesIcon from "@mui/icons-material/CleaningServices";
-import ExitToAppIcon from "@mui/icons-material/ExitToApp";
-import DryCleaningIcon from "@mui/icons-material/DryCleaning";
-import Swal from "sweetalert2";
+// import { useNavigate } from "react-router-dom";
+// import RestaurantIcon from "@mui/icons-material/Restaurant";
+// import CleaningServicesIcon from "@mui/icons-material/CleaningServices";
+// import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+// import DryCleaningIcon from "@mui/icons-material/DryCleaning";
+// import Swal from "sweetalert2";
 // import Swal from "sweetalert2";
 
-const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
+// const Transition = React.forwardRef(function Transition(props, ref) {
+//   return <Slide direction="up" ref={ref} {...props} />;
+// });
 
 const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
   console.log("bookingDetails", bookingDetails);
-  const [cancelBookingOpen, setCancelBookingOpen] = React.useState(false);
-  const [selectedBookingRefNumber, setSelectedBookingRefNumber] =
-    React.useState(null);
+  // const [cancelBookingOpen, setCancelBookingOpen] = React.useState(false);
+  // const [selectedBookingRefNumber, setSelectedBookingRefNumber] =
+  //   React.useState(null);
 
-  const [openPaymentDialog, setOpenPaymentDialog] = React.useState(false);
+  // const [openPaymentDialog, setOpenPaymentDialog] = React.useState(false);
 
-  const [openVehicleParkingDialog, setOpenVehicleParkingDialog] =
-    React.useState(false);
+  // const [openVehicleParkingDialog, setOpenVehicleParkingDialog] =
+  //   React.useState(false);
 
   const [reviewDialog, setReviewDialog] = React.useState(null);
   const [rateStay, rateStayRes] = useAddRatingMutation();
@@ -72,36 +72,19 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
     message: "",
     severity: "",
   });
-  const [makePartialPayment, makePartialPaymentRes] =
-    useMakePartialPaymentMutation();
-  const [requestRoomCheckout, requestRoomCheckoutRes] =
-    useRequestRoomCheckoutMutation();
-  const [roomCleanRequest, roomCleanRequestRes] = useRoomCleanRequestMutation();
-  const [makePartialPaymentPayload, setMakePartialPaymentPayload] =
-    React.useState(null);
+  // const [makePartialPayment, makePartialPaymentRes] =
+  //   useMakePartialPaymentMutation();
+  // const [requestRoomCheckout, requestRoomCheckoutRes] =
+  //   useRequestRoomCheckoutMutation();
+  // const [roomCleanRequest, roomCleanRequestRes] = useRoomCleanRequestMutation();
+  // const [makePartialPaymentPayload, setMakePartialPaymentPayload] =
+  //   React.useState(null);
   // const [cancelBooking, cancelBookingRes] = useCancelHotelRoomMutation();
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
-  };
-  // Function to get status color
-  const getStatusColour = (status) => {
-    switch (status) {
-      case "Booked":
-        return "orange";
-      case "Checked_In":
-        return "green";
-      case "Checked_Out":
-        return "blue";
-      case "Cancelled":
-        return "red";
-      case "Booking_Cancellation_Requested":
-        return "#CC0000";
-      default:
-        return "gray";
-    }
   };
 
   // check for amount remaining amount before amount
@@ -112,113 +95,113 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
   //   [booking]
   // );
 
-  const handleMakePayment = React.useCallback((booking) => {
-    console.log("bookinggg", booking);
-    const totalDebit = booking?.transactionDetails
-      ?.filter((item) => !item.isCredit)
-      ?.reduce((sum, item) => sum + item.amount, 0);
+  // const handleMakePayment = React.useCallback((booking) => {
+  //   console.log("bookinggg", booking);
+  //   const totalDebit = booking?.transactionDetails
+  //     ?.filter((item) => !item.isCredit)
+  //     ?.reduce((sum, item) => sum + item.amount, 0);
 
-    const totalCredit = booking?.transactionDetails
-      ?.filter((item) => item.isCredit)
-      ?.reduce((sum, item) => sum + item.amount, 0);
+  //   const totalCredit = booking?.transactionDetails
+  //     ?.filter((item) => item.isCredit)
+  //     ?.reduce((sum, item) => sum + item.amount, 0);
 
-    const difference = totalDebit - totalCredit;
+  //   const difference = totalDebit - totalCredit;
 
-    console.log("difference", difference);
-    if (Boolean(difference <= 0)) {
-      Swal.fire({
-        position: "center",
-        icon: "error",
-        title: "You don't have any outstanding amount to pay",
-        showConfirmButton: false,
-        timer: 3000,
-      });
-    } else {
-      const payload = {
-        transactionReferenceNo: booking?.transactionReferenceNo,
-        bookingRefNumber: booking?.bookingRefNumber,
-        paidAmount: difference,
-      };
-      setMakePartialPaymentPayload(payload);
-      setOpenPaymentDialog(true);
-    }
-  }, []);
+  //   console.log("difference", difference);
+  //   if (Boolean(difference <= 0)) {
+  //     Swal.fire({
+  //       position: "center",
+  //       icon: "error",
+  //       title: "You don't have any outstanding amount to pay",
+  //       showConfirmButton: false,
+  //       timer: 3000,
+  //     });
+  //   } else {
+  //     const payload = {
+  //       transactionReferenceNo: booking?.transactionReferenceNo,
+  //       bookingRefNumber: booking?.bookingRefNumber,
+  //       paidAmount: difference,
+  //     };
+  //     setMakePartialPaymentPayload(payload);
+  //     setOpenPaymentDialog(true);
+  //   }
+  // }, []);
   // api call for room checkout
-  const handleRequestRoomCheckout = React.useCallback(
-    (bookingRefNumber) => {
-      const payload = {
-        bookingRefNumber: bookingRefNumber,
-      };
-      requestRoomCheckout(payload)
-        .unwrap()
-        .then((res) => {
-          setSnack({
-            open: true,
-            message: res?.message || "Check-out Request applied",
-            severity: "success",
-          });
-        })
-        .catch((err) => {
-          setSnack({
-            open: true,
-            message:
-              err?.data?.message ||
-              err?.data ||
-              "Unable to submit checkout request",
-            severity: "error",
-          });
-        });
-    },
-    [requestRoomCheckout]
-  );
+  // const handleRequestRoomCheckout = React.useCallback(
+  //   (bookingRefNumber) => {
+  //     const payload = {
+  //       bookingRefNumber: bookingRefNumber,
+  //     };
+  //     requestRoomCheckout(payload)
+  //       .unwrap()
+  //       .then((res) => {
+  //         setSnack({
+  //           open: true,
+  //           message: res?.message || "Check-out Request applied",
+  //           severity: "success",
+  //         });
+  //       })
+  //       .catch((err) => {
+  //         setSnack({
+  //           open: true,
+  //           message:
+  //             err?.data?.message ||
+  //             err?.data ||
+  //             "Unable to submit checkout request",
+  //           severity: "error",
+  //         });
+  //       });
+  //   },
+  //   [requestRoomCheckout]
+  // );
 
   // api call for room cleaning
-  const handleRoomCleanRequest = React.useCallback(
-    (roomId, hotelId) => {
-      const payload = {
-        id: roomId,
-        hotelId: hotelId,
-      };
-      roomCleanRequest(payload)
-        .unwrap()
-        .then((res) => {
-          setSnack({
-            open: true,
-            message: res?.message || "Room clean request submitted",
-            severity: "success",
-          });
-        })
-        .catch((err) => {
-          setSnack({
-            open: true,
-            message:
-              err?.data?.message ||
-              err?.data ||
-              "Unable to submit room clean request",
-            severity: "error",
-          });
-        });
-    },
-    [roomCleanRequest]
-  );
+  // const handleRoomCleanRequest = React.useCallback(
+  //   (roomId, hotelId) => {
+  //     const payload = {
+  //       id: roomId,
+  //       hotelId: hotelId,
+  //     };
+  //     roomCleanRequest(payload)
+  //       .unwrap()
+  //       .then((res) => {
+  //         setSnack({
+  //           open: true,
+  //           message: res?.message || "Room clean request submitted",
+  //           severity: "success",
+  //         });
+  //       })
+  //       .catch((err) => {
+  //         setSnack({
+  //           open: true,
+  //           message:
+  //             err?.data?.message ||
+  //             err?.data ||
+  //             "Unable to submit room clean request",
+  //           severity: "error",
+  //         });
+  //       });
+  //   },
+  //   [roomCleanRequest]
+  // );
 
-  const handleCancelClick = (bookingRefNumber) => {
-    setSelectedBookingRefNumber(bookingRefNumber);
-    setCancelBookingOpen(true);
-  };
+  // const handleCancelClick = (bookingRefNumber) => {
+  //   setSelectedBookingRefNumber(bookingRefNumber);
+  //   setCancelBookingOpen(true);
+  // };
 
-  const handleOpenVehicleParkingModal = React.useCallback(() => {
-    setOpenVehicleParkingDialog(true);
-  }, []);
+  // const handleOpenVehicleParkingModal = React.useCallback(() => {
+  //   setOpenVehicleParkingDialog(true);
+  // }, []);
 
-  const handleOpenBar = React.useCallback(
-    (bookingRefNumber, hotelId) => {
-      sessionStorage.setItem("bookingRefNumber", bookingRefNumber);
-      sessionStorage.setItem("hotelId", hotelId);
-      navigate("/bar");
-    },
-    [navigate]
-  );
+  // const handleOpenBar = React.useCallback(
+  //   (bookingRefNumber, hotelId) => {
+  //     sessionStorage.setItem("bookingRefNumber", bookingRefNumber);
+  //     sessionStorage.setItem("hotelId", hotelId);
+  //     navigate("/bar");
+  //   },
+  //   [navigate]
+  // );
 
   const DrawerList = (
     <Box
@@ -402,7 +385,7 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                           </Box>
                           <Box sx={{ display: "flex", gap: 1 }}>
                             {/* {booking.bookingStatus === "Booked" && ( */}
-                            {booking?.bookingStatus ===
+                            {/* {booking?.bookingStatus ===
                               "Pending_Confirmation" && (
                               <Button
                                 variant="contained"
@@ -423,7 +406,7 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                               >
                                 Cancel
                               </Button>
-                            )}
+                            )} */}
                             {booking?.bookingStatus === "Checked_Out" &&
                               !Boolean(booking?.isRated) && (
                                 <Button
@@ -452,252 +435,214 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                                 />
                               )}
 
-                            {booking?.bookingStatus === "Checked_In" &&
-                              (booking?.roomDto?.isCheckoutProceed === null ||
-                                booking?.roomDto?.isCheckoutProceed ===
-                                  undefined) && (
-                                // ||
-                                //   Boolean(
-                                //     booking?.roomDto?.isCheckoutProceed ===
-                                //       "false" &&
-                                //       booking?.roomDto
-                                //         ?.isCheckedByKeepingStaff === "true"
-                                //   )
-
-                                <>
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      gap: 1,
-                                      width: "100%",
-                                      justifyContent: "center",
-                                    }}
-                                  >
-                                    <Tooltip title="Order Food" arrow>
-                                      <Button
-                                        variant="outlined"
-                                        sx={{
-                                          minWidth: "unset",
-                                          width: "11px",
-                                        }}
-                                        // startIcon={<RestaurantIcon />}
-                                        onClick={() => {
-                                          sessionStorage.setItem(
-                                            "bookingRefNumber",
-                                            booking?.bookingRefNumber
-                                          );
-                                          sessionStorage.setItem(
-                                            "hotelId",
-                                            booking?.hotel?.id
-                                          );
-                                          navigate("/resturant");
-                                        }}
-                                      >
-                                        {/* Order Food */}
-                                        <RestaurantIcon />
-                                      </Button>
-                                    </Tooltip>
-                                  </Box>
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      gap: 1,
-                                      width: "100%",
-                                      justifyContent: "center",
-                                    }}
-                                  >
-                                    <Tooltip
-                                      title="Room cleaning Request"
-                                      arrow
+                            {/* {booking?.bookingStatus === "Checked_In" && (
+                              <>
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    gap: 1,
+                                    width: "100%",
+                                    justifyContent: "center",
+                                  }}
+                                >
+                                  <Tooltip title="Order Food" arrow>
+                                    <Button
+                                      variant="outlined"
+                                      sx={{
+                                        minWidth: "unset",
+                                        width: "11px",
+                                      }}
+                                      onClick={() => {
+                                        sessionStorage.setItem(
+                                          "bookingRefNumber",
+                                          booking?.bookingRefNumber
+                                        );
+                                        sessionStorage.setItem(
+                                          "hotelId",
+                                          booking?.hotel?.id
+                                        );
+                                        navigate("/resturant");
+                                      }}
                                     >
-                                      <Button
-                                        variant="outlined"
+                                      <RestaurantIcon />
+                                    </Button>
+                                  </Tooltip>
+                                </Box>
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    gap: 1,
+                                    width: "100%",
+                                    justifyContent: "center",
+                                  }}
+                                >
+                                  <Tooltip title="Room cleaning Request" arrow>
+                                    <Button
+                                      variant="outlined"
+                                      sx={{
+                                        minWidth: "unset",
+                                        width: "11px",
+                                        borderColor: "#1CAC78",
+                                      }}
+                                      onClick={() =>
+                                        handleRoomCleanRequest(
+                                          booking.roomDto?.id,
+                                          booking.hotel?.id
+                                        )
+                                      }
+                                    >
+                                      <CleaningServicesIcon
+                                        sx={{ color: "#1CAC78" }}
+                                      />
+                                    </Button>
+                                  </Tooltip>
+                                </Box>
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    gap: 1,
+                                    width: "100%",
+                                    justifyContent: "center",
+                                  }}
+                                >
+                                  <Tooltip title="Request Checkout" arrow>
+                                    <Button
+                                      variant="outlined"
+                                      sx={{
+                                        minWidth: "unset",
+                                        width: "11px",
+                                        borderColor: "#E60026",
+                                      }}
+                                      onClick={() =>
+                                        handleRequestRoomCheckout(
+                                          booking.bookingRefNumber
+                                        )
+                                      }
+                                    >
+                                      <ExitToAppIcon
                                         sx={{
-                                          minWidth: "unset",
-                                          width: "11px",
-                                          borderColor: "#1CAC78",
+                                          color: "#E60026",
                                         }}
-                                        // startIcon={<CleaningServicesIcon />}
+                                      />
+                                    </Button>
+                                  </Tooltip>
+                                </Box>
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    gap: 1,
+                                    width: "100%",
+                                    justifyContent: "center",
+                                  }}
+                                >
+                                  <Tooltip title="Request Laundry" arrow>
+                                    <Button
+                                      variant="outlined"
+                                      sx={{
+                                        minWidth: "unset",
+                                        width: "11px",
+                                        borderColor: "#3e4a61",
+                                      }}
+                                      onClick={() => {
+                                        sessionStorage.setItem(
+                                          "bookingRefNumberForLaundry",
+                                          booking?.bookingRefNumber
+                                        );
+                                        navigate("/LaundryHistory");
+                                      }}
+                                    >
+                                      <DryCleaningIcon
+                                        sx={{ color: "#3e4a61" }}
+                                      />
+                                    </Button>
+                                  </Tooltip>
+                                </Box>
+
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    gap: 1,
+                                    width: "100%",
+                                    justifyContent: "center",
+                                  }}
+                                >
+                                  <Tooltip title="Make Payment" arrow>
+                                    <Button
+                                      variant="outlined"
+                                      sx={{
+                                        minWidth: "unset",
+                                        width: "11px",
+                                        borderColor: "#D4AF37	",
+                                      }}
+                                    >
+                                      <PaymentIcon
                                         onClick={() =>
-                                          handleRoomCleanRequest(
-                                            booking.roomDto?.id,
-                                            booking.hotel?.id
+                                          handleMakePayment(booking)
+                                        }
+                                        sx={{ color: "#D4AF37	" }}
+                                      />
+                                    </Button>
+                                  </Tooltip>
+                                </Box>
+
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    gap: 1,
+                                    width: "100%",
+                                    justifyContent: "center",
+                                  }}
+                                >
+                                  <Tooltip title="Vehicle Parking" arrow>
+                                    <Button
+                                      variant="outlined"
+                                      sx={{
+                                        minWidth: "unset",
+                                        width: "11px",
+                                        borderColor: (theme) =>
+                                          theme.palette.warning.main,
+                                      }}
+                                    >
+                                      <DirectionsCarIcon
+                                        onClick={handleOpenVehicleParkingModal}
+                                        color="warning"
+                                      />
+                                    </Button>
+                                  </Tooltip>
+                                </Box>
+
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    gap: 1,
+                                    width: "100%",
+                                    justifyContent: "center",
+                                  }}
+                                >
+                                  <Tooltip title="Bar" arrow>
+                                    <Button
+                                      variant="outlined"
+                                      sx={{
+                                        minWidth: "unset",
+                                        width: "11px",
+                                        borderColor: (theme) =>
+                                          theme.palette.info.main,
+                                      }}
+                                    >
+                                      <LiquorIcon
+                                        onClick={() =>
+                                          handleOpenBar(
+                                            booking.bookingRefNumber,
+                                            booking.hotel.id
                                           )
                                         }
-                                      >
-                                        <CleaningServicesIcon
-                                          sx={{ color: "#1CAC78" }}
-                                        />
-                                      </Button>
-                                    </Tooltip>
-                                  </Box>
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      gap: 1,
-                                      width: "100%",
-                                      justifyContent: "center",
-                                    }}
-                                  >
-                                    <Tooltip title="Request Checkout" arrow>
-                                      <Button
-                                        variant="outlined"
-                                        // sx={{
-                                        //   textTransform: "none",
-                                        //   width: "100%",
-                                        //   color: "#E60026",
-                                        //   borderColor: "#E60026",
-                                        // }}
-                                        sx={{
-                                          minWidth: "unset",
-                                          width: "11px",
-                                          borderColor: "#E60026",
-                                        }}
-                                        // startIcon={<ExitToAppIcon />}
-                                        onClick={() =>
-                                          handleRequestRoomCheckout(
-                                            booking.bookingRefNumber
-                                          )
-                                        }
-                                      >
-                                        <ExitToAppIcon
-                                          sx={{
-                                            color: "#E60026",
-                                          }}
-                                        />
-                                      </Button>
-                                    </Tooltip>
-                                  </Box>
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      gap: 1,
-                                      width: "100%",
-                                      justifyContent: "center",
-                                    }}
-                                  >
-                                    <Tooltip title="Request Laundry" arrow>
-                                      <Button
-                                        variant="outlined"
-                                        sx={{
-                                          minWidth: "unset",
-                                          width: "11px",
-                                          borderColor: "#3e4a61",
-                                        }}
-                                        // startIcon={<DryCleaningIcon />}
-                                        onClick={() =>
-                                          // handleRequestLaundryService(
-                                          //   booking.bookingRefNumber
-                                          // )
-                                          {
-                                            sessionStorage.setItem(
-                                              "bookingRefNumberForLaundry",
-                                              booking?.bookingRefNumber
-                                            );
-                                            navigate("/LaundryHistory");
-                                          }
-                                        }
-                                      >
-                                        {/* Laundry */}
-                                        <DryCleaningIcon
-                                          sx={{ color: "#3e4a61" }}
-                                        />
-                                      </Button>
-                                    </Tooltip>
-                                  </Box>
-
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      gap: 1,
-                                      width: "100%",
-                                      justifyContent: "center",
-                                    }}
-                                  >
-                                    <Tooltip title="Make Payment" arrow>
-                                      <Button
-                                        variant="outlined"
-                                        sx={{
-                                          minWidth: "unset",
-                                          width: "11px",
-                                          borderColor: "#D4AF37	",
-                                        }}
-                                      >
-                                        {/* Laundry */}
-                                        <PaymentIcon
-                                          onClick={() =>
-                                            handleMakePayment(booking)
-                                          }
-                                          sx={{ color: "#D4AF37	" }}
-                                        />
-                                      </Button>
-                                    </Tooltip>
-                                  </Box>
-
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      gap: 1,
-                                      width: "100%",
-                                      justifyContent: "center",
-                                    }}
-                                  >
-                                    <Tooltip title="Vehicle Parking" arrow>
-                                      <Button
-                                        variant="outlined"
-                                        sx={{
-                                          minWidth: "unset",
-                                          width: "11px",
-                                          borderColor: (theme) =>
-                                            theme.palette.warning.main,
-                                        }}
-                                      >
-                                        {/* Laundry */}
-                                        <DirectionsCarIcon
-                                          onClick={
-                                            handleOpenVehicleParkingModal
-                                          }
-                                          // sx={{ color: "#D4AF37	" }}
-                                          color="warning"
-                                        />
-                                      </Button>
-                                    </Tooltip>
-                                  </Box>
-
-                                  <Box
-                                    sx={{
-                                      display: "flex",
-                                      gap: 1,
-                                      width: "100%",
-                                      justifyContent: "center",
-                                    }}
-                                  >
-                                    <Tooltip title="Bar" arrow>
-                                      <Button
-                                        variant="outlined"
-                                        sx={{
-                                          minWidth: "unset",
-                                          width: "11px",
-                                          borderColor: (theme) =>
-                                            theme.palette.info.main,
-                                        }}
-                                      >
-                                        {/* Laundry */}
-                                        <LiquorIcon
-                                          onClick={() =>
-                                            handleOpenBar(
-                                              booking.bookingRefNumber,
-                                              booking.hotel.id
-                                            )
-                                          }
-                                          // sx={{ color: "#D4AF37	" }}
-                                          color="info"
-                                        />
-                                      </Button>
-                                    </Tooltip>
-                                  </Box>
-                                </>
-                              )}
+                                        color="info"
+                                      />
+                                    </Button>
+                                  </Tooltip>
+                                </Box>
+                              </>
+                            )} */}
                           </Box>
                         </Box>
                       </Grid>
@@ -713,24 +658,25 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
           </Box>
         )}
       </Timeline>
-      <CancelRoomDialog
+      {/* <CancelRoomDialog
         open={cancelBookingOpen}
         onClose={() => setCancelBookingOpen(false)}
         selectedBookingRefNumber={selectedBookingRefNumber}
-      />
+      /> */}
 
-      <VehicleParkingDialog
+      {/* <VehicleParkingDialog
         open={openVehicleParkingDialog}
         handleClose={() => setOpenVehicleParkingDialog(false)}
         setSnack={setSnack}
-      />
+      /> */}
 
       <LoadingComponent
         open={
-          requestRoomCheckoutRes.isLoading ||
-          rateStayRes.isLoading ||
-          roomCleanRequestRes.isLoading ||
-          makePartialPaymentRes.isLoading
+          // requestRoomCheckoutRes.isLoading ||
+          rateStayRes.isLoading
+          // ||
+          // roomCleanRequestRes.isLoading ||
+          // makePartialPaymentRes.isLoading
         }
       />
       <ReviewDialog
@@ -741,13 +687,13 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
         orderObj={reviewDialog}
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
-      <PaymentDialog
+      {/* <PaymentDialog
         // openPaymentDialog={openPaymentDialog}
         openPaymentDialog={openPaymentDialog}
         handlePaymentDialogClose={() => setOpenPaymentDialog(false)}
         reservationPayload={makePartialPaymentPayload}
         reserveHotelRoom={makePartialPayment}
-      />
+      /> */}
     </Box>
   );
 
@@ -870,464 +816,715 @@ function ReviewDialog({ open, handleClose, rateStay, setSnack, orderObj }) {
 }
 
 // dialog for confirmation of cancelling room
-const CancelRoomDialog = ({ open, onClose, selectedBookingRefNumber }) => {
-  const [rejectionReason, setRejectionReason] = React.useState("");
-  const [cancelBooking, cancelBookingRes] = useCancelHotelRoomMutation();
-  const [snack, setSnack] = React.useState({
-    open: false,
-    message: "",
-    severity: "",
-  });
+// const CancelRoomDialog = ({ open, onClose, selectedBookingRefNumber }) => {
+//   const [rejectionReason, setRejectionReason] = React.useState("");
+//   const [cancelBooking, cancelBookingRes] = useCancelHotelRoomMutation();
+//   const [snack, setSnack] = React.useState({
+//     open: false,
+//     message: "",
+//     severity: "",
+//   });
 
-  const handleDialogClose = () => {
-    setRejectionReason("");
-    onClose();
-  };
-  const handleSubmit = () => {
-    if (Boolean(!rejectionReason || rejectionReason.trim() === "")) {
-      return setSnack({
-        open: true,
-        message: "Please provide reason for booking cancellation",
-        severity: "error",
-      });
-    }
-    cancelBooking({
-      bookingRefNumber: selectedBookingRefNumber,
-      rejectionReason: rejectionReason,
-    })
-      .unwrap()
-      .then((res) => {
-        handleDialogClose();
-        setSnack({
-          open: true,
-          message: res.message,
-          severity: "success",
-        });
-        setRejectionReason("");
-      })
-      .catch((err) => {
-        setSnack({
-          open: true,
-          message: err.data?.message || err.data || "Something Went Wrong",
-          severity: "error",
-        });
-      });
-  };
-  // console.log("hello");
-  return (
-    <>
-      <Dialog
-        TransitionComponent={Transition}
-        open={open}
-        onClose={handleDialogClose}
-        maxWidth="sm"
-        fullWidth
-        sx={{ "& .MuiDialog-paper": { minHeight: "430px" } }}
-      >
-        {/* <DialogTitle>
-          <Typography
-            sx={{ fontWeight: "bold", fontSize: "1.5rem", color: "#A52A2A" }}
-          >
-            Confirm cancellation
-          </Typography>
-        </DialogTitle>
-        <DialogContent dividers>
-          <Typography sx={{ mb: 1, fontWeight: "bold" }}>
-            Are you sure you want to cancel the booking?
-          </Typography>
-          <TextField
-            id="outlined-basic"
-            name="firstName"
-            label="Reason"
-            variant="outlined"
-            value={rejectionReason}
-            onChange={(e) => setRejectionReason(e.target.value)}
-            inputProps={{ maxLength: 25 }}
-            required
-            size="small"
-            sx={{ mb: 2 }}
-          />
-        </DialogContent> */}
-        {/* <DialogActions>
-          <Button
-            variant="contained"
-            // onClick={onClose}
-            onClick={handleDialogClose}
-            sx={{ backgroundColor: "#E31837" }}
-          >
-            No
-          </Button>
-          <Button
-            variant="contained"
-            onClick={handleSubmit}
-            sx={{ backgroundColor: "#228B22" }}
-            disabled={Boolean(rejectionReason) ? "" : true}
-          >
-            Yes
-          </Button>
-        </DialogActions> */}
-        <DialogContent>
-          <Box
-            sx={{
-              width: "100%",
-              // backgroundColor: "red",
-              display: "flex",
-              gap: 1,
-              flexDirection: "column",
-            }}
-          >
-            <Box sx={{ margin: "auto", mt: 3 }}>
-              {/* <ErrorOutlineIcon sx={{ fontSize: "6rem", color: "orange" }} /> */}
-              <PiWarningCircleLight
-                style={{ fontSize: "6.9rem", color: "#FAD5A5" }}
-              />
-            </Box>
-            <Box sx={{ margin: "auto" }}>
-              <Typography
-                sx={{
-                  fontSize: "2.3rem",
-                  fontFamily: "'Times New Roman', Times, serif",
-                  fontWeight: "bold",
-                  color: "#606470",
-                }}
-              >
-                Cancel Booking!
-              </Typography>
-            </Box>
-            <Box sx={{ margin: "auto" }}>
-              <Typography
-                sx={{
-                  fontFamily: "'Times New Roman', Times, serif",
-                  fontSize: "1.2rem",
-                  color: "#606470",
-                }}
-              >
-                Are you sure you want to cancel booking ?
-              </Typography>
-            </Box>
-            <Box
-              sx={{
-                // backgroundColor: "green",
-                // border: "1px solid black",
-                width: "100%",
-                display: "flex",
-                justifyContent: "center",
-                mt: 2,
-              }}
-            >
-              <TextField
-                id="outlined-basic"
-                name="firstName"
-                // label="Reason"
-                placeholder="Enter a remark for cancellation"
-                variant="outlined"
-                value={rejectionReason}
-                onChange={(e) => setRejectionReason(e.target.value)}
-                inputProps={{ maxLength: 25 }}
-                required
-                size="small"
-                sx={{ mb: 2, width: 500 }}
-                InputProps={{
-                  style: { height: "45px" },
-                }}
-              />
-            </Box>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                gap: 2,
-                mt: 1.7,
-              }}
-            >
-              <Button
-                variant="contained"
-                onClick={handleSubmit}
-                sx={{ backgroundColor: "#318CE7", textTransform: "none" }}
-                // disabled={Boolean(rejectionReason) ? "" : true}
-              >
-                Yes
-              </Button>
-              <Button
-                variant="contained"
-                // onClick={onClose}
-                onClick={handleDialogClose}
-                sx={{ backgroundColor: "#E31837", textTransform: "none" }}
-              >
-                Cancel
-              </Button>
-            </Box>
-          </Box>
-        </DialogContent>
-      </Dialog>
-      <LoadingComponent open={cancelBookingRes.isLoading} />
-      <SnackAlert snack={snack} setSnack={setSnack} />
-    </>
-  );
+//   const handleDialogClose = () => {
+//     setRejectionReason("");
+//     onClose();
+//   };
+//   const handleSubmit = () => {
+//     if (Boolean(!rejectionReason || rejectionReason.trim() === "")) {
+//       return setSnack({
+//         open: true,
+//         message: "Please provide reason for booking cancellation",
+//         severity: "error",
+//       });
+//     }
+//     cancelBooking({
+//       bookingRefNumber: selectedBookingRefNumber,
+//       rejectionReason: rejectionReason,
+//     })
+//       .unwrap()
+//       .then((res) => {
+//         handleDialogClose();
+//         setSnack({
+//           open: true,
+//           message: res.message,
+//           severity: "success",
+//         });
+//         setRejectionReason("");
+//       })
+//       .catch((err) => {
+//         setSnack({
+//           open: true,
+//           message: err.data?.message || err.data || "Something Went Wrong",
+//           severity: "error",
+//         });
+//       });
+//   };
+//   // console.log("hello");
+//   return (
+//     <>
+//       <Dialog
+//         TransitionComponent={Transition}
+//         open={open}
+//         onClose={handleDialogClose}
+//         maxWidth="sm"
+//         fullWidth
+//         sx={{ "& .MuiDialog-paper": { minHeight: "430px" } }}
+//       >
+//         <DialogContent>
+//           <Box
+//             sx={{
+//               width: "100%",
+//               // backgroundColor: "red",
+//               display: "flex",
+//               gap: 1,
+//               flexDirection: "column",
+//             }}
+//           >
+//             <Box sx={{ margin: "auto", mt: 3 }}>
+//               <PiWarningCircleLight
+//                 style={{ fontSize: "6.9rem", color: "#FAD5A5" }}
+//               />
+//             </Box>
+//             <Box sx={{ margin: "auto" }}>
+//               <Typography
+//                 sx={{
+//                   fontSize: "2.3rem",
+//                   fontFamily: "'Times New Roman', Times, serif",
+//                   fontWeight: "bold",
+//                   color: "#606470",
+//                 }}
+//               >
+//                 Cancel Booking!
+//               </Typography>
+//             </Box>
+//             <Box sx={{ margin: "auto" }}>
+//               <Typography
+//                 sx={{
+//                   fontFamily: "'Times New Roman', Times, serif",
+//                   fontSize: "1.2rem",
+//                   color: "#606470",
+//                 }}
+//               >
+//                 Are you sure you want to cancel booking ?
+//               </Typography>
+//             </Box>
+//             <Box
+//               sx={{
+//                 width: "100%",
+//                 display: "flex",
+//                 justifyContent: "center",
+//                 mt: 2,
+//               }}
+//             >
+//               <TextField
+//                 id="outlined-basic"
+//                 name="firstName"
+//                 placeholder="Enter a remark for cancellation"
+//                 variant="outlined"
+//                 value={rejectionReason}
+//                 onChange={(e) => setRejectionReason(e.target.value)}
+//                 inputProps={{ maxLength: 25 }}
+//                 required
+//                 size="small"
+//                 sx={{ mb: 2, width: 500 }}
+//                 InputProps={{
+//                   style: { height: "45px" },
+//                 }}
+//               />
+//             </Box>
+//             <Box
+//               sx={{
+//                 display: "flex",
+//                 justifyContent: "center",
+//                 gap: 2,
+//                 mt: 1.7,
+//               }}
+//             >
+//               <Button
+//                 variant="contained"
+//                 onClick={handleSubmit}
+//                 sx={{ backgroundColor: "#318CE7", textTransform: "none" }}
+//                 // disabled={Boolean(rejectionReason) ? "" : true}
+//               >
+//                 Yes
+//               </Button>
+//               <Button
+//                 variant="contained"
+//                 // onClick={onClose}
+//                 onClick={handleDialogClose}
+//                 sx={{ backgroundColor: "#E31837", textTransform: "none" }}
+//               >
+//                 Cancel
+//               </Button>
+//             </Box>
+//           </Box>
+//         </DialogContent>
+//       </Dialog>
+//       <LoadingComponent open={cancelBookingRes.isLoading} />
+//       <SnackAlert snack={snack} setSnack={setSnack} />
+//     </>
+//   );
+// };
+
+// function VehicleParkingDialog({ open, handleClose, setSnack }) {
+//   const [vehicleParkingDetails, setVehicleParkingDetails] =
+//     React.useState(null);
+//   const [vehicleNumber, setVehicleNumber] = React.useState("");
+//   const [getParkingDetails, getParkingDetailsRes] =
+//     useLazyGetParkingDataForGuestQuery();
+//   const handleGetSetParkingRes = React.useCallback(() => {
+//     getParkingDetails(vehicleNumber)
+//       .unwrap()
+//       .then((res) => {
+//         setSnack({
+//           open: true,
+//           message: res.message,
+//           severity: "success",
+//         });
+//         setVehicleParkingDetails(res.data);
+//       })
+//       .catch((err) => {
+//         setVehicleParkingDetails(null);
+//         setSnack({
+//           open: true,
+//           message: err.data?.message || err.data,
+//           severity: "error",
+//         });
+//       });
+//   }, [getParkingDetails, vehicleNumber, setSnack]);
+
+//   React.useEffect(() => {
+//     setVehicleParkingDetails(null);
+//     setVehicleNumber("");
+//   }, [open]);
+//   return (
+//     <Dialog
+//       open={open}
+//       maxWidth="sm"
+//       fullWidth
+//       sx={{
+//         ".MuiDialogTitle-root": {
+//           px: 5,
+//           py: 3,
+//         },
+//       }}
+//       PaperProps={{
+//         sx: { borderRadius: 4 },
+//       }}
+//     >
+//       <DialogTitle sx={{ fontSize: 24 }}>Vehicle Parking Details</DialogTitle>
+//       <IconButton
+//         aria-label="close"
+//         onClick={handleClose}
+//         sx={{
+//           position: "absolute",
+//           right: 30,
+//           top: 16,
+//           color: "#280071",
+//         }}
+//       >
+//         <CloseIcon sx={{ fontSize: 30 }} />
+//       </IconButton>
+//       <DialogContent>
+//         <Box
+//           sx={{
+//             display: "flex",
+//             alignItems: "center",
+//             gap: 2,
+//             ".MuiTextField-root": {
+//               backgroundColor: "transparent",
+//               ".MuiInputBase-root": {
+//                 // color: "#B4B4B4",
+//               },
+//             },
+//             ".MuiFormLabel-root": {
+//               color: (theme) => theme.palette.primary.main,
+//               // fontWeight: 600,
+//               // fontSize: 18,
+//             },
+//             ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+//               borderBottom: (theme) =>
+//                 `1px solid ${theme.palette.primary.main}`,
+//             },
+//             ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+//               borderBottom: (theme) =>
+//                 `1px solid ${theme.palette.primary.main}`,
+//             },
+//           }}
+//         >
+//           <TextField
+//             size="small"
+//             name="vehicleNumber"
+//             // onChange={(e) => handleChange(e.target.name, e.target.value)}
+//             label="Vehicle Number *"
+//             value={vehicleNumber}
+//             onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
+//             fullWidth
+//           />
+//           <Button
+//             sx={{
+//               display: "block",
+//               // margin: "1rem auto",
+//               color: "#fff",
+//               textTransform: "none",
+//               // fontSize: 18,
+//               px: 6,
+//               // py: 1,
+//               borderRadius: 2,
+//               "&.Mui-disabled": {
+//                 background: "#B2E5F6",
+//                 color: "#FFFFFF",
+//               },
+//             }}
+//             onClick={handleGetSetParkingRes}
+//             variant="contained"
+//             color="secondary"
+//             disabled={!Boolean(vehicleNumber.trim())}
+//           >
+//             Submit
+//           </Button>
+//         </Box>
+//         {Boolean(vehicleParkingDetails) && (
+//           <Box sx={{ display: "flex", flexDirection: "column", mt: 1 }}>
+//             <Divider sx={{ borderWidth: "2px", borderColor: "#000" }} />
+//             <Box sx={{ margin: "auto" }}>
+//               <Typography
+//                 sx={{
+//                   fontWeight: "bold",
+//                   fontFamily: "'Times New Roman', Times, serif",
+//                   fontSize: "1.3rem",
+//                 }}
+//               >
+//                 BOOKING RECEIPT
+//               </Typography>
+//             </Box>
+//             <Divider sx={{ borderWidth: "2px", borderColor: "#000" }} />
+//             <Box
+//               sx={{
+//                 // backgroundColor: "yellow",
+//                 width: "58%",
+//                 margin: "auto",
+//                 mt: 2,
+//               }}
+//             >
+//               <Grid container spacing={2}>
+//                 <Grid size={{ xs: 6 }}>
+//                   <Typography
+//                     sx={{
+//                       fontFamily: "'Times New Roman', Times, serif",
+//                       fontWeight: "bold",
+//                     }}
+//                   >
+//                     Vehicle Number :
+//                   </Typography>
+//                 </Grid>
+//                 <Grid size={{ xs: 6 }}>
+//                   <Typography>
+//                     {
+//                       vehicleParkingDetails.parkingSlotData.parkingVehicleData
+//                         .vehicleNo
+//                     }
+//                   </Typography>
+//                 </Grid>
+//                 <Grid size={{ xs: 6 }}>
+//                   <Typography
+//                     sx={{
+//                       fontFamily: "'Times New Roman', Times, serif",
+//                       fontWeight: "bold",
+//                     }}
+//                   >
+//                     Area Name :
+//                   </Typography>
+//                 </Grid>
+//                 <Grid size={{ xs: 6 }}>
+//                   <Typography>{vehicleParkingDetails.areaName}</Typography>
+//                 </Grid>
+//                 <Grid size={{ xs: 6 }}>
+//                   <Typography
+//                     sx={{
+//                       fontFamily: "'Times New Roman', Times, serif",
+//                       fontWeight: "bold",
+//                     }}
+//                   >
+//                     Slot Number :
+//                   </Typography>
+//                 </Grid>
+//                 <Grid size={{ xs: 6 }}>
+//                   <Typography>
+//                     {vehicleParkingDetails.parkingSlotData.slotNumber}
+//                   </Typography>
+//                 </Grid>
+//                 <Grid size={{ xs: 6 }}>
+//                   <Typography
+//                     sx={{
+//                       fontFamily: "'Times New Roman', Times, serif",
+//                       fontWeight: "bold",
+//                     }}
+//                   >
+//                     From Date:
+//                   </Typography>
+//                 </Grid>
+
+//                 <Grid size={{ xs: 6 }}>
+//                   {
+//                     vehicleParkingDetails.parkingSlotData.parkingVehicleData
+//                       .fromDate
+//                   }
+//                 </Grid>
+//                 <Grid size={{ xs: 6 }}>
+//                   <Typography
+//                     sx={{
+//                       fontFamily: "'Times New Roman', Times, serif",
+//                       fontWeight: "bold",
+//                     }}
+//                   >
+//                     To Date:
+//                   </Typography>
+//                 </Grid>
+//                 <Grid size={{ xs: 6 }}>
+//                   {
+//                     vehicleParkingDetails.parkingSlotData.parkingVehicleData
+//                       .toDate
+//                   }
+//                 </Grid>
+//                 <Grid size={{ xs: 6 }}>
+//                   <Typography
+//                     sx={{
+//                       fontFamily: "'Times New Roman', Times, serif",
+//                       fontWeight: "bold",
+//                     }}
+//                   >
+//                     Token No.
+//                   </Typography>
+//                 </Grid>
+//                 <Grid size={{ xs: 6 }}>
+//                   {
+//                     vehicleParkingDetails.parkingSlotData.parkingVehicleData
+//                       .digitalTokenNo
+//                   }
+//                 </Grid>
+//                 <Grid size={{ xs: 6 }}>
+//                   <Typography
+//                     sx={{
+//                       fontFamily: "'Times New Roman', Times, serif",
+//                       fontWeight: "bold",
+//                     }}
+//                   >
+//                     Paid Amount
+//                   </Typography>
+//                 </Grid>
+//                 <Grid size={{ xs: 6 }}>
+//                   ₹{" "}
+//                   {
+//                     vehicleParkingDetails.parkingSlotData.parkingVehicleData
+//                       .paidAmount
+//                   }
+//                 </Grid>
+//               </Grid>
+//             </Box>
+//           </Box>
+//         )}
+//       </DialogContent>
+//       <LoadingComponent open={getParkingDetailsRes.isLoading} />
+//     </Dialog>
+//   );
+// }
+
+// Function to get status color
+export const getStatusColour = (status) => {
+  switch (status) {
+    case "Booked":
+      return "orange";
+    case "Checked_In":
+      return "green";
+    case "Checked_Out":
+      return "blue";
+    case "Cancelled":
+      return "red";
+    case "Booking_Cancellation_Requested":
+      return "#CC0000";
+    default:
+      return "gray";
+  }
 };
 
-function VehicleParkingDialog({ open, handleClose, setSnack }) {
-  const [vehicleParkingDetails, setVehicleParkingDetails] =
-    React.useState(null);
-  const [vehicleNumber, setVehicleNumber] = React.useState("");
-  const [getParkingDetails, getParkingDetailsRes] =
-    useLazyGetParkingDataForGuestQuery();
-  const handleGetSetParkingRes = React.useCallback(() => {
-    getParkingDetails(vehicleNumber)
-      .unwrap()
-      .then((res) => {
-        setSnack({
-          open: true,
-          message: res.message,
-          severity: "success",
-        });
-        setVehicleParkingDetails(res.data);
-      })
-      .catch((err) => {
-        setVehicleParkingDetails(null);
-        setSnack({
-          open: true,
-          message: err.data?.message || err.data,
-          severity: "error",
-        });
-      });
-  }, [getParkingDetails, vehicleNumber, setSnack]);
+// function VehicleParkingDialog({ open, handleClose, setSnack }) {
+//   const [vehicleParkingDetails, setVehicleParkingDetails] =
+//     React.useState(null);
+//   const [vehicleNumber, setVehicleNumber] = React.useState("");
+//   const [getParkingDetails, getParkingDetailsRes] =
+//     useLazyGetParkingDataForGuestQuery();
+//   const handleGetSetParkingRes = React.useCallback(() => {
+//     getParkingDetails(vehicleNumber)
+//       .unwrap()
+//       .then((res) => {
+//         setSnack({
+//           open: true,
+//           message: res.message,
+//           severity: "success",
+//         });
+//         setVehicleParkingDetails(res.data);
+//       })
+//       .catch((err) => {
+//         setVehicleParkingDetails(null);
+//         setSnack({
+//           open: true,
+//           message: err.data?.message || err.data,
+//           severity: "error",
+//         });
+//       });
+//   }, [getParkingDetails, vehicleNumber, setSnack]);
 
-  React.useEffect(() => {
-    setVehicleParkingDetails(null);
-    setVehicleNumber("");
-  }, [open]);
-  return (
-    <Dialog
-      open={open}
-      maxWidth="sm"
-      fullWidth
-      sx={{
-        ".MuiDialogTitle-root": {
-          px: 5,
-          py: 3,
-        },
-      }}
-      PaperProps={{
-        sx: { borderRadius: 4 },
-      }}
-    >
-      <DialogTitle sx={{ fontSize: 24 }}>Vehicle Parking Details</DialogTitle>
-      <IconButton
-        aria-label="close"
-        onClick={handleClose}
-        sx={{
-          position: "absolute",
-          right: 30,
-          top: 16,
-          color: "#280071",
-        }}
-      >
-        <CloseIcon sx={{ fontSize: 30 }} />
-      </IconButton>
-      <DialogContent>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 2,
-            ".MuiTextField-root": {
-              backgroundColor: "transparent",
-              ".MuiInputBase-root": {
-                // color: "#B4B4B4",
-              },
-            },
-            ".MuiFormLabel-root": {
-              color: (theme) => theme.palette.primary.main,
-              // fontWeight: 600,
-              // fontSize: 18,
-            },
-            ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
-              borderBottom: (theme) =>
-                `1px solid ${theme.palette.primary.main}`,
-            },
-            ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
-              borderBottom: (theme) =>
-                `1px solid ${theme.palette.primary.main}`,
-            },
-          }}
-        >
-          <TextField
-            size="small"
-            name="vehicleNumber"
-            // onChange={(e) => handleChange(e.target.name, e.target.value)}
-            label="Vehicle Number *"
-            value={vehicleNumber}
-            onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
-            fullWidth
-          />
-          <Button
-            sx={{
-              display: "block",
-              // margin: "1rem auto",
-              color: "#fff",
-              textTransform: "none",
-              // fontSize: 18,
-              px: 6,
-              // py: 1,
-              borderRadius: 2,
-              "&.Mui-disabled": {
-                background: "#B2E5F6",
-                color: "#FFFFFF",
-              },
-            }}
-            onClick={handleGetSetParkingRes}
-            variant="contained"
-            color="secondary"
-            disabled={!Boolean(vehicleNumber.trim())}
-          >
-            Submit
-          </Button>
-        </Box>
-        {Boolean(vehicleParkingDetails) && (
-          <Box sx={{ display: "flex", flexDirection: "column", mt: 1 }}>
-            <Divider sx={{ borderWidth: "2px", borderColor: "#000" }} />
-            <Box sx={{ margin: "auto" }}>
-              <Typography
-                sx={{
-                  fontWeight: "bold",
-                  fontFamily: "'Times New Roman', Times, serif",
-                  fontSize: "1.3rem",
-                }}
-              >
-                BOOKING RECEIPT
-              </Typography>
-            </Box>
-            <Divider sx={{ borderWidth: "2px", borderColor: "#000" }} />
-            <Box
-              sx={{
-                // backgroundColor: "yellow",
-                width: "58%",
-                margin: "auto",
-                mt: 2,
-              }}
-            >
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 6 }}>
-                  <Typography
-                    sx={{
-                      fontFamily: "'Times New Roman', Times, serif",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Vehicle Number :
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Typography>
-                    {
-                      vehicleParkingDetails.parkingSlotData.parkingVehicleData
-                        .vehicleNo
-                    }
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Typography
-                    sx={{
-                      fontFamily: "'Times New Roman', Times, serif",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Area Name :
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Typography>{vehicleParkingDetails.areaName}</Typography>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Typography
-                    sx={{
-                      fontFamily: "'Times New Roman', Times, serif",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Slot Number :
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Typography>
-                    {vehicleParkingDetails.parkingSlotData.slotNumber}
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Typography
-                    sx={{
-                      fontFamily: "'Times New Roman', Times, serif",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    From Date:
-                  </Typography>
-                </Grid>
+//   const handlePrintReceipt = () => {
+//     const prtContent = document.getElementById("bookingReceiptCustomer");
+//     var WinPrint = window.open(
+//       "",
+//       "",
+//       "left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0"
+//     );
+//     WinPrint.document.write(prtContent.innerHTML);
+//     WinPrint.document.close();
+//     WinPrint.focus();
+//     WinPrint.print();
+//     WinPrint.close();
+//   };
 
-                <Grid size={{ xs: 6 }}>
-                  {
-                    vehicleParkingDetails.parkingSlotData.parkingVehicleData
-                      .fromDate
-                  }
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Typography
-                    sx={{
-                      fontFamily: "'Times New Roman', Times, serif",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    To Date:
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  {
-                    vehicleParkingDetails.parkingSlotData.parkingVehicleData
-                      .toDate
-                  }
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Typography
-                    sx={{
-                      fontFamily: "'Times New Roman', Times, serif",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Token No.
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  {
-                    vehicleParkingDetails.parkingSlotData.parkingVehicleData
-                      .digitalTokenNo
-                  }
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Typography
-                    sx={{
-                      fontFamily: "'Times New Roman', Times, serif",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Paid Amount
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  ₹{" "}
-                  {
-                    vehicleParkingDetails.parkingSlotData.parkingVehicleData
-                      .paidAmount
-                  }
-                </Grid>
-              </Grid>
-            </Box>
-          </Box>
-        )}
-      </DialogContent>
-      <LoadingComponent open={getParkingDetailsRes.isLoading} />
-    </Dialog>
-  );
-}
+//   React.useEffect(() => {
+//     setVehicleParkingDetails(null);
+//     setVehicleNumber("");
+//   }, [open]);
+//   return (
+//     <Dialog
+//       open={open}
+//       maxWidth="sm"
+//       fullWidth
+//       sx={{
+//         ".MuiDialogTitle-root": {
+//           px: 5,
+//           py: 3,
+//         },
+//       }}
+//       PaperProps={{
+//         sx: { borderRadius: 4 },
+//       }}
+//     >
+//       <DialogTitle sx={{ fontSize: 24 }}>Vehicle Parking Details</DialogTitle>
+//       <IconButton
+//         aria-label="close"
+//         onClick={handleClose}
+//         sx={{
+//           position: "absolute",
+//           right: 30,
+//           top: 16,
+//           color: "#280071",
+//         }}
+//       >
+//         <CloseIcon sx={{ fontSize: 30 }} />
+//       </IconButton>
+//       <DialogContent>
+//         <Box
+//           sx={{
+//             display: "flex",
+//             alignItems: "center",
+//             gap: 2,
+//             ".MuiTextField-root": {
+//               backgroundColor: "transparent",
+//               ".MuiInputBase-root": {
+//                 // color: "#B4B4B4",
+//               },
+//             },
+//             ".MuiFormLabel-root": {
+//               color: (theme) => theme.palette.primary.main,
+//               // fontWeight: 600,
+//               // fontSize: 18,
+//             },
+//             ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+//               borderBottom: (theme) =>
+//                 `1px solid ${theme.palette.primary.main}`,
+//             },
+//             ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+//               borderBottom: (theme) =>
+//                 `1px solid ${theme.palette.primary.main}`,
+//             },
+//           }}
+//         >
+//           <TextField
+//             size="small"
+//             name="vehicleNumber"
+//             // onChange={(e) => handleChange(e.target.name, e.target.value)}
+//             label="Vehicle Number *"
+//             value={vehicleNumber}
+//             onChange={(e) => setVehicleNumber(e.target.value.toUpperCase())}
+//             fullWidth
+//           />
+//           <Button
+//             sx={{
+//               display: "block",
+//               // margin: "1rem auto",
+//               color: "#fff",
+//               textTransform: "none",
+//               // fontSize: 18,
+//               px: 6,
+//               // py: 1,
+//               borderRadius: 2,
+//               "&.Mui-disabled": {
+//                 background: "#B2E5F6",
+//                 color: "#FFFFFF",
+//               },
+//             }}
+//             onClick={handleGetSetParkingRes}
+//             variant="contained"
+//             color="secondary"
+//             disabled={!Boolean(vehicleNumber.trim())}
+//           >
+//             Submit
+//           </Button>
+//         </Box>
+//         {Boolean(vehicleParkingDetails) && (
+//           <div
+//             style={{ display: "flex", flexDirection: "column", marginTop: 10 }}
+//             id="bookingReceiptCustomer"
+//           >
+//             <Divider sx={{ borderWidth: "2px", borderColor: "#000" }} />
+//             <div style={{ textAlign: "center" }}>
+//               <h3>BOOKING RECEIPT</h3>
+//             </div>
+//             <Divider sx={{ borderWidth: "2px", borderColor: "#000" }} />
+//             <div
+//               style={{
+//                 width: "550px",
+//                 margin: "auto",
+//                 marginTop: 20,
+//                 display: "flex",
+//                 flexDirection: "column",
+//                 gap: 20,
+//               }}
+//             >
+//               <div style={{ display: "flex" }}>
+//                 <div
+//                   style={{
+//                     width: "50%",
+//                     fontWeight: "bold",
+//                   }}
+//                 >
+//                   Vehicle Number :
+//                 </div>
+//                 <div>
+//                   {
+//                     vehicleParkingDetails.parkingSlotData.parkingVehicleData
+//                       .vehicleNo
+//                   }
+//                 </div>
+//               </div>
+//               <div style={{ display: "flex" }}>
+//                 <div
+//                   style={{
+//                     width: "50%",
+//                     fontWeight: "bold",
+//                   }}
+//                 >
+//                   Area Name :
+//                 </div>
+//                 <div>{vehicleParkingDetails.areaName}</div>
+//               </div>
+//               <div style={{ display: "flex" }}>
+//                 <div
+//                   style={{
+//                     width: "50%",
+//                     fontWeight: "bold",
+//                   }}
+//                 >
+//                   Slot Number :
+//                 </div>
+//                 <div>{vehicleParkingDetails.parkingSlotData.slotNumber}</div>
+//               </div>
+//               <div style={{ display: "flex" }}>
+//                 <div
+//                   style={{
+//                     width: "50%",
+//                     fontWeight: "bold",
+//                   }}
+//                 >
+//                   From Date:
+//                 </div>
+//                 <div>
+//                   {
+//                     vehicleParkingDetails.parkingSlotData.parkingVehicleData
+//                       .fromDate
+//                   }
+//                 </div>
+//               </div>
+//               <div style={{ display: "flex" }}>
+//                 <div
+//                   style={{
+//                     width: "50%",
+//                     fontWeight: "bold",
+//                   }}
+//                 >
+//                   To Date:
+//                 </div>
+//                 <div>
+//                   {
+//                     vehicleParkingDetails.parkingSlotData.parkingVehicleData
+//                       .toDate
+//                   }
+//                 </div>
+//               </div>
+//               <div style={{ display: "flex" }}>
+//                 <div
+//                   style={{
+//                     width: "50%",
+//                     fontWeight: "bold",
+//                   }}
+//                 >
+//                   Token No.
+//                 </div>
+//                 <div>
+//                   {
+//                     vehicleParkingDetails.parkingSlotData.parkingVehicleData
+//                       .digitalTokenNo
+//                   }
+//                 </div>
+//               </div>
+//               <div style={{ display: "flex" }}>
+//                 <div
+//                   style={{
+//                     width: "50%",
+//                     fontWeight: "bold",
+//                   }}
+//                 >
+//                   Paid Amount
+//                 </div>
+//                 <div>
+//                   ₹{" "}
+//                   {
+//                     vehicleParkingDetails.parkingSlotData.parkingVehicleData
+//                       .paidAmount
+//                   }
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//         )}
+//         {Boolean(vehicleParkingDetails) && (
+//           <Button
+//             variant="contained"
+//             color="secondary"
+//             sx={{
+//               color: "#fff",
+//               display: "block",
+//               mx: "auto",
+//               mt: 2,
+//             }}
+//             onClick={handlePrintReceipt}
+//           >
+//             Print Receipt
+//           </Button>
+//         )}
+//       </DialogContent>
+//       <LoadingComponent open={getParkingDetailsRes.isLoading} />
+//     </Dialog>
+//   );
+// }
 
 export default GuestBookingHistoryDrawer;

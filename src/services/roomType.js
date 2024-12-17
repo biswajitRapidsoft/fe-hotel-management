@@ -21,9 +21,18 @@ const roomTypeApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["getAllRoomTypesByCompany"],
     }),
+    getPerRewardPointValue: build.query({
+      query: () => ({
+        url: config.apiName.getPerRewardPointValue,
+        method: "GET",
+      }),
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useGetAllRoomTypesByCompanyQuery, useAddRoomTypeMutation } =
-  roomTypeApi;
+export const {
+  useGetAllRoomTypesByCompanyQuery,
+  useAddRoomTypeMutation,
+  useGetPerRewardPointValueQuery,
+} = roomTypeApi;

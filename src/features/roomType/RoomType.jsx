@@ -16,10 +16,10 @@ import {
   TableBody,
   TableCell,
   IconButton,
-  // FormGroup,
-  // FormControlLabel,
-  // Checkbox,
+  FormControlLabel,
+  Checkbox,
   InputAdornment,
+  FormGroup,
 } from "@mui/material";
 import AttachmentIcon from "@mui/icons-material/Attachment";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -32,7 +32,10 @@ import { useGetAllExtraItemsQuery } from "../../services/extraItem";
 
 import { useUploadFileMutation } from "../../services/hotel";
 
-import { useAddRoomTypeMutation } from "../../services/roomType";
+import {
+  useAddRoomTypeMutation,
+  useGetPerRewardPointValueQuery,
+} from "../../services/roomType";
 
 import LoadingComponent from "../../components/LoadingComponent";
 
@@ -40,6 +43,11 @@ import SnackAlert from "../../components/Alert";
 import { ADMIN } from "../../helper/constants";
 
 const RoomType = () => {
+  const {
+    data: pricePerPoint = {
+      data: 0,
+    },
+  } = useGetPerRewardPointValueQuery();
   const [uploadImage, uploadImageRes] = useUploadFileMutation();
   const [snack, setSnack] = React.useState({
     open: false,
@@ -107,10 +115,18 @@ const RoomType = () => {
         [e.target.name]: e.target.value.replace(/\D/g, ""),
       }));
     } else if (e.target.type === "checkbox") {
-      setFormData((prevData) => ({
-        ...prevData,
-        [e.target.name]: e.target.checked,
-      }));
+      if (e.target.name === "isAdvance") {
+        setFormData((prevData) => ({
+          ...prevData,
+          advanceAmount: "",
+          [e.target.name]: e.target.checked,
+        }));
+      } else {
+        setFormData((prevData) => ({
+          ...prevData,
+          [e.target.name]: e.target.checked,
+        }));
+      }
     } else {
       setFormData((prevData) => ({
         ...prevData,
@@ -138,8 +154,9 @@ const RoomType = () => {
         formData.description.trim() &&
         formData.capacity.trim() &&
         formData.basePrice.trim() &&
-        formData.advanceAmount.trim() &&
-        formData.rewardPoints
+        formData.isAdvance
+        ? formData.advanceAmount.trim()
+        : true && formData.rewardPoints
     );
   }, [formData]);
 
@@ -324,7 +341,7 @@ const RoomType = () => {
               variant="standard"
             />
           </Grid>
-          {/* <Grid size={3}>
+          <Grid size={3}>
             <FormGroup>
               <FormControlLabel
                 control={
@@ -334,31 +351,33 @@ const RoomType = () => {
                     onChange={handleChange}
                   />
                 }
-                label="Is Advance"
+                label="Is Advance Required"
               />
             </FormGroup>
-          </Grid> */}
-          <Grid size={3}>
-            <TextField
-              label={
-                <React.Fragment>
-                  Advance Amount{" "}
-                  <Box
-                    component="span"
-                    sx={{
-                      color: (theme) => theme.palette.error.main,
-                    }}
-                  >
-                    *
-                  </Box>
-                </React.Fragment>
-              }
-              name="advanceAmount"
-              value={formData.advanceAmount}
-              onChange={handleChange}
-              variant="standard"
-            />
           </Grid>
+          {formData.isAdvance && (
+            <Grid size={3}>
+              <TextField
+                label={
+                  <React.Fragment>
+                    Advance Amount{" "}
+                    <Box
+                      component="span"
+                      sx={{
+                        color: (theme) => theme.palette.error.main,
+                      }}
+                    >
+                      *
+                    </Box>
+                  </React.Fragment>
+                }
+                name="advanceAmount"
+                value={formData.advanceAmount}
+                onChange={handleChange}
+                variant="standard"
+              />
+            </Grid>
+          )}
           <Grid size={3}>
             <TextField
               label={
@@ -378,6 +397,12 @@ const RoomType = () => {
               value={formData.rewardPoints}
               onChange={handleChange}
               variant="standard"
+              helperText={
+                formData.rewardPoints &&
+                `Rs. ${(
+                  parseFloat(formData.rewardPoints) * pricePerPoint.data
+                ).toFixed(2)}`
+              }
             />
           </Grid>
         </Grid>

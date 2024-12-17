@@ -3,8 +3,8 @@ const config = Object.freeze({
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
   // baseUrl: "http://crimarrstaging.nyggs.com/backend/",
   // baseUrl: "http://192.168.30.44:9000/",
-  baseUrl: "http://192.168.12.43:8080/be-hms/",
-  // baseUrl: "http://192.168.30.44:8070/be-hms/",
+  // baseUrl: "http://192.168.12.43:8080/be-hms/",
+  baseUrl: "http://192.168.30.44:8070/be-hms/",
   apiName: {
     loginAsCustomer: "login/as/customer",
     loginAsStaff: "login",
@@ -47,6 +47,7 @@ const config = Object.freeze({
     getBarOrderHistoryAdmin: "api/get/today/all/bar/request/history",
     changeBarOrderStatus: "public/change/bar/order/status",
     getAllBarOrderStatus: "public/get/all/bar/status/type",
+    getPerRewardPointValue: "api/get/per/reward/point/value",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",
