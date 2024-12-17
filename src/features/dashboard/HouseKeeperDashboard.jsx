@@ -515,8 +515,7 @@ const HouseKeepingDialog = ({
               <Typography
                 sx={{ color: "gray", fontSize: "1.4rem", fontWeight: "bold" }}
               >
-                Room cleaning is completed, please press on proceed button for
-                checkout
+                Room cleaning is completed, please press on proceed button
               </Typography>
             </Box>
           ) : selectedRoom?.serviceTypeStatus ===
