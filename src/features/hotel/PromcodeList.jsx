@@ -278,7 +278,8 @@ const PromcodeList = () => {
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 disablePast
-                value={formData?.fromDate || null}
+                value={formData?.fromDate}
+                maxDate={formData.toDate}
                 onChange={handleDateChange("fromDate")}
                 slotProps={{
                   textField: {
@@ -310,7 +311,8 @@ const PromcodeList = () => {
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 disablePast
-                value={formData?.toDate || null}
+                value={formData?.fromDate}
+                minDate={formData?.fromDate}
                 onChange={handleDateChange("toDate")}
                 slotProps={{
                   textField: {
