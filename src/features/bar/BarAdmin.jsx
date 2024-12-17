@@ -56,10 +56,15 @@ const Row = ({ order, index, setUpdateStatusDialog }) => {
       >
         <TableCell>{index + 1}</TableCell>
         <TableCell>{order.orderId}</TableCell>
-        <TableCell>{order.bookingRefNo}</TableCell>
+        {/* <TableCell>{order.bookingRefNo}</TableCell> */}
         <TableCell sx={{ minWidth: 150 }}>{order.customerName}</TableCell>
         <TableCell>{order.phoneNo}</TableCell>
         <TableCell>{order.dinningType.replace("_", " ")}</TableCell>
+        <TableCell>
+          {order.bookingDto
+            ? `${order?.bookingDto?.roomDto?.roomNo}(${order?.bookingDto?.roomDto?.floorNo})`
+            : "--"}
+        </TableCell>
         <TableCell>
           <Typography
             sx={{
@@ -445,10 +450,11 @@ const BarAdmin = () => {
               >
                 <TableCell>SL No.</TableCell>
                 <TableCell>Order ID</TableCell>
-                <TableCell>Bookig Ref. No</TableCell>
+                {/* <TableCell>Booking Ref. No</TableCell> */}
                 <TableCell>Guest</TableCell>
                 <TableCell>Phone no.</TableCell>
                 <TableCell>Dine Type</TableCell>
+                <TableCell>Room No.(Floor)</TableCell>
                 <TableCell>Order Status</TableCell>
                 <TableCell />
               </TableRow>

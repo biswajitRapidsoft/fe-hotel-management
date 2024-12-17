@@ -34,6 +34,9 @@ import { RiDiscountPercentFill } from "react-icons/ri";
 import CloseIcon from "@mui/icons-material/Close";
 import { FaArrowAltCircleLeft } from "react-icons/fa";
 
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
+
 const drawerWidth = 399;
 
 export const DrawerHeader = styled("div")(({ theme }) => ({
@@ -352,6 +355,29 @@ const Restaurant = () => {
         setCartItems(cartItemsToSet);
       } else {
         setCartItems((preVal) => [...preVal, { ...item, quantity: 1 }]);
+      }
+    },
+    [cartItems]
+  );
+
+  const handleRemoveItemFromCart = React.useCallback(
+    (item) => {
+      if (item.quantity === 1) {
+        const cartItemsToSet = cartItems.filter(
+          (cartItem) => cartItem.id !== item.id
+        );
+        setCartItems(cartItemsToSet);
+      } else {
+        const cartItemsToSet = cartItems.map((cartItem) => {
+          if (cartItem.id === item.id) {
+            return {
+              ...cartItem,
+              quantity: cartItem.quantity - 1,
+            };
+          }
+          return cartItem;
+        });
+        setCartItems(cartItemsToSet);
       }
     },
     [cartItems]
@@ -758,7 +784,30 @@ const Restaurant = () => {
                           >
                             <Box>
                               <Typography>{cartItem.itemName}</Typography>
-                              <Typography>{`x${cartItem.quantity}`}</Typography>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 0.5,
+                                }}
+                              >
+                                <IconButton
+                                  size="small"
+                                  onClick={() =>
+                                    handleRemoveItemFromCart(cartItem)
+                                  }
+                                >
+                                  <RemoveIcon fontSize="small" color="error" />
+                                </IconButton>
+                                <Typography>{`x ${cartItem.quantity}`}</Typography>
+                                <IconButton
+                                  size="small"
+                                  color="secondary"
+                                  onClick={() => handleAddItemToCart(cartItem)}
+                                >
+                                  <AddIcon fontSize="small" />
+                                </IconButton>
+                              </Box>
                             </Box>
                             <Typography sx={{ fontWeight: 600 }}>{`Rs. ${
                               cartItem.perUnitPrice * cartItem.quantity

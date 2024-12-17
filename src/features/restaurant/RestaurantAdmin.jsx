@@ -57,13 +57,18 @@ const Row = ({ order, index, setUpdateStatusDialog }) => {
       >
         <TableCell>{index + 1}</TableCell>
         <TableCell>{order.bookingDetails.orderId}</TableCell>
-        <TableCell>{order.bookingDetails.bookingRefNo}</TableCell>
+        {/* <TableCell>{order.bookingDetails.bookingRefNo}</TableCell> */}
         <TableCell sx={{ minWidth: 150 }}>{`${order.bookingDetails.firstName} ${
           order.bookingDetails.middleName || ""
         } ${order.bookingDetails.lastName || ""}`}</TableCell>
         <TableCell>{order.bookingDetails.phoneNo}</TableCell>
         <TableCell>
           {order.bookingDetails.dinningType.replace("_", " ")}
+        </TableCell>
+        <TableCell>
+          {order.bookingDto
+            ? `${order?.bookingDto?.roomDto?.roomNo}(${order?.bookingDto?.roomDto?.floorNo})`
+            : "--"}
         </TableCell>
         <TableCell>
           <Typography
@@ -453,10 +458,11 @@ const RestaurantAdmin = () => {
               >
                 <TableCell>SL No.</TableCell>
                 <TableCell>Order ID</TableCell>
-                <TableCell>Bookig Ref. No</TableCell>
+                {/* <TableCell>Bookig Ref. No</TableCell> */}
                 <TableCell>Guest</TableCell>
                 <TableCell>Phone no.</TableCell>
                 <TableCell>Dine Type</TableCell>
+                <TableCell>Room No.(Floor)</TableCell>
                 <TableCell>Order Status</TableCell>
                 <TableCell />
               </TableRow>

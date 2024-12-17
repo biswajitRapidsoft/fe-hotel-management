@@ -138,7 +138,18 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
                     backgroundColor: "#F1F1F1",
                   }}
                 >
-                  <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Typography variant="h6">
+                      {moment(order.bookingDetails.bookedOn).format(
+                        "DD/MM/YYYY hh:mma"
+                      )}
+                    </Typography>
                     <Tooltip title="Download Invoice" arrow>
                       <IconButton onClick={() => handleDownloadInvoice(order)}>
                         <ReceiptIcon />
