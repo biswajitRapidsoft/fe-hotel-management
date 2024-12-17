@@ -856,7 +856,68 @@ const CustomFloorAccordion = memo(function ({
             },
           }}
         >
-          <AccordionSummary
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
+              position: "relative",
+              gap: 2,
+            }}
+          >
+            <Box
+              sx={{
+                position: "absolute",
+                top: "50%",
+                transform: "translateY(-50%)",
+                left: 1,
+                width: 24,
+                height: 24,
+                boxShadow: "1.5px 1.5px 3px 0px rgba(197, 51, 255, 0.6)",
+                backgroundImage:
+                  "linear-gradient(to right bottom, #d139fc, #b32edc, #9722bc, #7b179d, #610b7f)",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                borderRadius: "4px",
+                zIndex: 2,
+              }}
+            />
+            <Box sx={{ width: "98.5%", ml: 1.3 }}>
+              <Paper
+                elevation={3}
+                sx={{
+                  position: "relative",
+                  py: "5px",
+                  pl: 2.5,
+                  borderRadius: "5px",
+                }}
+              >
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1-content"
+                  id="panel1-header"
+                  sx={{
+                    // borderBottom: "2px solid #ccc",
+                    minHeight: "unset",
+                    height: "35px",
+                    maxHeight: "35px",
+                    "&.Mui-expanded": {
+                      minHeight: "unset",
+                      height: "35px",
+                      maxHeight: "35px",
+                    },
+                  }}
+                >
+                  <Typography
+                    sx={{ fontWeight: 550, letterSpacing: 1, fontSize: "18px" }}
+                  >
+                    {`Floor ${floorData?.floorNo}`}
+                  </Typography>
+                </AccordionSummary>
+              </Paper>
+            </Box>
+          </Box>
+          {/* <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel1-content"
             id="panel1-header"
@@ -878,7 +939,7 @@ const CustomFloorAccordion = memo(function ({
             >
               {`Floor ${floorData?.floorNo}`}
             </Typography>
-          </AccordionSummary>
+          </AccordionSummary> */}
           <AccordionDetails>
             <Box sx={{ width: "100%", mt: 1 }}>
               <Grid container size={12} spacing={2}>
@@ -1025,21 +1086,15 @@ const CustomRoomCard = memo(function ({
   );
 });
 
-const CustomAlertCard = memo(function ({ alertData }) {
+const CustomAlertCard = memo(function ({ alertChipData, alertData }) {
   const navigate = useNavigate();
 
   const handleNavigateToBookingHistoryByAlert = useCallback(
-    (name) => {
-      if (name === "pendingConfirmation") {
+    (selectedFilterationKey) => {
+      if (Boolean(selectedFilterationKey)) {
         sessionStorage.setItem(
           "customAlertFilter",
-          JSON.stringify("Pending_Confirmation")
-        );
-        navigate("/frontdeskBookingHistory");
-      } else if (name === "pendingRefundRequest") {
-        sessionStorage.setItem(
-          "customAlertFilter",
-          JSON.stringify("Booking_Cancellation_Requested")
+          JSON.stringify(selectedFilterationKey)
         );
         navigate("/frontdeskBookingHistory");
       }
@@ -1049,7 +1104,7 @@ const CustomAlertCard = memo(function ({ alertData }) {
 
   return (
     <Box sx={{ width: "100%" }}>
-      <Box
+      {/* <Box
         sx={{
           borderBottom: "2px solid #ccc",
           bgcolor: "#e3e3e3",
@@ -1063,143 +1118,135 @@ const CustomAlertCard = memo(function ({ alertData }) {
         >
           {`Alerts`}
         </Typography>
+      </Box> */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          position: "relative",
+          gap: 2,
+        }}
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            transform: "translateY(-50%)",
+            left: 1,
+            width: 24,
+            height: 24,
+            boxShadow: "1.5px 1.5px 3px 0px rgba(197, 51, 255, 0.6)",
+            backgroundImage:
+              "linear-gradient(to right bottom, #d139fc, #b32edc, #9722bc, #7b179d, #610b7f)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            borderRadius: "4px",
+            zIndex: 2,
+          }}
+        />
+        <Box sx={{ width: "96.5%", ml: 1.3 }}>
+          <Paper
+            elevation={3}
+            sx={{
+              position: "relative",
+              py: "5px",
+              pl: 2.5,
+              borderRadius: "5px",
+            }}
+          >
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 550,
+                letterSpacing: 1,
+                fontSize: "18px",
+              }}
+            >
+              Alerts
+            </Typography>
+          </Paper>
+        </Box>
       </Box>
       <Box
         sx={{
           width: "100%",
-          mt: 2,
-          height: "100px",
+          mt: 1,
+          // height: "100px",
           overflowY: "auto",
           display: "flex",
           flexWrap: "wrap",
           gap: "5px",
         }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
-            border: "2px solid #e65d1d",
-            borderRadius: "5px",
-            maxHeight: "35px",
-            overflow: "hidden",
-            userSelect: "none",
-            cursor: "pointer",
-            transition: "all 0.3s ease",
-            "&:hover": {
-              "& .leftBox": {
-                bgcolor: "#ffffff",
-                color: "#e65d1d",
-              },
-              "& .rightBox": {
-                bgcolor: "#e65d1d",
-                color: "#ffffff",
-              },
-              "& .rightBox .MuiTypography-root": {
-                color: "#ffffff",
-              },
-            },
-          }}
-          onClick={() =>
-            handleNavigateToBookingHistoryByAlert("pendingConfirmation")
-          }
-        >
-          <Box
-            className="leftBox"
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              paddingX: "3px",
-              bgcolor: "#e65d1d",
-              color: "#ffffff",
-              transition: "all 0.3s ease",
-            }}
-          >
-            <Typography sx={{ fontSize: "13px", fontWeight: 600 }}>
-              Pending Room Bookings
-            </Typography>
-          </Box>
-          <Box
-            className="rightBox"
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              paddingX: "12px",
-              minWidth: "40px",
-              color: "#e65d1d",
-              transition: "all 0.3s ease",
-            }}
-          >
-            <Typography sx={{ fontWeight: 550 }}>
-              {alertData?.noOfBookingRequestCount || "0"}
-            </Typography>
-          </Box>
-        </Box>
-
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px;",
-            border: "2px solid #5a1de6",
-            borderRadius: "5px",
-            maxHeight: "35px",
-            overflow: "hidden",
-            userSelect: "none",
-            cursor: "pointer",
-            transition: "all 0.3s ease",
-            "&:hover": {
-              "& .leftBox": {
-                bgcolor: "#ffffff",
-                color: "#5a1de6",
-              },
-              "& .rightBox": {
-                bgcolor: "#5a1de6",
-                color: "#ffffff",
-              },
-              "& .rightBox .MuiTypography-root": {
-                color: "#ffffff",
-              },
-            },
-          }}
-          onClick={() =>
-            handleNavigateToBookingHistoryByAlert("pendingRefundRequest")
-          }
-        >
-          <Box
-            className="leftBox"
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              paddingX: "3px",
-              bgcolor: "#5a1de6",
-              color: "#ffffff",
-              transition: "all 0.3s ease",
-            }}
-          >
-            <Typography sx={{ fontSize: "13px", fontWeight: 600 }}>
-              Refund Requests
-            </Typography>
-          </Box>
-          <Box
-            className="rightBox"
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              paddingX: "12px",
-              minWidth: "40px",
-              color: "#5a1de6",
-              transition: "all 0.3s ease",
-            }}
-          >
-            <Typography sx={{ fontWeight: 550 }}>
-              {alertData?.noOfCancellationRequstCount || "0"}
-            </Typography>
-          </Box>
-        </Box>
+        {alertChipData?.map((item, index) => {
+          return (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+                border: `2px solid ${item?.customColor}`,
+                borderRadius: "5px",
+                maxHeight: "35px",
+                overflow: "hidden",
+                userSelect: "none",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  "& .leftBox": {
+                    bgcolor: "#ffffff",
+                    color: `${item?.customColor}`,
+                  },
+                  "& .rightBox": {
+                    bgcolor: `${item?.customColor}`,
+                    color: "#ffffff",
+                  },
+                  "& .rightBox .MuiTypography-root": {
+                    color: "#ffffff",
+                  },
+                },
+              }}
+              onClick={() =>
+                handleNavigateToBookingHistoryByAlert(item?.filterationKey)
+              }
+            >
+              <Box
+                className="leftBox"
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  paddingX: "3px",
+                  bgcolor: `${item?.customColor}`,
+                  color: "#ffffff",
+                  transition: "all 0.3s ease",
+                }}
+              >
+                <Typography
+                  sx={{ fontSize: "13px", fontWeight: 600, lineHeight: "1" }}
+                >
+                  {item?.label}
+                </Typography>
+              </Box>
+              <Box
+                className="rightBox"
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  paddingX: "12px",
+                  minWidth: "40px",
+                  color: `${item?.customColor}`,
+                  transition: "all 0.3s ease",
+                }}
+              >
+                <Typography sx={{ fontWeight: 550 }}>
+                  {alertData?.[item?.key] || "0"}
+                </Typography>
+              </Box>
+            </Box>
+          );
+        })}
       </Box>
     </Box>
   );
@@ -1220,20 +1267,55 @@ const DayCheckoutCard = memo(function ({
       <Box sx={{ width: "100%" }}>
         <Box
           sx={{
-            borderBottom: "2px solid #ccc",
-            bgcolor: "#e3e3e3",
-            py: 0.2,
-            px: 1,
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            position: "relative",
+            gap: 2,
           }}
         >
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: 550, letterSpacing: 1, fontSize: "18px" }}
-          >
-            {`Checkout (Today)`}
-          </Typography>
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              transform: "translateY(-50%)",
+              left: 1,
+              width: 24,
+              height: 24,
+              boxShadow: "1.5px 1.5px 3px 0px rgba(197, 51, 255, 0.6)",
+              backgroundImage:
+                "linear-gradient(to right bottom, #d139fc, #b32edc, #9722bc, #7b179d, #610b7f)",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              borderRadius: "4px",
+              zIndex: 2,
+            }}
+          />
+          <Box sx={{ width: "96.5%", ml: 1.3 }}>
+            <Paper
+              elevation={3}
+              sx={{
+                position: "relative",
+                py: "5px",
+                pl: 2.5,
+                borderRadius: "5px",
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 550,
+                  letterSpacing: 1,
+                  fontSize: "18px",
+                }}
+              >
+                {`Checkout (Today)`}
+              </Typography>
+            </Paper>
+          </Box>
         </Box>
-        <Box sx={{ width: "100%", height: "90px", overflowY: "auto" }}>
+
+        <Box sx={{ width: "100%", height: "90px", overflowY: "auto", mt: 1 }}>
           <Grid container size={12} spacing={1}>
             {Boolean(dayCheckoutData?.length) &&
               dayCheckoutData?.map((dayCheckoutItem, index) => {
@@ -1409,7 +1491,7 @@ const RoomServiceCard = memo(function ({
           flexGrow: 1,
         }}
       >
-        <Box
+        {/* <Box
           sx={{
             borderBottom: "2px solid #ccc",
             bgcolor: "#e3e3e3",
@@ -1423,12 +1505,63 @@ const RoomServiceCard = memo(function ({
           >
             {`Room Details`}
           </Typography>
+        </Box> */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            position: "relative",
+            gap: 2,
+          }}
+        >
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              transform: "translateY(-50%)",
+              left: 1,
+              width: 24,
+              height: 24,
+              boxShadow: "1.5px 1.5px 3px 0px rgba(197, 51, 255, 0.6)",
+              backgroundImage:
+                "linear-gradient(to right bottom, #d139fc, #b32edc, #9722bc, #7b179d, #610b7f)",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              borderRadius: "4px",
+              zIndex: 2,
+            }}
+          />
+          <Box sx={{ width: "96.5%", ml: 1.3 }}>
+            <Paper
+              elevation={3}
+              sx={{
+                position: "relative",
+                py: "5px",
+                pl: 2.5,
+                borderRadius: "5px",
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 550,
+                  letterSpacing: 1,
+                  fontSize: "18px",
+                }}
+              >
+                {`Room Details`}
+              </Typography>
+            </Paper>
+          </Box>
         </Box>
+
         <Box
           sx={{
             width: "100",
             overflowY: "auto",
-            height: "310px",
+            // height: "310px",
+            mt: 1,
           }}
         >
           {/* OCCUPIED ROOM CASE */}
@@ -4550,6 +4683,15 @@ const CustomFormDrawer = memo(function ({
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                           <DatePicker
                             disablePast
+                            shouldDisableDate={(date) => {
+                              // if (customFormDrawerData?.isBookingForToday) {
+                              //   return false;
+                              // }
+                              return (
+                                new Date(date.toString()).toDateString() ===
+                                new Date().toDateString()
+                              );
+                            }}
                             value={customFormDrawerData?.fromDate || null}
                             onChange={(newVal) =>
                               handleChangeCustomFormDrawerDataOnChange(
@@ -4660,273 +4802,284 @@ const CustomFormDrawer = memo(function ({
                       </Box>
                     </Grid>
                   )}
-
-                  <Grid size={12}>
-                    <Grid container size={12}>
-                      {/* STAYERS */}
+                  {customFormDrawerData?.isBookingForToday && (
+                    <React.Fragment>
                       <Grid size={12}>
-                        <Typography
+                        <Grid container size={12}>
+                          {/* STAYERS */}
+                          <Grid size={12}>
+                            <Typography
+                              sx={{
+                                fontSize: "16px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                                marginTop: "5px",
+                              }}
+                            >
+                              Guests Verification Details :
+                            </Typography>
+                            <Divider />
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                      <Grid size={{ xs: 12 }}>
+                        <Box
                           sx={{
-                            fontSize: "16px",
-                            // color: "#707070",
-                            fontWeight: 600,
-                            marginTop: "5px",
+                            width: "100%",
+                            // maxHeight: "calc(100vh - 550px)",
+                            maxHeight: "270px",
+                            overflowX: "hidden",
+                            overflowY: "auto",
+                            marginTop: "10px",
                           }}
                         >
-                          Guests Verification Details :
-                        </Typography>
-                        <Divider />
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                  <Grid size={{ xs: 12 }}>
-                    <Box
-                      sx={{
-                        width: "100%",
-                        // maxHeight: "calc(100vh - 550px)",
-                        maxHeight: "270px",
-                        overflowX: "hidden",
-                        overflowY: "auto",
-                        marginTop: "10px",
-                      }}
-                    >
-                      {customFormDrawerData?.bookingMapDatas?.map(
-                        (item, index) => {
-                          return (
-                            <Box
-                              key={`verification-${index}`}
-                              sx={{ width: "100%", marginBottom: "10px" }}
-                            >
-                              <Grid container size={12} columnSpacing={1}>
-                                <Grid size={12}>
-                                  <Typography
-                                    sx={{
-                                      fontSize: "15px",
-                                      // color: "#707070",
-                                      fontWeight: 600,
-                                      width: "100%",
-                                      bgcolor: "#e8e8e8",
-                                    }}
-                                  >
-                                    Customer {index + 1} :
-                                  </Typography>
-                                </Grid>
-                                <Grid size={{ xs: 6, md: 4 }}>
-                                  <TextField
-                                    margin="normal"
-                                    required
-                                    fullWidth
-                                    id={`customerName${index}`}
-                                    label="Guest Name"
-                                    name="customerName"
-                                    inputProps={{
-                                      maxLength: 90,
-                                      style: {
-                                        fontSize: "14px",
-                                      },
-                                    }}
-                                    InputLabelProps={{
-                                      style: {
-                                        fontSize: "13px",
-                                      },
-                                    }}
-                                    // autoComplete="noOfPeoples"
-                                    variant="standard"
-                                    value={item?.customerName || ""}
-                                    onChange={(e) =>
-                                      handleChangeCustomFormDrawerDataOnChange(
-                                        "customerName",
-                                        e?.target?.value,
-                                        index
-                                      )
-                                    }
-                                    sx={{
-                                      "& .MuiInputBase-root": {
-                                        height: "23px",
-                                      },
-                                      "& .MuiTextField-root": {
-                                        maxHeight: "30px",
-                                        backgroundColor: "transparent",
-                                      },
-                                    }}
-                                  />
-                                </Grid>
-                                <Grid size={{ xs: 6, md: 4 }}>
-                                  <Box
-                                    sx={{
-                                      height: "100%",
-                                      display: "flex",
-                                      alignItems: "end",
-                                      paddingBottom: "7px",
-                                      ".MuiTextField-root": {
-                                        width: "100%",
-                                        backgroundColor: "transparent",
-                                        ".MuiInputBase-root": {
-                                          color: "#B4B4B4",
-                                          background:
-                                            "rgba(255, 255, 255, 0.25)",
-                                        },
-                                      },
-                                      ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before":
-                                        {
-                                          borderBottom: (theme) =>
-                                            `1px solid ${theme.palette.primary.main}`,
-                                        },
-                                      ".css-iwadjf-MuiInputBase-root-MuiInput-root:before":
-                                        {
-                                          borderBottom: (theme) =>
-                                            `1px solid ${theme.palette.primary.main}`,
-                                        },
-                                      "& .MuiInputLabel-root": {
-                                        fontSize: "13px",
-                                      },
-                                      "& .MuiOutlinedInput-root": {
-                                        height: "35px",
-                                        minHeight: "35px",
-                                      },
-                                      "& .MuiInputBase-input": {
-                                        padding: "13px",
-                                        height: "100%",
-                                        boxSizing: "border-box",
-                                        fontSize: "13px",
-                                      },
-                                    }}
-                                  >
-                                    <Autocomplete
-                                      fullWidth
-                                      options={
-                                        allGovtIdsData?.data?.map((item) => ({
-                                          key: item,
-                                          name: item.replace(/_/g, " "),
-                                        })) || []
-                                      }
-                                      disableClearable
-                                      value={item?.govtIdType || null}
-                                      onChange={(e, newVal) =>
-                                        handleChangeCustomFormDrawerDataOnChange(
-                                          "govtIdType",
-                                          newVal,
-                                          index
-                                        )
-                                      }
-                                      inputValue={item?.govtIdTypeInputValue}
-                                      onInputChange={(e, newVal) =>
-                                        handleChangeCustomFormDrawerDataOnChange(
-                                          "govtIdTypeInputValue",
-                                          newVal,
-                                          index
-                                        )
-                                      }
-                                      getOptionLabel={(option) => option?.name}
-                                      clearOnEscape
-                                      // disablePortal
-                                      popupIcon={
-                                        <KeyboardArrowDownIcon color="primary" />
-                                      }
-                                      sx={{
-                                        // width: 200,
-                                        ".MuiInputBase-root": {
-                                          color: "#fff",
-                                        },
-                                      }}
-                                      componentsProps={{
-                                        popper: {
-                                          sx: {
-                                            "& .MuiAutocomplete-listbox": {
-                                              maxHeight: "150px",
-                                              overflow: "auto",
-                                            },
-                                            "& .MuiAutocomplete-option": {
-                                              fontSize: "13px", // Specifically targeting individual options
-                                            },
-                                            "& .MuiAutocomplete-listbox .MuiAutocomplete-option:hover":
-                                              {
-                                                backgroundColor:
-                                                  "#E9E5F1 !important",
-                                                color: "#280071 !important",
-                                                fontWeight: 600,
-                                              },
-                                            "& .MuiAutocomplete-listbox .MuiAutocomplete-option[aria-selected='true']":
-                                              {
-                                                backgroundColor:
-                                                  "#E9E5F1 !important",
-                                                color: "#280071 !important",
-                                                fontWeight: 600,
-                                              },
+                          {customFormDrawerData?.bookingMapDatas?.map(
+                            (item, index) => {
+                              return (
+                                <Box
+                                  key={`verification-${index}`}
+                                  sx={{ width: "100%", marginBottom: "10px" }}
+                                >
+                                  <Grid container size={12} columnSpacing={1}>
+                                    <Grid size={12}>
+                                      <Typography
+                                        sx={{
+                                          fontSize: "15px",
+                                          // color: "#707070",
+                                          fontWeight: 600,
+                                          width: "100%",
+                                          bgcolor: "#e8e8e8",
+                                        }}
+                                      >
+                                        Customer {index + 1} :
+                                      </Typography>
+                                    </Grid>
+                                    <Grid size={{ xs: 6, md: 4 }}>
+                                      <TextField
+                                        margin="normal"
+                                        required
+                                        fullWidth
+                                        id={`customerName${index}`}
+                                        label="Guest Name"
+                                        name="customerName"
+                                        inputProps={{
+                                          maxLength: 90,
+                                          style: {
+                                            fontSize: "14px",
                                           },
-                                        },
-                                      }}
-                                      size="small"
-                                      clearIcon={<ClearIcon color="primary" />}
-                                      PaperComponent={(props) => (
-                                        <Paper
+                                        }}
+                                        InputLabelProps={{
+                                          style: {
+                                            fontSize: "13px",
+                                          },
+                                        }}
+                                        // autoComplete="noOfPeoples"
+                                        variant="standard"
+                                        value={item?.customerName || ""}
+                                        onChange={(e) =>
+                                          handleChangeCustomFormDrawerDataOnChange(
+                                            "customerName",
+                                            e?.target?.value,
+                                            index
+                                          )
+                                        }
+                                        sx={{
+                                          "& .MuiInputBase-root": {
+                                            height: "23px",
+                                          },
+                                          "& .MuiTextField-root": {
+                                            maxHeight: "30px",
+                                            backgroundColor: "transparent",
+                                          },
+                                        }}
+                                      />
+                                    </Grid>
+                                    <Grid size={{ xs: 6, md: 4 }}>
+                                      <Box
+                                        sx={{
+                                          height: "100%",
+                                          display: "flex",
+                                          alignItems: "end",
+                                          paddingBottom: "7px",
+                                          ".MuiTextField-root": {
+                                            width: "100%",
+                                            backgroundColor: "transparent",
+                                            ".MuiInputBase-root": {
+                                              color: "#B4B4B4",
+                                              background:
+                                                "rgba(255, 255, 255, 0.25)",
+                                            },
+                                          },
+                                          ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before":
+                                            {
+                                              borderBottom: (theme) =>
+                                                `1px solid ${theme.palette.primary.main}`,
+                                            },
+                                          ".css-iwadjf-MuiInputBase-root-MuiInput-root:before":
+                                            {
+                                              borderBottom: (theme) =>
+                                                `1px solid ${theme.palette.primary.main}`,
+                                            },
+                                          "& .MuiInputLabel-root": {
+                                            fontSize: "13px",
+                                          },
+                                          "& .MuiOutlinedInput-root": {
+                                            height: "35px",
+                                            minHeight: "35px",
+                                          },
+                                          "& .MuiInputBase-input": {
+                                            padding: "13px",
+                                            height: "100%",
+                                            boxSizing: "border-box",
+                                            fontSize: "13px",
+                                          },
+                                        }}
+                                      >
+                                        <Autocomplete
+                                          fullWidth
+                                          options={
+                                            allGovtIdsData?.data?.map(
+                                              (item) => ({
+                                                key: item,
+                                                name: item.replace(/_/g, " "),
+                                              })
+                                            ) || []
+                                          }
+                                          disableClearable
+                                          value={item?.govtIdType || null}
+                                          onChange={(e, newVal) =>
+                                            handleChangeCustomFormDrawerDataOnChange(
+                                              "govtIdType",
+                                              newVal,
+                                              index
+                                            )
+                                          }
+                                          inputValue={
+                                            item?.govtIdTypeInputValue
+                                          }
+                                          onInputChange={(e, newVal) =>
+                                            handleChangeCustomFormDrawerDataOnChange(
+                                              "govtIdTypeInputValue",
+                                              newVal,
+                                              index
+                                            )
+                                          }
+                                          getOptionLabel={(option) =>
+                                            option?.name
+                                          }
+                                          clearOnEscape
+                                          // disablePortal
+                                          popupIcon={
+                                            <KeyboardArrowDownIcon color="primary" />
+                                          }
                                           sx={{
-                                            background: "#fff",
-                                            color: "#B4B4B4",
-                                            // borderRadius: "10px",
+                                            // width: 200,
+                                            ".MuiInputBase-root": {
+                                              color: "#fff",
+                                            },
                                           }}
-                                          {...props}
+                                          componentsProps={{
+                                            popper: {
+                                              sx: {
+                                                "& .MuiAutocomplete-listbox": {
+                                                  maxHeight: "150px",
+                                                  overflow: "auto",
+                                                },
+                                                "& .MuiAutocomplete-option": {
+                                                  fontSize: "13px", // Specifically targeting individual options
+                                                },
+                                                "& .MuiAutocomplete-listbox .MuiAutocomplete-option:hover":
+                                                  {
+                                                    backgroundColor:
+                                                      "#E9E5F1 !important",
+                                                    color: "#280071 !important",
+                                                    fontWeight: 600,
+                                                  },
+                                                "& .MuiAutocomplete-listbox .MuiAutocomplete-option[aria-selected='true']":
+                                                  {
+                                                    backgroundColor:
+                                                      "#E9E5F1 !important",
+                                                    color: "#280071 !important",
+                                                    fontWeight: 600,
+                                                  },
+                                              },
+                                            },
+                                          }}
+                                          size="small"
+                                          clearIcon={
+                                            <ClearIcon color="primary" />
+                                          }
+                                          PaperComponent={(props) => (
+                                            <Paper
+                                              sx={{
+                                                background: "#fff",
+                                                color: "#B4B4B4",
+                                                // borderRadius: "10px",
+                                              }}
+                                              {...props}
+                                            />
+                                          )}
+                                          renderInput={(params) => (
+                                            <TextField
+                                              {...params}
+                                              label="Govt. ID Type"
+                                              variant="standard"
+                                            />
+                                          )}
                                         />
-                                      )}
-                                      renderInput={(params) => (
-                                        <TextField
-                                          {...params}
-                                          label="Govt. ID Type"
-                                          variant="standard"
-                                        />
-                                      )}
-                                    />
-                                  </Box>
-                                </Grid>
-                                <Grid size={{ xs: 6, md: 4 }}>
-                                  <TextField
-                                    margin="normal"
-                                    required
-                                    fullWidth
-                                    disabled={!Boolean(item?.govtIdType)}
-                                    id={`govtIdNo${index}`}
-                                    label="Govt. Id"
-                                    name="govtIdNo"
-                                    autoComplete="govtIdNo"
-                                    variant="standard"
-                                    inputProps={{
-                                      maxLength: 50,
-                                      style: {
-                                        fontSize: "14px",
-                                      },
-                                    }}
-                                    InputLabelProps={{
-                                      style: {
-                                        fontSize: "13px",
-                                      },
-                                    }}
-                                    value={item?.govtIdNo || ""}
-                                    onChange={(e) =>
-                                      handleChangeCustomFormDrawerDataOnChange(
-                                        "govtIdNo",
-                                        e?.target?.value,
-                                        index
-                                      )
-                                    }
-                                    sx={{
-                                      "& .MuiInputBase-root": {
-                                        height: "23px",
-                                      },
-                                      "& .MuiTextField-root": {
-                                        maxHeight: "30px",
-                                        backgroundColor: "transparent",
-                                      },
-                                    }}
-                                  />
-                                </Grid>
-                              </Grid>
-                            </Box>
-                          );
-                        }
-                      )}
-                      {/* <Grid size={{ xs: 12 }}></Grid> */}
-                    </Box>
-                  </Grid>
+                                      </Box>
+                                    </Grid>
+                                    <Grid size={{ xs: 6, md: 4 }}>
+                                      <TextField
+                                        margin="normal"
+                                        required
+                                        fullWidth
+                                        disabled={!Boolean(item?.govtIdType)}
+                                        id={`govtIdNo${index}`}
+                                        label="Govt. Id"
+                                        name="govtIdNo"
+                                        autoComplete="govtIdNo"
+                                        variant="standard"
+                                        inputProps={{
+                                          maxLength: 50,
+                                          style: {
+                                            fontSize: "14px",
+                                          },
+                                        }}
+                                        InputLabelProps={{
+                                          style: {
+                                            fontSize: "13px",
+                                          },
+                                        }}
+                                        value={item?.govtIdNo || ""}
+                                        onChange={(e) =>
+                                          handleChangeCustomFormDrawerDataOnChange(
+                                            "govtIdNo",
+                                            e?.target?.value,
+                                            index
+                                          )
+                                        }
+                                        sx={{
+                                          "& .MuiInputBase-root": {
+                                            height: "23px",
+                                          },
+                                          "& .MuiTextField-root": {
+                                            maxHeight: "30px",
+                                            backgroundColor: "transparent",
+                                          },
+                                        }}
+                                      />
+                                    </Grid>
+                                  </Grid>
+                                </Box>
+                              );
+                            }
+                          )}
+                          {/* <Grid size={{ xs: 12 }}></Grid> */}
+                        </Box>
+                      </Grid>
+                    </React.Fragment>
+                  )}
                 </Grid>
 
                 <Grid size={12}>
@@ -4958,7 +5111,7 @@ const CustomFormDrawer = memo(function ({
                           fontWeight: 600,
                         }}
                       >
-                        Room Base Price
+                        Room Base Price (per day)
                       </Typography>
                     </Grid>
                     <Grid size={7}>
@@ -5001,7 +5154,7 @@ const CustomFormDrawer = memo(function ({
                           fontWeight: 600,
                         }}
                       >
-                        Accumulate Charge
+                        Total Charge
                       </Typography>
                     </Grid>
                     <Grid size={7}>
@@ -5397,6 +5550,379 @@ const getCellValue = (obj, key, fallback = "") => {
       obj
     );
 };
+const CustomBarTableParentCollapseTableRow = memo(function ({
+  barListTableHeaders,
+  rowSerialNumber,
+  key,
+  row,
+  barListItemsTableHeaders,
+  isForCheckOut = false,
+}) {
+  const [openCollapseTable, setOpenCollapseTable] = useState(
+    isForCheckOut ? false : true
+  );
+
+  const handleChangeOpenCollapseTable = useCallback(() => {
+    setOpenCollapseTable((prev) => !prev);
+  }, []);
+
+  return (
+    <>
+      <TableRow
+        hover
+        key={row?.id}
+        sx={{
+          cursor: "pointer",
+          height: 35,
+          backgroundColor: "inherit",
+          "&:hover": {
+            backgroundColor: "inherit",
+          },
+        }}
+      >
+        {barListTableHeaders?.map((subitem, subIndex) => {
+          return (
+            <TableCell key={`table-body-cell=${subIndex}`} align="center">
+              <Typography sx={{ fontSize: "12px" }}>
+                {subitem?.key === "sno" ? (
+                  <Typography sx={{ fontSize: "12px" }}>
+                    {rowSerialNumber}
+                  </Typography>
+                ) : subitem?.key === "orderedOn" ? (
+                  <Typography
+                    sx={{
+                      fontSize: "12px",
+                      wordWrap: "break-word",
+                      whiteSpace: "none",
+                    }}
+                  >
+                    {row?.createdAt &&
+                      moment(row?.createdAt).format("DD-MM-YYYY hh:mm A")}
+                  </Typography>
+                ) : subitem?.key === "orderId" ? (
+                  <Typography
+                    sx={{
+                      fontSize: "12px",
+                      wordWrap: "break-word",
+                      wordBreak: "break-all",
+                      whiteSpace: "none",
+                    }}
+                  >
+                    {row?.orderId}
+                  </Typography>
+                ) : subitem?.key === "serving" ? (
+                  <Typography
+                    sx={{
+                      fontSize: "12px",
+                      wordWrap: "break-word",
+                      whiteSpace: "none",
+                    }}
+                  >
+                    {row?.dinningType
+                      ?.replace(/_/g, " ")
+                      ?.replace(/([a-z])([A-Z])/g, "$1 $2")
+                      ?.replace(/\b\w/g, (char) => char.toUpperCase())}
+                  </Typography>
+                ) : subitem?.key === "bookingStatus" ? (
+                  <Typography
+                    sx={{
+                      fontSize: "12px",
+                      wordWrap: "break-word",
+                      whiteSpace: "none",
+                    }}
+                  >
+                    {row?.orderStatus
+                      ?.replace(/_/g, " ")
+                      ?.replace(/([a-z])([A-Z])/g, "$1 $2")
+                      ?.replace(/\b\w/g, (char) => char.toUpperCase())}
+                  </Typography>
+                ) : subitem?.key === "barListAction" ? (
+                  // <Box sx={{ display: "flex", gap: 1, width: "100%" }}>
+                  <IconButton
+                    sx={{
+                      width: "20px",
+                      height: "20px",
+                      transition: "transform 0.3s ease",
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleChangeOpenCollapseTable();
+                    }}
+                  >
+                    <KeyboardArrowDownIcon
+                      sx={{
+                        fontSize: "20px",
+                        fontWeight: 600,
+                        transform: openCollapseTable
+                          ? "rotate(180deg)" // Rotated when true
+                          : "rotate(0deg)", // Default position when false
+                        transition: "transform 0.3s ease",
+                      }}
+                    />
+                  </IconButton>
+                ) : (
+                  // </Box>
+                  <Typography sx={{ fontSize: "12px", wordWrap: "break-word" }}>
+                    {getCellValue(row, subitem?.key)}
+                  </Typography>
+                )}
+              </Typography>
+            </TableCell>
+          );
+        })}
+      </TableRow>
+      <TableRow>
+        <TableCell
+          sx={{
+            paddingBottom: 0,
+            paddingTop: 0,
+            padding: "0 !important",
+          }}
+          colSpan={
+            Boolean(barListTableHeaders?.length)
+              ? barListTableHeaders?.length
+              : 1
+          }
+        >
+          <Collapse in={openCollapseTable} timeout="auto">
+            <Table size="small" aria-label="bookedGuests">
+              <TableHead>
+                <TableRow>
+                  {barListItemsTableHeaders?.map((item, index) => {
+                    return (
+                      <TableCell
+                        key={`child-table-head-${index}`}
+                        align="center"
+                        sx={{
+                          color: "white",
+                          backgroundColor: "#454545",
+                          fontWeight: "bold",
+                          // paddingY: "8px",
+                          fontSize: "14px",
+                        }}
+                      >
+                        {item?.label}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {Boolean(row?.ordersList?.length) ? (
+                  row?.ordersList?.map((childItem, childIndex) => (
+                    <TableRow key={`child-row-${childIndex}`}>
+                      {barListItemsTableHeaders?.map(
+                        (subHeaderitem, subIndex) => {
+                          return (
+                            <TableCell
+                              key={`table-body-cell=${subIndex}`}
+                              align="center"
+                            >
+                              <Typography sx={{ fontSize: "13px" }}>
+                                {subHeaderitem?.key === "sno" ? (
+                                  <Typography sx={{ fontSize: "13px" }}>
+                                    {childIndex + 1}
+                                  </Typography>
+                                ) : (
+                                  <Typography sx={{ fontSize: "13px" }}>
+                                    {getCellValue(
+                                      childItem,
+                                      subHeaderitem?.key
+                                    )}
+                                  </Typography>
+                                )}
+                              </Typography>
+                            </TableCell>
+                          );
+                        }
+                      )}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      align="center"
+                      colSpan={
+                        Boolean(barListItemsTableHeaders?.length)
+                          ? barListItemsTableHeaders?.length
+                          : 1
+                      }
+                    >
+                      No data available
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </>
+  );
+});
+
+const CustomBarListTableContainer = memo(function ({
+  barListTableData,
+  barListTableHeaders,
+  barListItemsTableHeaders,
+  isForCheckOut = false,
+}) {
+  console.log(
+    "CustomBarListTableContainer barListTableData : ",
+    barListTableData
+  );
+  return (
+    <React.Fragment>
+      <TableContainer
+        component={Paper}
+        sx={{
+          overflow: "auto",
+          maxHeight: {
+            xs: isForCheckOut ? "220px" : "310px",
+            // xl: "calc(100vh - 280px)",
+            "&::-webkit-scrollbar": {
+              // height: "14px",
+            },
+            "&::-webkit-scrollbar-track": {
+              backgroundColor: "#ffffff00",
+              width: "none",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "#280071",
+              borderRadius: "4px",
+            },
+            "&::-webkit-scrollbar-thumb:hover": {
+              backgroundColor: "#3b0b92",
+            },
+          },
+        }}
+      >
+        <Table aria-label="simple table" stickyHeader size="small">
+          <TableHead>
+            <TableRow>
+              {barListTableHeaders?.map((item, index) => {
+                return (
+                  <TableCell
+                    key={`room-table-head-${index}`}
+                    align="center"
+                    sx={{
+                      color: "white",
+                      backgroundColor: "primary.main",
+                      fontWeight: "bold",
+                      // paddingY: "10px",
+                      fontSize: "13px",
+                    }}
+                  >
+                    {item?.label}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {Boolean(barListTableData?.length > 0) ? (
+              barListTableData?.map((row, index) => (
+                <CustomBarTableParentCollapseTableRow
+                  barListTableHeaders={barListTableHeaders}
+                  rowSerialNumber={index + 1}
+                  key={row.id}
+                  row={row}
+                  barListItemsTableHeaders={barListItemsTableHeaders}
+                  isForCheckOut={isForCheckOut}
+                />
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  align="center"
+                  colSpan={
+                    Boolean(barListTableHeaders?.length)
+                      ? barListTableHeaders?.length
+                      : 1
+                  }
+                >
+                  No data available
+                </TableCell>
+              </TableRow>
+            )}
+            <TableRow>
+              <TableCell
+                colSpan={5}
+                style={{
+                  position: "sticky",
+                  bottom: 0,
+                  zIndex: 1,
+                  background: "white",
+                  minHeight: "100%",
+                  borderTop: "1px solid #ccc",
+                }}
+              >
+                <Typography
+                  sx={{
+                    width: "100%",
+                    textAlign: "center",
+                    fontSize: "16px",
+                    fontWeight: 600,
+                    // borderTop: "1px solid #ccc",
+                    minHeight: "24.9px",
+                  }}
+                >
+                  {" "}
+                </Typography>
+              </TableCell>
+              <TableCell
+                style={{
+                  position: "sticky",
+                  bottom: 0,
+                  zIndex: 1,
+                  background: "white",
+                  borderTop: "1px solid #ccc",
+                }}
+                colSpan={1}
+              >
+                <Typography
+                  sx={{
+                    width: "100%",
+                    textAlign: "center",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    // borderTop: "1px solid #ccc",
+                  }}
+                >
+                  Total
+                </Typography>
+              </TableCell>
+              <TableCell
+                style={{
+                  position: "sticky",
+                  bottom: 0,
+                  zIndex: 1,
+                  background: "white",
+                  borderTop: "1px solid #ccc",
+                }}
+                colSpan={1}
+              >
+                <Typography
+                  sx={{
+                    width: "100%",
+                    textAlign: "center",
+                    fontSize: "13px",
+                    // borderTop: "1px solid #ccc",
+                  }}
+                >
+                  {barListTableData?.reduce(
+                    (sum, item) => sum + (item?.totalAmount || 0),
+                    0
+                  )}
+                </Typography>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </React.Fragment>
+  );
+});
 
 const CustomParentCollapseTableRow = memo(function ({
   foodListTableHeaders,
@@ -6138,6 +6664,8 @@ const ShowcaseDialog = memo(function ({
   foodListItemsTableHeaders,
   laundryListTableHeaders,
   laundryListItemsTableHeaders,
+  barListTableHeaders,
+  barListItemsTableHeaders,
 }) {
   // console.log("type : ", type);
   console.log("ShowcaseDialog foodData : ", foodData);
@@ -6248,30 +6776,38 @@ const ShowcaseDialog = memo(function ({
                 <Box sx={{ width: "100%" }}>
                   <Grid container size={12} spacing={1}>
                     <Grid size={12}>
-                      <Typography
-                        sx={{
-                          fontSize: "18px",
-                          // color: "#707070",
-                          fontWeight: 600,
-                          width: "100%",
-                          borderBottom: "2px solid #ccc",
-                          marginBottom: "5px",
-                        }}
-                      >
-                        Inventory Details :
-                      </Typography>
-                      <Box
-                        sx={{
-                          width: "100%",
-                          overflow: "auto",
-                        }}
-                      >
-                        <CustomInventoryTable
-                          inventoryData={
-                            checkOutRoomData?.bookingDto?.extraItemsList || []
-                          }
-                        />
-                      </Box>
+                      {Boolean(
+                        checkOutRoomData?.bookingDto?.extraItemsList
+                      ) && (
+                        <Box sx={{ width: "100%" }}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                              width: "100%",
+                              borderBottom: "2px solid #ccc",
+                              marginBottom: "5px",
+                            }}
+                          >
+                            Inventory Details :
+                          </Typography>
+                          <Box
+                            sx={{
+                              width: "100%",
+                              overflow: "auto",
+                            }}
+                          >
+                            <CustomInventoryTable
+                              inventoryData={
+                                checkOutRoomData?.bookingDto?.extraItemsList ||
+                                []
+                              }
+                            />
+                          </Box>
+                        </Box>
+                      )}
+
                       {Boolean(
                         checkOutRoomData?.bookingDto?.foodDataList?.length
                       ) && (
@@ -6296,6 +6832,33 @@ const ShowcaseDialog = memo(function ({
                             foodListItemsTableHeaders={
                               foodListItemsTableHeaders
                             }
+                            isForCheckOut={type === "checkout" ? true : false}
+                          />
+                        </Box>
+                      )}
+
+                      {Boolean(
+                        checkOutRoomData?.bookingDto?.barOrderDtos?.length
+                      ) && (
+                        <Box sx={{ width: "100%" }}>
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                              width: "100%",
+                              borderBottom: "2px solid #ccc",
+                              marginBottom: "5px",
+                            }}
+                          >
+                            Bar Orders :
+                          </Typography>
+                          <CustomBarListTableContainer
+                            barListTableHeaders={barListTableHeaders}
+                            barListTableData={
+                              checkOutRoomData?.bookingDto?.barOrderDtos
+                            }
+                            barListItemsTableHeaders={barListItemsTableHeaders}
                             isForCheckOut={type === "checkout" ? true : false}
                           />
                         </Box>
@@ -6964,6 +7527,58 @@ const Dashboard = () => {
       { label: "Item", key: "name" },
       { label: "Quantity", key: "qty" },
       { label: "Price", key: "price" },
+    ],
+    []
+  );
+
+  const barListTableHeaders = useMemo(
+    () => [
+      { label: "Sl. No.", key: "sno" },
+      { label: "Order Id", key: "orderId" },
+      { label: "Order On", key: "orderedOn" },
+      { label: "Serving", key: "serving" },
+      { label: "Status", key: "bookingStatus" },
+      { label: "Price", key: "totalAmount" },
+      { label: "Action", key: "barListAction" },
+    ],
+    []
+  );
+
+  const barListItemsTableHeaders = useMemo(
+    () => [
+      { label: "Sl. No.", key: "sno" },
+      { label: "Item", key: "item.name" },
+      { label: "Quantity", key: "noOfQty" },
+    ],
+    []
+  );
+
+  const customBookingAlertChips = useMemo(
+    () => [
+      {
+        label: "Pending Room Bookings",
+        key: "noOfBookingRequestCount",
+        filterationKey: "Pending_Confirmation",
+        customColor: "#e65d1d",
+      },
+      {
+        label: "Refund Requests",
+        key: "noOfCancellationRequstCount",
+        filterationKey: "Booking_Cancellation_Requested",
+        customColor: "#5a1de6",
+      },
+      {
+        label: "Checkout Requested",
+        key: "noOfCheckOutRequestSubmitted",
+        filterationKey: "Room_Checkout_Requested",
+        customColor: "#6A9C89",
+      },
+      {
+        label: "Checkout Request Apprroved",
+        key: "noOfCheckOutRequestApproved",
+        filterationKey: "Room_Checkout_Request_Approved",
+        customColor: "#648816",
+      },
     ],
     []
   );
@@ -8326,11 +8941,12 @@ const Dashboard = () => {
               sx={{
                 width: "100%",
                 height: {
-                  xs: "calc(100vh - 220px)",
-                  xl: "calc(100vh - 190px)",
+                  xs: "calc(100vh - 230px)",
+                  xl: "calc(100vh - 200px)",
                 },
                 overflowX: "hidden",
                 overflowY: "auto",
+                pt: "3px",
               }}
             >
               <Grid container size={12} spacing={2}>
@@ -8357,16 +8973,18 @@ const Dashboard = () => {
               sx={{
                 width: "100%",
                 height: {
-                  xs: "calc(100vh - 220px)",
-                  xl: "calc(100vh - 190px)",
+                  xs: "calc(100vh - 230px)",
+                  xl: "calc(100vh - 200px)",
                 },
                 overflowX: "hidden",
                 overflowY: "auto",
+                pt: "3px",
               }}
             >
               <Grid container size={12} spacing={1.5}>
                 <Grid size={12}>
                   <CustomAlertCard
+                    alertChipData={customBookingAlertChips}
                     alertData={pendingBookingRequestCountsData?.data}
                   />
                 </Grid>
@@ -8422,6 +9040,8 @@ const Dashboard = () => {
         foodListItemsTableHeaders={foodListItemsTableHeaders}
         laundryListTableHeaders={laundryListTableHeaders}
         laundryListItemsTableHeaders={laundryListItemsTableHeaders}
+        barListTableHeaders={barListTableHeaders}
+        barListItemsTableHeaders={barListItemsTableHeaders}
       />
       <CustomFormDrawer
         customDrawerOpen={customFormDrawerOpen?.open}

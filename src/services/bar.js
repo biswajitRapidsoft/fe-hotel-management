@@ -41,7 +41,23 @@ const barApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
-      invalidatesTags: ["barOrderHistory"],
+      invalidatesTags: ["barOrderHistory", "getBarOrderHistoryAdmin"],
+    }),
+    getBarOrderHistoryAdmin: build.query({
+      query: (payload) => ({
+        url: config.apiName.getBarOrderHistoryAdmin,
+        method: "GET",
+        params: {
+          hotelId: payload,
+        },
+      }),
+      providesTags: ["getBarOrderHistoryAdmin"],
+    }),
+    getAllBarOrderStatus: build.query({
+      query: () => ({
+        url: config.apiName.getAllBarOrderStatus,
+        method: "GET",
+      }),
     }),
   }),
   overrideExisting: false,
@@ -53,4 +69,6 @@ export const {
   useOrderFromBarMutation,
   useBarOrderHistoryQuery,
   useChangeBarOrderStatusMutation,
+  useGetBarOrderHistoryAdminQuery,
+  useGetAllBarOrderStatusQuery,
 } = barApi;

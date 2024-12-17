@@ -24,6 +24,7 @@ import {
 } from "../../services/hotel";
 import { useNavigate } from "react-router-dom";
 import { ADMIN } from "../../helper/constants";
+import SnackAlert from "../../components/Alert";
 
 const tableHeader = [
   { label: "Sl No." },
@@ -43,6 +44,11 @@ const tableHeader = [
 ];
 
 const HotelListTable = ({ setHotelToUpdate }) => {
+  const [snack, setSnack] = React.useState({
+    open: false,
+    message: "",
+    severity: "",
+  });
   const {
     data: hotelList = {
       data: [],
@@ -55,7 +61,22 @@ const HotelListTable = ({ setHotelToUpdate }) => {
   const [changeRoomStatus, changeRoomStatusRes] = useChangeRoomStatusMutation();
   const handleChangeStatus = React.useCallback(
     (room) => {
-      changeRoomStatus({ id: room.id });
+      changeRoomStatus({ id: room.id })
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            severity: "success",
+          });
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data,
+            severity: "error",
+          });
+        });
     },
     [changeRoomStatus]
   );
@@ -116,6 +137,7 @@ const HotelListTable = ({ setHotelToUpdate }) => {
         </TableContainer>
       </Paper>
       <LoadingComponent open={isLoading || changeRoomStatusRes.isLoading} />
+      <SnackAlert snack={snack} setSnack={setSnack} />
     </React.Fragment>
   );
 };

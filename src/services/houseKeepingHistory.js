@@ -31,7 +31,12 @@ const houseKeepingHistoryApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
-      invalidatesTags: ["getAllRoomServiceHistory", "getAllHouseKeepingStaff"],
+      invalidatesTags: [
+        "getAllRoomServiceHistory",
+        "getAllHouseKeepingStaff",
+        "roomBookingHistoryByHotelId",
+        "getRoomBookingChart",
+      ],
     }),
     exportHouseKeepingRecords: build.mutation({
       query: (payload) => ({

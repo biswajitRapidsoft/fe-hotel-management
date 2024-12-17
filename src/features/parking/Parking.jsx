@@ -39,23 +39,25 @@ const Parking = () => {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = React.useState("");
   const [selectedParkingArea, setSelectedParkingArea] = React.useState(null);
 
-  const handleSearchSubmit = () => {
-    setDebouncedSearchTerm(searchVehicle);
-  };
-
-  const queryPayload = {
-    hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId,
-    searchVehicle: debouncedSearchTerm,
-  };
+  // const queryPayload = {
+  //   hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId,
+  //   searchVehicle: debouncedSearchTerm,
+  // };
   const {
     data: parkingData = {
       data: [],
     },
     isLoading,
     isFetching: isParkingDataFetching,
-  } = useGetAllParkingDataQuery(queryPayload, {
-    // refetchOnMountOrArgChange: searchTrigger,
-  });
+  } = useGetAllParkingDataQuery(
+    {
+      hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId,
+      searchVehicle: debouncedSearchTerm,
+    },
+    {
+      // refetchOnMountOrArgChange: searchTrigger,
+    }
+  );
 
   console.log("parkingDataaaa", parkingData);
   // React.useEffect(() => {
@@ -78,6 +80,15 @@ const Parking = () => {
   //     );
   //   }
   // }, [parkingData?.data]);
+
+  React.useEffect(() => {
+    const identifier = setTimeout(() => {
+      setDebouncedSearchTerm(searchVehicle);
+    }, 500);
+    return () => {
+      clearTimeout(identifier);
+    };
+  }, [searchVehicle]);
 
   React.useEffect(() => {
     if (parkingData?.data?.length === 0) {
@@ -123,9 +134,9 @@ const Parking = () => {
               },
             }}
           />
-          <Button variant="contained" onClick={handleSearchSubmit}>
+          {/* <Button variant="contained" onClick={handleSearchSubmit}>
             Submit
-          </Button>
+          </Button> */}
         </Box>
       </Box>
 
@@ -627,6 +638,20 @@ const VehicleParkingDialog = ({ parkVehicleOpen, selectedSlot, onClose }) => {
     selectedSlot,
   ]);
 
+  const handlePrintReceipt = () => {
+    const prtContent = document.getElementById("bookingReceipt");
+    var WinPrint = window.open(
+      "",
+      "",
+      "left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0"
+    );
+    WinPrint.document.write(prtContent.innerHTML);
+    WinPrint.document.close();
+    WinPrint.focus();
+    WinPrint.print();
+    WinPrint.close();
+  };
+
   console.log("selectedSlot", selectedSlot);
   return (
     <>
@@ -656,7 +681,10 @@ const VehicleParkingDialog = ({ parkVehicleOpen, selectedSlot, onClose }) => {
         </DialogTitle>
         <DialogContent dividers>
           {Boolean(selectedSlot?.isOccupied) ? (
-            <Box sx={{ display: "flex", flexDirection: "column" }}>
+            <Box
+              sx={{ display: "flex", flexDirection: "column" }}
+              id="bookingReceipt"
+            >
               <Divider sx={{ borderWidth: "2px", borderColor: "#000" }} />
               <Box sx={{ margin: "auto" }}>
                 <Typography
@@ -868,6 +896,18 @@ const VehicleParkingDialog = ({ parkVehicleOpen, selectedSlot, onClose }) => {
           >
             Yes
           </Button> */}
+          {/* {Boolean(selectedSlot?.isOccupied) && (
+            <Button
+              variant="contained"
+              color="secondary"
+              sx={{
+                color: "#fff",
+              }}
+              onClick={handlePrintReceipt}
+            >
+              Print Receipt
+            </Button>
+          )} */}
           <Button
             variant="contained"
             sx={{
