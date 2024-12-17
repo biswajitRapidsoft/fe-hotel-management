@@ -1093,6 +1093,20 @@ function VehicleParkingDialog({ open, handleClose, setSnack }) {
       });
   }, [getParkingDetails, vehicleNumber, setSnack]);
 
+  const handlePrintReceipt = () => {
+    const prtContent = document.getElementById("bookingReceiptCustomer");
+    var WinPrint = window.open(
+      "",
+      "",
+      "left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0"
+    );
+    WinPrint.document.write(prtContent.innerHTML);
+    WinPrint.document.close();
+    WinPrint.focus();
+    WinPrint.print();
+    WinPrint.close();
+  };
+
   React.useEffect(() => {
     setVehicleParkingDetails(null);
     setVehicleNumber("");
@@ -1185,144 +1199,145 @@ function VehicleParkingDialog({ open, handleClose, setSnack }) {
           </Button>
         </Box>
         {Boolean(vehicleParkingDetails) && (
-          <Box sx={{ display: "flex", flexDirection: "column", mt: 1 }}>
+          <div
+            style={{ display: "flex", flexDirection: "column", marginTop: 10 }}
+            id="bookingReceiptCustomer"
+          >
             <Divider sx={{ borderWidth: "2px", borderColor: "#000" }} />
-            <Box sx={{ margin: "auto" }}>
-              <Typography
-                sx={{
-                  fontWeight: "bold",
-                  fontFamily: "'Times New Roman', Times, serif",
-                  fontSize: "1.3rem",
-                }}
-              >
-                BOOKING RECEIPT
-              </Typography>
-            </Box>
+            <div style={{ textAlign: "center" }}>
+              <h3>BOOKING RECEIPT</h3>
+            </div>
             <Divider sx={{ borderWidth: "2px", borderColor: "#000" }} />
-            <Box
-              sx={{
-                // backgroundColor: "yellow",
-                width: "58%",
+            <div
+              style={{
+                width: "550px",
                 margin: "auto",
-                mt: 2,
+                marginTop: 20,
+                display: "flex",
+                flexDirection: "column",
+                gap: 20,
               }}
             >
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 6 }}>
-                  <Typography
-                    sx={{
-                      fontFamily: "'Times New Roman', Times, serif",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Vehicle Number :
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Typography>
-                    {
-                      vehicleParkingDetails.parkingSlotData.parkingVehicleData
-                        .vehicleNo
-                    }
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Typography
-                    sx={{
-                      fontFamily: "'Times New Roman', Times, serif",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Area Name :
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Typography>{vehicleParkingDetails.areaName}</Typography>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Typography
-                    sx={{
-                      fontFamily: "'Times New Roman', Times, serif",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Slot Number :
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Typography>
-                    {vehicleParkingDetails.parkingSlotData.slotNumber}
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Typography
-                    sx={{
-                      fontFamily: "'Times New Roman', Times, serif",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    From Date:
-                  </Typography>
-                </Grid>
-
-                <Grid size={{ xs: 6 }}>
+              <div style={{ display: "flex" }}>
+                <div
+                  style={{
+                    width: "50%",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Vehicle Number :
+                </div>
+                <div>
+                  {
+                    vehicleParkingDetails.parkingSlotData.parkingVehicleData
+                      .vehicleNo
+                  }
+                </div>
+              </div>
+              <div style={{ display: "flex" }}>
+                <div
+                  style={{
+                    width: "50%",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Area Name :
+                </div>
+                <div>{vehicleParkingDetails.areaName}</div>
+              </div>
+              <div style={{ display: "flex" }}>
+                <div
+                  style={{
+                    width: "50%",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Slot Number :
+                </div>
+                <div>{vehicleParkingDetails.parkingSlotData.slotNumber}</div>
+              </div>
+              <div style={{ display: "flex" }}>
+                <div
+                  style={{
+                    width: "50%",
+                    fontWeight: "bold",
+                  }}
+                >
+                  From Date:
+                </div>
+                <div>
                   {
                     vehicleParkingDetails.parkingSlotData.parkingVehicleData
                       .fromDate
                   }
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Typography
-                    sx={{
-                      fontFamily: "'Times New Roman', Times, serif",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    To Date:
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
+                </div>
+              </div>
+              <div style={{ display: "flex" }}>
+                <div
+                  style={{
+                    width: "50%",
+                    fontWeight: "bold",
+                  }}
+                >
+                  To Date:
+                </div>
+                <div>
                   {
                     vehicleParkingDetails.parkingSlotData.parkingVehicleData
                       .toDate
                   }
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Typography
-                    sx={{
-                      fontFamily: "'Times New Roman', Times, serif",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Token No.
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
+                </div>
+              </div>
+              <div style={{ display: "flex" }}>
+                <div
+                  style={{
+                    width: "50%",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Token No.
+                </div>
+                <div>
                   {
                     vehicleParkingDetails.parkingSlotData.parkingVehicleData
                       .digitalTokenNo
                   }
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Typography
-                    sx={{
-                      fontFamily: "'Times New Roman', Times, serif",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Paid Amount
-                  </Typography>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
+                </div>
+              </div>
+              <div style={{ display: "flex" }}>
+                <div
+                  style={{
+                    width: "50%",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Paid Amount
+                </div>
+                <div>
                   ₹{" "}
                   {
                     vehicleParkingDetails.parkingSlotData.parkingVehicleData
                       .paidAmount
                   }
-                </Grid>
-              </Grid>
-            </Box>
-          </Box>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {Boolean(vehicleParkingDetails) && (
+          <Button
+            variant="contained"
+            color="secondary"
+            sx={{
+              color: "#fff",
+              display: "block",
+              mx: "auto",
+              mt: 2,
+            }}
+            onClick={handlePrintReceipt}
+          >
+            Print Receipt
+          </Button>
         )}
       </DialogContent>
       <LoadingComponent open={getParkingDetailsRes.isLoading} />
