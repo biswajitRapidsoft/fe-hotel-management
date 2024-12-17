@@ -3575,20 +3575,22 @@ const FrontdeskBookingHistory = () => {
   // }, [bookingHistoryTableRowsPerPage, bookingHistoryTablePageNo]);
 
   useEffect(() => {
-    const customAlertFilter = sessionStorage.getItem("customAlertFilter")
-      ? JSON.parse(sessionStorage.getItem("customAlertFilter"))
+    const customBookingHistoryAlertFilter = sessionStorage.getItem(
+      "customBookingHistoryAlertFilter"
+    )
+      ? JSON.parse(sessionStorage.getItem("customBookingHistoryAlertFilter"))
       : null;
-    if (customAlertFilter) {
+    if (customBookingHistoryAlertFilter) {
       const customBookingStatusTypeDataObj = {
-        key: customAlertFilter,
-        name: customAlertFilter.replace(/_/g, " "),
+        key: customBookingHistoryAlertFilter,
+        name: customBookingHistoryAlertFilter.replace(/_/g, " "),
       };
 
       handleChangeBookingHistoryTableFilters(
         "bookingStatus",
         customBookingStatusTypeDataObj
       );
-      sessionStorage.removeItem("customAlertFilter");
+      sessionStorage.removeItem("customBookingHistoryAlertFilter");
     }
   }, [handleChangeBookingHistoryTableFilters]);
   return (

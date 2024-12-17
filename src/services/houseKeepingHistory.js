@@ -11,6 +11,8 @@ const houseKeepingHistoryApi = apiSlice.injectEndpoints({
           hotelId: payload?.hotelId,
           pageNo: payload?.pageNo,
           pageSize: payload?.pageSize,
+          serviceType: payload?.serviceType,
+          serviceRequestStatus: payload?.serviceRequestStatus,
         },
       }),
       providesTags: ["getAllRoomServiceHistory"],
@@ -46,6 +48,20 @@ const houseKeepingHistoryApi = apiSlice.injectEndpoints({
         responseType: "blob",
       }),
     }),
+
+    getAllHouseKeepingServiceRequestStatuses: build.query({
+      query: () => ({
+        url: config.apiName.getAllHouseKeepingServiceRequestStatuses,
+        method: "GET",
+      }),
+    }),
+
+    getAllHouseKeepingServiceTypes: build.query({
+      query: () => ({
+        url: config.apiName.getAllHouseKeepingServiceTypes,
+        method: "GET",
+      }),
+    }),
   }),
 
   overrideExisting: false,
@@ -56,4 +72,6 @@ export const {
   useGetAllHouseKeepingStaffQuery,
   useAssignHouseKeepingRequestMutation,
   useExportHouseKeepingRecordsMutation,
+  useGetAllHouseKeepingServiceRequestStatusesQuery,
+  useGetAllHouseKeepingServiceTypesQuery,
 } = houseKeepingHistoryApi;

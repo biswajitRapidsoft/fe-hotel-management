@@ -106,6 +106,10 @@ const config = Object.freeze({
     getAllHouseKeepingStaff: "api/get/all/housekeeping/staff/list",
     assignHouseKeepingRequest: "api/assign/housekeeping/staff",
     exportHouseKeepingRecords: "api/export/room/service/list",
+    getAllHouseKeepingServiceRequestStatuses:
+      "api/get/all/house-keeping/service/request/status",
+    getAllHouseKeepingServiceTypes:
+      "api/get/all/house-keeping/service/type/status",
 
     // PARKING DASHBOARD DATA
     getAllParkingData: "api/get/all/parking/list",
