@@ -53,6 +53,9 @@ const PromocodeList = React.lazy(() => import("./features/hotel/PromcodeList"));
 
 const BarAdmin = React.lazy(() => import("./features/bar/BarAdmin"));
 
+const ManagerDashboard = React.lazy(() =>
+  import("./features/managerDashboard/ManagerDashboard")
+);
 function App() {
   return (
     <div className="App">
@@ -99,6 +102,7 @@ function App() {
               path="/HouseKeepingHistory"
               element={<HouseKeepingHistory />}
             />
+            <Route path="/managerDashboard" element={<ManagerDashboard />} />
           </Route>
         </Routes>
       </React.Suspense>

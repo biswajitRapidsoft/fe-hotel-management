@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import MasterCard from "../../img/masterCard.png";
 import Visa from "../../img/visa.png";
 import Maestro from "../../img/maestro.png";
+import roomServices from "../../img/roomservices.png";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -13,7 +14,7 @@ import Swal from "sweetalert2";
 import SportsGymnasticsIcon from "@mui/icons-material/SportsGymnastics";
 import WeekendIcon from "@mui/icons-material/Weekend";
 import LiquorIcon from "@mui/icons-material/Liquor";
-import RoomServiceOutlinedIcon from "@mui/icons-material/RoomServiceOutlined";
+// import RoomServiceOutlinedIcon from "@mui/icons-material/RoomServiceOutlined";
 import { PiWarningCircleLight } from "react-icons/pi";
 
 import PaymentIcon from "@mui/icons-material/Payment";
@@ -286,6 +287,26 @@ const GuestDashboard = () => {
   const handleOpenVehicleParkingModal = React.useCallback(() => {
     setOpenVehicleParkingDialog(true);
   }, []);
+
+  // const getOrdinalSuffix = (num) => {
+  //   if (!num) return "";
+  //   const lastDigit = num % 10;
+  //   const lastTwoDigits = num % 100;
+
+  //   if (lastTwoDigits >= 11 && lastTwoDigits <= 13) return `${num}th`;
+
+  //   switch (lastDigit) {
+  //     case 1:
+  //       return `${num}st`;
+  //     case 2:
+  //       return `${num}nd`;
+  //     case 3:
+  //       return `${num}rd`;
+  //     default:
+  //       return `${num}th`;
+  //   }
+  // };
+
   return (
     <>
       <Box
@@ -457,9 +478,80 @@ const GuestDashboard = () => {
                         <TimelineContent>
                           <Box
                             sx={{
+                              position: "absolute",
+                              top: "50%",
+                              transform: "translateY(-50%)",
+                              left: 1,
+                              width: 90,
+                              height: 80,
+                              // boxShadow:
+                              //   "1.5px 1.5px 3px 0px rgba(197, 51, 255, 0.6)",
+                              // backgroundImage:
+                              //   "linear-gradient(to right bottom, #d139fc, #b32edc, #9722bc, #7b179d, #610b7f)",
+                              backgroundColor: "#0079C2",
+                              backgroundSize: "cover",
+                              backgroundPosition: "center",
+                              borderRadius: "9px",
+                              zIndex: 2,
+                              display: "flex",
+                              flexDirection: "column",
+                              // justifyContent: "center",
+                              // p: 2,
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                backgroundColor: "#AFDBF5",
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                // backgroundColor: "red",
+                                // borderRadius: "9px",
+                                height: "30%",
+                                borderTopLeftRadius: "9px",
+                                borderTopRightRadius: "9px",
+                              }}
+                            >
+                              <Typography
+                                sx={{
+                                  color: "#fff",
+                                  fontWeight: "bold",
+                                  // fontSize: "1.5rem",
+                                }}
+                              >
+                                {booking?.roomDto?.floorNo || "N/A"}st Floor
+                              </Typography>{" "}
+                            </Box>
+                            <Box
+                              sx={{
+                                // backgroundColor: "#AFDBF5",
+                                height: "70%",
+                                borderBottomLeftRadius: "9px",
+                                borderBottomRightRadius: "9px",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                              }}
+                            >
+                              <Typography
+                                sx={{
+                                  color: "#fff",
+                                  fontWeight: "bold",
+                                  // fontSize: "1.5rem",
+                                }}
+                              >
+                                {booking?.roomDto?.roomNo || "N/A"}
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <Box
+                            sx={{
                               boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
                               backgroundColor: "#fff",
-                              p: 1,
+                              py: 1,
+                              px: 11.4,
+                              // p: 1.4,
                               borderRadius: "1rem",
                             }}
                           >
@@ -501,6 +593,42 @@ const GuestDashboard = () => {
                                       {booking?.bookingRefNumber || "N/A"}
                                     </Typography>
                                   </Box>
+                                  <Box sx={{ display: "flex", gap: 1 }}>
+                                    <Typography
+                                      sx={{
+                                        fontWeight: "bold",
+                                        wordWrap: "break-word",
+                                      }}
+                                    >
+                                      Booking Status:
+                                    </Typography>
+                                    <Typography>
+                                      {booking?.bookingStatus
+                                        ?.split("_")
+                                        .join(" ") || "N/A"}
+                                    </Typography>
+                                  </Box>
+
+                                  {/* {Boolean(booking?.roomDto?.roomNo) && (
+                                    <Box sx={{ display: "flex", gap: 1 }}>
+                                      <Typography
+                                        sx={{
+                                          fontWeight: "bold",
+                                          wordWrap: "break-word",
+                                        }}
+                                      >
+                                        Room Number:
+                                      </Typography>
+                                      <Typography>
+                                        {booking?.roomDto?.roomNo || "N/A"} (
+                                        {getOrdinalSuffix(
+                                          booking?.roomDto?.floorNo
+                                        )}{" "}
+                                        floor)
+                                      </Typography>
+                                    </Box>
+                                  )} */}
+
                                   {/* {Boolean(booking?.roomDto?.roomNo) && ( */}
                                   <>
                                     <Box
@@ -514,7 +642,7 @@ const GuestDashboard = () => {
                                         // backgroundColor: "#89CFF0",
                                       }}
                                     >
-                                      {Boolean(booking?.roomDto?.roomNo) && (
+                                      {/* {Boolean(booking?.roomDto?.roomNo) && (
                                         <Box
                                           sx={{
                                             borderRadius: "1rem",
@@ -529,7 +657,7 @@ const GuestDashboard = () => {
                                             {booking?.roomDto?.roomNo || "N/A"}
                                           </Typography>
                                         </Box>
-                                      )}
+                                      )} */}
 
                                       <Box sx={{ display: "flex", gap: 1 }}>
                                         {booking?.bookingStatus ===
@@ -1735,12 +1863,27 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
     }
   };
 
+  // const handleDateChange = (field) => (date) => {
+  //   setFormData((prevData) => ({
+  //     ...prevData,
+  //     [field]: date,
+  //   }));
+  // };
+
   const handleDateChange = (field) => (date) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [field]: date,
-    }));
+    setFormData((prevData) => {
+      const updatedData = { ...prevData, [field]: date };
+
+      if (field === "fromDate" && date && prevData.toDate) {
+        if (dayjs(date).isAfter(dayjs(prevData.toDate))) {
+          updatedData.toDate = null;
+        }
+      }
+
+      return updatedData;
+    });
   };
+
   React.useEffect(() => {
     const sessionData = JSON.parse(sessionStorage.getItem("data"));
 
@@ -1816,7 +1959,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
           <Box>
             <Rating value={hotelDetails?.averageRatingPoints} readOnly />
           </Box>
-          {/* Box for hotel details */}
+
           <Box
             sx={{
               display: "flex",
@@ -1829,20 +1972,13 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
             <Typography sx={{ fontWeight: "bold" }}>
               {hotelDetails?.hotelDto?.name}
             </Typography>
-            {/* <Typography sx={{ fontWeight: "bold", color: "#929aab" }}>
-              {hotelDetails?.type}
-            </Typography> */}
             <Typography sx={{ color: "gray" }}>
               {`${hotelDetails?.hotelDto?.address}
               , ${hotelDetails?.hotelDto?.state?.name
                 ?.toLowerCase()
                 ?.replace(/\b\w/g, (char) => char.toUpperCase())}`}
             </Typography>
-
-            {/* <Typography>₹{hotelDetails?.basePrice}</Typography> */}
           </Box>
-
-          {/* -------- */}
 
           <Box
             sx={{
@@ -1923,6 +2059,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
           >
             <Typography sx={{ fontWeight: 550, fontSize: "1.5em" }}>
               Booking Details
+              {/* ({hotelDetailsData?.hotelDto?.name}) */}
             </Typography>
             <IconButton onClick={toggleDrawer(false)}>
               <CloseIcon />
@@ -2234,6 +2371,8 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
         open={openHotelDetailsDialog}
         handleHotelDetailsDialogClose={handleHotelDetailsDialogClose}
         hotelDetailsData={hotelDetailsData}
+        // onClick={toggleDrawer(true)}
+        toggleDrawer={toggleDrawer}
       />
     </>
   );
@@ -2690,7 +2829,9 @@ const HotelDetailsDialog = memo(function ({
   open,
   handleHotelDetailsDialogClose,
   hotelDetailsData,
+  toggleDrawer,
 }) {
+  console.log("hotelDetailsData", hotelDetailsData);
   const [currentIndex, setCurrentIndex] = React.useState(0);
 
   const goToPrevious = () => {
@@ -2908,7 +3049,7 @@ const HotelDetailsDialog = memo(function ({
                     }}
                   >
                     <SportsGymnasticsIcon sx={{ color: "gray" }} />
-                    <Typography sx={{ color: "gray" }}>Gym</Typography>
+                    <Typography sx={{ color: "gray" }}>Spa</Typography>
                   </Box>
                 </Grid>
                 <Grid size={{ xs: 2.4 }}>
@@ -2963,7 +3104,8 @@ const HotelDetailsDialog = memo(function ({
                       justifyContent: "space-evenly",
                     }}
                   >
-                    <RoomServiceOutlinedIcon sx={{ color: "gray" }} />
+                    {/* <RoomServiceOutlinedIcon sx={{ color: "gray" }} /> */}
+                    <img src={roomServices} alt="" height={23} width={23} />
                     <Typography sx={{ color: "gray" }}>Room Service</Typography>
                   </Box>
                 </Grid>
@@ -2984,9 +3126,31 @@ const HotelDetailsDialog = memo(function ({
                 </Typography>
               </Box>
 
-              <Grid container>
+              {/* <Grid container>
                 <Grid size={{ xs: 1 }}>Bathroom</Grid>
-              </Grid>
+              </Grid> */}
+
+              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                <Button
+                  variant="contained"
+                  sx={{
+                    // backgroundImage:
+                    //   "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
+                    // color: "white",
+                    // "&:hover": {
+                    //   backgroundImage:
+                    //     "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
+                    // },
+                    backgroundColor: "#0079C2",
+                    textTransform: "none",
+                    borderRadius: "0.6rem",
+                    fontWeight: "bold",
+                  }}
+                  onClick={toggleDrawer(true)}
+                >
+                  Book Now
+                </Button>
+              </Box>
             </Box>
           </Box>
         </Box>
