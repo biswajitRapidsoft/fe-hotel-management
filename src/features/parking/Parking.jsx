@@ -21,6 +21,7 @@ import {
   useGetAllParkingDataQuery,
   useParkVehicleMutation,
   useReleaseVehicleMutation,
+  useCheckVehicleParkingStatusMutation,
 } from "../../services/parking";
 import TwoWheelerIcon from "@mui/icons-material/TwoWheeler";
 import { FaCarSide } from "react-icons/fa6";
@@ -407,6 +408,8 @@ const VehicleParkingDialog = ({ parkVehicleOpen, selectedSlot, onClose }) => {
 
   const [vehicleParking, vehicleParkingRes] = useParkVehicleMutation();
   const [releaseVehicle, releaseVehicleRes] = useReleaseVehicleMutation();
+  const [checkVehicleParking, checkVehicleParkingRes] =
+    useCheckVehicleParkingStatusMutation();
 
   const [snack, setSnack] = React.useState({
     open: false,
@@ -627,7 +630,34 @@ const VehicleParkingDialog = ({ parkVehicleOpen, selectedSlot, onClose }) => {
           severity: "error",
         });
       }
-      setOpenPaymentDialog(true);
+
+      const payload = {
+        vehicleNo: formData.vehicleNumber,
+      };
+      checkVehicleParking(payload)
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            severity: "success",
+          });
+          // setFormData({
+          //   vehicleNumber: "",
+          //   amount: "",
+          //   fromDate: null,
+          //   toDate: null,
+          // });
+          setOpenPaymentDialog(true);
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data || "Something Went Wrong",
+            severity: "error",
+          });
+        });
+      // checkVehicleParking;
     }
   }, [
     formData.vehicleNumber,
@@ -636,6 +666,7 @@ const VehicleParkingDialog = ({ parkVehicleOpen, selectedSlot, onClose }) => {
     onClose,
     releaseVehicle,
     selectedSlot,
+    checkVehicleParking,
   ]);
 
   const handlePrintReceipt = () => {
@@ -891,7 +922,11 @@ const VehicleParkingDialog = ({ parkVehicleOpen, selectedSlot, onClose }) => {
       </Dialog>
 
       <LoadingComponent
-        open={vehicleParkingRes?.isLoading || releaseVehicleRes?.isLoading}
+        open={
+          vehicleParkingRes?.isLoading ||
+          releaseVehicleRes?.isLoading ||
+          checkVehicleParkingRes?.isLoading
+        }
       />
       <PaymentDialog
         openPaymentDialog={openPaymentDialog}
@@ -909,9 +944,9 @@ const VehicleParkingDialog = ({ parkVehicleOpen, selectedSlot, onClose }) => {
               : null,
             // totalAmount: selectedSlot?.perDayPrice,
             totalAmount: selectedSlot?.perDayPrice * calculateNumberOfDays,
-            paidAmount: formData.amount,
             description: formData.description,
           },
+          paidAmount: formData.amount,
         }}
         reserveHotelRoom={vehicleParking}
         setSnack={setSnack}

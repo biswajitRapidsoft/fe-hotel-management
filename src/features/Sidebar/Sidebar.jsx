@@ -11,13 +11,15 @@ import ListItemText from "@mui/material/ListItemText";
 import { Divider, Typography } from "@mui/material";
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import { MdOutlineCleaningServices } from "react-icons/md";
+import DryCleaningIcon from "@mui/icons-material/DryCleaning";
 // import GroupsIcon from "@mui/icons-material/Groups";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 // import AltRouteIcon from "@mui/icons-material/AltRoute";
 import KingBedIcon from "@mui/icons-material/KingBed";
 import RoofingIcon from "@mui/icons-material/Roofing";
-import RoomServiceIcon from "@mui/icons-material/RoomService";
-import { FRONTDESK } from "../../helper/constants";
+import { FRONTDESK, HOUSEKEEPER } from "../../helper/constants";
 const drawerWidth = 300;
 
 const openedMixin = (theme) => ({
@@ -100,10 +102,26 @@ const sideBarMenuOptions = [
   {
     pathname: "/HouseKeepingHistory",
     isLibraryIcon: true,
-    menuIcon: <RoomServiceIcon sx={{ color: "#fff" }} />,
+    menuIcon: <MdOutlineCleaningServices style={{ color: "#fff" }} />,
     menuIconAlt: "Activity Logo",
     menuTitle: "Service Request",
     visibility: [FRONTDESK],
+  },
+  {
+    pathname: "/housekeeper-dashboard",
+    isLibraryIcon: true,
+    menuIcon: <DashboardIcon sx={{ color: "#fff" }} />,
+    menuIconAlt: "Activity Logo",
+    menuTitle: "Dashboard",
+    visibility: [HOUSEKEEPER],
+  },
+  {
+    pathname: "/LaundryHistory",
+    isLibraryIcon: true,
+    menuIcon: <DryCleaningIcon sx={{ color: "#fff" }} />,
+    menuIconAlt: "Activity Logo",
+    menuTitle: "Laundry History",
+    visibility: [HOUSEKEEPER],
   },
 ];
 

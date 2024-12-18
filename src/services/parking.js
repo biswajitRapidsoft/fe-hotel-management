@@ -33,6 +33,14 @@ const parkingApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["getAllParkingData"],
     }),
+    checkVehicleParkingStatus: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.checkVehicleParkingStatus,
+        method: "POST",
+        data: payload,
+      }),
+      // invalidatesTags: ["getAllParkingData"],
+    }),
   }),
 });
 
@@ -40,4 +48,5 @@ export const {
   useGetAllParkingDataQuery,
   useParkVehicleMutation,
   useReleaseVehicleMutation,
+  useCheckVehicleParkingStatusMutation,
 } = parkingApi;

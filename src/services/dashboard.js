@@ -155,6 +155,7 @@ const dashboardApi = apiSlice.injectEndpoints({
           pageNo: payload?.pageNo,
           pageSize: payload?.pageSize,
           bookingRefNo: payload?.bookingRefNo,
+          assignedPerson: payload?.assignedPerson,
         },
       }),
       providesTags: ["getAllLaundryHistory"],

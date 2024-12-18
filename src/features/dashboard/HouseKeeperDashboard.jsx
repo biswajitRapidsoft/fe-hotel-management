@@ -327,7 +327,19 @@ const HouseKeepingDialog = ({
   const [approveService, approveServiceRes] =
     useApproveHouseKeepingServiceMutation();
 
+  // const handleCheckboxChange = (rowId, isUnavailableChecked) => {
+  //   setCheckboxStates((prev) => ({
+  //     ...prev,
+  //     [rowId]: isUnavailableChecked,
+  //   }));
+  // };
+
   const handleCheckboxChange = (rowId, isUnavailableChecked) => {
+    setItemCounts((prevCounts) => ({
+      ...prevCounts,
+      [rowId]: "",
+    }));
+
     setCheckboxStates((prev) => ({
       ...prev,
       [rowId]: isUnavailableChecked,
@@ -353,6 +365,15 @@ const HouseKeepingDialog = ({
       ...prev,
       [itemId]: value,
     }));
+  };
+
+  const handleDialogClose = () => {
+    setCheckboxStates({});
+    setItemCounts({});
+    setLaundryCheckboxStates({});
+    setLaundryItemCounts({});
+    setRemarks("");
+    onClose();
   };
   const handleSubmit = () => {
     // const extraItemsList =
@@ -417,6 +438,16 @@ const HouseKeepingDialog = ({
           price: item.price * Number(laundryItemCounts[item.id] || 0),
         }));
 
+      if (laundryItems.length === 0) {
+        setSnack({
+          open: true,
+          message:
+            "No laundry items selected. Please select at least one item.",
+          severity: "error",
+        });
+        return;
+      }
+
       const totalPrice = laundryItems.reduce(
         (sum, item) => sum + item.price,
         0
@@ -467,7 +498,8 @@ const HouseKeepingDialog = ({
     approveService(payload)
       .unwrap()
       .then((res) => {
-        onClose();
+        // onClose();
+        handleDialogClose();
         setSnack({
           open: true,
           message: res.message,
@@ -488,7 +520,7 @@ const HouseKeepingDialog = ({
       <Dialog
         TransitionComponent={Transition}
         open={open}
-        onClose={onClose}
+        onClose={handleDialogClose}
         maxWidth="md"
         fullWidth
       >
