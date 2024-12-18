@@ -226,7 +226,7 @@ const RoomTypeTable = () => {
   );
 };
 
-const ViewImageDialog = React.memo(function ({
+export const ViewImageDialog = React.memo(function ({
   open,
   handleClose,
   viewImageDialog,

@@ -56,6 +56,9 @@ const BarAdmin = React.lazy(() => import("./features/bar/BarAdmin"));
 const ManagerDashboard = React.lazy(() =>
   import("./features/managerDashboard/ManagerDashboard")
 );
+
+const SpaType = React.lazy(() => import("./features/spaType/SpaType"));
+
 function App() {
   return (
     <div className="App">
@@ -74,6 +77,7 @@ function App() {
             <Route path="/room-type" element={<RoomType />} />
             <Route path="/extra-item" element={<ExtraItem />} />
             <Route path="/employee-list" element={<EmployeeList />} />
+            <Route path="/spa-type" element={<SpaType />} />
             <Route path="/HallList" element={<HallList />} />
             <Route path="/BanquetList" element={<BanquetList />} />
             <Route path="/PromocodeList" element={<PromocodeList />} />

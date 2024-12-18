@@ -342,7 +342,7 @@ const RoomType = () => {
             />
           </Grid>
           <Grid size={3}>
-            <FormGroup>
+            <FormGroup sx={{ mt: 1 }}>
               <FormControlLabel
                 control={
                   <Checkbox
@@ -456,7 +456,7 @@ const RoomType = () => {
   );
 };
 
-function UploadImageFormComponent({
+export function UploadImageFormComponent({
   uploadedImageArr,
   handleUploadImage,
   handleDeleteImageFromArray,

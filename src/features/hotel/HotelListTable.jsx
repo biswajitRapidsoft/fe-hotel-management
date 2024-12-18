@@ -39,6 +39,7 @@ const tableHeader = [
   { label: "Phone No." },
   { label: "Halls" },
   { label: "Banquets" },
+  { label: "Spa Types" },
   { label: "PromoCode" },
   { label: "Action" },
 ];
@@ -199,6 +200,14 @@ function Row({ hotel, sequence, setHotelToUpdate, handleChangeStatus }) {
           <Typography sx={{ cursor: "pointer" }}>
             {hotel?.noOfBanquets}
           </Typography>
+        </TableCell>
+        <TableCell
+          onClick={() => {
+            sessionStorage.setItem("hotelIdForSpaType", hotel?.id);
+            navigate("/spa-type");
+          }}
+        >
+          <Typography sx={{ cursor: "pointer" }}>{"10"}</Typography>
         </TableCell>
         <TableCell
           onClick={() => {
