@@ -486,6 +486,7 @@ const CustomHallBookingAlertSection = memo(function ({
   chipData,
   alertData,
   handleChangeHallBookingFilterFromAlertChip,
+  filters,
 }) {
   const handleChangeHallBookingFilterFromAlertChipOnClick = useCallback(
     (filterationKey) => {
@@ -517,7 +518,9 @@ const CustomHallBookingAlertSection = memo(function ({
               sx={{
                 display: "flex",
                 flexDirection: "row",
-                boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+                boxShadow: filters[item?.filterationKey]
+                  ? "rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;"
+                  : "rgba(0, 0, 0, 0.24) 0px 3px 8px",
                 border: `2px solid ${item?.customColor}`,
                 borderRadius: "5px",
                 maxHeight: "35px",
@@ -551,8 +554,12 @@ const CustomHallBookingAlertSection = memo(function ({
                   display: "flex",
                   alignItems: "center",
                   paddingX: "3px",
-                  bgcolor: `${item?.customColor}`,
-                  color: "#ffffff",
+                  bgcolor: filters[item?.filterationKey]
+                    ? "#ffffff"
+                    : `${item?.customColor}`,
+                  color: filters[item?.filterationKey]
+                    ? `${item?.customColor}`
+                    : "#ffffff",
                   transition: "all 0.3s ease",
                 }}
               >
@@ -568,7 +575,12 @@ const CustomHallBookingAlertSection = memo(function ({
                   justifyContent: "center",
                   paddingX: "12px",
                   minWidth: "40px",
-                  color: `${item?.customColor}`,
+                  bgcolor: filters[item?.filterationKey]
+                    ? `${item?.customColor}`
+                    : "#ffffff",
+                  color: filters[item?.filterationKey]
+                    ? "#ffffff"
+                    : `${item?.customColor}`,
                   transition: "all 0.3s ease",
                 }}
               >
@@ -2777,7 +2789,7 @@ const HallBookingDashboard = () => {
       { label: "Event Date", key: "eventDate" },
       { label: "From", key: "startTime" },
       { label: "To", key: "endTime" },
-      { label: "ToTal Guests", key: "noOfGuest" },
+      { label: "Total Guests", key: "noOfGuest" },
       { label: "Total Hall Price", key: "totalPrice" },
       { label: "Total Banquet Price", key: "totalBanquetPrice" },
       { label: "Amount Paid", key: "paidAmount" },
@@ -3133,16 +3145,6 @@ const HallBookingDashboard = () => {
     setShowcaseHallBookingDialogData(initialShowcaseHallBookingDialogData);
   }, [initialShowcaseHallBookingDialogData]);
 
-  const handleChangeSelectedHallChip = useCallback((selectedHall) => {
-    setSelectedHallChip((prevData) => {
-      if (prevData?.id !== selectedHall?.id) {
-        return selectedHall || null;
-      } else {
-        return null;
-      }
-    });
-  }, []);
-
   const handleChangeHallBookingTableFilters = useCallback(
     (name, inputValue) => {
       const poolOfKeys = [
@@ -3404,6 +3406,16 @@ const HallBookingDashboard = () => {
     },
     [initialHallBookingFormData, selectedHallChip]
   );
+
+  const handleChangeSelectedHallChip = useCallback((selectedHall) => {
+    setSelectedHallChip((prevData) => {
+      if (prevData?.id !== selectedHall?.id) {
+        return selectedHall || null;
+      } else {
+        return null;
+      }
+    });
+  }, []);
 
   const handleOpenCustomHallBookingDrawer = useCallback(
     (open = false, title = "", type = null) => {
@@ -3999,6 +4011,14 @@ const HallBookingDashboard = () => {
     ]
   );
 
+  useEffect(() => {
+    handleChangeHallBookingFormData("endTime", hallBookingFormData?.endTime);
+  }, [
+    handleChangeHallBookingFormData,
+    hallBookingFormData?.endTime,
+    selectedHallChip,
+  ]);
+
   return (
     <>
       <Box
@@ -4056,7 +4076,7 @@ const HallBookingDashboard = () => {
                     />
                   </Box>
                 </Grid>
-                <Grid size={4}>
+                <Grid size={5}>
                   <Box
                     sx={{
                       width: "97%",
@@ -4069,13 +4089,24 @@ const HallBookingDashboard = () => {
                     />
                   </Box>
                 </Grid>
-                <Grid size={4}>
+                <Grid size={3}>
                   <CustomHallBookingAlertSection
                     chipData={customHallAlertChips}
                     alertData={hallBookingChartData?.data}
                     handleChangeHallBookingFilterFromAlertChip={
                       handleChangeHallBookingFilterFromAlertChip
                     }
+                    filters={Object.fromEntries(
+                      Object?.entries(hallBookingTableFilters)?.filter(
+                        ([key]) =>
+                          [
+                            "isForLiveEvents",
+                            "isForTodayEvents",
+                            "isForFutureEvents",
+                            "isForExpiredEvents",
+                          ]?.includes(key)
+                      )
+                    )}
                   />
                 </Grid>
               </Grid>
