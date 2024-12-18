@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useCallback, useEffect } from "react";
 import SnackAlert from "../../components/Alert";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 // import { saveAs } from "file-saver";
@@ -33,6 +33,8 @@ import {
   useGetAllHouseKeepingStaffQuery,
   useAssignHouseKeepingRequestMutation,
   useExportHouseKeepingRecordsMutation,
+  useGetAllHouseKeepingServiceRequestStatusesQuery,
+  useGetAllHouseKeepingServiceTypesQuery,
 } from "../../services/houseKeepingHistory";
 import moment from "moment";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
@@ -42,12 +44,274 @@ import { saveAs } from "file-saver";
 
 // import { data } from "./data";
 
+const CustomHouseKeepingHistoryTableFilters = memo(function ({
+  houseKeepingHistoryTableFilters,
+  handleChangeHouseKeepingHistoryTableFilters,
+  houseKeepingServiceRequestStatuses,
+  houseKeepingServiceTypes,
+}) {
+  const handleChangeHouseKeepingHistoryTableFiltersOnChange = useCallback(
+    (name, inputVal) => {
+      handleChangeHouseKeepingHistoryTableFilters(name, inputVal);
+    },
+    [handleChangeHouseKeepingHistoryTableFilters]
+  );
+  return (
+    <Box>
+      <Grid container size={12} spacing={1}>
+        <Grid size={{ xs: 4, lg: 2, xl: 1.5 }}>
+          <Box
+            sx={{
+              ".MuiTextField-root": {
+                width: "100%",
+                backgroundColor: "transparent",
+                ".MuiInputBase-root": {
+                  color: "#B4B4B4",
+                  background: "rgba(255, 255, 255, 0.25)",
+                },
+              },
+              ".MuiFormLabel-root": {
+                color: (theme) => theme.palette.primary.main,
+                fontWeight: 600,
+                fontSize: 14,
+              },
+              ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+                borderBottom: (theme) =>
+                  `1px solid ${theme.palette.primary.main}`,
+              },
+              ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+                borderBottom: (theme) =>
+                  `1px solid ${theme.palette.primary.main}`,
+              },
+              "& .MuiOutlinedInput-root": {
+                height: "35px",
+                minHeight: "35px",
+              },
+              "& .MuiInputBase-input": {
+                padding: "13px",
+                height: "100%",
+                boxSizing: "border-box",
+                fontSize: "13px",
+              },
+            }}
+          >
+            <Autocomplete
+              options={
+                houseKeepingServiceTypes?.map((item) => ({
+                  key: item,
+                  name: item.replace(/_/g, " "),
+                })) || []
+              }
+              fullWidth
+              value={houseKeepingHistoryTableFilters?.serviceType || null}
+              onChange={(e, newVal) =>
+                handleChangeHouseKeepingHistoryTableFiltersOnChange(
+                  "serviceType",
+                  newVal
+                )
+              }
+              inputValue={houseKeepingHistoryTableFilters?.serviceTypeInputVal}
+              onInputChange={(e, newVal) =>
+                handleChangeHouseKeepingHistoryTableFiltersOnChange(
+                  "serviceTypeInputVal",
+                  newVal
+                )
+              }
+              getOptionLabel={(option) => option?.name}
+              clearOnEscape
+              disablePortal
+              popupIcon={<KeyboardArrowDownIcon color="primary" />}
+              sx={{
+                // width: 200,
+                ".MuiInputBase-root": {
+                  color: "#fff",
+                },
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover": {
+                  backgroundColor: "#E9E5F1",
+                  color: "#280071",
+                  fontWeight: 600,
+                },
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                  {
+                    backgroundColor: "#E9E5F1",
+                    color: "#280071",
+                    fontWeight: 600,
+                  },
+              }}
+              componentsProps={{
+                popper: {
+                  sx: {
+                    "& .MuiAutocomplete-listbox": {
+                      maxHeight: "150px",
+                      overflow: "auto",
+                    },
+                    "& .MuiAutocomplete-option": {
+                      fontSize: "13px",
+                    },
+                  },
+                },
+              }}
+              size="small"
+              clearIcon={<ClearIcon color="primary" />}
+              PaperComponent={(props) => (
+                <Paper
+                  sx={{
+                    background: "#fff",
+                    color: "#B4B4B4",
+                    borderRadius: "10px",
+                  }}
+                  {...props}
+                />
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Service Type"
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                    },
+                  }}
+                />
+              )}
+            />
+          </Box>
+        </Grid>
+
+        <Grid size={{ xs: 4, lg: 2, xl: 1.5 }}>
+          <Box
+            sx={{
+              ".MuiTextField-root": {
+                width: "100%",
+                backgroundColor: "transparent",
+                ".MuiInputBase-root": {
+                  color: "#B4B4B4",
+                  background: "rgba(255, 255, 255, 0.25)",
+                },
+              },
+              ".MuiFormLabel-root": {
+                color: (theme) => theme.palette.primary.main,
+                fontWeight: 600,
+                fontSize: 14,
+              },
+              ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+                borderBottom: (theme) =>
+                  `1px solid ${theme.palette.primary.main}`,
+              },
+              ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+                borderBottom: (theme) =>
+                  `1px solid ${theme.palette.primary.main}`,
+              },
+              "& .MuiOutlinedInput-root": {
+                height: "35px",
+                minHeight: "35px",
+              },
+              "& .MuiInputBase-input": {
+                padding: "13px",
+                height: "100%",
+                boxSizing: "border-box",
+                fontSize: "13px",
+              },
+            }}
+          >
+            <Autocomplete
+              options={
+                houseKeepingServiceRequestStatuses?.map((item) => ({
+                  key: item,
+                  name: item.replace(/_/g, " "),
+                })) || []
+              }
+              fullWidth
+              value={
+                houseKeepingHistoryTableFilters?.serviceRequestStatus || null
+              }
+              onChange={(e, newVal) =>
+                handleChangeHouseKeepingHistoryTableFiltersOnChange(
+                  "serviceRequestStatus",
+                  newVal
+                )
+              }
+              inputValue={
+                houseKeepingHistoryTableFilters?.requestStatusInputVal
+              }
+              onInputChange={(e, newVal) =>
+                handleChangeHouseKeepingHistoryTableFiltersOnChange(
+                  "requestStatusInputVal",
+                  newVal
+                )
+              }
+              getOptionLabel={(option) => option?.name}
+              clearOnEscape
+              disablePortal
+              popupIcon={<KeyboardArrowDownIcon color="primary" />}
+              sx={{
+                // width: 200,
+                ".MuiInputBase-root": {
+                  color: "#fff",
+                },
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover": {
+                  backgroundColor: "#E9E5F1",
+                  color: "#280071",
+                  fontWeight: 600,
+                },
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                  {
+                    backgroundColor: "#E9E5F1",
+                    color: "#280071",
+                    fontWeight: 600,
+                  },
+              }}
+              componentsProps={{
+                popper: {
+                  sx: {
+                    "& .MuiAutocomplete-listbox": {
+                      maxHeight: "150px",
+                      overflow: "auto",
+                    },
+                    "& .MuiAutocomplete-option": {
+                      fontSize: "13px",
+                    },
+                  },
+                },
+              }}
+              size="small"
+              clearIcon={<ClearIcon color="primary" />}
+              PaperComponent={(props) => (
+                <Paper
+                  sx={{
+                    background: "#fff",
+                    color: "#B4B4B4",
+                    borderRadius: "10px",
+                  }}
+                  {...props}
+                />
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Status"
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                    },
+                  }}
+                />
+              )}
+            />
+          </Box>
+        </Grid>
+      </Grid>
+    </Box>
+  );
+});
+
 const HouseKeepingHistory = () => {
   const HouseKeepingHistoryTableHeaders = React.useMemo(() => {
     return [
       { label: "Sl. No.", key: "sno" },
       { label: "Created At", key: "createdAt" },
       { label: "Updated At", key: "updatedAt" },
+      { label: "Floor No.", key: "roomData.floorNo" },
       { label: "Room No.", key: "roomNo" },
       { label: "Assigned Person", key: "assignedPerson" },
       { label: "Status", key: "serviceRequestStatus" },
@@ -86,16 +350,18 @@ const HouseKeepingHistory = () => {
     () => ({
       HouseKeepingStatus: null,
       HouseKeepingStatusInputVal: "",
+      serviceType: null,
+      serviceTypeInputVal: "",
+      serviceRequestStatus: null,
+      requestStatusInputVal: "",
       pageNo: 0,
       pageSize: 10,
     }),
     []
   );
 
-  const [
-    HouseKeepingHistoryTableFilters,
-    //  setHouseKeepingHistoryTableFilters
-  ] = React.useState(initialHouseKeepingHistoryTableFilters);
+  const [HouseKeepingHistoryTableFilters, setHouseKeepingHistoryTableFilters] =
+    React.useState(initialHouseKeepingHistoryTableFilters);
   console.log(
     "HouseKeepingHistoryTableFilters",
     HouseKeepingHistoryTableFilters
@@ -118,12 +384,29 @@ const HouseKeepingHistory = () => {
       // pageNo: HouseKeepingHistoryTableFilters?.pageNo,
       // pageSize: HouseKeepingHistoryTableFilters?.pageSize,
       pageSize: HouseKeepingHistoryTableRowsPerPage,
+      serviceType: HouseKeepingHistoryTableFilters?.serviceType?.key,
+      serviceRequestStatus:
+        HouseKeepingHistoryTableFilters?.serviceRequestStatus?.key,
     },
     {
       refetchOnMountOrArgChange: true,
     }
   );
 
+  const {
+    data: allHouseKeepingServiceRequestStatuses = { data: [] },
+    isLoading: isAllHouseKeepingServiceRequestStatusesLoading,
+  } = useGetAllHouseKeepingServiceRequestStatusesQuery();
+  console.log(
+    "allHouseKeepingServiceRequestStatuses : ",
+    allHouseKeepingServiceRequestStatuses
+  );
+
+  const {
+    data: allHouseKeepingServiceTypes = { data: [] },
+    isLoading: isAllHouseKeepingServiceTypesLoading,
+  } = useGetAllHouseKeepingServiceTypesQuery();
+  console.log("allHouseKeepingServiceTypes : ", allHouseKeepingServiceTypes);
   // House-Keeping History Export api
   const [exportHouseKeepingData, exportHouseKeepingDataRes] =
     useExportHouseKeepingRecordsMutation();
@@ -149,6 +432,35 @@ const HouseKeepingHistory = () => {
       setHouseKeepingHistoryTablePageNo(0);
     },
     []
+  );
+
+  const handleChangeHouseKeepingHistoryTableFilters = useCallback(
+    (name, inputValue) => {
+      if (name) {
+        if (name === "demoPassKey") {
+          setHouseKeepingHistoryTableFilters((prevData) => ({
+            ...prevData,
+            [name]: inputValue,
+            toDate: null,
+          }));
+        } else {
+          setHouseKeepingHistoryTableFilters((prevData) => ({
+            ...prevData,
+            [name]: inputValue,
+          }));
+        }
+      } else {
+        setHouseKeepingHistoryTableFilters(
+          initialHouseKeepingHistoryTableFilters
+        );
+      }
+
+      handleChangeHouseKeepingHistoryTablePageNo(null, 0);
+    },
+    [
+      initialHouseKeepingHistoryTableFilters,
+      handleChangeHouseKeepingHistoryTablePageNo,
+    ]
   );
 
   const handleSubmitRecord = React.useCallback(
@@ -177,6 +489,37 @@ const HouseKeepingHistory = () => {
     },
     [exportHouseKeepingData]
   );
+
+  useEffect(() => {
+    const customHouseKeepingHistoryAlertFilter = sessionStorage.getItem(
+      "customHouseKeepingHistoryAlertFilter"
+    )
+      ? JSON.parse(
+          sessionStorage.getItem("customHouseKeepingHistoryAlertFilter")
+        )
+      : null;
+    if (customHouseKeepingHistoryAlertFilter) {
+      const customHousekeepingServiceTypeDataObj = {
+        key: customHouseKeepingHistoryAlertFilter,
+        name: customHouseKeepingHistoryAlertFilter.replace(/_/g, " "),
+      };
+
+      const customHousekeepingServiceStatusDataObj = {
+        key: "Request_Submitted",
+        name: "Request_Submitted".replace(/_/g, " "),
+      };
+
+      handleChangeHouseKeepingHistoryTableFilters(
+        "serviceType",
+        customHousekeepingServiceTypeDataObj
+      );
+      handleChangeHouseKeepingHistoryTableFilters(
+        "serviceRequestStatus",
+        customHousekeepingServiceStatusDataObj
+      );
+      sessionStorage.removeItem("customHouseKeepingHistoryAlertFilter");
+    }
+  }, [handleChangeHouseKeepingHistoryTableFilters]);
   return (
     <>
       <Box
@@ -221,6 +564,18 @@ const HouseKeepingHistory = () => {
           </Box>
         </Box>
         <Grid container size={12}>
+          <Grid size={12}>
+            <CustomHouseKeepingHistoryTableFilters
+              houseKeepingHistoryTableFilters={HouseKeepingHistoryTableFilters}
+              handleChangeHouseKeepingHistoryTableFilters={
+                handleChangeHouseKeepingHistoryTableFilters
+              }
+              houseKeepingServiceRequestStatuses={
+                allHouseKeepingServiceRequestStatuses?.data || []
+              }
+              houseKeepingServiceTypes={allHouseKeepingServiceTypes?.data || []}
+            />
+          </Grid>
           <Grid size={{ xs: 12 }}>
             <Box
               sx={{
@@ -231,6 +586,7 @@ const HouseKeepingHistory = () => {
                 },
                 overflowX: "hidden",
                 overflowY: "auto",
+                mt: 1,
               }}
             >
               <CustomHouseKeepingHistoryTableContainer
@@ -252,6 +608,8 @@ const HouseKeepingHistory = () => {
         open={
           isHouseKeepingHistoryLoading ||
           exportHouseKeepingDataRes.isLoading ||
+          isAllHouseKeepingServiceRequestStatusesLoading ||
+          isAllHouseKeepingServiceTypesLoading ||
           false
         }
       />
@@ -271,19 +629,15 @@ function calculateSerialNumber(index, pageNumber, rowsPerPage) {
 
   return pageNumber * rowsPerPage + index + 1;
 }
-
-// const getCellValue = (obj, key, fallback = "") => {
-//   if (!key) {
-//     // Return length of itemsDto array for Items column
-//     return obj.itemsDto ? obj.itemsDto.length : 0;
-//   }
-//   return key
-//     .split(".")
-//     .reduce(
-//       (acc, part) => (acc && acc[part] !== undefined ? acc[part] : fallback),
-//       obj
-//     );
-// };
+const getCellValue = (obj, key, fallback = "") => {
+  if (!key) return undefined;
+  return key
+    .split(".")
+    .reduce(
+      (acc, part) => (acc && acc[part] !== undefined ? acc[part] : fallback),
+      obj
+    );
+};
 
 const CustomRow = memo(function ({ tableHeaders, rowSerialNumber, row }) {
   const [statusDialogOpen, setStatusDialogOpen] = React.useState(false);
@@ -347,11 +701,11 @@ const CustomRow = memo(function ({ tableHeaders, rowSerialNumber, row }) {
                   </Typography>
                 ) : subitem.key === "serviceRequestStatus" ? (
                   <Typography sx={{ fontSize: "13px" }}>
-                    {row?.serviceRequestStatus}
+                    {row?.serviceRequestStatus?.replace(/_/g, " ")}
                   </Typography>
                 ) : subitem.key === "serviceTypeStatus" ? (
                   <Typography sx={{ fontSize: "13px" }}>
-                    {row?.serviceTypeStatus}
+                    {row?.serviceTypeStatus?.replace(/_/g, " ")}
                   </Typography>
                 ) : subitem.key === "HouseKeepingAction" ? (
                   <>
@@ -377,7 +731,9 @@ const CustomRow = memo(function ({ tableHeaders, rowSerialNumber, row }) {
                     )}
                   </>
                 ) : (
-                  <></>
+                  <Typography sx={{ fontSize: "13px" }}>
+                    {getCellValue(row, subitem?.key)}
+                  </Typography>
                 )}
               </Box>
             </TableCell>
@@ -410,8 +766,8 @@ const CustomHouseKeepingHistoryTableContainer = memo(
           sx={{
             overflow: "auto",
             maxHeight: {
-              xs: "calc(100vh - 310px)",
-              xl: "calc(100vh - 280px)",
+              xs: "calc(100vh - 290px)",
+              xl: "calc(100vh - 270px)",
               "&::-webkit-scrollbar": {},
               "&::-webkit-scrollbar-track": {
                 backgroundColor: "#ffffff00",
@@ -637,7 +993,7 @@ const HouseKeepingRequestDialog = ({ open, onClose, items }) => {
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label="HouseKeeping Staff"
+                    label="HouseKeeping Staff Name"
                     sx={{
                       "& .MuiOutlinedInput-root": {
                         borderRadius: 2,

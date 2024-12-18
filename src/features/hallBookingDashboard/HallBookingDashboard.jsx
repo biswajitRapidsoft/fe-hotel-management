@@ -42,7 +42,10 @@ import moment from "moment";
 import CloseIcon from "@mui/icons-material/Close";
 import CheckIcon from "@mui/icons-material/Check";
 import dayjs from "dayjs";
-import { StyledCalendarIcon } from "../dashboard/Dashboard";
+import {
+  CustomPolygonHeader,
+  StyledCalendarIcon,
+} from "../dashboard/Dashboard";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import CustomCalenderCard from "./CustomCalenderCard";
@@ -493,54 +496,8 @@ const CustomHallBookingAlertSection = memo(function ({
 
   return (
     <Box sx={{ width: "100%" }}>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          position: "relative",
-          gap: 2,
-        }}
-      >
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            transform: "translateY(-50%)",
-            left: 1,
-            width: 24,
-            height: 24,
-            boxShadow: "1.5px 1.5px 3px 0px rgba(197, 51, 255, 0.6)",
-            backgroundImage:
-              "linear-gradient(to right bottom, #d139fc, #b32edc, #9722bc, #7b179d, #610b7f)",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            borderRadius: "4px",
-            zIndex: 2,
-          }}
-        />
-        <Box sx={{ width: "96.5%", ml: 1.3 }}>
-          <Paper
-            elevation={3}
-            sx={{
-              position: "relative",
-              py: "5px",
-              pl: 2.5,
-              borderRadius: "5px",
-            }}
-          >
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: 550,
-                letterSpacing: 1,
-                fontSize: "18px",
-              }}
-            >
-              {`Alerts`}
-            </Typography>
-          </Paper>
-        </Box>
+      <Box sx={{ width: "100%", height: "45px" }}>
+        <CustomPolygonHeader text="ALERTS" />
       </Box>
       <Box
         sx={{
@@ -1295,8 +1252,12 @@ const CustomHallBookingTableContainer = memo(function ({
         sx={{
           overflow: "auto",
           maxHeight: {
-            xs: "calc(100vh - 465px)",
-            xl: "calc(100vh - 465px)",
+            // xs: "calc(100vh - 465px)",
+            // xl: "calc(100vh - 465px)",
+            xs: "calc(100vh - 135px)",
+            md: "calc(100vh - 290px)",
+            lg: "calc(100vh - 290px)",
+            xl: "calc(100vh - 495px)",
             "&::-webkit-scrollbar": {
               // height: "14px",
             },
@@ -1326,9 +1287,10 @@ const CustomHallBookingTableContainer = memo(function ({
                       color: "white",
                       backgroundColor: "primary.main",
                       fontWeight: "bold",
-                      paddingY: "5px",
+                      paddingY: "10px",
 
                       fontSize: "14px",
+                      whiteSpace: "nowrap",
                     }}
                   >
                     {item?.label}
@@ -2816,7 +2778,8 @@ const HallBookingDashboard = () => {
       { label: "From", key: "startTime" },
       { label: "To", key: "endTime" },
       { label: "ToTal Guests", key: "noOfGuest" },
-      { label: "Total Price", key: "totalPrice" },
+      { label: "Total Hall Price", key: "totalPrice" },
+      { label: "Total Banquet Price", key: "totalBanquetPrice" },
       { label: "Amount Paid", key: "paidAmount" },
       { label: "Status", key: "hallStatus" },
       { label: "Action", key: "hallBookingAction" },
@@ -3529,6 +3492,13 @@ const HallBookingDashboard = () => {
         severity: "warning",
       });
       return;
+    } else if (endTime.diff(startTime, "minute") < 30) {
+      setSnack({
+        open: true,
+        message: "End time must be at least 30 minutes ahead of start time!",
+        severity: "warning",
+      });
+      return;
     } else if (!Boolean(hallBookingFormData?.noOfGuest)) {
       setSnack({
         open: true,
@@ -4116,8 +4086,12 @@ const HallBookingDashboard = () => {
               sx={{
                 width: "100%",
                 height: {
-                  xs: "calc(100vh - 410px)",
-                  xl: "calc(100vh - 410px)",
+                  // xs: "calc(100vh - 410px)",
+                  // xl: "calc(100vh - 410px)",
+                  xs: "calc(100vh - 80px)",
+                  md: "calc(100vh - 235px)",
+                  lg: "calc(100vh - 235px)",
+                  xl: "calc(100vh - 440px)",
                 },
                 overflowX: "hidden",
                 overflowY: "auto",

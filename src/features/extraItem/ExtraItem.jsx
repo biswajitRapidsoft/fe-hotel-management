@@ -197,7 +197,7 @@ const ExtraItem = () => {
             />
           </Grid>
           <Grid size={9}>
-            <FormGroup>
+            <FormGroup sx={{ mt: 1 }}>
               <FormControlLabel
                 control={
                   <Checkbox

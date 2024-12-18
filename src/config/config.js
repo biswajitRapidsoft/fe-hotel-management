@@ -49,6 +49,8 @@ const config = Object.freeze({
     changeBarOrderStatus: "public/change/bar/order/status",
     getAllBarOrderStatus: "public/get/all/bar/status/type",
     getPerRewardPointValue: "api/get/per/reward/point/value",
+    saveSpaType: "api/spatype/save",
+    getAllSpaType: "public/spatype/getall",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",
@@ -108,6 +110,10 @@ const config = Object.freeze({
     getAllHouseKeepingStaff: "api/get/all/housekeeping/staff/list",
     assignHouseKeepingRequest: "api/assign/housekeeping/staff",
     exportHouseKeepingRecords: "api/export/room/service/list",
+    getAllHouseKeepingServiceRequestStatuses:
+      "api/get/all/house-keeping/service/request/status",
+    getAllHouseKeepingServiceTypes:
+      "api/get/all/house-keeping/service/type/status",
 
     // PARKING DASHBOARD DATA
     getAllParkingData: "api/get/all/parking/list",

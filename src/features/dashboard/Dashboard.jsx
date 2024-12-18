@@ -79,6 +79,98 @@ export const StyledCalendarIcon = styled(CalendarMonthIcon)({
   color: "#9380B8",
 });
 
+const styles = {
+  headerText: {
+    color: "#fff",
+    fontSize: "16px",
+    fontWeight: 600,
+    letterSpacing: 0.7,
+    padding: "5px 5px",
+  },
+  frontPolygonContainer: {
+    position: "absolute",
+    width: "85%",
+    height: "100%",
+    zIndex: 1,
+  },
+  foldLineShape: (foldLineShapeBgColor) => ({
+    backgroundColor: foldLineShapeBgColor,
+    width: "100%",
+    height: "30%",
+    clipPath: `polygon(0 0, calc(100% - 10px) 0, 100% 100%, 0% 100%`,
+  }),
+
+  bottomPolygonShape: (bottomPolygonShapeBgColor) => ({
+    backgroundColor: bottomPolygonShapeBgColor,
+    width: "100%",
+    height: "70%",
+    clipPath: `polygon(0 0, 100% 0, calc(100% - 30px) 100%, 0% 100%)`,
+  }),
+  headerShape: () => ({
+    backgroundColor: "white",
+    // width: "100%",
+    // height: "90%",
+    borderRadius: "8px",
+    overflow: "hidden",
+    boxShadow: "none",
+    width: "100%",
+    height: "100%",
+    position: "relative",
+    clipPath: `polygon(0 0, 100% 0, calc(100% - 30px) 100%, 0% 100%)`,
+  }),
+
+  topPolygonShape: (topPolygonBgImage) => ({
+    backgroundImage: topPolygonBgImage,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    width: "100%",
+    height: "73%",
+    position: "absolute",
+    zIndex: 2,
+    clipPath: `polygon(0 0, calc(100% - 10px) 0, calc(100% - 30px) 100%, 0% 100%)`,
+  }),
+};
+
+export const CustomPolygonHeader = ({
+  text,
+  // topPolygonBgImage = "linear-gradient(to bottom, #b16aff, #9a58e8, #8347d1, #6c35ba, #5624a4)",
+  topPolygonBgImage = "linear-gradient(to bottom, #b463ff, #944ddf, #7539c0, #5624a1, #380f83)",
+  foldLineShapeBgColor = "#40187F",
+  bottomPolygonShapeBgColor = "#c289ff",
+}) => {
+  return (
+    <Paper
+      elevation={4}
+      style={{
+        ...styles.headerShape(),
+      }}
+    >
+      <div style={styles.frontPolygonContainer}>
+        <div
+          style={{
+            ...styles.topPolygonShape(topPolygonBgImage),
+          }}
+        >
+          <Typography style={styles.headerText}>{text}</Typography>
+        </div>
+        <div
+          style={{
+            ...styles.foldLineShape(foldLineShapeBgColor),
+          }}
+        />
+      </div>
+
+      <div style={{ width: "100%", height: "30%" }} />
+
+      <div
+        style={{
+          ...styles.bottomPolygonShape(bottomPolygonShapeBgColor),
+        }}
+      />
+    </Paper>
+  );
+};
+
 function getRoomStatusColor(key) {
   switch (key) {
     case "Available":
@@ -1090,13 +1182,13 @@ const CustomAlertCard = memo(function ({ alertChipData, alertData }) {
   const navigate = useNavigate();
 
   const handleNavigateToBookingHistoryByAlert = useCallback(
-    (selectedFilterationKey) => {
-      if (Boolean(selectedFilterationKey)) {
+    (selectedFilteration) => {
+      if (Boolean(selectedFilteration)) {
         sessionStorage.setItem(
-          "customAlertFilter",
-          JSON.stringify(selectedFilterationKey)
+          selectedFilteration?.sessionStorageKey,
+          JSON.stringify(selectedFilteration?.filterationKey)
         );
-        navigate("/frontdeskBookingHistory");
+        navigate(selectedFilteration?.navigationPath);
       }
     },
     [navigate]
@@ -1104,69 +1196,13 @@ const CustomAlertCard = memo(function ({ alertChipData, alertData }) {
 
   return (
     <Box sx={{ width: "100%" }}>
-      {/* <Box
-        sx={{
-          borderBottom: "2px solid #ccc",
-          bgcolor: "#e3e3e3",
-          py: 0.2,
-          px: 1,
-        }}
-      >
-        <Typography
-          variant="h6"
-          sx={{ fontWeight: 550, letterSpacing: 1, fontSize: "18px" }}
-        >
-          {`Alerts`}
-        </Typography>
-      </Box> */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          position: "relative",
-          gap: 2,
-        }}
-      >
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            transform: "translateY(-50%)",
-            left: 1,
-            width: 24,
-            height: 24,
-            boxShadow: "1.5px 1.5px 3px 0px rgba(197, 51, 255, 0.6)",
-            backgroundImage:
-              "linear-gradient(to right bottom, #d139fc, #b32edc, #9722bc, #7b179d, #610b7f)",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            borderRadius: "4px",
-            zIndex: 2,
-          }}
+      <Box sx={{ width: "100%", height: "45px" }}>
+        <CustomPolygonHeader
+          text="ALERTS"
+          // bottomPolygonShapeBgColor="#6fe1f5"
+          // foldLineShapeBgColor="#27599f"
+          // topPolygonBgImage="linear-gradient(to bottom, #3edce5, #00c7e9, #00b1e9, #0098e3, #407ed4)"
         />
-        <Box sx={{ width: "96.5%", ml: 1.3 }}>
-          <Paper
-            elevation={3}
-            sx={{
-              position: "relative",
-              py: "5px",
-              pl: 2.5,
-              borderRadius: "5px",
-            }}
-          >
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: 550,
-                letterSpacing: 1,
-                fontSize: "18px",
-              }}
-            >
-              Alerts
-            </Typography>
-          </Paper>
-        </Box>
       </Box>
       <Box
         sx={{
@@ -1180,72 +1216,73 @@ const CustomAlertCard = memo(function ({ alertChipData, alertData }) {
         }}
       >
         {alertChipData?.map((item, index) => {
-          return (
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
-                border: `2px solid ${item?.customColor}`,
-                borderRadius: "5px",
-                maxHeight: "35px",
-                overflow: "hidden",
-                userSelect: "none",
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-                "&:hover": {
-                  "& .leftBox": {
-                    bgcolor: "#ffffff",
-                    color: `${item?.customColor}`,
+          if (Boolean(alertData?.[item?.key]) || true) {
+            return (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
+                  border: `2px solid ${item?.customColor}`,
+                  borderRadius: "5px",
+                  maxHeight: "35px",
+                  overflow: "hidden",
+                  userSelect: "none",
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    "& .leftBox": {
+                      bgcolor: "#ffffff",
+                      color: `${item?.customColor}`,
+                    },
+                    "& .rightBox": {
+                      bgcolor: `${item?.customColor}`,
+                      color: "#ffffff",
+                    },
+                    "& .rightBox .MuiTypography-root": {
+                      color: "#ffffff",
+                    },
                   },
-                  "& .rightBox": {
+                }}
+                onClick={() => handleNavigateToBookingHistoryByAlert(item)}
+              >
+                <Box
+                  className="leftBox"
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    paddingX: "3px",
                     bgcolor: `${item?.customColor}`,
                     color: "#ffffff",
-                  },
-                  "& .rightBox .MuiTypography-root": {
-                    color: "#ffffff",
-                  },
-                },
-              }}
-              onClick={() =>
-                handleNavigateToBookingHistoryByAlert(item?.filterationKey)
-              }
-            >
-              <Box
-                className="leftBox"
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  paddingX: "3px",
-                  bgcolor: `${item?.customColor}`,
-                  color: "#ffffff",
-                  transition: "all 0.3s ease",
-                }}
-              >
-                <Typography
-                  sx={{ fontSize: "13px", fontWeight: 600, lineHeight: "1" }}
+                    transition: "all 0.3s ease",
+                  }}
                 >
-                  {item?.label}
-                </Typography>
+                  <Typography
+                    sx={{ fontSize: "13px", fontWeight: 600, lineHeight: "1" }}
+                  >
+                    {item?.label}
+                  </Typography>
+                </Box>
+                <Box
+                  className="rightBox"
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingX: "12px",
+                    minWidth: "40px",
+                    color: `${item?.customColor}`,
+                    transition: "all 0.3s ease",
+                  }}
+                >
+                  <Typography sx={{ fontWeight: 550 }}>
+                    {alertData?.[item?.key] || "0"}
+                  </Typography>
+                </Box>
               </Box>
-              <Box
-                className="rightBox"
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  paddingX: "12px",
-                  minWidth: "40px",
-                  color: `${item?.customColor}`,
-                  transition: "all 0.3s ease",
-                }}
-              >
-                <Typography sx={{ fontWeight: 550 }}>
-                  {alertData?.[item?.key] || "0"}
-                </Typography>
-              </Box>
-            </Box>
-          );
+            );
+          }
+          return null;
         })}
       </Box>
     </Box>
@@ -1265,54 +1302,8 @@ const DayCheckoutCard = memo(function ({
   return (
     <>
       <Box sx={{ width: "100%" }}>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            position: "relative",
-            gap: 2,
-          }}
-        >
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              transform: "translateY(-50%)",
-              left: 1,
-              width: 24,
-              height: 24,
-              boxShadow: "1.5px 1.5px 3px 0px rgba(197, 51, 255, 0.6)",
-              backgroundImage:
-                "linear-gradient(to right bottom, #d139fc, #b32edc, #9722bc, #7b179d, #610b7f)",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              borderRadius: "4px",
-              zIndex: 2,
-            }}
-          />
-          <Box sx={{ width: "96.5%", ml: 1.3 }}>
-            <Paper
-              elevation={3}
-              sx={{
-                position: "relative",
-                py: "5px",
-                pl: 2.5,
-                borderRadius: "5px",
-              }}
-            >
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: 550,
-                  letterSpacing: 1,
-                  fontSize: "18px",
-                }}
-              >
-                {`Checkout (Today)`}
-              </Typography>
-            </Paper>
-          </Box>
+        <Box sx={{ width: "100%", height: "45px" }}>
+          <CustomPolygonHeader text="CHECKOUTS (Today)" />
         </Box>
 
         <Box sx={{ width: "100%", height: "90px", overflowY: "auto", mt: 1 }}>
@@ -1506,56 +1497,9 @@ const RoomServiceCard = memo(function ({
             {`Room Details`}
           </Typography>
         </Box> */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            position: "relative",
-            gap: 2,
-          }}
-        >
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              transform: "translateY(-50%)",
-              left: 1,
-              width: 24,
-              height: 24,
-              boxShadow: "1.5px 1.5px 3px 0px rgba(197, 51, 255, 0.6)",
-              backgroundImage:
-                "linear-gradient(to right bottom, #d139fc, #b32edc, #9722bc, #7b179d, #610b7f)",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              borderRadius: "4px",
-              zIndex: 2,
-            }}
-          />
-          <Box sx={{ width: "96.5%", ml: 1.3 }}>
-            <Paper
-              elevation={3}
-              sx={{
-                position: "relative",
-                py: "5px",
-                pl: 2.5,
-                borderRadius: "5px",
-              }}
-            >
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: 550,
-                  letterSpacing: 1,
-                  fontSize: "18px",
-                }}
-              >
-                {`Room Details`}
-              </Typography>
-            </Paper>
-          </Box>
+        <Box sx={{ width: "100%", height: "45px" }}>
+          <CustomPolygonHeader text="ROOM DETAILS" />
         </Box>
-
         <Box
           sx={{
             width: "100",
@@ -7559,25 +7503,49 @@ const Dashboard = () => {
         label: "Pending Room Bookings",
         key: "noOfBookingRequestCount",
         filterationKey: "Pending_Confirmation",
+        navigationPath: "/frontdeskBookingHistory",
+        sessionStorageKey: "customBookingHistoryAlertFilter",
         customColor: "#e65d1d",
       },
       {
         label: "Refund Requests",
         key: "noOfCancellationRequstCount",
         filterationKey: "Booking_Cancellation_Requested",
+        navigationPath: "/frontdeskBookingHistory",
+        sessionStorageKey: "customBookingHistoryAlertFilter",
         customColor: "#5a1de6",
       },
       {
         label: "Checkout Requested",
         key: "noOfCheckOutRequestSubmitted",
         filterationKey: "Room_Checkout_Requested",
+        navigationPath: "/frontdeskBookingHistory",
+        sessionStorageKey: "customBookingHistoryAlertFilter",
         customColor: "#6A9C89",
       },
       {
         label: "Checkout Request Apprroved",
         key: "noOfCheckOutRequestApproved",
         filterationKey: "Room_Checkout_Request_Approved",
+        navigationPath: "/frontdeskBookingHistory",
+        sessionStorageKey: "customBookingHistoryAlertFilter",
         customColor: "#648816",
+      },
+      {
+        label: "Laundry Service Requested",
+        key: "noOfLaundryServiceRequestedCount",
+        filterationKey: "Laundry_Service",
+        navigationPath: "/HouseKeepingHistory",
+        sessionStorageKey: "customHouseKeepingHistoryAlertFilter",
+        customColor: "#982B1C",
+      },
+      {
+        label: "Room Cleaning Requested",
+        key: "noOfRoomCleaningRequestedCount",
+        filterationKey: "Room_Cleaning",
+        navigationPath: "/HouseKeepingHistory",
+        sessionStorageKey: "customHouseKeepingHistoryAlertFilter",
+        customColor: "#c693e6",
       },
     ],
     []
@@ -8878,7 +8846,8 @@ const Dashboard = () => {
   ]);
 
   useEffect(() => {
-    sessionStorage.removeItem("customAlertFilter");
+    sessionStorage.removeItem("customBookingHistoryAlertFilter");
+    sessionStorage.removeItem("customHouseKeepingHistoryAlertFilter");
   }, []);
   return (
     <>
@@ -8988,14 +8957,17 @@ const Dashboard = () => {
                     alertData={pendingBookingRequestCountsData?.data}
                   />
                 </Grid>
-                <Grid size={12}>
-                  <DayCheckoutCard
-                    dayCheckoutData={apiTodayCheckoutRoomData?.data}
-                    handleChangeSelectedRoomForDayCheckout={
-                      handleChangeSelectedRoomForDayCheckout
-                    }
-                  />
-                </Grid>
+                {Boolean(apiTodayCheckoutRoomData?.data?.length) && (
+                  <Grid size={12}>
+                    <DayCheckoutCard
+                      dayCheckoutData={apiTodayCheckoutRoomData?.data}
+                      handleChangeSelectedRoomForDayCheckout={
+                        handleChangeSelectedRoomForDayCheckout
+                      }
+                    />
+                  </Grid>
+                )}
+
                 {isSelectedRoom && (
                   <Grid size={12}>
                     <RoomServiceCard

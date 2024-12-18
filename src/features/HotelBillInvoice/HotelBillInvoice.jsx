@@ -1815,92 +1815,90 @@ const HotelBillInvoice = () => {
                   </Box>
                 </Grid>
 
-                {isPrinting && (
-                  <Grid size={12}>
+                <Grid size={12}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      width: "100%",
+                      justifyContent: "space-between",
+                      // paddingX: 3,
+                      gap: 3,
+                      // marginTop: 4,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: "300px",
+                        height: "70px",
+                        marginTop: "7px",
+                      }}
+                    >
+                      <Typography>Remarks:</Typography>
+                      <Box
+                        sx={{
+                          minHeight: "calc(100% - 25px)",
+                          border: "2px solid black",
+                          borderRadius: "5px",
+                          bgcolor: "white",
+                        }}
+                      />
+                    </Box>
+
                     <Box
                       sx={{
                         display: "flex",
-                        width: "100%",
-                        justifyContent: "space-between",
-                        // paddingX: 3,
-                        gap: 3,
-                        // marginTop: 4,
+                        flexGrow: 1,
+                        justifyContent: "flex-end",
+                        columnGap: 1.5,
                       }}
                     >
                       <Box
                         sx={{
-                          width: "300px",
-                          height: "70px",
-                          marginTop: "7px",
+                          height: "125px",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
                         }}
                       >
-                        <Typography>Remarks:</Typography>
                         <Box
                           sx={{
-                            minHeight: "calc(100% - 25px)",
+                            minHeight: "45px",
                             border: "2px solid black",
                             borderRadius: "5px",
                             bgcolor: "white",
+                            width: "170px",
                           }}
                         />
+                        <Typography sx={{ fontSize: "14px" }}>
+                          Staff Signature
+                        </Typography>
                       </Box>
-
                       <Box
                         sx={{
+                          height: "125px",
                           display: "flex",
-                          flexGrow: 1,
-                          justifyContent: "flex-end",
-                          columnGap: 1.5,
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
                         }}
                       >
                         <Box
                           sx={{
-                            height: "125px",
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            justifyContent: "center",
+                            minHeight: "45px",
+                            border: "2px solid black",
+                            borderRadius: "5px",
+                            bgcolor: "white",
+                            width: "170px",
                           }}
-                        >
-                          <Box
-                            sx={{
-                              minHeight: "45px",
-                              border: "2px solid black",
-                              borderRadius: "5px",
-                              bgcolor: "white",
-                              width: "170px",
-                            }}
-                          />
-                          <Typography sx={{ fontSize: "14px" }}>
-                            Staff Signature
-                          </Typography>
-                        </Box>
-                        <Box
-                          sx={{
-                            height: "125px",
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              minHeight: "45px",
-                              border: "2px solid black",
-                              borderRadius: "5px",
-                              bgcolor: "white",
-                              width: "170px",
-                            }}
-                          />
-                          <Typography sx={{ fontSize: "14px" }}>
-                            Guest Signature
-                          </Typography>
-                        </Box>
+                        />
+                        <Typography sx={{ fontSize: "14px" }}>
+                          Guest Signature
+                        </Typography>
                       </Box>
                     </Box>
-                  </Grid>
-                )}
+                  </Box>
+                </Grid>
               </Grid>
             </Grid>
           </Grid>
