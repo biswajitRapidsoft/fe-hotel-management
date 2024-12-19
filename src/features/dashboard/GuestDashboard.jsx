@@ -29,6 +29,7 @@ import RestaurantIcon from "@mui/icons-material/Restaurant";
 import CleaningServicesIcon from "@mui/icons-material/CleaningServices";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import DryCleaningIcon from "@mui/icons-material/DryCleaning";
+import SpaIcon from "@mui/icons-material/Spa";
 
 // import { getStatusColour } from "./GuestBookingHistoryDrawer";
 import {
@@ -132,6 +133,15 @@ const GuestDashboard = () => {
       sessionStorage.setItem("bookingRefNumber", bookingRefNumber);
       sessionStorage.setItem("hotelId", hotelId);
       navigate("/bar");
+    },
+    [navigate]
+  );
+
+  const handleOpenSpa = React.useCallback(
+    (bookingRefNumber, hotelId) => {
+      sessionStorage.setItem("bookingRefNumber", bookingRefNumber);
+      sessionStorage.setItem("hotelId", hotelId);
+      navigate("/spa");
     },
     [navigate]
   );
@@ -732,9 +742,9 @@ const GuestDashboard = () => {
                                               size={{ xs: 12 }}
                                               // sx={{ backgroundColor: "yellow" }}
                                               fullWidth
-                                              spacing={1}
+                                              spacing={2}
                                             >
-                                              <Grid size={{ xs: 1.7 }}>
+                                              <Grid size={{ xs: 1.5 }}>
                                                 <Box
                                                   sx={{
                                                     display: "flex",
@@ -772,7 +782,7 @@ const GuestDashboard = () => {
                                                   </Tooltip>
                                                 </Box>
                                               </Grid>
-                                              <Grid size={{ xs: 1.7 }}>
+                                              <Grid size={{ xs: 1.5 }}>
                                                 <Box
                                                   sx={{
                                                     display: "flex",
@@ -810,7 +820,7 @@ const GuestDashboard = () => {
                                                 </Box>
                                               </Grid>
 
-                                              <Grid size={{ xs: 1.7 }}>
+                                              <Grid size={{ xs: 1.5 }}>
                                                 <Box
                                                   sx={{
                                                     display: "flex",
@@ -847,7 +857,7 @@ const GuestDashboard = () => {
                                                 </Box>
                                               </Grid>
 
-                                              <Grid size={{ xs: 1.7 }}>
+                                              <Grid size={{ xs: 1.5 }}>
                                                 <Box
                                                   sx={{
                                                     display: "flex",
@@ -894,7 +904,7 @@ const GuestDashboard = () => {
                                                 </Box>
                                               </Grid>
 
-                                              <Grid size={{ xs: 1.7 }}>
+                                              <Grid size={{ xs: 1.5 }}>
                                                 <Box
                                                   sx={{
                                                     display: "flex",
@@ -931,7 +941,7 @@ const GuestDashboard = () => {
                                                 </Box>
                                               </Grid>
 
-                                              <Grid size={{ xs: 1.7 }}>
+                                              <Grid size={{ xs: 1.5 }}>
                                                 <Box
                                                   sx={{
                                                     display: "flex",
@@ -967,7 +977,7 @@ const GuestDashboard = () => {
                                                 </Box>
                                               </Grid>
 
-                                              <Grid size={{ xs: 1.7 }}>
+                                              <Grid size={{ xs: 1.5 }}>
                                                 <Box
                                                   sx={{
                                                     display: "flex",
@@ -997,6 +1007,42 @@ const GuestDashboard = () => {
                                                         }
                                                         // sx={{ color: "#D4AF37	" }}
                                                         color="info"
+                                                      />
+                                                    </Button>
+                                                  </Tooltip>
+                                                </Box>
+                                              </Grid>
+
+                                              <Grid size={{ xs: 1.5 }}>
+                                                <Box
+                                                  sx={{
+                                                    display: "flex",
+                                                    gap: 1,
+                                                    width: "100%",
+                                                    justifyContent: "center",
+                                                  }}
+                                                >
+                                                  <Tooltip title="Spa" arrow>
+                                                    <Button
+                                                      variant="outlined"
+                                                      sx={{
+                                                        minWidth: "unset",
+                                                        width: "11px",
+                                                        borderColor: (theme) =>
+                                                          theme.palette
+                                                            .secondary.main,
+                                                      }}
+                                                    >
+                                                      {/* Laundry */}
+                                                      <SpaIcon
+                                                        onClick={() =>
+                                                          handleOpenSpa(
+                                                            booking.bookingRefNumber,
+                                                            booking.hotel.id
+                                                          )
+                                                        }
+                                                        // sx={{ color: "#D4AF37	" }}
+                                                        color="secondary"
                                                       />
                                                     </Button>
                                                   </Tooltip>

@@ -7,13 +7,13 @@ import LoadingComponent from "../../components/LoadingComponent";
 import { ADMIN } from "../../helper/constants";
 
 const tabList = [
-  { label: "Hotel List", path: "/hotel-list", key: "noOfHotels" },
-  { label: "Room Type", path: "/room-type", key: "noOfRoomTypes" },
   {
     label: "Inventory List",
     path: "/extra-item",
     key: "noOfExtraItems",
   },
+  { label: "Room Type", path: "/room-type", key: "noOfRoomTypes" },
+  { label: "Hotel List", path: "/hotel-list", key: "noOfHotels" },
   {
     label: "Employee List",
     path: "/employee-list",

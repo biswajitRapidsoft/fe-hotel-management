@@ -221,7 +221,9 @@ function Row({ hotel, sequence, setHotelToUpdate, handleChangeStatus }) {
             navigate("/spa-type");
           }}
         >
-          <Typography sx={{ cursor: "pointer" }}>{"10"}</Typography>
+          <Typography sx={{ cursor: "pointer" }}>
+            {hotel?.noOfSpaType || 0}
+          </Typography>
         </TableCell>
         <TableCell
           onClick={() => {
