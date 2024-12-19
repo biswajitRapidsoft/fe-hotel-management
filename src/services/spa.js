@@ -22,8 +22,21 @@ const spaApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["getAllSpaType"],
     }),
+    getAllSpaTypeGuest: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllSpaTypeGuest,
+        method: "GET",
+        params: {
+          hotelId: payload,
+        },
+      }),
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useSaveSpaTypeMutation, useGetAllSpaTypeQuery } = spaApi;
+export const {
+  useSaveSpaTypeMutation,
+  useGetAllSpaTypeQuery,
+  useGetAllSpaTypeGuestQuery,
+} = spaApi;

@@ -46,6 +46,7 @@ const SpaTypeListTable = ({ saveSpaType }) => {
     (e, spaType) => {
       saveSpaType({
         ...spaType,
+        hotelId: JSON.parse(sessionStorage.getItem("hotelIdForSpaType")),
         isActive: e.target.checked,
       })
         .unwrap((res) => {
@@ -59,7 +60,7 @@ const SpaTypeListTable = ({ saveSpaType }) => {
           setSnack({
             open: true,
             message: err.data?.message || err.data,
-            severity: "success",
+            severity: "error",
           });
         });
     },

@@ -1,9 +1,9 @@
 const config = Object.freeze({
-  baseUrl: "http://192.168.12.37:9000/",
+  // baseUrl: "http://192.168.12.37:9000/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
   // baseUrl: "http://crimarrstaging.nyggs.com/backend/",
   // baseUrl: "http://192.168.30.44:9000/",
-  // baseUrl: "http://192.168.12.43:8080/be-hms/",
+  baseUrl: "http://192.168.12.43:8080/be-hms/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
   // baseUrl: "http://192.168.12.3:9000/",
   apiName: {
@@ -50,7 +50,8 @@ const config = Object.freeze({
     getAllBarOrderStatus: "public/get/all/bar/status/type",
     getPerRewardPointValue: "api/get/per/reward/point/value",
     saveSpaType: "api/spatype/save",
-    getAllSpaType: "public/spatype/getall",
+    getAllSpaType: "api/spatype/getall",
+    getAllSpaTypeGuest: "public/all/spa/type",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",
