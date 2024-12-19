@@ -137,11 +137,14 @@ const GuestDashboard = () => {
     [navigate]
   );
 
-  const handleOpenSpa = React.useCallback((bookingRefNumber, hotelId) => {
-    sessionStorage.setItem("bookingRefNumber", bookingRefNumber);
-    sessionStorage.setItem("hotelId", hotelId);
-    navigate("/spa");
-  }, []);
+  const handleOpenSpa = React.useCallback(
+    (bookingRefNumber, hotelId) => {
+      sessionStorage.setItem("bookingRefNumber", bookingRefNumber);
+      sessionStorage.setItem("hotelId", hotelId);
+      navigate("/spa");
+    },
+    [navigate]
+  );
 
   const toggleBookingHistoryDrawer = (open) => () => {
     setBookingHistoryDrawerOpen(open);
