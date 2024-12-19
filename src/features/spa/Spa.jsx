@@ -1,6 +1,9 @@
 import React from "react";
 
-import { useGetAllSpaTypeGuestQuery } from "../../services/spa";
+import {
+  useGetAllSpaTypeGuestQuery,
+  useGetSpaSlotsQuery,
+} from "../../services/spa";
 import {
   Box,
   Grid2 as Grid,
@@ -12,8 +15,12 @@ import {
   Drawer,
   Divider,
   TextField,
+  Tab,
 } from "@mui/material";
 import { DrawerHeader } from "../restaurant/Restaurant";
+import { TabContext, TabList } from "@mui/lab";
+import { DAY, NIGHT } from "../../helper/constants";
+import moment from "moment";
 
 const drawerWidth = 450;
 
@@ -24,6 +31,27 @@ const Spa = () => {
     },
   } = useGetAllSpaTypeGuestQuery(JSON.parse(sessionStorage.getItem("hotelId")));
   const [spaToBook, setSpaToBook] = React.useState(null);
+  const [selectedSlotType, setSelectedSlotType] = React.useState(DAY);
+  const [selectedSlot, setSelectedSlot] = React.useState(null);
+  const [selectedDate, setSelectedDate] = React.useState("");
+
+  const {
+    data: spaSlots = {
+      data: [],
+    },
+  } = useGetSpaSlotsQuery(
+    {
+      spaTypeId: spaToBook?.id || null,
+      shiftType: selectedSlotType,
+      date: moment(selectedDate).format("DD-MM-YYYY"),
+    },
+    { skip: !Boolean(selectedDate) }
+  );
+
+  const handleTabChange = React.useCallback((e, value) => {
+    setSelectedSlotType(value);
+  }, []);
+
   return (
     <React.Fragment>
       <Box>
@@ -59,7 +87,7 @@ const Spa = () => {
                         <Typography variant="h6" sx={{ fontWeight: 600 }}>
                           {spa.name}
                         </Typography>
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        <Typography variant="body1" sx={{ fontSize: 18 }}>
                           {`Rs. ${spa.price.toFixed(2)}`}
                         </Typography>
                       </Box>
@@ -115,38 +143,88 @@ const Spa = () => {
             </Typography>
           </DrawerHeader>
           <Divider />
-          <Typography variant="h6" sx={{ p: 2 }}>
-            {spaToBook?.name}
-          </Typography>
-          <Divider />
           <Box sx={{ p: 2 }}>
-            <Grid container spacing={1}>
-              <Grid size={6}>
-                <TextField
-                  label="From Date"
-                  type="datetime-local"
-                  slotProps={{
-                    inputLabel: {
-                      shrink: true,
-                    },
-                  }}
-                  fullWidth
-                />
+            <Grid container spacing={3}>
+              <Grid size={12}>
+                <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                  {spaToBook?.name}
+                </Typography>
               </Grid>
-              <Grid size={6}>
+              <Grid size={12}>
                 <TextField
-                  label="To Date"
-                  type="datetime-local"
+                  label="Booking Date"
+                  type="date"
                   slotProps={{
                     inputLabel: {
                       shrink: true,
                     },
                   }}
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
                   fullWidth
                 />
               </Grid>
               <Grid size={12}>
-                <Typography>Total: 2000</Typography>
+                <Box>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      borderBottom: (theme) =>
+                        `3px solid ${theme.palette.primary.main}`,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Available Slots
+                  </Typography>
+                  <Box>
+                    <TabContext value={selectedSlotType}>
+                      <TabList onChange={handleTabChange}>
+                        {[DAY, NIGHT].map((slotType) => {
+                          return (
+                            <Tab
+                              label={slotType}
+                              value={slotType}
+                              key={slotType}
+                            />
+                          );
+                        })}
+                      </TabList>
+                    </TabContext>
+                  </Box>
+                  <Box sx={{ mt: 2 }}>
+                    <Grid container spacing={1}>
+                      {spaSlots.data.map((slot) => {
+                        return (
+                          <Grid
+                            size={4}
+                            key={`${slot.shiftType}-${slot.startTime}-${slot.endTime}`}
+                          >
+                            <Button
+                              variant="outlined"
+                              color={slot.isBooked ? "disabled" : "success"}
+                              sx={{
+                                backgroundColor:
+                                  selectedSlot &&
+                                  `${slot.shiftType}-${slot.startTime}-${slot.endTime}` ===
+                                    `${selectedSlot.shiftType}-${selectedSlot.startTime}-${selectedSlot.endTime}`
+                                    ? "lightgreen"
+                                    : "transparent",
+                                // "&:hover": {
+                                //   backgroundColor: false ? "lightblue" : "transparent",
+                                // },
+                                whiteSpace: "nowrap",
+                              }}
+                              fullWidth
+                              onClick={() => setSelectedSlot(slot)}
+                            >
+                              {`${slot.startTime}-${slot.endTime}`}
+                            </Button>
+                          </Grid>
+                        );
+                      })}
+                    </Grid>
+                  </Box>
+                </Box>
               </Grid>
             </Grid>
           </Box>
@@ -168,6 +246,9 @@ const Spa = () => {
               variant="contained"
               sx={{
                 color: "#fff",
+                display: "block",
+                width: "100%",
+
                 fontWeight: 600,
                 textTransform: "none",
                 fontSize: 18,

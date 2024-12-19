@@ -1,3 +1,7 @@
+// SPA SLOT TYPE
+export const DAY = "Day";
+export const NIGHT = "Night";
+
 // BAR ORDER STATUS
 export const CANCELLED_BAR = "CANCELLED";
 export const DELIVERED_BAR = "DELIVERED";

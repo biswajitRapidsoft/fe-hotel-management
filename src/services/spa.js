@@ -31,6 +31,17 @@ const spaApi = apiSlice.injectEndpoints({
         },
       }),
     }),
+    getSpaSlots: build.query({
+      query: (payload) => ({
+        url: config.apiName.getSpaSlots,
+        method: "GET",
+        params: {
+          spaTypeId: payload.spaTypeId,
+          shiftType: payload.shiftType,
+          date: payload.date,
+        },
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -39,4 +50,5 @@ export const {
   useSaveSpaTypeMutation,
   useGetAllSpaTypeQuery,
   useGetAllSpaTypeGuestQuery,
+  useGetSpaSlotsQuery,
 } = spaApi;
