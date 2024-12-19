@@ -2841,7 +2841,7 @@ const FrontdeskBookingHistory = () => {
         filterationKey: "Room_Checkout_Requested",
       },
       {
-        name: "Checkout Request Apprroved",
+        name: "Checkout Request Approved",
         key: "noOfCheckOutRequestApproved",
         color: "#648816",
         filterationKey: "Room_Checkout_Request_Approved",

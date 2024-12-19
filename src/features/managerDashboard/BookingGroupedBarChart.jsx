@@ -21,14 +21,19 @@ ChartJS.register(
 
 const BookingGroupedBarChart = ({ bookingData }) => {
   const chartData = useMemo(() => {
-    const filteredDates = Object.keys(bookingData)
-      .filter((date) =>
-        Object.values(bookingData[date]).some((value) => value > 0)
-      )
-      .sort((a, b) => new Date(a) - new Date(b));
+    // const filteredDates = Object.keys(bookingData)
+    //   .filter((date) =>
+    //     Object.values(bookingData[date]).some((value) => value > 0)
+    //   )
+    //   .sort((a, b) => new Date(a) - new Date(b));
+
+    const allDates = Object.keys(bookingData).sort(
+      (a, b) => new Date(a) - new Date(b)
+    );
 
     return {
-      labels: filteredDates.map((date) => {
+      // labels: filteredDates.map((date) => {
+      labels: allDates.map((date) => {
         const [year, month, day] = date.split("-");
         console.log("Unused year:", year);
         return `${day}/${month}`;
@@ -36,22 +41,23 @@ const BookingGroupedBarChart = ({ bookingData }) => {
       datasets: [
         {
           label: "Checked Out",
-          data: filteredDates.map((date) => bookingData[date]["Checked_Out"]),
+          // data: filteredDates.map((date) => bookingData[date]["Checked_Out"]),
+          data: allDates.map((date) => bookingData[date]["Checked_Out"]),
           backgroundColor: "rgba(255, 99, 132, 0.6)",
         },
         {
           label: "Checked In",
-          data: filteredDates.map((date) => bookingData[date]["Checked_In"]),
+          data: allDates.map((date) => bookingData[date]["Checked_In"]),
           backgroundColor: "rgba(54, 162, 235, 0.6)",
         },
         {
           label: "Booked",
-          data: filteredDates.map((date) => bookingData[date]["Booked"]),
+          data: allDates.map((date) => bookingData[date]["Booked"]),
           backgroundColor: "rgba(255, 206, 86, 0.6)",
         },
         {
           label: "Pending Confirmation",
-          data: filteredDates.map(
+          data: allDates.map(
             (date) => bookingData[date]["Pending_Confirmation"]
           ),
           backgroundColor: "rgba(75, 192, 192, 0.6)",

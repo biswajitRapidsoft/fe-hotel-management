@@ -17,6 +17,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler,
 } from "chart.js";
 import BookingGroupedBarChart from "./BookingGroupedBarChart";
 
@@ -28,7 +29,8 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
 const ManagerDashboard = () => {
@@ -66,6 +68,15 @@ const ManagerDashboard = () => {
       (month) => dashboardData?.data?.inSourcingMap?.[month] || 0
     );
 
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, "rgba(75, 192, 192, 0.4)");
+    gradient.addColorStop(1, "rgba(75, 192, 192, 0.1)");
+
+    const redGradient = ctx.createLinearGradient(0, 0, 0, 400);
+    redGradient.addColorStop(0, "rgba(255, 99, 132, 0.4)");
+    redGradient.addColorStop(1, "rgba(255, 99, 132, 0.1)");
     return {
       labels: months,
       datasets: [
@@ -73,13 +84,17 @@ const ManagerDashboard = () => {
           label: "OutSourcing",
           data: outSourcingData,
           borderColor: "rgb(75, 192, 192)",
-          tension: 0.1,
+          fill: true,
+          backgroundColor: gradient,
+          tension: 0.4,
         },
         {
           label: "InSourcing",
           data: inSourcingData,
           borderColor: "rgb(255, 99, 132)",
-          tension: 0.1,
+          fill: true,
+          backgroundColor: redGradient,
+          tension: 0.4,
         },
       ],
     };
@@ -92,14 +107,57 @@ const ManagerDashboard = () => {
       legend: {
         position: "top",
       },
-      // title: {
-      //   display: true,
-      //   text: "Monthly Bookings and Revenue",
-      // },
     },
+
     maintainAspectRatio: false,
+    interaction: {
+      mode: "nearest",
+      intersect: false,
+    },
+    hover: {
+      mode: "nearest",
+      intersect: false,
+    },
   };
 
+  const gradientPercentages = React.useMemo(() => {
+    const {
+      noOfOccupiedRoomsCount = 0,
+      noOfReservedRoomsCount = 0,
+      noOfAvailableRoomsCount = 0,
+      noOfNotReadyRoomsCount = 0,
+    } = dashboardData?.data?.chartDto || {};
+
+    const totalRooms =
+      noOfOccupiedRoomsCount +
+      noOfReservedRoomsCount +
+      noOfAvailableRoomsCount +
+      noOfNotReadyRoomsCount;
+
+    if (totalRooms === 0) return "to right, #e3f1e7 0%, #e3f1e7 100%";
+
+    const occupiedPercent = (noOfOccupiedRoomsCount / totalRooms) * 100;
+    const reservedPercent =
+      occupiedPercent + (noOfReservedRoomsCount / totalRooms) * 100;
+    const availablePercent =
+      reservedPercent + (noOfAvailableRoomsCount / totalRooms) * 100;
+    const notReadyPercent = 100;
+
+    return `to right, 
+      #e3f1e7 0%, 
+      #e3f1e7 ${occupiedPercent}%, 
+      #FFFFCC ${occupiedPercent}%, 
+      #FFFFCC ${reservedPercent}%, 
+      #E4D00A ${reservedPercent}%, 
+      #E4D00A ${availablePercent}%, 
+      #8B8000 ${availablePercent}%, 
+      #8B8000 ${notReadyPercent}%`;
+  }, [dashboardData]);
+
+  //   Occupied: #e3f1e7 (light green)
+  // Reserved: #FFFFCC (pale yellow)
+  // Available: #E4D00A (golden yellow)
+  // Not Ready: #8B8000 (dark olive green)
   return (
     <>
       <Box
@@ -345,17 +403,7 @@ const ManagerDashboard = () => {
                       borderRadius: "7px",
                       // backgroundColor: "red",
                       mb: 1,
-                      background: `linear-gradient(
-                                    to right, 
-                                    #e3f1e7 0%, 
-                                    #e3f1e7 60%, 
-                                     #FFFFCC 60%, 
-                                     #FFFFCC 80%, 
-                                    #E4D00A	 80%, 
-                                    #E4D00A	 95%, 
-                                    #8B8000	 95%, 
-                                    #8B8000	 100%
-                                  )`,
+                      background: `linear-gradient(${gradientPercentages})`,
                     }}
                   ></Box>
                   <Box sx={{ height: "100%" }}>
@@ -402,7 +450,7 @@ const ManagerDashboard = () => {
                           <Box
                             sx={{
                               height: "100%",
-                              backgroundColor: "green",
+                              backgroundColor: "#FFFFCC",
                               width: "4%",
                               borderRadius: "2px",
                             }}
@@ -435,7 +483,7 @@ const ManagerDashboard = () => {
                           <Box
                             sx={{
                               height: "100%",
-                              backgroundColor: "green",
+                              backgroundColor: "#E4D00A",
                               width: "4%",
                               borderRadius: "2px",
                             }}
@@ -473,7 +521,7 @@ const ManagerDashboard = () => {
                           <Box
                             sx={{
                               height: "100%",
-                              backgroundColor: "#b7b7b7",
+                              backgroundColor: "#8B8000",
                               width: "4%",
                               borderRadius: "2px",
                             }}
@@ -524,7 +572,7 @@ const ManagerDashboard = () => {
                       mb: 2,
                     }}
                   >
-                    Daily Booking Status
+                    Weekly Booking Status
                   </Typography>
                   <Box sx={{ height: "100%", width: "100%", px: 2 }}>
                     <BookingGroupedBarChart

@@ -52,7 +52,7 @@ const EmployeeListTable = ({ roleList, hotelList }) => {
           (filterData.selectedRole === null ||
             employee.role === filterData.selectedRole) &&
           (filterData.selectedHotel === null ||
-            employee.hotelDto.name === filterData.selectedHotel.name) &&
+            employee.hotelDto?.name === filterData.selectedHotel.name) &&
           (filterData.searchKey === "" ||
             new RegExp(filterData.searchKey, "i").test(employee.name) ||
             new RegExp(filterData.searchKey, "i").test(employee.phoneNumber) ||
@@ -236,9 +236,9 @@ const EmployeeListTable = ({ roleList, hotelList }) => {
                     <TableCell>{employee.role}</TableCell>
                     <TableCell>
                       <Box sx={{ display: "flex", flexDirection: "column" }}>
-                        <Typography>{employee.hotelDto.name}</Typography>
+                        <Typography>{employee.hotelDto?.name}</Typography>
                         <Typography variant="body2">
-                          {employee.hotelDto.address}
+                          {employee.hotelDto?.address}
                         </Typography>
                       </Box>
                     </TableCell>
