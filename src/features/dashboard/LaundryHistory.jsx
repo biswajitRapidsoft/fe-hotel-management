@@ -101,7 +101,7 @@ const LaundryHistory = () => {
     {
       hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId,
       bookingRefNo: sessionStorage.getItem("bookingRefNumberForLaundry"),
-      // sessionStorage.getItem("hotelId"))
+      assignedPerson: JSON.parse(sessionStorage.getItem("data"))?.id,
       pageNo: laundryHistoryTableFilters?.pageNo,
       pageSize: laundryHistoryTableFilters?.pageSize,
     },

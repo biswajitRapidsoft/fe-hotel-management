@@ -88,11 +88,6 @@ function App() {
             <Route path="/restaurant-admin" element={<RestaurantAdmin />} />
             <Route path="/bar" element={<Bar />} />
             <Route path="/bar-admin" element={<BarAdmin />} />
-            <Route
-              path="/housekeeper-dashboard"
-              element={<HouseKeeperDashboard />}
-            />
-            <Route path="/LaundryHistory" element={<LaundryHistory />} />
             <Route path="/Parking" element={<Parking />} />
           </Route>
 
@@ -109,6 +104,12 @@ function App() {
               element={<HouseKeepingHistory />}
             />
             <Route path="/managerDashboard" element={<ManagerDashboard />} />
+
+            <Route
+              path="/housekeeper-dashboard"
+              element={<HouseKeeperDashboard />}
+            />
+            <Route path="/LaundryHistory" element={<LaundryHistory />} />
           </Route>
         </Routes>
       </React.Suspense>

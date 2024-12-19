@@ -8,7 +8,7 @@ const BookingHistoryChartComponent = ({
   customLabels,
   totalLabel = "Total",
   showTotal = false,
-  customHeight = 210,
+  customHeight = 340,
   isActionable = false,
   pieSelectionFunction,
   customTotalKey = "",
@@ -19,6 +19,7 @@ const BookingHistoryChartComponent = ({
       name: label?.name || `Label ${index + 1}`,
       key: label?.key || `defaultKey${index + 1}`,
       color: label?.color || "#64caf7",
+      fontSize: "20px",
     }));
   }, [customLabels]);
 
@@ -85,7 +86,8 @@ const BookingHistoryChartComponent = ({
         position: "top",
         horizontalAlign: "center",
         // floating: false,
-        fontSize: 11,
+        fontSize: 14,
+        // fontWeight: "bold",
         onItemClick: {
           toggleDataSeries: false, // Disable click on legend items
         },
@@ -100,7 +102,7 @@ const BookingHistoryChartComponent = ({
         pie: {
           expandOnClick: false,
           donut: {
-            size: 64,
+            size: 60,
             labels: {
               show: true,
               value: {

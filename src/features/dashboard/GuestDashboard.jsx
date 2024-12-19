@@ -2431,7 +2431,7 @@ export const PaymentDialog = memo(function ({
   setDrawerOpen = () => {},
   handleAfterSuccessFunction = () => {},
 }) {
-  // console.log("reserveHotelRoom", reserveHotelRoom);
+  console.log("amount", reservationPayload);
   const [paymentMethod, setPaymentMethod] = React.useState("card");
   const [cardNumber, setCardNumber] = React.useState("");
   const [upiNumber, setUpiNumber] = React.useState("");

@@ -8,7 +8,7 @@ const HallBookingChartComponent = ({
   customLabels,
   totalLabel = "Total",
   showTotal = false,
-  customHeight = 210,
+  customHeight = 230,
   isActionable = false,
   pieSelectionFunction,
 }) => {
@@ -75,7 +75,7 @@ const HallBookingChartComponent = ({
         position: "top",
         horizontalAlign: "center",
         floating: false,
-        fontSize: 12.5,
+        fontSize: 14.5,
       },
       stroke: {
         show: false,

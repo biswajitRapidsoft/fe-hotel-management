@@ -200,21 +200,42 @@ const HouseKeeperDashboard = () => {
               >
                 <Box
                   sx={{
-                    boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
-                    backgroundColor: "#fff",
-                    minHeight: "10rem",
+                    boxShadow:
+                      "0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19)",
+                    minHeight: "9rem",
                     cursor: "pointer",
                     transition: "background-color 0.3s ease",
-                    "&:hover": {
-                      backgroundColor: "#f5f5f5",
-                    },
+                    borderRadius: "8px",
+                    // "&:hover": {
+                    //   backgroundColor: "#f5f5f5",
+                    // },
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    flexDirection: "column",
+                    // backgroundColor: "green",
+                    backgroundColor:
+                      item?.serviceTypeStatus === "Checkout_Request"
+                        ? "#00A9E0"
+                        : item?.serviceTypeStatus === "Room_Cleaning"
+                        ? "#280071"
+                        : item?.serviceTypeStatus ===
+                          "Room_Cleaning_After_Checkout"
+                        ? "#C445FF"
+                        : "gray",
+                    fontSize: "18px",
+                    fontWeight: "600",
                   }}
                   onClick={() => handleRoomClick(item)}
                 >
-                  <Box
-                    sx={{ display: "flex", flexDirection: "column", gap: 3 }}
-                  >
-                    <Box
+                  {/* <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  > */}
+                  {/* <Box
                       sx={{
                         width: "100%",
                         backgroundColor:
@@ -228,21 +249,47 @@ const HouseKeeperDashboard = () => {
                             : "gray",
                         height: "1.5rem",
                       }}
-                    ></Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Typography>{item?.roomNo}</Typography>
-                      <Typography>{item?.roomType?.type}</Typography>
-                      <Typography sx={{ color: "gray" }}>
-                        {item?.serviceTypeStatus?.replace(/_/g, " ")}
-                      </Typography>
-                    </Box>
-                  </Box>
+                    ></Box> */}
+                  {/* <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      backgroundColor: "red",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "100%",
+                    }}
+                  > */}
+                  <Typography
+                    sx={{
+                      color: "#fff",
+                      fontWeight: "bold",
+                      fontSize: "1.5rem",
+                    }}
+                  >
+                    {item?.roomNo}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      color: "#fff",
+                      fontFamily: "'Times New Roman', Times, serif",
+                      fontWeight: "bold",
+                      letterSpacing: 1.2,
+                      fontSize: "1.1rem",
+                    }}
+                  >
+                    {item?.roomType?.type}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      color: "#fff",
+                      fontFamily: "'Times New Roman', Times, serif",
+                    }}
+                  >
+                    {item?.serviceTypeStatus?.replace(/_/g, " ")}
+                  </Typography>
+                  {/* </Box> */}
+                  {/* </Box> */}
                 </Box>
               </Grid>
             );
@@ -327,7 +374,19 @@ const HouseKeepingDialog = ({
   const [approveService, approveServiceRes] =
     useApproveHouseKeepingServiceMutation();
 
+  // const handleCheckboxChange = (rowId, isUnavailableChecked) => {
+  //   setCheckboxStates((prev) => ({
+  //     ...prev,
+  //     [rowId]: isUnavailableChecked,
+  //   }));
+  // };
+
   const handleCheckboxChange = (rowId, isUnavailableChecked) => {
+    setItemCounts((prevCounts) => ({
+      ...prevCounts,
+      [rowId]: "",
+    }));
+
     setCheckboxStates((prev) => ({
       ...prev,
       [rowId]: isUnavailableChecked,
@@ -353,6 +412,15 @@ const HouseKeepingDialog = ({
       ...prev,
       [itemId]: value,
     }));
+  };
+
+  const handleDialogClose = () => {
+    setCheckboxStates({});
+    setItemCounts({});
+    setLaundryCheckboxStates({});
+    setLaundryItemCounts({});
+    setRemarks("");
+    onClose();
   };
   const handleSubmit = () => {
     // const extraItemsList =
@@ -417,6 +485,16 @@ const HouseKeepingDialog = ({
           price: item.price * Number(laundryItemCounts[item.id] || 0),
         }));
 
+      if (laundryItems.length === 0) {
+        setSnack({
+          open: true,
+          message:
+            "No laundry items selected. Please select at least one item.",
+          severity: "error",
+        });
+        return;
+      }
+
       const totalPrice = laundryItems.reduce(
         (sum, item) => sum + item.price,
         0
@@ -467,7 +545,8 @@ const HouseKeepingDialog = ({
     approveService(payload)
       .unwrap()
       .then((res) => {
-        onClose();
+        // onClose();
+        handleDialogClose();
         setSnack({
           open: true,
           message: res.message,
@@ -488,7 +567,7 @@ const HouseKeepingDialog = ({
       <Dialog
         TransitionComponent={Transition}
         open={open}
-        onClose={onClose}
+        onClose={handleDialogClose}
         maxWidth="md"
         fullWidth
       >
