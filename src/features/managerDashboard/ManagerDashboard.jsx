@@ -40,7 +40,10 @@ const ManagerDashboard = () => {
     },
     isLoading,
   } = useGetAllDashboardDataForManagerQuery(
-    JSON.parse(sessionStorage.getItem("data")).hotelId
+    JSON.parse(sessionStorage.getItem("data")).hotelId,
+    {
+      skip: !Boolean(JSON.parse(sessionStorage.getItem("data")).hotelId),
+    }
   );
   console.log("dashboardData", dashboardData?.data);
 
@@ -236,6 +239,7 @@ const ManagerDashboard = () => {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
+                backgroundColor: "#fff",
               }}
             >
               <Box
@@ -284,6 +288,7 @@ const ManagerDashboard = () => {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
+                backgroundColor: "#fff",
               }}
             >
               <Box
@@ -328,6 +333,7 @@ const ManagerDashboard = () => {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
+                backgroundColor: "#fff",
               }}
             >
               <Box
@@ -376,6 +382,7 @@ const ManagerDashboard = () => {
                     display: "flex",
                     flexDirection: "column",
                     px: 1.3,
+                    backgroundColor: "#fff",
                   }}
                 >
                   <Box
@@ -561,6 +568,7 @@ const ManagerDashboard = () => {
                     display: "flex",
                     flexDirection: "column",
                     px: 1.3,
+                    backgroundColor: "#fff",
                   }}
                 >
                   <Typography
@@ -598,6 +606,7 @@ const ManagerDashboard = () => {
                 flexDirection: "column",
                 px: 1.3,
                 py: 2,
+                backgroundColor: "#fff",
               }}
             >
               <Typography

@@ -136,19 +136,19 @@ const HouseKeeperDashboard = () => {
     { id: 1, icon: <HouseIcon />, name: "All Rooms", color: "gray" },
     {
       id: 2,
-      icon: <CleaningServicesIcon sx={{ color: "#280071" }} />,
+      icon: <CleaningServicesIcon sx={{ color: "#5cba5c" }} />,
       name: "Service",
       color: "#280071",
     },
     {
       id: 3,
-      icon: <WavingHandIcon sx={{ color: "#00A9E0" }} />,
+      icon: <WavingHandIcon sx={{ color: "#de5c69" }} />,
       name: "Checkout",
       color: "00A9E0",
     },
     {
       id: 3,
-      icon: <DryCleaningIcon sx={{ color: "gray" }} />,
+      icon: <DryCleaningIcon sx={{ color: "#548abe" }} />,
       name: "Laundry",
       // color: "gray",
     },
@@ -216,13 +216,13 @@ const HouseKeeperDashboard = () => {
                     // backgroundColor: "green",
                     backgroundColor:
                       item?.serviceTypeStatus === "Checkout_Request"
-                        ? "#00A9E0"
+                        ? "#de5c69"
                         : item?.serviceTypeStatus === "Room_Cleaning"
-                        ? "#280071"
+                        ? "#5cba5c"
                         : item?.serviceTypeStatus ===
                           "Room_Cleaning_After_Checkout"
                         ? "#C445FF"
-                        : "gray",
+                        : "#548abe",
                     fontSize: "18px",
                     fontWeight: "600",
                   }}

@@ -87,6 +87,7 @@ function App() {
             <Route path="/bar" element={<Bar />} />
             <Route path="/bar-admin" element={<BarAdmin />} />
             <Route path="/Parking" element={<Parking />} />
+            <Route path="/managerDashboard" element={<ManagerDashboard />} />
           </Route>
 
           <Route element={<Layout />}>
@@ -101,7 +102,6 @@ function App() {
               path="/HouseKeepingHistory"
               element={<HouseKeepingHistory />}
             />
-            <Route path="/managerDashboard" element={<ManagerDashboard />} />
 
             <Route
               path="/housekeeper-dashboard"

@@ -1,7 +1,11 @@
 import React from "react";
+import ReactDOM from "react-dom";
+import InfoIcon from "@mui/icons-material/Info";
+import CloseIcon from "@mui/icons-material/Close";
+
 import {
   Box,
-  Collapse,
+  // Collapse,
   IconButton,
   Paper,
   Switch,
@@ -13,8 +17,14 @@ import {
   TableRow,
   Toolbar,
   Typography,
+  DialogContent,
+  DialogTitle,
+  DialogActions,
+  // Grid2 as Grid,
 } from "@mui/material";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import { BootstrapDialog } from "../header/Header";
+
+// import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import EditIcon from "@mui/icons-material/Edit";
 import LoadingComponent from "../../components/LoadingComponent";
 
@@ -29,14 +39,14 @@ import SnackAlert from "../../components/Alert";
 const tableHeader = [
   { label: "Sl No." },
   { label: "Hotel Name" },
-  { label: "State" },
-  { label: "City" },
-  { label: "Address" },
-  { label: "GST IN" },
-  {
-    label: "Email",
-  },
-  { label: "Phone No." },
+  // { label: "State" },
+  // { label: "City" },
+  // { label: "Address" },
+  // { label: "GST IN" },
+  // {
+  //   label: "Email",
+  // },
+  // { label: "Phone No." },
   { label: "Halls" },
   { label: "Banquets" },
   { label: "Spa Types" },
@@ -50,6 +60,7 @@ const HotelListTable = ({ setHotelToUpdate }) => {
     message: "",
     severity: "",
   });
+
   const {
     data: hotelList = {
       data: [],
@@ -144,9 +155,12 @@ const HotelListTable = ({ setHotelToUpdate }) => {
 };
 
 function Row({ hotel, sequence, setHotelToUpdate, handleChangeStatus }) {
-  const [open, setOpen] = React.useState(false);
+  // const [open, setOpen] = React.useState(false);
   const navigate = useNavigate();
-
+  const [viewHotelDetailsDialog, setHotelDetailsDialog] = React.useState(null);
+  const handleCloseViewHotelDetailsDialog = React.useCallback(() => {
+    setHotelDetailsDialog(null);
+  }, []);
   //   let roomSlNo = 0;
   return (
     <React.Fragment>
@@ -177,12 +191,12 @@ function Row({ hotel, sequence, setHotelToUpdate, handleChangeStatus }) {
             {hotel.name}
           </Box>
         </TableCell>
-        <TableCell>{hotel.state.name}</TableCell>
-        <TableCell>{hotel.city.name}</TableCell>
-        <TableCell sx={{ minWidth: 200 }}>{hotel.address}</TableCell>
-        <TableCell>{hotel.gstIn}</TableCell>
-        <TableCell>{hotel.email}</TableCell>
-        <TableCell>{hotel.contactNos?.join(", ")}</TableCell>
+        {/* <TableCell>{hotel.state.name}</TableCell> */}
+        {/* <TableCell>{hotel.city.name}</TableCell> */}
+        {/* <TableCell sx={{ minWidth: 200 }}>{hotel.address}</TableCell> */}
+        {/* <TableCell>{hotel.gstIn}</TableCell> */}
+        {/* <TableCell>{hotel.email}</TableCell> */}
+        {/* <TableCell>{hotel.contactNos?.join(", ")}</TableCell> */}
         <TableCell
           onClick={() => {
             sessionStorage.setItem("hotelIdForHall", hotel?.id);
@@ -228,15 +242,16 @@ function Row({ hotel, sequence, setHotelToUpdate, handleChangeStatus }) {
           <IconButton
             sx={{ ml: "auto", display: "block" }}
             size="small"
-            onClick={() => setOpen(!open)}
+            // onClick={() => setOpen(!open)}
+            onClick={() => setHotelDetailsDialog(hotel)}
           >
-            <KeyboardArrowDownIcon />
+            <InfoIcon />
           </IconButton>
         </TableCell>
       </TableRow>
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-          <Collapse in={open} timeout="auto" unmountOnExit>
+          {/* <Collapse in={open} timeout="auto" unmountOnExit>
             <Box>
               <Table size="small">
                 <TableHead>
@@ -288,11 +303,154 @@ function Row({ hotel, sequence, setHotelToUpdate, handleChangeStatus }) {
                 </TableBody>
               </Table>
             </Box>
-          </Collapse>
+          </Collapse> */}
         </TableCell>
       </TableRow>
+      <HotelDetailsDialog
+        open={Boolean(viewHotelDetailsDialog)}
+        viewHotelDetailsDialog={viewHotelDetailsDialog}
+        handleClose={handleCloseViewHotelDetailsDialog}
+        handleChangeStatus={handleChangeStatus}
+        hotel={hotel}
+      />
     </React.Fragment>
   );
 }
+
+const HotelDetailsDialog = ({
+  open,
+  viewHotelDetailsDialog,
+  handleClose,
+  handleChangeStatus,
+  hotel,
+}) => {
+  return ReactDOM.createPortal(
+    <React.Fragment>
+      <BootstrapDialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="password-change-dialog-title"
+        maxWidth="lg"
+        fullWidth
+        sx={{
+          ".MuiDialogTitle-root": {
+            px: 5,
+            py: 3,
+          },
+        }}
+        PaperProps={{
+          sx: { borderRadius: 4 },
+        }}
+      >
+        <DialogTitle id="view-image-dialog-title" sx={{ fontSize: 24 }}>
+          <Typography
+            sx={{
+              fontWeight: "bold",
+              fontSize: "1.9rem",
+              fontFamily: "'Times New Roman', Times, serif",
+            }}
+          >
+            {viewHotelDetailsDialog?.name}
+          </Typography>
+        </DialogTitle>
+        <IconButton
+          aria-label="close"
+          onClick={handleClose}
+          sx={{
+            position: "absolute",
+            right: 30,
+            top: 16,
+            color: "#280071",
+          }}
+        >
+          <CloseIcon sx={{ fontSize: 30 }} />
+        </IconButton>
+        <DialogContent dividers>
+          <Box sx={{ px: 3 }}>
+            <Box sx={{ mb: 2 }}>
+              <Box sx={{ display: "flex" }}>
+                <Typography sx={{ fontWeight: "bold" }} gutterBottom>
+                  GST IN :
+                </Typography>
+                <Typography gutterBottom>
+                  {viewHotelDetailsDialog?.gstIn}
+                </Typography>
+              </Box>
+              <Box sx={{ display: "flex" }}>
+                <Typography sx={{ fontWeight: "bold" }} gutterBottom>
+                  Address :
+                </Typography>
+                <Typography gutterBottom>
+                  {viewHotelDetailsDialog?.address}
+                </Typography>
+              </Box>
+              <Box sx={{ display: "flex" }}>
+                <Typography sx={{ fontWeight: "bold" }} gutterBottom>
+                  Email :
+                </Typography>
+                <Typography gutterBottom>
+                  {viewHotelDetailsDialog?.email}
+                </Typography>
+              </Box>
+            </Box>
+            <Box sx={{ height: "400px", overflowY: "auto" }}>
+              <Table stickyHeader>
+                <TableHead>
+                  <TableRow
+                    sx={{
+                      ".MuiTableCell-root": {
+                        fontWeight: "bold",
+                        letterSpacing: 1,
+                        backgroundColor: "#e3f2fd",
+                      },
+                    }}
+                  >
+                    <TableCell>Sl No.</TableCell>
+                    <TableCell>Floor</TableCell>
+                    <TableCell>Room number</TableCell>
+                    <TableCell>Room Type</TableCell>
+                    <TableCell>Status</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {hotel?.floorRoomMapData?.map((floor) => {
+                    return floor.roomDto?.map((room, roomIndex) => {
+                      //   roomSlNo += 1;
+                      return (
+                        <TableRow key={room.id}>
+                          {roomIndex === 0 && (
+                            <TableCell rowSpan={floor.roomDto.length}>
+                              {floor.floorNo}
+                            </TableCell>
+                          )}
+                          {roomIndex === 0 && (
+                            <TableCell
+                              rowSpan={floor.roomDto.length}
+                            >{`Floor ${floor.floorNo}`}</TableCell>
+                          )}
+                          <TableCell>{room.roomNo}</TableCell>
+                          <TableCell>{room.roomType.type}</TableCell>
+                          <TableCell>
+                            <Switch
+                              checked={room.isActive}
+                              color="success"
+                              onChange={() => handleChangeStatus(room)}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      );
+                    });
+                  })}
+                </TableBody>
+              </Table>
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions />
+      </BootstrapDialog>
+    </React.Fragment>,
+    document.getElementById("portal")
+  );
+};
 
 export default React.memo(HotelListTable);
