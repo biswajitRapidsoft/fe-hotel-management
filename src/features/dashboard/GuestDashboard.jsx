@@ -298,24 +298,24 @@ const GuestDashboard = () => {
     setOpenVehicleParkingDialog(true);
   }, []);
 
-  // const getOrdinalSuffix = (num) => {
-  //   if (!num) return "";
-  //   const lastDigit = num % 10;
-  //   const lastTwoDigits = num % 100;
+  const getOrdinalSuffix = (num) => {
+    if (!num) return "";
+    const lastDigit = num % 10;
+    const lastTwoDigits = num % 100;
 
-  //   if (lastTwoDigits >= 11 && lastTwoDigits <= 13) return `${num}th`;
+    if (lastTwoDigits >= 11 && lastTwoDigits <= 13) return `${num}th floor`;
 
-  //   switch (lastDigit) {
-  //     case 1:
-  //       return `${num}st`;
-  //     case 2:
-  //       return `${num}nd`;
-  //     case 3:
-  //       return `${num}rd`;
-  //     default:
-  //       return `${num}th`;
-  //   }
-  // };
+    switch (lastDigit) {
+      case 1:
+        return `${num}st floor`;
+      case 2:
+        return `${num}nd floor`;
+      case 3:
+        return `${num}rd floor`;
+      default:
+        return `${num}th floor`;
+    }
+  };
 
   return (
     <>
@@ -443,6 +443,13 @@ const GuestDashboard = () => {
                   width: "97%",
                   margin: "0 auto",
                   backgroundColor: "#fff",
+                  // backgroundColor: {
+                  //   xs: "red",
+                  //   sm: "yelow",
+                  //   md: "black",
+                  //   xl: "pink",
+                  //   lg: "green",
+                  // },
                   p: 1,
                   borderRadius: "0.65rem",
                   display: "flex",
@@ -494,12 +501,8 @@ const GuestDashboard = () => {
                               top: "50%",
                               transform: "translateY(-50%)",
                               left: 1,
-                              width: 90,
-                              height: 80,
-                              // boxShadow:
-                              //   "1.5px 1.5px 3px 0px rgba(197, 51, 255, 0.6)",
-                              // backgroundImage:
-                              //   "linear-gradient(to right bottom, #d139fc, #b32edc, #9722bc, #7b179d, #610b7f)",
+                              width: 75,
+                              height: 75,
                               backgroundColor: "#0079C2",
                               backgroundSize: "cover",
                               backgroundPosition: "center",
@@ -507,8 +510,6 @@ const GuestDashboard = () => {
                               zIndex: 2,
                               display: "flex",
                               flexDirection: "column",
-                              // justifyContent: "center",
-                              // p: 2,
                             }}
                           >
                             <Box
@@ -518,22 +519,22 @@ const GuestDashboard = () => {
                                 flexDirection: "column",
                                 justifyContent: "center",
                                 alignItems: "center",
-                                // backgroundColor: "red",
-                                // borderRadius: "9px",
                                 height: "30%",
                                 borderTopLeftRadius: "9px",
                                 borderTopRightRadius: "9px",
                               }}
                             >
-                              <Typography
-                                sx={{
-                                  color: "#fff",
-                                  fontWeight: "bold",
-                                  // fontSize: "1.5rem",
-                                }}
-                              >
-                                {booking?.roomDto?.floorNo || "N/A"}st Floor
-                              </Typography>{" "}
+                              {Boolean(booking?.roomDto?.floorNo) && (
+                                <Typography
+                                  sx={{
+                                    color: "#fff",
+                                    // fontWeight: "bold",
+                                    // fontSize: "1.5rem",
+                                  }}
+                                >
+                                  {getOrdinalSuffix(booking?.roomDto?.floorNo)}
+                                </Typography>
+                              )}
                             </Box>
                             <Box
                               sx={{
@@ -562,9 +563,13 @@ const GuestDashboard = () => {
                               boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
                               backgroundColor: "#fff",
                               py: 1,
-                              px: 11.4,
-                              // p: 1.4,
+                              // px: 9,
+                              pl: 9,
                               borderRadius: "1rem",
+                              // px: {
+                              //   xl: 7,
+                              //   lg: 10,
+                              // },
                             }}
                           >
                             <Grid container spacing={1}>
@@ -575,7 +580,6 @@ const GuestDashboard = () => {
                                     display: "flex",
                                     flexDirection: "column",
                                     gap: 0.5,
-                                    // backgroundColor: "red",
                                   }}
                                 >
                                   <Box
@@ -654,23 +658,6 @@ const GuestDashboard = () => {
                                         // backgroundColor: "#89CFF0",
                                       }}
                                     >
-                                      {/* {Boolean(booking?.roomDto?.roomNo) && (
-                                        <Box
-                                          sx={{
-                                            borderRadius: "1rem",
-                                            backgroundColor: "#00A877",
-                                            width: "5rem",
-                                            p: 0.9,
-                                            display: "flex",
-                                            justifyContent: "center",
-                                          }}
-                                        >
-                                          <Typography sx={{ color: "#fff" }}>
-                                            {booking?.roomDto?.roomNo || "N/A"}
-                                          </Typography>
-                                        </Box>
-                                      )} */}
-
                                       <Box sx={{ display: "flex", gap: 1 }}>
                                         {booking?.bookingStatus ===
                                           "Pending_Confirmation" && (
@@ -734,7 +721,6 @@ const GuestDashboard = () => {
                                           <Box
                                             sx={{
                                               width: "100%",
-                                              // backgroundColor: "yellow",
                                             }}
                                           >
                                             <Grid
@@ -742,9 +728,15 @@ const GuestDashboard = () => {
                                               size={{ xs: 12 }}
                                               // sx={{ backgroundColor: "yellow" }}
                                               fullWidth
-                                              spacing={2}
+                                              spacing={1}
                                             >
-                                              <Grid size={{ xs: 1.5 }}>
+                                              <Grid
+                                                size={{
+                                                  xs: 1.5,
+                                                  lg: 1.6,
+                                                  xl: 1.5,
+                                                }}
+                                              >
                                                 <Box
                                                   sx={{
                                                     display: "flex",
@@ -782,7 +774,13 @@ const GuestDashboard = () => {
                                                   </Tooltip>
                                                 </Box>
                                               </Grid>
-                                              <Grid size={{ xs: 1.5 }}>
+                                              <Grid
+                                                size={{
+                                                  xs: 1.5,
+                                                  lg: 1.6,
+                                                  xl: 1.5,
+                                                }}
+                                              >
                                                 <Box
                                                   sx={{
                                                     display: "flex",
@@ -792,7 +790,13 @@ const GuestDashboard = () => {
                                                   }}
                                                 >
                                                   <Tooltip
-                                                    title="Room cleaning Request"
+                                                    // title="Room cleaning Request"
+                                                    title={
+                                                      booking?.roomDto
+                                                        ?.isRoomCleaningRequested
+                                                        ? "Room cleaning Request submitted"
+                                                        : "Room cleaning Request"
+                                                    }
                                                     arrow
                                                   >
                                                     <Button
@@ -802,6 +806,10 @@ const GuestDashboard = () => {
                                                         width: "11px",
                                                         borderColor: "#1CAC78",
                                                       }}
+                                                      disabled={Boolean(
+                                                        booking?.roomDto
+                                                          ?.isRoomCleaningRequested
+                                                      )}
                                                       // startIcon={<CleaningServicesIcon />}
                                                       onClick={() =>
                                                         handleRoomCleanRequest(
@@ -812,7 +820,13 @@ const GuestDashboard = () => {
                                                     >
                                                       <CleaningServicesIcon
                                                         sx={{
-                                                          color: "#1CAC78",
+                                                          // color: "#1CAC78",
+                                                          color: Boolean(
+                                                            booking?.roomDto
+                                                              ?.isRoomCleaningRequested
+                                                          )
+                                                            ? "gray"
+                                                            : "#1CAC78",
                                                         }}
                                                       />
                                                     </Button>
@@ -820,7 +834,13 @@ const GuestDashboard = () => {
                                                 </Box>
                                               </Grid>
 
-                                              <Grid size={{ xs: 1.5 }}>
+                                              <Grid
+                                                size={{
+                                                  xs: 1.5,
+                                                  lg: 1.6,
+                                                  xl: 1.5,
+                                                }}
+                                              >
                                                 <Box
                                                   sx={{
                                                     display: "flex",
@@ -857,7 +877,13 @@ const GuestDashboard = () => {
                                                 </Box>
                                               </Grid>
 
-                                              <Grid size={{ xs: 1.5 }}>
+                                              <Grid
+                                                size={{
+                                                  xs: 1.5,
+                                                  lg: 1.6,
+                                                  xl: 1.5,
+                                                }}
+                                              >
                                                 <Box
                                                   sx={{
                                                     display: "flex",
@@ -904,7 +930,13 @@ const GuestDashboard = () => {
                                                 </Box>
                                               </Grid>
 
-                                              <Grid size={{ xs: 1.5 }}>
+                                              <Grid
+                                                size={{
+                                                  xs: 1.5,
+                                                  lg: 1.6,
+                                                  xl: 1.5,
+                                                }}
+                                              >
                                                 <Box
                                                   sx={{
                                                     display: "flex",
@@ -941,7 +973,13 @@ const GuestDashboard = () => {
                                                 </Box>
                                               </Grid>
 
-                                              <Grid size={{ xs: 1.5 }}>
+                                              <Grid
+                                                size={{
+                                                  xs: 1.5,
+                                                  lg: 1.6,
+                                                  xl: 1.5,
+                                                }}
+                                              >
                                                 <Box
                                                   sx={{
                                                     display: "flex",
@@ -977,7 +1015,13 @@ const GuestDashboard = () => {
                                                 </Box>
                                               </Grid>
 
-                                              <Grid size={{ xs: 1.5 }}>
+                                              <Grid
+                                                size={{
+                                                  xs: 1.5,
+                                                  lg: 1.6,
+                                                  xl: 1.5,
+                                                }}
+                                              >
                                                 <Box
                                                   sx={{
                                                     display: "flex",
@@ -1013,7 +1057,13 @@ const GuestDashboard = () => {
                                                 </Box>
                                               </Grid>
 
-                                              <Grid size={{ xs: 1.5 }}>
+                                              <Grid
+                                                size={{
+                                                  xs: 1.5,
+                                                  lg: 1.6,
+                                                  xl: 1.5,
+                                                }}
+                                              >
                                                 <Box
                                                   sx={{
                                                     display: "flex",

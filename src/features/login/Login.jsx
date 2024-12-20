@@ -33,6 +33,8 @@ import {
   HOUSEKEEPER,
   KITCHENSTAFF,
   GUARD,
+  BARSTAFF,
+  MANAGER,
 } from "../../helper/constants";
 
 const phoneRegex = /^[0-9]{10}$/;
@@ -135,6 +137,10 @@ export default function SignIn() {
             navigate("/restaurant-admin");
           } else if (res.data.roleType === GUARD) {
             navigate("/Parking");
+          } else if (res.data.roleType === BARSTAFF) {
+            navigate("/bar-admin");
+          } else if (res.data.roleType === MANAGER) {
+            navigate("/managerDashboard");
           } else {
             navigate("/");
           }

@@ -197,9 +197,6 @@ const ManagerDashboard = () => {
               <Box
                 sx={{
                   display: "flex",
-                  // backgroundColor: "red",
-                  // height: "150px",
-                  // borderRadius: "14px",
                   justifyContent: "center",
                   alignItems: "center",
                   gap: 3,

@@ -23,6 +23,8 @@ export const FRONTDESK = "Front_Desk_Staff";
 export const HOUSEKEEPER = "Housekeeping_Staff";
 export const KITCHENSTAFF = "Kitchen_Staff";
 export const GUARD = "Guard";
+export const BARSTAFF = "Bar_Staff";
+export const MANAGER = "Manager";
 //ROOM STATUSES
 export const AVAILABLE = { id: 1, key: "Available" };
 export const RESERVED = { id: 2, key: "Reserved" };
