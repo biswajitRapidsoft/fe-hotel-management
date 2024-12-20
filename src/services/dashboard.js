@@ -145,6 +145,7 @@ const dashboardApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
+      invalidatesTags: ["getAllLaundryHistory"],
     }),
     getAllLaundryHistory: build.query({
       query: (payload) => ({

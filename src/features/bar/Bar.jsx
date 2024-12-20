@@ -1082,8 +1082,13 @@ const Bar = () => {
 const CustomFoodCard = React.memo(function ({ foodItem, handleAddItemToCart }) {
   return (
     <Grid
-      size={{ xs: 6, md: 3, xl: 3 }}
-      sx={{ boxShadow: (theme) => theme.shadows[2] }}
+      size={{ xs: 6, md: 3, xl: 2.4 }}
+      sx={{
+        // boxShadow: (theme) => theme.shadows[2],
+        boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
+        borderRadius: "10px",
+        backgroundColor: "#fff",
+      }}
     >
       <Grid container>
         <Grid size={12}>
@@ -1091,16 +1096,18 @@ const CustomFoodCard = React.memo(function ({ foodItem, handleAddItemToCart }) {
             component="img"
             src={foodItem.imageUrl}
             alt="Food Image"
-            sx={{ width: "100%", height: 200 }}
+            sx={{ width: "100%", height: 200, borderRadius: "10px" }}
           />
         </Grid>
-        <Grid size={12}>
+        <Grid size={12} sx={{ px: 1, py: 1 }}>
           <Box
             sx={{
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
               p: 1,
+              backgroundColor: "#E5F5FF",
+              borderRadius: "12px",
             }}
           >
             <Box>
