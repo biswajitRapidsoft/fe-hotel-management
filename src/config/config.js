@@ -121,6 +121,10 @@ const config = Object.freeze({
     getAllParkingData: "api/get/all/parking/list",
     parkVehicle: "api/park/vehicle",
     releaseVehicle: "api/release/vehicle",
+    checkVehicleParkingStatus: "api/check/vehicle/parking/availability",
+
+    // MANAGER DASHBOARD
+    getAllDashboardDataForManager: "api/get/dashboard/data/for/manager",
   },
 });
 
