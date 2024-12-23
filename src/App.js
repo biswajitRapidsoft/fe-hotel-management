@@ -60,6 +60,8 @@ const ManagerDashboard = React.lazy(() =>
 const SpaType = React.lazy(() => import("./features/spaType/SpaType"));
 const Spa = React.lazy(() => import("./features/spa/Spa"));
 
+const SpaAdmin = React.lazy(() => import("./features/spa/SpaAdmin"));
+
 function App() {
   return (
     <div className="App">
@@ -88,6 +90,7 @@ function App() {
             <Route path="/restaurant-admin" element={<RestaurantAdmin />} />
             <Route path="/bar" element={<Bar />} />
             <Route path="/bar-admin" element={<BarAdmin />} />
+            <Route path="/spa-admin" element={<SpaAdmin />} />
             <Route path="/Parking" element={<Parking />} />
           </Route>
 

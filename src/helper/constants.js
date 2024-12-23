@@ -1,3 +1,9 @@
+// SPA BOOKING STATUSES
+export const BOOKED_SPA = "BOOKED";
+export const CONFIRMED_SPA = "CONFIRMED";
+export const CANCELLED_SPA = "CANCELLED";
+export const CANCELLATION_REQUESTED = "CANCELLATION_REQUESTED";
+
 // SPA SLOT TYPE
 export const DAY = "Day";
 export const NIGHT = "Night";
