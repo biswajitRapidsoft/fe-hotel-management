@@ -13,7 +13,9 @@ import {
   FormControlLabel,
   FormGroup,
   IconButton,
+  // Rating,
 } from "@mui/material";
+import StarIcon from "@mui/icons-material/Star";
 import LunchDiningIcon from "@mui/icons-material/LunchDining";
 import { MdOutlineRoomService } from "react-icons/md";
 
@@ -295,7 +297,7 @@ const Restaurant = () => {
   const [mealType, setMealType] = React.useState("ALL");
   const [dineType, setDineType] = React.useState("");
   const [cartItems, setCartItems] = React.useState([]);
-  console.log("cartItems : ", cartItems);
+  // const [cartOpen, setCartOpen] = React.useState(true);
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
@@ -342,8 +344,14 @@ const Restaurant = () => {
     setFoodType(e.target.value);
   }, []);
 
+  const handleCloseCart = React.useCallback(() => {
+    // setCartOpen(false);
+    setCartItems([]);
+  }, []);
+
   const handleAddItemToCart = React.useCallback(
     (item) => {
+      // setCartOpen(true);
       if (Boolean(cartItems.find((val) => val.id === item.id))) {
         const cartItemsToSet = [];
         cartItems.forEach((cartItem) => {
@@ -388,7 +396,7 @@ const Restaurant = () => {
   );
 
   const calculateTotalAmountOfCartItems = React.useCallback(() => {
-    return cartItems.reduce((prev, curr) => {
+    return cartItems?.reduce((prev, curr) => {
       return prev + curr.perUnitPrice * curr.quantity;
     }, 0);
   }, [cartItems]);
@@ -564,7 +572,7 @@ const Restaurant = () => {
   return (
     <React.Fragment>
       <Box sx={{ display: "flex" }}>
-        <Main open={Boolean(cartItems.length)}>
+        <Main open={Boolean(cartItems?.length)}>
           <Button
             variant="contained"
             size="small"
@@ -654,19 +662,30 @@ const Restaurant = () => {
             "& .MuiDrawer-paper": {
               width: drawerWidth,
             },
-            pointerEvents: Boolean(cartItems.length) ? "auto" : "none",
+            pointerEvents: Boolean(cartItems?.length) ? "auto" : "none",
           }}
           variant="persistent"
           anchor="right"
-          open={Boolean(cartItems.length)}
+          open={Boolean(cartItems?.length)}
         >
           <DrawerHeader>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: "bold", letterSpacing: 1 }}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                width: "100%",
+              }}
             >
-              Place Your Order
-            </Typography>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: "bold", letterSpacing: 1 }}
+              >
+                Place Your Order
+              </Typography>
+              <IconButton sx={{ padding: 0.3 }} onClick={handleCloseCart}>
+                <CloseIcon sx={{ fontSize: "19px" }} />
+              </IconButton>
+            </Box>
           </DrawerHeader>
           <Divider />
           {isViewAllCouponsSelected ? (
@@ -770,7 +789,7 @@ const Restaurant = () => {
                 }}
               >
                 <Grid container spacing={2}>
-                  {cartItems.map((cartItem) => {
+                  {cartItems?.map((cartItem) => {
                     return (
                       <Grid size={12} key={cartItem.id}>
                         <Box sx={{ display: "flex", gap: 2 }}>
@@ -928,7 +947,7 @@ const Restaurant = () => {
                 variant="body2"
                 sx={{ fontWeight: "bold", letterSpacing: 1 }}
               >
-                {`Rs. ${calculateTotalAmountOfCartItems().toFixed(2)}`}
+                {`Rs. ${calculateTotalAmountOfCartItems()?.toFixed(2)}`}
               </Typography>
             </Box>
 
@@ -1016,7 +1035,7 @@ const Restaurant = () => {
                 },
               }}
               type="submit"
-              disabled={!Boolean(cartItems.length && dineType)}
+              disabled={!Boolean(cartItems?.length && dineType)}
               onClick={handlePlaceOrder}
             >
               Place Order
@@ -1050,8 +1069,59 @@ const CustomFoodCard = React.memo(function ({ foodItem, handleAddItemToCart }) {
         boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
         borderRadius: "10px",
         backgroundColor: "#fff",
+        position: "relative",
       }}
     >
+      <Box
+        sx={{
+          width: "77px",
+          height: "24px",
+          clipPath: `polygon(0 0, 100% 0, calc(100% - 22px) 100%, 0% 100%)`,
+          bgcolor: "lavender",
+          position: "absolute",
+          background: "#ffffff78",
+          backdropFilter: "blur(35px)",
+          WebkitBackdropFilter: "blur(35px)",
+        }}
+      >
+        <Box
+          sx={{
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            // justifyContent: "space-evenly",
+          }}
+        >
+          <Box
+            sx={{
+              boxSizing: "border-box",
+              width: "18px",
+              height: "18px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              // border: "1.3px solid #ff0000",
+              border: Boolean(foodItem?.foodtype === "Non_Veg")
+                ? "1.3px solid #ff0000"
+                : "1.3px solid green",
+              ml: 1.5,
+            }}
+          >
+            <Box
+              sx={{
+                minWidth: "13px",
+                minHeight: "13px",
+                borderRadius: "50%",
+                // bgcolor: "#ff0000",
+                bgcolor: Boolean(foodItem?.foodtype === "Non_Veg")
+                  ? "#ff0000"
+                  : "green",
+              }}
+            ></Box>
+          </Box>
+        </Box>
+      </Box>
       <Grid container sx={{ borderRadius: "10px" }}>
         <Grid size={12}>
           <Box
@@ -1065,10 +1135,11 @@ const CustomFoodCard = React.memo(function ({ foodItem, handleAddItemToCart }) {
           <Box
             sx={{
               display: "flex",
-              alignItems: "center",
+              // alignItems: "center",
               justifyContent: "space-between",
               p: 1,
               backgroundColor: "#fff",
+              // backgroundColor: "red",
               borderRadius: "10px",
               flexDirection: "column",
             }}
@@ -1079,55 +1150,60 @@ const CustomFoodCard = React.memo(function ({ foodItem, handleAddItemToCart }) {
                 display: "flex",
                 justifyContent: "space-between",
                 px: 1,
-                flexDirection: "column",
+                // flexDirection: "column",
                 gap: 0.6,
                 mb: 0.3,
-                // backgroundColor: "yellow",
               }}
             >
-              <Grid container size={12} spacing={1}>
-                <Grid size={{ xs: 6 }}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      backgroundColor: "#F0F0F5",
-                      borderRadius: "10px",
-                      px: 1,
-                      // width: "60%",
-                      height: "1.4rem",
-                    }}
-                  >
-                    <LunchDiningIcon
-                      sx={{ color: "gray", fontSize: "0.8rem" }}
-                    />
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  // , gap: 0.3
+                }}
+              >
+                {/* <Grid container size={12} spacing={1}> */}
+                {/* <Grid size={{ xs: 6 }}> */}
 
-                    <Typography
-                      sx={{
-                        fontSize: "0.7rem",
-                        fontWeight: "bold",
-                        color: "gray",
-                      }}
-                    >
-                      Dine-In
-                    </Typography>
-                  </Box>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Box
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    // backgroundColor: "#F0F0F5",
+                    // borderRadius: "10px",
+                    px: 1,
+                    // width: "60%",
+                    height: "1.4rem",
+                  }}
+                >
+                  <LunchDiningIcon sx={{ color: "gray", fontSize: "0.8rem" }} />
+
+                  <Typography
                     sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      backgroundColor: "#F0F0F5",
-                      borderRadius: "10px",
-                      px: 1,
-                      // width: "60%",
-                      height: "1.4rem",
+                      fontSize: "0.7rem",
+                      fontWeight: "bold",
+                      color: "gray",
                     }}
                   >
-                    {/* <Box
+                    Dine-In
+                  </Typography>
+                </Box>
+                {/* </Grid> */}
+                {/* <Grid size={{ xs: 6 }}> */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    // backgroundColor: "#F0F0F5",
+                    // borderRadius: "10px",
+                    px: 1,
+                    // width: "60%",
+                    height: "1.4rem",
+                  }}
+                >
+                  {/* <Box
                   sx={{
                     height: "5px",
                     width: "5px",
@@ -1135,35 +1211,35 @@ const CustomFoodCard = React.memo(function ({ foodItem, handleAddItemToCart }) {
                     backgroundColor: "gray",
                   }}
                 ></Box> */}
-                    <EventAvailableIcon
-                      sx={{ color: "gray", fontSize: "0.8rem" }}
-                    />
-                    <Typography
-                      sx={{
-                        fontSize: "0.7rem",
-                        fontWeight: "bold",
-                        color: "gray",
-                      }}
-                    >
-                      Take-away
-                    </Typography>
-                  </Box>
-                </Grid>
-                <Grid size={{ xs: 6 }}>
-                  <Box
+                  <EventAvailableIcon
+                    sx={{ color: "gray", fontSize: "0.8rem" }}
+                  />
+                  <Typography
                     sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1,
-                      backgroundColor: "#F0F0F5",
-                      borderRadius: "10px",
-                      px: 1,
-                      height: "1.4rem",
-
-                      // width: "60%",
+                      fontSize: "0.7rem",
+                      fontWeight: "bold",
+                      color: "gray",
                     }}
                   >
-                    {/* <Box
+                    Take-away
+                  </Typography>
+                </Box>
+                {/* </Grid> */}
+                {/* <Grid size={{ xs: 6 }}> */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    // backgroundColor: "#F0F0F5",
+                    // borderRadius: "10px",
+                    px: 1,
+                    height: "1.4rem",
+
+                    // width: "60%",
+                  }}
+                >
+                  {/* <Box
                   sx={{
                     height: "5px",
                     width: "5px",
@@ -1171,21 +1247,60 @@ const CustomFoodCard = React.memo(function ({ foodItem, handleAddItemToCart }) {
                     backgroundColor: "gray",
                   }}
                 ></Box> */}
-                    <MdOutlineRoomService
-                      style={{ color: "gray", fontSize: "0.8rem" }}
-                    />
-                    <Typography
-                      sx={{
-                        fontSize: "0.7rem",
-                        fontWeight: "bold",
-                        color: "gray",
-                      }}
-                    >
-                      Room Delivery
-                    </Typography>
-                  </Box>
-                </Grid>
-              </Grid>
+                  <MdOutlineRoomService
+                    style={{ color: "gray", fontSize: "0.8rem" }}
+                  />
+                  <Typography
+                    sx={{
+                      fontSize: "0.7rem",
+                      fontWeight: "bold",
+                      color: "gray",
+                    }}
+                  >
+                    Room Delivery
+                  </Typography>
+                </Box>
+              </Box>
+              {/* {foodItem.ratingPoints && ( */}
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Box
+                  sx={{
+                    borderRadius: "7px",
+                    display: "flex",
+                    gap: 0.7,
+                    // backgroundColor: "green",
+                    backgroundColor:
+                      foodItem.ratingPoints < 3 ? "red" : "green",
+
+                    px: 0.8,
+                    // p: 0.4,
+                    // py: 0.2,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      color: "#fff",
+                      fontSize: "0.9rem",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {foodItem.ratingPoints ? foodItem.ratingPoints : 1}
+                  </Typography>
+                  <StarIcon sx={{ color: "#fff", fontSize: "0.9rem" }} />
+                </Box>
+                {/* <Rating value={4} readOnly /> */}
+              </Box>
+              {/* // )} */}
+              {/* </Grid> */}
+              {/* </Grid> */}
             </Box>
             <Box
               sx={{

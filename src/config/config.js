@@ -3,8 +3,8 @@ const config = Object.freeze({
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
   // baseUrl: "http://crimarrstaging.nyggs.com/backend/",
   // baseUrl: "http://192.168.30.44:9000/",
-  baseUrl: "http://192.168.12.43:8080/be-hms/",
-  // baseUrl: "http://192.168.30.44:8070/be-hms/",
+  // baseUrl: "http://192.168.12.43:8080/be-hms/",
+  baseUrl: "http://192.168.30.44:8070/be-hms/",
   // baseUrl: "http://192.168.12.3:9000/",
   apiName: {
     loginAsCustomer: "login/as/customer",
@@ -33,6 +33,7 @@ const config = Object.freeze({
     getFoodOrderListAdmin: "api/get/today/order/history",
     getAllFoodOrderStatus: "public/get/all/dinning/status/type",
     rateFood: "public/rate/your/food",
+    rateBeer: "public/rate/bar/order",
     addHall: "api/add/new/hall",
     getAllHalls: "api/get/all/halls",
     addBanquet: "api/create/new/banquet",

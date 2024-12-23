@@ -36,6 +36,7 @@ const Employee = () => {
     { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN }
   );
 
+  console.log("roleList", roleList?.data);
   const {
     data: hotelList = {
       data: [],
@@ -233,6 +234,7 @@ const Employee = () => {
           <Grid size={3}>
             <Autocomplete
               options={roleList.data}
+              // options={roleList.data.filter((item) => item !== "Customer")}
               value={formData.selectedRole}
               onChange={(e, newVal) =>
                 handleChange({

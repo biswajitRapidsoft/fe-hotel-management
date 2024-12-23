@@ -19,6 +19,7 @@ import {
 import Grid from "@mui/material/Grid2";
 import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
+import moment from "moment";
 // import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 // import moment from "moment";
 
@@ -36,33 +37,35 @@ const CustomStayersTableForInvoice = memo(function ({ stayersData }) {
   return (
     <TableContainer
       component={Paper}
-      sx={{
-        overflow: "auto",
-        maxHeight: {
-          xs: "135px",
-          // xl: "calc(100vh - 280px)",
-          "&::-webkit-scrollbar": {
-            // height: "14px",
-          },
-          "&::-webkit-scrollbar-track": {
-            backgroundColor: "#ffffff00",
-            width: "none",
-          },
-          "&::-webkit-scrollbar-thumb": {
-            backgroundColor: "#280071",
-            borderRadius: "4px",
-          },
-          "&::-webkit-scrollbar-thumb:hover": {
-            backgroundColor: "#3b0b92",
-          },
-        },
-      }}
+      sx={
+        {
+          // overflow: "auto",
+          // maxHeight: {
+          //   xs: "135px",
+          //   // xl: "calc(100vh - 280px)",
+          //   "&::-webkit-scrollbar": {
+          //     // height: "14px",
+          //   },
+          //   "&::-webkit-scrollbar-track": {
+          //     backgroundColor: "#ffffff00",
+          //     width: "none",
+          //   },
+          //   "&::-webkit-scrollbar-thumb": {
+          //     backgroundColor: "#280071",
+          //     borderRadius: "4px",
+          //   },
+          //   "&::-webkit-scrollbar-thumb:hover": {
+          //     backgroundColor: "#3b0b92",
+          //   },
+          // },
+        }
+      }
     >
       <Table aria-label="simple table" stickyHeader size="small">
         <TableHead>
           <TableRow>
             <TableCell
-              align="center"
+              // align="center"
               sx={{
                 backgroundColor: "#dbd8ff",
               }}
@@ -77,7 +80,7 @@ const CustomStayersTableForInvoice = memo(function ({ stayersData }) {
               </Typography>
             </TableCell>
             <TableCell
-              align="center"
+              // align="center"
               sx={{
                 backgroundColor: "#dbd8ff",
               }}
@@ -92,7 +95,7 @@ const CustomStayersTableForInvoice = memo(function ({ stayersData }) {
               </Typography>
             </TableCell>
             <TableCell
-              align="center"
+              // align="center"
               sx={{
                 backgroundColor: "#dbd8ff",
               }}
@@ -112,47 +115,62 @@ const CustomStayersTableForInvoice = memo(function ({ stayersData }) {
           {stayersData?.map((item, index) => {
             return (
               <TableRow key={`tr-${index}`}>
-                <TableCell align="center">
+                <TableCell
+                // align="center"
+                >
                   <Typography
                     sx={{
                       width: "100%",
-                      textAlign: "center",
+                      // textAlign: "center",
                       fontSize: "12px",
                     }}
                   >
                     {index + 1}
                   </Typography>
                 </TableCell>
-                <TableCell align="center">
+                <TableCell
+                // align="center"
+                >
                   <Typography
                     sx={{
                       width: "100%",
-                      textAlign: "center",
+                      // textAlign: "center",
                       fontSize: "12px",
                     }}
                   >
                     {item?.customerName || ""}
                   </Typography>
                 </TableCell>
-                <TableCell align="center">
-                  <Typography
+                <TableCell
+                // align="center"
+                >
+                  <Box
                     sx={{
-                      width: "100%",
-                      textAlign: "center",
-                      fontSize: "12px",
+                      display: "flex",
+                      // backgroundColor: "yellow",
+                      gap: 1,
+                      // justifyContent: "center",
                     }}
                   >
-                    {item?.govtIdNo}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      width: "100%",
-                      textAlign: "center",
-                      fontSize: "10px",
-                    }}
-                  >
-                    {`(${item?.govtIdType?.replace(/_/g, " ")})`}
-                  </Typography>
+                    <Typography
+                      sx={{
+                        // width: "100%",
+                        // textAlign: "center",
+                        fontSize: "12px",
+                      }}
+                    >
+                      {item?.govtIdNo}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        // width: "100%",
+                        // textAlign: "center",
+                        fontSize: "10px",
+                      }}
+                    >
+                      {`(${item?.govtIdType?.replace(/_/g, " ")})`}
+                    </Typography>
+                  </Box>
                 </TableCell>
               </TableRow>
             );
@@ -973,6 +991,9 @@ const HotelBillInvoice = () => {
     }, 0); // Delay for print dialog
   }, []);
 
+  const hotelLogo = JSON.parse(sessionStorage.getItem("data")).hotelLogoUrl;
+  console.log("hotelLogo", hotelLogo);
+
   return (
     <>
       <Box
@@ -981,6 +1002,13 @@ const HotelBillInvoice = () => {
           display: "flex",
           flexDirection: "column",
           gap: 1,
+          // backgroundColor: "yellow",
+          // px: "400px",
+          px: {
+            xs: "50px",
+            xl: "400px",
+            md: "100px",
+          },
         }}
       >
         <Box
@@ -997,20 +1025,86 @@ const HotelBillInvoice = () => {
           <Grid container size={12}>
             <Grid size={{ xs: 12 }}>
               {/* header */}
+              <Box
+                sx={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  // justifyContent: "center",
+                  // alignItems: "center",
+                  // backgroundColor: "yellow",
+                  py: 2,
+                  px: 2,
+                }}
+              >
+                <Box component="img" src={hotelLogo} sx={{ width: 180 }} />
+                <Box>
+                  <Typography
+                    sx={{
+                      fontWeight: "bold",
+                      fontSize: "1.5rem",
+                      textAlign: "right",
+                    }}
+                  >
+                    {invoiceData?.bookingDto?.hotel?.name}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontWeight: "bold",
+                      fontSize: "1.2rem",
+                      textAlign: "right",
+                    }}
+                  >
+                    {invoiceData?.bookingDto?.hotel?.address}
+                    {", "}
+                    {invoiceData?.bookingDto?.hotel?.state?.name}{" "}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontWeight: "bold",
+                      fontSize: "1.2rem",
+                      textAlign: "right",
+                    }}
+                  >
+                    {" "}
+                    {invoiceData?.bookingDto?.hotel?.gstIn}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontWeight: "bold",
+                      fontSize: "1.2rem",
+                      textAlign: "right",
+                    }}
+                  >
+                    {" "}
+                    {invoiceData?.bookingDto?.hotel?.email}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontWeight: "bold",
+                      fontSize: "1.2rem",
+                      textAlign: "right",
+                    }}
+                  >
+                    {invoiceData?.bookingDto?.hotel?.contactNos?.length &&
+                      invoiceData?.bookingDto?.hotel?.contactNos?.join(", ")}
+                  </Typography>
+                </Box>
+              </Box>
               <Typography
                 sx={{
                   width: "100%",
                   textAlign: "center",
                   fontSize: "27px",
                   fontWeight: 600,
+                  textDecoration: "underline",
                 }}
               >
-                Hotel Invoice
+                Tax Invoice
               </Typography>
 
               {/* Hotel Details */}
-              <Grid container size={12}>
-                {/* hotel name */}
+              {/* <Grid container size={12}>
                 <Grid size={1.5}>
                   <Typography
                     sx={{
@@ -1054,7 +1148,6 @@ const HotelBillInvoice = () => {
                   </Typography>
                 </Grid>
 
-                {/* address */}
                 <Grid size={1.5}>
                   <Typography
                     sx={{
@@ -1100,7 +1193,6 @@ const HotelBillInvoice = () => {
                   </Typography>
                 </Grid>
 
-                {/* email id */}
 
                 <Grid size={1.5}>
                   <Typography
@@ -1145,7 +1237,6 @@ const HotelBillInvoice = () => {
                   </Typography>
                 </Grid>
 
-                {/* phone nos */}
                 <Grid size={1.5}>
                   <Typography
                     sx={{
@@ -1189,24 +1280,19 @@ const HotelBillInvoice = () => {
                     </Typography>
                   </Typography>
                 </Grid>
-              </Grid>
-              <Divider
+              </Grid> */}
+              {/* <Divider
                 sx={{
                   borderBottomWidth: 4,
                   backgroundColor: "black",
                   my: 0.5,
                 }}
-              />
-              <Typography
-                sx={{ textAlign: "left", fontSize: "20.5px", fontWeight: 600 }}
-              >
-                Billing To:
-              </Typography>
+              /> */}
 
               {/* Booking To Details */}
               <Grid container size={12}>
                 {/* name */}
-                <Grid size={1.5}>
+                <Grid size={2}>
                   <Typography
                     sx={{
                       fontSize: "15.5px",
@@ -1217,7 +1303,7 @@ const HotelBillInvoice = () => {
                     Name
                   </Typography>
                 </Grid>
-                <Grid size={4.5}>
+                <Grid size={4}>
                   <Typography
                     sx={{
                       fontSize: "15.5px",
@@ -1255,7 +1341,7 @@ const HotelBillInvoice = () => {
                 </Grid>
 
                 {/* date */}
-                <Grid size={1.5}>
+                <Grid size={2}>
                   <Typography
                     sx={{
                       fontSize: "15.5px",
@@ -1263,10 +1349,10 @@ const HotelBillInvoice = () => {
                       fontWeight: 600,
                     }}
                   >
-                    Date
+                    Invoice Date
                   </Typography>
                 </Grid>
-                <Grid size={4.5}>
+                <Grid size={4}>
                   <Typography
                     sx={{
                       fontSize: "15.5px",
@@ -1300,7 +1386,7 @@ const HotelBillInvoice = () => {
                 </Grid>
 
                 {/* address */}
-                <Grid size={1.5}>
+                <Grid size={2}>
                   <Typography
                     sx={{
                       fontSize: "15.5px",
@@ -1311,7 +1397,7 @@ const HotelBillInvoice = () => {
                     Address
                   </Typography>
                 </Grid>
-                <Grid size={4.5}>
+                <Grid size={4}>
                   <Typography
                     sx={{
                       fontSize: "15.5px",
@@ -1343,7 +1429,7 @@ const HotelBillInvoice = () => {
                   </Typography>
                 </Grid>
                 {/* booking ref no */}
-                <Grid size={1.5}>
+                <Grid size={2}>
                   <Typography
                     sx={{
                       fontSize: "15.5px",
@@ -1354,7 +1440,7 @@ const HotelBillInvoice = () => {
                     Booking No.
                   </Typography>
                 </Grid>
-                <Grid size={4.5}>
+                <Grid size={4}>
                   <Typography
                     sx={{
                       fontSize: "15.5px",
@@ -1387,7 +1473,7 @@ const HotelBillInvoice = () => {
                 </Grid>
 
                 {/* email id */}
-                <Grid size={1.5}>
+                <Grid size={2}>
                   <Typography
                     sx={{
                       fontSize: "15.5px",
@@ -1398,7 +1484,7 @@ const HotelBillInvoice = () => {
                     Email ID
                   </Typography>
                 </Grid>
-                <Grid size={4.5}>
+                <Grid size={4}>
                   <Typography
                     sx={{
                       fontSize: "15.5px",
@@ -1429,9 +1515,55 @@ const HotelBillInvoice = () => {
                     </Typography>
                   </Typography>
                 </Grid>
+                {/* booking date and time */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Booking Date
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {/* {invoiceData?.bookingDto?.bookedOn || "NA"} */}
+                      {moment(invoiceData?.bookingDto?.bookedOn).format(
+                        "DD-MM-YYYY hh:mm A"
+                      )}
+                    </Typography>
+                  </Typography>
+                </Grid>
 
                 {/* phone nos */}
-                <Grid size={1.5}>
+                <Grid size={2}>
                   <Typography
                     sx={{
                       fontSize: "15.5px",
@@ -1442,7 +1574,7 @@ const HotelBillInvoice = () => {
                     Phone No
                   </Typography>
                 </Grid>
-                <Grid size={4.5}>
+                <Grid size={4}>
                   <Typography
                     sx={{
                       fontSize: "15.5px",
@@ -1473,10 +1605,404 @@ const HotelBillInvoice = () => {
                     </Typography>
                   </Typography>
                 </Grid>
+
+                {/* Room category */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Room category{" "}
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {invoiceData?.roomType?.type}
+                    </Typography>
+                  </Typography>
+                </Grid>
+
+                {/*Company Name{" "}
+                 */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Company Name{" "}
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {/* {invoiceData?.roomType?.type} */}
+                      --
+                    </Typography>
+                  </Typography>
+                </Grid>
+
+                {/* PAX */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Pax
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {invoiceData?.bookingDto?.bookingMapData?.length}
+                    </Typography>
+                  </Typography>
+                </Grid>
+
+                {/* gst no. */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    GST Number
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {/* {invoiceData?.roomType?.type} */}
+                      --
+                    </Typography>
+                  </Typography>
+                </Grid>
+
+                {/* GSTN Bill */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    GSTN Bill
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {/* {invoiceData?.roomType?.type} */}
+                      --
+                    </Typography>
+                  </Typography>
+                </Grid>
+                {/* arrival date and time */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Arrival
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {invoiceData?.bookingDto?.checkInDate || "NA"}
+                    </Typography>
+                  </Typography>
+                </Grid>
+
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Room No.
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {invoiceData?.roomNo || "NA"}
+                    </Typography>
+                  </Typography>
+                </Grid>
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Departure
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {invoiceData?.bookingDto?.checkOutDate || "NA"}
+                    </Typography>
+                  </Typography>
+                </Grid>
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Billing Type
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {invoiceData?.bookingDto?.checkOutDate || "NA"}
+                    </Typography>
+                  </Typography>
+                </Grid>
               </Grid>
               <Divider
                 sx={{
-                  borderBottomWidth: 4,
+                  borderBottomWidth: 2,
                   backgroundColor: "black",
                   my: 0.5,
                 }}
@@ -1532,7 +2058,7 @@ const HotelBillInvoice = () => {
                     Boolean(invoiceData?.bookingDto?.laundryDataList?.length) ||
                     Boolean(invoiceData?.bookingDto?.extraItemsList?.length)
                 ) && (
-                  <Grid size={6}>
+                  <Grid size={12}>
                     {Boolean(
                       invoiceData?.bookingDto?.bookingMapData?.length
                     ) && (
@@ -1560,67 +2086,67 @@ const HotelBillInvoice = () => {
                     )}
                     {Boolean(
                       invoiceData?.bookingDto?.laundryDataList?.length
-                    ) && (
-                      <Box
-                        sx={{
-                          width: "100%",
-                        }}
-                      >
-                        <Typography
+                    ) &&
+                      false && (
+                        <Box
                           sx={{
-                            fontSize: "18px",
-                            // color: "#707070",
-                            fontWeight: 600,
                             width: "100%",
-                            borderBottom: "2px solid #ccc",
-                            marginBottom: "5px",
                           }}
                         >
-                          Laundry Details :
-                        </Typography>
-                        <CustomLaundryListTableContainerForInvoice
-                          laundryListTableHeaders={laundryListTableHeaders}
-                          laundryListTableData={
-                            invoiceData?.bookingDto?.laundryDataList
-                          }
-                          uniqueLaudryItems={uniqueLaundryItems}
-                        />
-                      </Box>
-                    )}
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                              width: "100%",
+                              borderBottom: "2px solid #ccc",
+                              marginBottom: "5px",
+                            }}
+                          >
+                            Laundry Details :
+                          </Typography>
+                          <CustomLaundryListTableContainerForInvoice
+                            laundryListTableHeaders={laundryListTableHeaders}
+                            laundryListTableData={
+                              invoiceData?.bookingDto?.laundryDataList
+                            }
+                            uniqueLaudryItems={uniqueLaundryItems}
+                          />
+                        </Box>
+                      )}
 
-                    {Boolean(
-                      invoiceData?.bookingDto?.extraItemsList?.length
-                    ) && (
-                      <Box
-                        sx={{
-                          width: "100%",
-                        }}
-                      >
-                        <Typography
+                    {Boolean(invoiceData?.bookingDto?.extraItemsList?.length) &&
+                      false && (
+                        <Box
                           sx={{
-                            fontSize: "18px",
-                            // color: "#707070",
-                            fontWeight: 600,
                             width: "100%",
-                            borderBottom: "2px solid #ccc",
-                            marginBottom: "5px",
                           }}
                         >
-                          Inventory Details :
-                        </Typography>
-                        <CustomInventoryTableForInvoice
-                          inventoryData={
-                            invoiceData?.bookingDto?.extraItemsList
-                          }
-                        />
-                      </Box>
-                    )}
+                          <Typography
+                            sx={{
+                              fontSize: "18px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                              width: "100%",
+                              borderBottom: "2px solid #ccc",
+                              marginBottom: "5px",
+                            }}
+                          >
+                            Inventory Details :
+                          </Typography>
+                          <CustomInventoryTableForInvoice
+                            inventoryData={
+                              invoiceData?.bookingDto?.extraItemsList
+                            }
+                          />
+                        </Box>
+                      )}
                   </Grid>
                 )}
               </Grid>
               <Divider
                 sx={{
-                  borderBottomWidth: 4,
+                  borderBottomWidth: 2,
                   backgroundColor: "black",
                   my: 0.5,
                 }}
@@ -1750,6 +2276,72 @@ const HotelBillInvoice = () => {
                         >
                           <Typography sx={{ fontWeight: 550 }}>
                             Laundry Charges
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderRight: "1.7px solid black",
+                            bgcolor: "white",
+                          }}
+                        >
+                          <Typography
+                            sx={{ textAlign: "right", fontWeight: 550 }}
+                          >
+                            {subTotalLaundryExpense}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderLeft: "1.7px solid black",
+                            bgcolor: "white",
+                            paddingLeft: "5px",
+                          }}
+                        >
+                          <Typography sx={{ fontWeight: 550 }}>
+                            Spa Charges
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderRight: "1.7px solid black",
+                            bgcolor: "white",
+                          }}
+                        >
+                          <Typography
+                            sx={{ textAlign: "right", fontWeight: 550 }}
+                          >
+                            {subTotalLaundryExpense}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderLeft: "1.7px solid black",
+                            bgcolor: "white",
+                            paddingLeft: "5px",
+                          }}
+                        >
+                          <Typography sx={{ fontWeight: 550 }}>
+                            Bar Charges
                           </Typography>
                         </Box>
                       </Grid>
@@ -1908,12 +2500,13 @@ const HotelBillInvoice = () => {
           <Box
             sx={{
               width: "100%",
-              position: "fixed",
+              // position: "fixed",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
               bottom: 15,
               zIndex: 100,
+              // backgroundColor: "yellow",
             }}
           >
             <Button
@@ -1928,6 +2521,7 @@ const HotelBillInvoice = () => {
                   backgroundImage:
                     "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
                 },
+                // ml: 60,
               }}
             >
               PRINT NOW

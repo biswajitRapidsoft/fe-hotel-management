@@ -35,14 +35,17 @@ import LoadingComponent from "../../components/LoadingComponent";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ClearIcon from "@mui/icons-material/Clear";
+import { FaArrowAltCircleLeft } from "react-icons/fa";
 import {
   CUSTOMER,
   //  ADMIN,
   // FRONTDESK,
   HOUSEKEEPER,
 } from "../../helper/constants";
+import { useNavigate } from "react-router-dom";
 
 const LaundryHistory = () => {
+  const navigate = useNavigate();
   const LaundryHistoryTableHeaders = React.useMemo(() => {
     const roleType = JSON.parse(sessionStorage.getItem("data"))?.roleType;
     // const isCustomer = roleType === CUSTOMER;
@@ -187,9 +190,30 @@ const LaundryHistory = () => {
           sx={{
             width: "100%",
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
           }}
         >
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <FaArrowAltCircleLeft
+              style={{
+                color: "#164e80",
+                marginRight: "5px",
+                cursor: "pointer",
+                fontSize: "20px",
+              }}
+              onClick={() => {
+                navigate(-1);
+              }}
+            />
+            <Typography
+              variant="h5"
+              display="inline-block"
+              fontWeight="500"
+              marginX="0"
+            >
+              Laundry History
+            </Typography>
+          </Box>
           {Boolean(
             JSON.parse(sessionStorage.getItem("data"))?.roleType === "Customer"
           ) && (
@@ -255,6 +279,7 @@ const LaundryHistory = () => {
 //       "Ready_For_Delivery",
 //       "Completed"
 //   ]
+
 function getBookingStatusColor(key) {
   switch (key) {
     case "Approved":

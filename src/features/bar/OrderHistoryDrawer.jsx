@@ -17,7 +17,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogTitle from "@mui/material/DialogTitle";
-import { useRateFoodMutation } from "../../services/restaurant";
+import { useRateBeerMutation } from "../../services/bar";
 import { useChangeBarOrderStatusMutation } from "../../services/bar";
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
@@ -35,6 +35,7 @@ import {
 const drawerWidth = 430;
 
 const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
+  console.log("orderHistory for bar", orderHistory);
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
@@ -44,7 +45,7 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
   const [reviewDialog, setReviewDialog] = React.useState(null);
   // const [cancelFood, cancelFoodRes] = useUpdateFoodOrderStatusMutation();
   const [cancelBarOrder, cancelBarOrderRes] = useChangeBarOrderStatusMutation();
-  const [rateFood, rateFoodRes] = useRateFoodMutation();
+  const [rateFood, rateFoodRes] = useRateBeerMutation();
 
   const handleDownloadInvoice = React.useCallback((order) => {
     const doc = new jsPDF();
@@ -286,7 +287,7 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
                         (order?.discountPrice || 0)}
                     </Typography>
                   </Box>
-                  {![CANCELLED_BAR, REJECTED, DELIVERED].includes(
+                  {!["CANCELLED_BAR", "REJECTED", "DELIVERED"].includes(
                     order.orderStatus
                   ) && (
                     <Button
@@ -308,8 +309,8 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
                       Cancel Order
                     </Button>
                   )}
-                  {DELIVERED === order.orderStatus &&
-                    order.bookingDetails.isRated !== true && (
+                  {"DELIVERED" === order?.orderStatus &&
+                    order?.isRated !== true && (
                       <Button
                         color="secondary"
                         variant="contained"

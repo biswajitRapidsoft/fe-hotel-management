@@ -1405,7 +1405,13 @@ const HallListChipCard = memo(function ({
 }) {
   return (
     <>
-      <Box sx={{ width: "100%", display: "flex", flexDirection: "column" }}>
+      <Box
+        sx={{
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <Box
           sx={{
             width: "100%",
@@ -1608,7 +1614,20 @@ const CustomHallBookingDrawer = memo(function ({
           {type === "hallBooking" && (
             <Grid container size={12} spacing={1}>
               <Grid size={12}>
-                <Grid container size={12} spacing={1}>
+                <Grid container size={12} columnSpacing={1}>
+                  <Grid size={{ xs: 12 }}>
+                    <Typography
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        width: "100%",
+                        textAlign: "left",
+                      }}
+                    >
+                      Customer Details :
+                    </Typography>
+                  </Grid>
                   <Grid size={{ xs: 4 }}>
                     <TextField
                       required
@@ -1915,43 +1934,82 @@ const CustomHallBookingDrawer = memo(function ({
                 </Grid>
               </Grid>
               <Grid size={12}>
-                <Typography
+                <Divider
                   sx={{
-                    fontSize: "15.5px",
-                    // color: "#707070",
-                    fontWeight: 600,
-                    width: "100%",
-                    textAlign: "left",
+                    borderBottomWidth: 2,
+                    backgroundColor: "#B0B0B0",
+                    my: 0.5,
+                  }}
+                />
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    // boxShadow: " rgba(0, 0, 0, 0.35) 0px 5px 15px",
+                    // borderRadius: "10px",
                   }}
                 >
-                  Halls :
-                </Typography>
-                <Box
-                  sx={{ width: "100%", display: "flex", flexDirection: "row" }}
-                >
-                  <Box
-                    sx={{ width: "55%", maxHeight: "80px", overflowY: "auto" }}
-                  >
-                    <HallListChipCard
-                      hallsData={allHallsData}
-                      selectedHallChip={selectedHallChip}
-                      handleChangeSelectedHallChip={
-                        handleChangeSelectedHallChip
-                      }
-                    />
+                  <Box sx={{ width: "100%", p: 1 }}>
+                    <Typography
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        width: "100%",
+                        textAlign: "left",
+                      }}
+                    >
+                      Date wise Halls Availability :
+                    </Typography>
                   </Box>
-                  <Box sx={{ width: "45%" }}>
-                    <Collapse in={true} timeout="auto">
-                      <CustomCalenderCard
-                        onDateSelect={(date) => {
-                          console.log("Selected date:", date);
-                          handleChangeSetSelectedDateOnCalendar(date);
-                        }}
-                        warnDates={warnDates}
+                  <Box
+                    sx={{
+                      width: "100%",
+                      display: "flex",
+                      flexDirection: "row",
+                      // border: "2px solid black",
+                      // box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
+                      // box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+                      px: 1,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: "55%",
+                        maxHeight: "190px",
+                        overflowY: "auto",
+                        // mt: 1.5,
+                      }}
+                    >
+                      <HallListChipCard
+                        hallsData={allHallsData}
+                        selectedHallChip={selectedHallChip}
+                        handleChangeSelectedHallChip={
+                          handleChangeSelectedHallChip
+                        }
                       />
-                    </Collapse>
+                    </Box>
+                    <Box sx={{ width: "45%" }}>
+                      <Collapse in={true} timeout="auto">
+                        <CustomCalenderCard
+                          onDateSelect={(date) => {
+                            console.log("Selected date:", date);
+                            handleChangeSetSelectedDateOnCalendar(date);
+                          }}
+                          warnDates={warnDates}
+                        />
+                      </Collapse>
+                    </Box>
                   </Box>
                 </Box>
+
+                <Divider
+                  sx={{
+                    borderBottomWidth: 2,
+                    backgroundColor: "#B0B0B0",
+                    my: 0.5,
+                  }}
+                />
               </Grid>
 
               <Grid size={12}>
@@ -1964,7 +2022,7 @@ const CustomHallBookingDrawer = memo(function ({
                     textAlign: "left",
                   }}
                 >
-                  {`Events : ${
+                  {`Events on the selected date : ${
                     selectedDateOnCalendar
                       ? `(${dayjs(selectedDateOnCalendar).format(
                           "DD-MM-YYYY"
@@ -1975,9 +2033,30 @@ const CustomHallBookingDrawer = memo(function ({
                 <Box sx={{ width: "100%", marginY: "2px" }}>
                   <CustomEventList eventListData={finalFilteredEvent} />
                 </Box>
+                <Divider
+                  sx={{
+                    borderBottomWidth: 2,
+                    backgroundColor: "#B0B0B0",
+                    my: 1.5,
+                  }}
+                />{" "}
               </Grid>
+
               <Grid size={12}>
-                <Grid container size={12} spacing={1}>
+                <Grid container size={12} columnSpacing={1}>
+                  <Grid size={{ xs: 12 }}>
+                    <Typography
+                      sx={{
+                        fontSize: "15.5px",
+                        fontWeight: 600,
+                        width: "100%",
+                        textAlign: "left",
+                      }}
+                    >
+                      Booking Info :
+                    </Typography>
+                  </Grid>
+
                   <Grid size={{ xs: 6 }}>
                     <Box
                       sx={{
@@ -2172,7 +2251,6 @@ const CustomHallBookingDrawer = memo(function ({
                   labelPlacement="end"
                 />
               </Grid>
-
               {hallBookingFormData?.isBanquetRequired ? (
                 <Grid size={12}>
                   <Grid container size={12} spacing={1}>
@@ -2383,7 +2461,15 @@ const CustomHallBookingDrawer = memo(function ({
               ) : (
                 ""
               )}
-
+              <Grid size={{ xs: 12 }}>
+                <Divider
+                  sx={{
+                    borderBottomWidth: 2,
+                    backgroundColor: "#B0B0B0",
+                    my: 0.5,
+                  }}
+                />
+              </Grid>
               <Grid size={12}>
                 <Typography
                   sx={{
@@ -2489,7 +2575,6 @@ const CustomHallBookingDrawer = memo(function ({
                   </Grid>
                 </Grid>
               </Grid>
-
               <Grid size={{ xs: 12 }}>
                 <Grid container size={12} spacing={1}>
                   <Grid size={{ xs: 6, md: 4 }}>
@@ -2743,7 +2828,6 @@ const CustomHallBookingDrawer = memo(function ({
                   </Grid>
                 </Grid>
               </Grid>
-
               <Grid size={12}>
                 <Box sx={{ width: "100%", marginY: "2px" }}>
                   <Button

@@ -5,7 +5,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 import LoadingComponent from "./components/LoadingComponent";
 
-const Login = React.lazy(() => import("./features/login/Login"));
+// const Login = React.lazy(() => import("./features/login/Login"));
 const Dashboard = React.lazy(() => import("./features/dashboard/Dashboard"));
 const Layout = React.lazy(() => import("./routes/Layout"));
 const SuperLayout = React.lazy(() => import("./routes/SuperLayout"));
@@ -60,14 +60,19 @@ const ManagerDashboard = React.lazy(() =>
 const SpaType = React.lazy(() => import("./features/spaType/SpaType"));
 const Spa = React.lazy(() => import("./features/spa/Spa"));
 
+const LoginV2 = React.lazy(() => import("./features/login/Loginv2"));
+
 function App() {
   return (
     <div className="App">
       <React.Suspense fallback={<LoadingComponent open={true} />}>
         <Routes>
           <Route path="/" element={<Navigate to="/guest-login" />} />
-          <Route path="/guest-login" element={<Login key="guest-login" />} />
-          <Route path="/staff-login" element={<Login key="staff-login" />} />
+          {/* <Route path="/guest-login" element={<Login key="guest-login" />} /> */}
+          {/* <Route path="/staff-login" element={<Login key="staff-login" />} /> */}
+          <Route path="/guest-login" element={<LoginV2 key="guest-login" />} />
+          <Route path="/staff-login" element={<LoginV2 key="staff-login" />} />
+          {/* <Route path="/LoginV2" element={<LoginV2 />} /> */}
           <Route
             path="/hotelBillInvoice/:bookingRefNo"
             element={<HotelBillInvoice key="hotel-bill" />}

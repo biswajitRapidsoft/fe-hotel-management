@@ -8,6 +8,7 @@ const barApi = apiSlice.injectEndpoints({
         url: config.apiName.getAllBarItemList,
         method: "GET",
       }),
+      providesTags: ["getAllBarItemList"],
     }),
     getBarPromoCodeList: build.query({
       query: (payload) => ({
@@ -60,6 +61,14 @@ const barApi = apiSlice.injectEndpoints({
         method: "GET",
       }),
     }),
+    rateBeer: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.rateBeer,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["barOrderHistory", "getAllBarItemList"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -72,4 +81,5 @@ export const {
   useChangeBarOrderStatusMutation,
   useGetBarOrderHistoryAdminQuery,
   useGetAllBarOrderStatusQuery,
+  useRateBeerMutation,
 } = barApi;
