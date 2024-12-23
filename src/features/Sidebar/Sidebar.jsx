@@ -20,6 +20,7 @@ import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import KingBedIcon from "@mui/icons-material/KingBed";
 import RoofingIcon from "@mui/icons-material/Roofing";
 import { FRONTDESK, HOUSEKEEPER } from "../../helper/constants";
+import SpaIcon from "@mui/icons-material/Spa";
 const drawerWidth = 300;
 
 const openedMixin = (theme) => ({
@@ -105,6 +106,14 @@ const sideBarMenuOptions = [
     menuIcon: <MdOutlineCleaningServices style={{ color: "#fff" }} />,
     menuIconAlt: "Activity Logo",
     menuTitle: "Service Request",
+    visibility: [FRONTDESK],
+  },
+  {
+    pathname: "/spa-admin",
+    isLibraryIcon: true,
+    menuIcon: <SpaIcon sx={{ color: "#fff" }} />,
+    menuIconAlt: "Spa Logo",
+    menuTitle: "Spa",
     visibility: [FRONTDESK],
   },
   {

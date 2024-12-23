@@ -22,9 +22,11 @@ import {
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 import {
+  ACTIVE_SPA,
   BOOKED_SPA,
   CANCELLATION_REQUESTED_SPA,
   CANCELLED_SPA,
+  DONE_SPA,
 } from "../../helper/constants";
 
 const drawerWidth = 550;
@@ -119,11 +121,23 @@ const BookingHistoryDrawer = ({ open, handleClose }) => {
                   </Typography>
                   <Typography
                     sx={{
+                      // color: (theme) =>
+                      //   [CANCELLATION_REQUESTED_SPA, CANCELLED_SPA].includes(
+                      //     booking.status
+                      //   )
+                      //     ? theme.palette.error.main
+                      //     : theme.palette.warning.main,
                       color: (theme) =>
-                        [CANCELLATION_REQUESTED_SPA, CANCELLED_SPA].includes(
-                          booking.status
-                        )
-                          ? theme.palette.error.main
+                        [CANCELLED_SPA].includes(booking.status)
+                          ? theme.palette.error.dark
+                          : [CANCELLATION_REQUESTED_SPA].includes(
+                              booking.status
+                            )
+                          ? theme.palette.error.light
+                          : [DONE_SPA].includes(booking.status)
+                          ? theme.palette.success.dark
+                          : [ACTIVE_SPA].includes(booking.status)
+                          ? theme.palette.success.light
                           : theme.palette.warning.main,
                     }}
                   >

@@ -31,7 +31,6 @@ import ClearIcon from "@mui/icons-material/Clear";
 import { IoCardOutline } from "react-icons/io5";
 import { RiSecurePaymentLine } from "react-icons/ri";
 
-import Swal from "sweetalert2";
 import { Transition } from "../dashboard/GuestDashboard";
 import MasterCard from "../../img/masterCard.png";
 import Visa from "../../img/visa.png";
@@ -596,7 +595,7 @@ const PaymentDialog = memo(function ({
   const handleSubmit = React.useCallback(
     async (e) => {
       e.preventDefault();
-      const paymentDetail = paymentMethod === "card" ? cardNumber : upiNumber;
+      // const paymentDetail = paymentMethod === "card" ? cardNumber : upiNumber;
 
       // const finalPayload = {
       //   ...reservationPayload,
