@@ -59,7 +59,7 @@ const PromcodeList = () => {
     },
     isLoading: isPromoCodeListDataLoading,
   } = useGetAllPromoCodeListForAdminQuery(
-    JSON.parse(sessionStorage.getItem("data")).hotelId,
+    sessionStorage.getItem("hotelIdForPromoCode"),
     {
       skip:
         !Boolean(sessionStorage.getItem("hotelIdForPromoCode")) ||

@@ -63,6 +63,7 @@ const spaApi = apiSlice.injectEndpoints({
           toDate: null,
         },
       }),
+      providesTags: ["getSpaBookingHistoryAdmin"],
     }),
     getSpaBookingHistoryGuest: build.query({
       query: (payload) => ({
@@ -82,6 +83,20 @@ const spaApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["getSpaBookingHistoryGuest", "getSpaSlots"],
     }),
+    getSpaBookingStatusType: build.query({
+      query: () => ({
+        url: config.apiName.getSpaBookingStatusType,
+        method: "GET",
+      }),
+    }),
+    updateSpaBookingStatus: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.updateSpaBookingStatus,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getSpaBookingHistoryAdmin"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -95,4 +110,6 @@ export const {
   useGetSpaBookingHistoryAdminQuery,
   useGetSpaBookingHistoryGuestQuery,
   useCancelBookingForSpaMutation,
+  useGetSpaBookingStatusTypeQuery,
+  useUpdateSpaBookingStatusMutation,
 } = spaApi;

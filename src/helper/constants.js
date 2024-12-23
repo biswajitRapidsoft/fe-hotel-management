@@ -2,7 +2,9 @@
 export const BOOKED_SPA = "BOOKED";
 export const CONFIRMED_SPA = "CONFIRMED";
 export const CANCELLED_SPA = "CANCELLED";
-export const CANCELLATION_REQUESTED = "CANCELLATION_REQUESTED";
+export const ACTIVE_SPA = "ACTIVE";
+export const DONE_SPA = "DONE";
+export const CANCELLATION_REQUESTED_SPA = "CANCELLATION_REQUESTED";
 
 // SPA SLOT TYPE
 export const DAY = "Day";

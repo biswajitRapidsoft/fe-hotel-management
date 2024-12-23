@@ -19,13 +19,12 @@ import {
   useGetSpaBookingHistoryGuestQuery,
   useCancelBookingForSpaMutation,
 } from "../../services/spa";
-import moment from "moment";
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 import {
   BOOKED_SPA,
-  CANCELLATION_REQUESTED,
-  CANCELLED,
+  CANCELLATION_REQUESTED_SPA,
+  CANCELLED_SPA,
 } from "../../helper/constants";
 
 const drawerWidth = 550;
@@ -33,7 +32,7 @@ const drawerWidth = 550;
 const BookingHistoryDrawer = ({ open, handleClose }) => {
   const [cancelBookingDialog, setCancelBookingDialog] = React.useState(null);
   const [snack, setSnack] = React.useState({
-    open: true,
+    open: false,
     message: "",
     severity: "",
   });
@@ -121,7 +120,7 @@ const BookingHistoryDrawer = ({ open, handleClose }) => {
                   <Typography
                     sx={{
                       color: (theme) =>
-                        [CANCELLATION_REQUESTED, CANCELLED].includes(
+                        [CANCELLATION_REQUESTED_SPA, CANCELLED_SPA].includes(
                           booking.status
                         )
                           ? theme.palette.error.main

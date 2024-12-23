@@ -1,9 +1,9 @@
 const config = Object.freeze({
-  // baseUrl: "http://192.168.12.37:9000/",
+  baseUrl: "http://192.168.12.37:9000/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
   // baseUrl: "http://crimarrstaging.nyggs.com/backend/",
   // baseUrl: "http://192.168.30.44:9000/",
-  baseUrl: "http://192.168.12.43:8080/be-hms/",
+  // baseUrl: "http://192.168.12.43:8080/be-hms/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
   // baseUrl: "http://192.168.12.3:9000/",
   apiName: {
@@ -57,6 +57,8 @@ const config = Object.freeze({
     getSpaBookingHistoryAdmin: "api/spatype/getall/booking",
     getSpaBookingHistoryGuest: "public/get/spa/booking/by/referencenumber",
     cancelBookingForSpa: "public/cancel/spa/booking",
+    getSpaBookingStatusType: "api/get/all/spa/status/type",
+    updateSpaBookingStatus: "api/spatype/update/booking",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",
