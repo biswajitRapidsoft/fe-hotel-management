@@ -36,6 +36,7 @@ const ExtraItem = () => {
   const [addExtraItem, addExtraItemRes] = useAddExtraItemMutation();
   const [formData, setFormData] = React.useState({
     extraItemName: "",
+    price: "",
     isReusable: false,
   });
   const {
@@ -49,12 +50,13 @@ const ExtraItem = () => {
   );
 
   const isFormValid = React.useCallback(() => {
-    return Boolean(formData.extraItemName.trim());
+    return Boolean(formData.extraItemName.trim() && formData.price);
   }, [formData]);
 
   const handleResetForm = React.useCallback(() => {
     setFormData({
       extraItemName: "",
+      price: "",
       isReusable: false,
     });
   }, []);
@@ -64,6 +66,11 @@ const ExtraItem = () => {
       setFormData((prevData) => ({
         ...prevData,
         [e.target.name]: e.target.checked,
+      }));
+    } else if (e.target.name === "price") {
+      setFormData((prevData) => ({
+        ...prevData,
+        [e.target.name]: e.target.value.replace(/\D/g, ""),
       }));
     } else {
       setFormData((prevData) => ({
@@ -87,6 +94,8 @@ const ExtraItem = () => {
       }
       addExtraItem({
         name: formData.extraItemName,
+        // price: formData.price,
+        price: Number(formData.price),
         company: {
           id: JSON.parse(sessionStorage.getItem("data")).companyId,
         },
@@ -196,7 +205,28 @@ const ExtraItem = () => {
               variant="standard"
             />
           </Grid>
-          <Grid size={9}>
+          <Grid size={3}>
+            <TextField
+              label={
+                <React.Fragment>
+                  Price
+                  <Box
+                    component="span"
+                    sx={{
+                      color: (theme) => theme.palette.error.main,
+                    }}
+                  >
+                    *
+                  </Box>
+                </React.Fragment>
+              }
+              name="price"
+              value={formData.price}
+              onChange={handleChange}
+              variant="standard"
+            />
+          </Grid>
+          <Grid size={6}>
             <FormGroup sx={{ mt: 1 }}>
               <FormControlLabel
                 control={
@@ -271,6 +301,7 @@ const ExtraItem = () => {
               >
                 <TableCell>Sl No.</TableCell>
                 <TableCell>Inventory Item Name</TableCell>
+                <TableCell>Price</TableCell>
                 <TableCell>Is Reusable</TableCell>
               </TableRow>
             </TableHead>
@@ -289,6 +320,7 @@ const ExtraItem = () => {
                   >
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{item.name}</TableCell>
+                    <TableCell>{item.price}</TableCell>
                     <TableCell>
                       <Checkbox
                         checked={item.isReusable}

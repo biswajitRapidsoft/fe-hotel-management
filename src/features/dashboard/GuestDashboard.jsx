@@ -298,24 +298,24 @@ const GuestDashboard = () => {
     setOpenVehicleParkingDialog(true);
   }, []);
 
-  // const getOrdinalSuffix = (num) => {
-  //   if (!num) return "";
-  //   const lastDigit = num % 10;
-  //   const lastTwoDigits = num % 100;
+  const getOrdinalSuffix = (num) => {
+    if (!num) return "";
+    const lastDigit = num % 10;
+    const lastTwoDigits = num % 100;
 
-  //   if (lastTwoDigits >= 11 && lastTwoDigits <= 13) return `${num}th`;
+    if (lastTwoDigits >= 11 && lastTwoDigits <= 13) return `${num}th floor`;
 
-  //   switch (lastDigit) {
-  //     case 1:
-  //       return `${num}st`;
-  //     case 2:
-  //       return `${num}nd`;
-  //     case 3:
-  //       return `${num}rd`;
-  //     default:
-  //       return `${num}th`;
-  //   }
-  // };
+    switch (lastDigit) {
+      case 1:
+        return `${num}st floor`;
+      case 2:
+        return `${num}nd floor`;
+      case 3:
+        return `${num}rd floor`;
+      default:
+        return `${num}th floor`;
+    }
+  };
 
   return (
     <>
@@ -370,17 +370,17 @@ const GuestDashboard = () => {
                   xs: "calc(100vh - 220px)",
                   xl: "calc(100vh - 220px)",
                 },
-                "&::-webkit-scrollbar": {
-                  width: "8px",
-                },
-                "&::-webkit-scrollbar-track": {
-                  backgroundColor: "transparent",
-                },
+                // "&::-webkit-scrollbar": {
+                //   width: "8px",
+                // },
+                // "&::-webkit-scrollbar-track": {
+                //   backgroundColor: "gray",
+                // },
                 "&::-webkit-scrollbar-thumb": {
-                  backgroundColor: "transparent",
+                  backgroundColor: "#D3D3D3	",
                 },
                 "&::-webkit-scrollbar-thumb:hover": {
-                  backgroundColor: "transparent",
+                  backgroundColor: "#818589	",
                 },
                 p: 2,
                 overflowY: "auto",
@@ -419,36 +419,45 @@ const GuestDashboard = () => {
                 overflowY: "auto",
                 boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
                 borderRadius: "1rem",
-                py: 2,
+                // py: 2,
+                position: "relative",
 
-                "&::-webkit-scrollbar": {
-                  width: "8px",
-                },
-                "&::-webkit-scrollbar-track": {
-                  backgroundColor: "transparent",
-                },
+                // "&::-webkit-scrollbar": {
+                //   width: "8px",
+                // },
+                // "&::-webkit-scrollbar-track": {
+                //   backgroundColor: "transparent",
+                // },
                 "&::-webkit-scrollbar-thumb": {
-                  backgroundColor: "transparent",
+                  backgroundColor: "#D3D3D3	",
                 },
                 "&::-webkit-scrollbar-thumb:hover": {
-                  backgroundColor: "transparent",
+                  backgroundColor: "#818589	",
                 },
               }}
             >
               <Box
                 sx={{
                   px: 2,
-                  // backgroundColor: "green",
                   boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
                   width: "97%",
                   margin: "0 auto",
                   backgroundColor: "#fff",
-                  // position: "fixed",
-                  // top: 0,
+                  // backgroundColor: {
+                  //   xs: "red",
+                  //   sm: "yelow",
+                  //   md: "black",
+                  //   xl: "pink",
+                  //   lg: "green",
+                  // },
                   p: 1,
-                  borderRadius: "1rem",
+                  borderRadius: "0.65rem",
                   display: "flex",
                   justifyContent: "center",
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 100,
+                  marginBottom: 2,
                 }}
               >
                 <Typography
@@ -492,12 +501,8 @@ const GuestDashboard = () => {
                               top: "50%",
                               transform: "translateY(-50%)",
                               left: 1,
-                              width: 90,
-                              height: 80,
-                              // boxShadow:
-                              //   "1.5px 1.5px 3px 0px rgba(197, 51, 255, 0.6)",
-                              // backgroundImage:
-                              //   "linear-gradient(to right bottom, #d139fc, #b32edc, #9722bc, #7b179d, #610b7f)",
+                              width: 75,
+                              height: 75,
                               backgroundColor: "#0079C2",
                               backgroundSize: "cover",
                               backgroundPosition: "center",
@@ -505,8 +510,6 @@ const GuestDashboard = () => {
                               zIndex: 2,
                               display: "flex",
                               flexDirection: "column",
-                              // justifyContent: "center",
-                              // p: 2,
                             }}
                           >
                             <Box
@@ -516,22 +519,22 @@ const GuestDashboard = () => {
                                 flexDirection: "column",
                                 justifyContent: "center",
                                 alignItems: "center",
-                                // backgroundColor: "red",
-                                // borderRadius: "9px",
                                 height: "30%",
                                 borderTopLeftRadius: "9px",
                                 borderTopRightRadius: "9px",
                               }}
                             >
-                              <Typography
-                                sx={{
-                                  color: "#fff",
-                                  fontWeight: "bold",
-                                  // fontSize: "1.5rem",
-                                }}
-                              >
-                                {booking?.roomDto?.floorNo || "N/A"}st Floor
-                              </Typography>{" "}
+                              {Boolean(booking?.roomDto?.floorNo) && (
+                                <Typography
+                                  sx={{
+                                    color: "#fff",
+                                    // fontWeight: "bold",
+                                    // fontSize: "1.5rem",
+                                  }}
+                                >
+                                  {getOrdinalSuffix(booking?.roomDto?.floorNo)}
+                                </Typography>
+                              )}
                             </Box>
                             <Box
                               sx={{
@@ -560,9 +563,13 @@ const GuestDashboard = () => {
                               boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
                               backgroundColor: "#fff",
                               py: 1,
-                              px: 11.4,
-                              // p: 1.4,
+                              // px: 9,
+                              pl: 9,
                               borderRadius: "1rem",
+                              // px: {
+                              //   xl: 7,
+                              //   lg: 10,
+                              // },
                             }}
                           >
                             <Grid container spacing={1}>
@@ -573,7 +580,6 @@ const GuestDashboard = () => {
                                     display: "flex",
                                     flexDirection: "column",
                                     gap: 0.5,
-                                    // backgroundColor: "red",
                                   }}
                                 >
                                   <Box
@@ -652,23 +658,6 @@ const GuestDashboard = () => {
                                         // backgroundColor: "#89CFF0",
                                       }}
                                     >
-                                      {/* {Boolean(booking?.roomDto?.roomNo) && (
-                                        <Box
-                                          sx={{
-                                            borderRadius: "1rem",
-                                            backgroundColor: "#00A877",
-                                            width: "5rem",
-                                            p: 0.9,
-                                            display: "flex",
-                                            justifyContent: "center",
-                                          }}
-                                        >
-                                          <Typography sx={{ color: "#fff" }}>
-                                            {booking?.roomDto?.roomNo || "N/A"}
-                                          </Typography>
-                                        </Box>
-                                      )} */}
-
                                       <Box sx={{ display: "flex", gap: 1 }}>
                                         {booking?.bookingStatus ===
                                           "Pending_Confirmation" && (
@@ -732,7 +721,6 @@ const GuestDashboard = () => {
                                           <Box
                                             sx={{
                                               width: "100%",
-                                              // backgroundColor: "yellow",
                                             }}
                                           >
                                             <Grid
@@ -740,9 +728,15 @@ const GuestDashboard = () => {
                                               size={{ xs: 12 }}
                                               // sx={{ backgroundColor: "yellow" }}
                                               fullWidth
-                                              spacing={2}
+                                              spacing={1}
                                             >
-                                              <Grid size={{ xs: 1.5 }}>
+                                              <Grid
+                                                size={{
+                                                  xs: 1.5,
+                                                  lg: 1.6,
+                                                  xl: 1.5,
+                                                }}
+                                              >
                                                 <Box
                                                   sx={{
                                                     display: "flex",
@@ -780,7 +774,13 @@ const GuestDashboard = () => {
                                                   </Tooltip>
                                                 </Box>
                                               </Grid>
-                                              <Grid size={{ xs: 1.5 }}>
+                                              <Grid
+                                                size={{
+                                                  xs: 1.5,
+                                                  lg: 1.6,
+                                                  xl: 1.5,
+                                                }}
+                                              >
                                                 <Box
                                                   sx={{
                                                     display: "flex",
@@ -790,7 +790,13 @@ const GuestDashboard = () => {
                                                   }}
                                                 >
                                                   <Tooltip
-                                                    title="Room cleaning Request"
+                                                    // title="Room cleaning Request"
+                                                    title={
+                                                      booking?.roomDto
+                                                        ?.isRoomCleaningRequested
+                                                        ? "Room cleaning Request submitted"
+                                                        : "Room cleaning Request"
+                                                    }
                                                     arrow
                                                   >
                                                     <Button
@@ -800,6 +806,10 @@ const GuestDashboard = () => {
                                                         width: "11px",
                                                         borderColor: "#1CAC78",
                                                       }}
+                                                      disabled={Boolean(
+                                                        booking?.roomDto
+                                                          ?.isRoomCleaningRequested
+                                                      )}
                                                       // startIcon={<CleaningServicesIcon />}
                                                       onClick={() =>
                                                         handleRoomCleanRequest(
@@ -810,7 +820,13 @@ const GuestDashboard = () => {
                                                     >
                                                       <CleaningServicesIcon
                                                         sx={{
-                                                          color: "#1CAC78",
+                                                          // color: "#1CAC78",
+                                                          color: Boolean(
+                                                            booking?.roomDto
+                                                              ?.isRoomCleaningRequested
+                                                          )
+                                                            ? "gray"
+                                                            : "#1CAC78",
                                                         }}
                                                       />
                                                     </Button>
@@ -818,7 +834,13 @@ const GuestDashboard = () => {
                                                 </Box>
                                               </Grid>
 
-                                              <Grid size={{ xs: 1.5 }}>
+                                              <Grid
+                                                size={{
+                                                  xs: 1.5,
+                                                  lg: 1.6,
+                                                  xl: 1.5,
+                                                }}
+                                              >
                                                 <Box
                                                   sx={{
                                                     display: "flex",
@@ -855,7 +877,13 @@ const GuestDashboard = () => {
                                                 </Box>
                                               </Grid>
 
-                                              <Grid size={{ xs: 1.5 }}>
+                                              <Grid
+                                                size={{
+                                                  xs: 1.5,
+                                                  lg: 1.6,
+                                                  xl: 1.5,
+                                                }}
+                                              >
                                                 <Box
                                                   sx={{
                                                     display: "flex",
@@ -902,7 +930,13 @@ const GuestDashboard = () => {
                                                 </Box>
                                               </Grid>
 
-                                              <Grid size={{ xs: 1.5 }}>
+                                              <Grid
+                                                size={{
+                                                  xs: 1.5,
+                                                  lg: 1.6,
+                                                  xl: 1.5,
+                                                }}
+                                              >
                                                 <Box
                                                   sx={{
                                                     display: "flex",
@@ -939,7 +973,13 @@ const GuestDashboard = () => {
                                                 </Box>
                                               </Grid>
 
-                                              <Grid size={{ xs: 1.5 }}>
+                                              <Grid
+                                                size={{
+                                                  xs: 1.5,
+                                                  lg: 1.6,
+                                                  xl: 1.5,
+                                                }}
+                                              >
                                                 <Box
                                                   sx={{
                                                     display: "flex",
@@ -975,7 +1015,13 @@ const GuestDashboard = () => {
                                                 </Box>
                                               </Grid>
 
-                                              <Grid size={{ xs: 1.5 }}>
+                                              <Grid
+                                                size={{
+                                                  xs: 1.5,
+                                                  lg: 1.6,
+                                                  xl: 1.5,
+                                                }}
+                                              >
                                                 <Box
                                                   sx={{
                                                     display: "flex",
@@ -1011,7 +1057,13 @@ const GuestDashboard = () => {
                                                 </Box>
                                               </Grid>
 
-                                              <Grid size={{ xs: 1.5 }}>
+                                              <Grid
+                                                size={{
+                                                  xs: 1.5,
+                                                  lg: 1.6,
+                                                  xl: 1.5,
+                                                }}
+                                              >
                                                 <Box
                                                   sx={{
                                                     display: "flex",
@@ -1973,7 +2025,6 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
             borderRadius: "8px",
             cursor: "pointer",
           }}
-          // onClick={() => setOpenHotelDetailsDialog(true)}
           onClick={() => handleHotelDetails(hotelDetails)}
         >
           {hotelDetails?.images?.[0] && (
@@ -1995,37 +2046,39 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
         <Box
           sx={{
             px: 1,
-
             py: 1,
             display: "flex",
             flexDirection: "column",
-            // justifyContent: "space-between",
+            flexGrow: 1,
           }}
         >
           <Box>
-            <Rating value={hotelDetails?.averageRatingPoints} readOnly />
-          </Box>
+            <Box>
+              <Rating value={hotelDetails?.averageRatingPoints} readOnly />
+            </Box>
 
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              // border: "1px solid black",
-
-              width: "100%",
-            }}
-          >
-            <Typography sx={{ fontWeight: "bold" }}>
-              {hotelDetails?.hotelDto?.name}
-            </Typography>
-            <Typography sx={{ color: "gray" }}>
-              {`${hotelDetails?.hotelDto?.address}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                width: "100%",
+              }}
+            >
+              <Typography sx={{ fontWeight: "bold" }}>
+                {hotelDetails?.hotelDto?.name}
+              </Typography>
+              <Typography sx={{ color: "gray" }}>
+                {`${hotelDetails?.hotelDto?.address}
               , ${hotelDetails?.hotelDto?.state?.name
                 ?.toLowerCase()
                 ?.replace(/\b\w/g, (char) => char.toUpperCase())}`}
-            </Typography>
+              </Typography>
+            </Box>
           </Box>
+        </Box>
 
+        {/* Blue box to stick to the bottom */}
+        <Box sx={{ py: 1, px: 1 }}>
           <Box
             sx={{
               width: "100%",
@@ -2036,22 +2089,21 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
               backgroundColor: "#E5F5FF",
               justifyContent: "space-between",
               alignItems: "center",
+              height: "auto",
             }}
           >
-            <Typography>
-              <strong>₹{hotelDetails?.basePrice}</strong> per night
-            </Typography>
+            <Box sx={{ display: "flex", flexDirection: "column" }}>
+              <Typography sx={{ color: "gray" }}>
+                {hotelDetails?.type}
+              </Typography>
+              <Typography>
+                <strong>₹{hotelDetails?.basePrice}</strong> per night
+              </Typography>
+            </Box>
             <Box sx={{ display: "flex", marginY: "auto" }}>
               <Button
                 variant="contained"
                 sx={{
-                  // backgroundImage:
-                  //   "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
-                  // color: "white",
-                  // "&:hover": {
-                  //   backgroundImage:
-                  //     "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
-                  // },
                   backgroundColor: "#0079C2",
                   textTransform: "none",
                   borderRadius: "0.6rem",
@@ -2062,29 +2114,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
               </Button>
             </Box>
           </Box>
-
-          {/* Box for book now button */}
-          {/* <Box sx={{ display: "flex", marginY: "auto" }}>
-            <Button
-              variant="contained"
-              sx={{
-                backgroundImage:
-                  "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
-                color: "white",
-                "&:hover": {
-                  backgroundImage:
-                    "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
-                },
-              }}
-              onClick={toggleDrawer(true)}
-            >
-              Book Now
-            </Button>
-          </Box> */}
-          {/* -------- */}
         </Box>
-
-        {/* ---------- */}
       </Box>
 
       {/* Drawer for booking details */}

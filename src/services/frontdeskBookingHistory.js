@@ -69,7 +69,13 @@ const frontdeskBookingHistoryApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
-      invalidatesTags: ["roomBookingHistoryByHotelId", "getRoomBookingChart"],
+      invalidatesTags: [
+        "roomBookingHistoryByHotelId",
+        "getRoomBookingChart",
+        "getAllRoomListByHotelId",
+        "getTodayCheckoutRoomsByHotelId",
+        "getPendingBookingRequestCounts",
+      ],
     }),
     exportBookingHistory: build.mutation({
       query: (payload) => ({

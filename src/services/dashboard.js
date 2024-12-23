@@ -145,6 +145,7 @@ const dashboardApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
+      invalidatesTags: ["getAllLaundryHistory"],
     }),
     getAllLaundryHistory: build.query({
       query: (payload) => ({
@@ -263,7 +264,11 @@ const dashboardApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
-      invalidatesTags: ["getPendingBookingRequestCounts"],
+      invalidatesTags: [
+        "getPendingBookingRequestCounts",
+        "getAllBookingDetails",
+        "getAllRoomListByHotelId",
+      ],
     }),
     roomtypeByHotelId: build.query({
       query: (payload) => ({

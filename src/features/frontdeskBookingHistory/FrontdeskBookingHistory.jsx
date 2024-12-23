@@ -2580,6 +2580,7 @@ const CustomBookingHistoryDrawer = memo(function ({
                             openPickerIcon: StyledCalendarIcon,
                           }}
                           format="DD/MM/YYYY"
+                          disabled
                         />
                       </LocalizationProvider>
                     </Box>
@@ -2595,7 +2596,7 @@ const CustomBookingHistoryDrawer = memo(function ({
                     >
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
-                          disabled={!bookingConfirmationFormData?.from}
+                          // disabled={!bookingConfirmationFormData?.from}
                           disablePast={!bookingConfirmationFormData?.from}
                           shouldDisableDate={(date) => {
                             // Disable dates before 'from' date if it exists
@@ -2651,6 +2652,7 @@ const CustomBookingHistoryDrawer = memo(function ({
                             openPickerIcon: StyledCalendarIcon,
                           }}
                           format="DD/MM/YYYY"
+                          disabled
                         />
                       </LocalizationProvider>
                     </Box>

@@ -38,7 +38,8 @@ import ClearIcon from "@mui/icons-material/Clear";
 import {
   CUSTOMER,
   //  ADMIN,
-  FRONTDESK,
+  // FRONTDESK,
+  HOUSEKEEPER,
 } from "../../helper/constants";
 
 const LaundryHistory = () => {
@@ -55,7 +56,7 @@ const LaundryHistory = () => {
       { label: "Laundry Status", key: "laundryStatus" },
       ...(roleType === "Customer"
         ? [{ label: "Rating", key: "rating" }]
-        : roleType === "Front_Desk_Staff"
+        : roleType === "Housekeeping_Staff"
         ? [
             { label: "Rating", key: "rating" },
             { label: "Rating Message", key: "ratingMessage" },
@@ -284,7 +285,7 @@ function calculateSerialNumber(index, pageNumber, rowsPerPage) {
 
 const CustomRow = memo(function ({ tableHeaders, rowSerialNumber, row }) {
   const roleType = JSON.parse(sessionStorage.getItem("data"))?.roleType;
-  const isAdmin = roleType === FRONTDESK;
+  const isAdmin = roleType === HOUSEKEEPER;
 
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [statusDialogOpen, setStatusDialogOpen] = React.useState(false);
@@ -398,7 +399,7 @@ const CustomRow = memo(function ({ tableHeaders, rowSerialNumber, row }) {
                     JSON.parse(sessionStorage.getItem("data"))?.roleType ===
                       CUSTOMER ||
                       JSON.parse(sessionStorage.getItem("data"))?.roleType ===
-                        FRONTDESK
+                        HOUSEKEEPER
                   ) &&
                   Boolean(row?.laundryStatus === "Completed") ? (
                   <Box>
@@ -407,7 +408,7 @@ const CustomRow = memo(function ({ tableHeaders, rowSerialNumber, row }) {
                     ) : (
                       <Box>
                         {JSON.parse(sessionStorage.getItem("data"))
-                          ?.roleType === FRONTDESK ? (
+                          ?.roleType === HOUSEKEEPER ? (
                           "-"
                         ) : (
                           <Button

@@ -14,7 +14,11 @@ import {
   FormGroup,
   IconButton,
 } from "@mui/material";
+import LunchDiningIcon from "@mui/icons-material/LunchDining";
+import { MdOutlineRoomService } from "react-icons/md";
+
 import { TabContext, TabList } from "@mui/lab";
+import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import {
   useGetAllFoodQuery,
   useGetCustomerOrdeHistoryQuery,
@@ -1040,16 +1044,21 @@ const Restaurant = () => {
 const CustomFoodCard = React.memo(function ({ foodItem, handleAddItemToCart }) {
   return (
     <Grid
-      size={{ xs: 6, md: 3, xl: 3 }}
-      sx={{ boxShadow: (theme) => theme.shadows[2] }}
+      size={{ xs: 6, md: 3, xl: 2.4 }}
+      sx={{
+        // boxShadow: (theme) => theme.shadows[2],
+        boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
+        borderRadius: "10px",
+        backgroundColor: "#fff",
+      }}
     >
-      <Grid container>
+      <Grid container sx={{ borderRadius: "10px" }}>
         <Grid size={12}>
           <Box
             component="img"
             src={foodItem.image}
             alt="Food Image"
-            sx={{ width: "100%", height: 200 }}
+            sx={{ width: "100%", height: 200, borderRadius: "10px" }}
           />
         </Grid>
         <Grid size={12}>
@@ -1059,23 +1068,154 @@ const CustomFoodCard = React.memo(function ({ foodItem, handleAddItemToCart }) {
               alignItems: "center",
               justifyContent: "space-between",
               p: 1,
+              backgroundColor: "#fff",
+              borderRadius: "10px",
+              flexDirection: "column",
             }}
           >
-            <Box>
-              <Typography>{foodItem.itemName}</Typography>
-              <Typography sx={{ fontWeight: "bold" }}>
-                Rs. {foodItem.perUnitPrice}
-              </Typography>
-            </Box>
-            <Button
-              variant="contained"
-              size="small"
-              color="secondary"
-              sx={{ color: "white", fontWeight: 600, letterSpacing: 1 }}
-              onClick={() => handleAddItemToCart(foodItem)}
+            <Box
+              sx={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "space-between",
+                px: 1,
+                flexDirection: "column",
+                gap: 0.6,
+                mb: 0.3,
+                // backgroundColor: "yellow",
+              }}
             >
-              Add
-            </Button>
+              <Grid container size={12} spacing={1}>
+                <Grid size={{ xs: 6 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      backgroundColor: "#F0F0F5",
+                      borderRadius: "10px",
+                      px: 1,
+                      // width: "60%",
+                      height: "1.4rem",
+                    }}
+                  >
+                    <LunchDiningIcon
+                      sx={{ color: "gray", fontSize: "0.8rem" }}
+                    />
+
+                    <Typography
+                      sx={{
+                        fontSize: "0.7rem",
+                        fontWeight: "bold",
+                        color: "gray",
+                      }}
+                    >
+                      Dine-In
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      backgroundColor: "#F0F0F5",
+                      borderRadius: "10px",
+                      px: 1,
+                      // width: "60%",
+                      height: "1.4rem",
+                    }}
+                  >
+                    {/* <Box
+                  sx={{
+                    height: "5px",
+                    width: "5px",
+                    borderRadius: "50%",
+                    backgroundColor: "gray",
+                  }}
+                ></Box> */}
+                    <EventAvailableIcon
+                      sx={{ color: "gray", fontSize: "0.8rem" }}
+                    />
+                    <Typography
+                      sx={{
+                        fontSize: "0.7rem",
+                        fontWeight: "bold",
+                        color: "gray",
+                      }}
+                    >
+                      Take-away
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      backgroundColor: "#F0F0F5",
+                      borderRadius: "10px",
+                      px: 1,
+                      height: "1.4rem",
+
+                      // width: "60%",
+                    }}
+                  >
+                    {/* <Box
+                  sx={{
+                    height: "5px",
+                    width: "5px",
+                    borderRadius: "50%",
+                    backgroundColor: "gray",
+                  }}
+                ></Box> */}
+                    <MdOutlineRoomService
+                      style={{ color: "gray", fontSize: "0.8rem" }}
+                    />
+                    <Typography
+                      sx={{
+                        fontSize: "0.7rem",
+                        fontWeight: "bold",
+                        color: "gray",
+                      }}
+                    >
+                      Room Delivery
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Box>
+            <Box
+              sx={{
+                backgroundColor: "#E5F5FF",
+                display: "flex",
+                width: "100%",
+                justifyContent: "space-between",
+                alignItems: "center",
+                p: 2,
+                borderRadius: "15px",
+              }}
+            >
+              <Box>
+                <Typography>{foodItem.itemName}</Typography>
+                <Typography sx={{ fontWeight: "bold" }}>
+                  Rs. {foodItem.perUnitPrice}
+                </Typography>
+              </Box>
+              <Box>
+                <Button
+                  variant="contained"
+                  size="small"
+                  color="secondary"
+                  sx={{ color: "white", fontWeight: 600, letterSpacing: 1 }}
+                  onClick={() => handleAddItemToCart(foodItem)}
+                >
+                  Add
+                </Button>
+              </Box>
+            </Box>
           </Box>
         </Grid>
       </Grid>

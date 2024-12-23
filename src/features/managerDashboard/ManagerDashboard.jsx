@@ -40,7 +40,10 @@ const ManagerDashboard = () => {
     },
     isLoading,
   } = useGetAllDashboardDataForManagerQuery(
-    JSON.parse(sessionStorage.getItem("data")).hotelId
+    JSON.parse(sessionStorage.getItem("data")).hotelId,
+    {
+      skip: !Boolean(JSON.parse(sessionStorage.getItem("data")).hotelId),
+    }
   );
   console.log("dashboardData", dashboardData?.data);
 
@@ -194,9 +197,6 @@ const ManagerDashboard = () => {
               <Box
                 sx={{
                   display: "flex",
-                  // backgroundColor: "red",
-                  // height: "150px",
-                  // borderRadius: "14px",
                   justifyContent: "center",
                   alignItems: "center",
                   gap: 3,
@@ -236,6 +236,7 @@ const ManagerDashboard = () => {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
+                backgroundColor: "#fff",
               }}
             >
               <Box
@@ -284,6 +285,7 @@ const ManagerDashboard = () => {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
+                backgroundColor: "#fff",
               }}
             >
               <Box
@@ -328,6 +330,7 @@ const ManagerDashboard = () => {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
+                backgroundColor: "#fff",
               }}
             >
               <Box
@@ -376,6 +379,7 @@ const ManagerDashboard = () => {
                     display: "flex",
                     flexDirection: "column",
                     px: 1.3,
+                    backgroundColor: "#fff",
                   }}
                 >
                   <Box
@@ -561,6 +565,7 @@ const ManagerDashboard = () => {
                     display: "flex",
                     flexDirection: "column",
                     px: 1.3,
+                    backgroundColor: "#fff",
                   }}
                 >
                   <Typography
@@ -598,6 +603,7 @@ const ManagerDashboard = () => {
                 flexDirection: "column",
                 px: 1.3,
                 py: 2,
+                backgroundColor: "#fff",
               }}
             >
               <Typography

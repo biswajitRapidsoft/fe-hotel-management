@@ -1345,7 +1345,10 @@ const RoomServiceCard = memo(function ({
   handleRoomCleanRequest,
   handleOpenShowcaseModalForLaundry,
 }) {
-  console.log("RoomServiceCard isSelectedRoom : ", isSelectedRoom);
+  console.log(
+    "RoomServiceCard isSelectedRoom : ",
+    isSelectedRoom?.isRoomCleaningRequested
+  );
   const selectedRoomStatusType = checkRoomStatusType(isSelectedRoom);
 
   const handleOpenShowcaseModalForInventoryOnClick = useCallback(
@@ -2025,6 +2028,10 @@ const RoomServiceCard = memo(function ({
                                       isSelectedRoom?.id
                                     )
                                   }
+                                  disabled={Boolean(
+                                    isSelectedRoom?.isRoomCleaningRequested
+                                  )}
+                                  // disabled={true}
                                 >
                                   <CleaningServicesIcon
                                     sx={{ fontSize: "17px" }}
@@ -8341,7 +8348,7 @@ const Dashboard = () => {
       return;
     }
     const payload = {
-      bookingRefNumber: customFormDrawerData?.bookingRefNumber,
+      bookingRefNumber: isSelectedRoom?.bookingDto?.bookingRefNumber,
       rejectionReason: customFormDrawerData?.cancelBookingReason,
     };
 
@@ -8370,6 +8377,7 @@ const Dashboard = () => {
     handleOpenCustomFormDrawer,
     handleChangeCustomFormDrawerData,
     handleRoomSelect,
+    isSelectedRoom,
   ]);
 
   const handleRequestRoomCheckout = useCallback(() => {
