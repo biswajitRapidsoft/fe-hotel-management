@@ -113,58 +113,58 @@ function FormDialog({
   updateStatus,
   order,
   setSnack,
-  setOpenPaymentDialog,
-  setBookingPayload,
+  // setOpenPaymentDialog,
+  // setBookingPayload,
 }) {
   const [remark, setRemark] = React.useState("");
   const [selectedStatus, setSelectedStatus] = React.useState(null);
   const [selectedStatusInputVal, setSelectedStatusInputVal] =
     React.useState("");
-  const [selectedPaymentMethod, setSelectedPaymentMethod] =
-    React.useState("Cash");
-  const [selectedPaymentMethodInputVal, setSelectedPaymentMethodInputVal] =
-    React.useState("Cash");
+  // const [selectedPaymentMethod, setSelectedPaymentMethod] =
+  //   React.useState("Cash");
+  // const [selectedPaymentMethodInputVal, setSelectedPaymentMethodInputVal] =
+  //   React.useState("Cash");
   const handleSubmitDialogForm = React.useCallback(
     (e) => {
       e.preventDefault();
-      if (
-        Boolean(order?.paidAmount) &&
-        order.status === ACTIVE_SPA &&
-        selectedStatus === DONE_SPA &&
-        selectedPaymentMethod === "Online"
-      ) {
-        setBookingPayload({
-          bookingSpaRefNumber: order.bookingSpaRefNumber,
-          remarks: remark,
-          status: selectedStatus,
-          paymentMethod: selectedPaymentMethod,
-        });
-        setOpenPaymentDialog(order?.paidAmount || null);
-      } else {
-        updateStatus({
-          bookingSpaRefNumber: order.bookingSpaRefNumber,
-          remarks: remark,
-          status: selectedStatus,
-          paymentMethod: selectedPaymentMethod,
-          paidAmount: order.paidAmount,
-        })
-          .unwrap()
-          .then((res) => {
-            setSnack({
-              open: true,
-              message: res.message,
-              severity: "success",
-            });
-            handleClose();
-          })
-          .catch((err) => {
-            setSnack({
-              open: true,
-              message: err.data?.message || err.data,
-              severity: "error",
-            });
+      // if (
+      //   Boolean(order?.paidAmount) &&
+      //   order.status === ACTIVE_SPA &&
+      //   selectedStatus === DONE_SPA &&
+      //   selectedPaymentMethod === "Online"
+      // ) {
+      //   setBookingPayload({
+      //     bookingSpaRefNumber: order.bookingSpaRefNumber,
+      //     remarks: remark,
+      //     status: selectedStatus,
+      //     paymentMethod: selectedPaymentMethod,
+      //   });
+      //   setOpenPaymentDialog(order?.paidAmount || null);
+      // } else {
+      updateStatus({
+        bookingSpaRefNumber: order.bookingSpaRefNumber,
+        remarks: remark,
+        status: selectedStatus,
+        // paymentMethod: selectedPaymentMethod,
+        paidAmount: order.paidAmount,
+      })
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            severity: "success",
           });
-      }
+          handleClose();
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data,
+            severity: "error",
+          });
+        });
+      // }
     },
     [
       updateStatus,
@@ -173,9 +173,9 @@ function FormDialog({
       order,
       setSnack,
       handleClose,
-      setOpenPaymentDialog,
-      setBookingPayload,
-      selectedPaymentMethod,
+      // setOpenPaymentDialog,
+      // setBookingPayload,
+      // selectedPaymentMethod,
     ]
   );
 
@@ -326,7 +326,7 @@ function FormDialog({
                 onChange={(e) => setRemark(e.target.value)}
               />
             </Grid>
-            {Boolean(order?.paidAmount) &&
+            {/* {Boolean(order?.paidAmount) &&
               order.status === ACTIVE_SPA &&
               selectedStatus === DONE_SPA && (
                 <Grid size={12}>
@@ -399,7 +399,7 @@ function FormDialog({
                     </Grid>
                   </Grid>
                 </Grid>
-              )}
+              )} */}
           </Grid>
         </DialogContent>
         <DialogActions>
@@ -424,11 +424,12 @@ function FormDialog({
             disabled={!Boolean(remark.trim() && selectedStatus)}
             type="submit"
           >
-            {Boolean(order?.paidAmount) &&
+            {/* {Boolean(order?.paidAmount) &&
             order.status === ACTIVE_SPA &&
             selectedStatus === DONE_SPA
               ? "Pay And Update"
-              : "Update Status"}
+              : "Update Status"} */}
+            Update Status
           </Button>
         </DialogActions>
       </Dialog>
@@ -437,8 +438,8 @@ function FormDialog({
 }
 
 const SpaAdmin = () => {
-  const [bookingPayload, setBookingPayload] = React.useState({});
-  const [openPaymentDialog, setOpenPaymentDialog] = React.useState(null);
+  // const [bookingPayload, setBookingPayload] = React.useState({});
+  // const [openPaymentDialog, setOpenPaymentDialog] = React.useState(null);
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
@@ -525,10 +526,10 @@ const SpaAdmin = () => {
         updateStatus={updateStatus}
         order={updateStatusDialog}
         setSnack={setSnack}
-        setOpenPaymentDialog={setOpenPaymentDialog}
-        setBookingPayload={setBookingPayload}
+        // setOpenPaymentDialog={setOpenPaymentDialog}
+        // setBookingPayload={setBookingPayload}
       />
-      <PaymentDialog
+      {/* <PaymentDialog
         openPaymentDialog={Boolean(openPaymentDialog)}
         amountToPay={openPaymentDialog}
         handlePaymentDialogClose={() => setOpenPaymentDialog(null)}
@@ -536,14 +537,14 @@ const SpaAdmin = () => {
         fetchApi={updateStatus}
         apiPayload={bookingPayload}
         handleReset={() => setUpdateStatusDialog(null)}
-      />
+      /> */}
       <LoadingComponent open={isLoading || updateStatusRes.isLoading} />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </React.Fragment>
   );
 };
 
-const PaymentDialog = memo(function ({
+export const PaymentDialog = memo(function ({
   openPaymentDialog,
   handlePaymentDialogClose,
   amountToPay,

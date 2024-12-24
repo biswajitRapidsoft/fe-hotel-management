@@ -28,10 +28,12 @@ import dayjs from "dayjs";
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 import BookingHistoryDrawer from "./BookingHistoryDrawer";
+import { PaymentDialog } from "./SpaAdmin";
 
 const drawerWidth = 450;
 
 const Spa = () => {
+  const [openPaymentDialog, setOpenPaymentDialog] = React.useState(null);
   const [isBookingHistoryDrawer, setIsBookingHistoryDrawer] =
     React.useState(false);
   const [snack, setSnack] = React.useState({
@@ -49,6 +51,7 @@ const Spa = () => {
   const [selectedSlotType, setSelectedSlotType] = React.useState(DAY);
   const [selectedSlot, setSelectedSlot] = React.useState(null);
   const [selectedDate, setSelectedDate] = React.useState(dayjs(new Date()));
+  const [bookingPayload, setBookingPayload] = React.useState({});
 
   const {
     data: spaSlots = {
@@ -72,41 +75,62 @@ const Spa = () => {
   }, []);
 
   const handleReserveSpa = React.useCallback(() => {
-    bookSpa({
-      spaTypeId: spaToBook.id,
-      hotelBookingReferenceNumber: sessionStorage.getItem("bookingRefNumber"),
-      startTime: `${moment(selectedDate.$d).format("DD-MM-YYYY")} ${
-        selectedSlot.startTime
-      }:00`,
-      endTime: `${moment(selectedDate.$d).format("DD-MM-YYYY")} ${
-        selectedSlot.endTime
-      }:00`,
-      bookingDate: moment(selectedDate.$d).format("DD-MM-YYYY"),
-      price: spaToBook.price,
-      transactionReferenceNo: null,
-      paymentMethod: null,
-      totalPrice: (spaToBook.price + spaToBook.price * 0.18).toFixed(2),
-      paidAmount: null,
-      hotelId: sessionStorage.getItem("hotelId"),
-    })
-      .unwrap()
-      .then((res) => {
-        setSnack({
-          open: true,
-          message: res.message,
-          severity: "success",
-        });
-        setSelectedSlot(null);
-        setSpaToBook(null);
-        setSelectedDate(dayjs(new Date()));
-      })
-      .catch((err) => {
-        setSnack({
-          open: true,
-          message: err.data?.message || err.data,
-          severity: "error",
-        });
+    if (spaToBook.isAdvanceNeeded) {
+      setOpenPaymentDialog((spaToBook.price * 0.2).toFixed(2));
+      setBookingPayload({
+        spaTypeId: spaToBook.id,
+        hotelBookingReferenceNumber: sessionStorage.getItem("bookingRefNumber"),
+        startTime: `${moment(selectedDate.$d).format("DD-MM-YYYY")} ${
+          selectedSlot.startTime
+        }:00`,
+        endTime: `${moment(selectedDate.$d).format("DD-MM-YYYY")} ${
+          selectedSlot.endTime
+        }:00`,
+        bookingDate: moment(selectedDate.$d).format("DD-MM-YYYY"),
+        price: spaToBook.price,
+        transactionReferenceNo: null,
+        paymentMethod: null,
+        totalPrice: (spaToBook.price + spaToBook.price * 0.18).toFixed(2),
+        paidAmount: null,
+        hotelId: sessionStorage.getItem("hotelId"),
       });
+    } else {
+      bookSpa({
+        spaTypeId: spaToBook.id,
+        hotelBookingReferenceNumber: sessionStorage.getItem("bookingRefNumber"),
+        startTime: `${moment(selectedDate.$d).format("DD-MM-YYYY")} ${
+          selectedSlot.startTime
+        }:00`,
+        endTime: `${moment(selectedDate.$d).format("DD-MM-YYYY")} ${
+          selectedSlot.endTime
+        }:00`,
+        bookingDate: moment(selectedDate.$d).format("DD-MM-YYYY"),
+        price: spaToBook.price,
+        transactionReferenceNo: null,
+        paymentMethod: null,
+        totalPrice: (spaToBook.price + spaToBook.price * 0.18).toFixed(2),
+        paidAmount: null,
+        hotelId: sessionStorage.getItem("hotelId"),
+      })
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            severity: "success",
+          });
+          setSelectedSlot(null);
+          setSpaToBook(null);
+          setSelectedDate(dayjs(new Date()));
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data,
+            severity: "error",
+          });
+        });
+    }
   }, [bookSpa, spaToBook, selectedDate, selectedSlot]);
 
   return (
@@ -175,6 +199,7 @@ const Spa = () => {
                             letterSpacing: 1,
                             fontWeight: 600,
                             textTransform: "none",
+                            whiteSpace: "nowrap",
                             fontSize: 18,
                             "&.Mui-disabled": {
                               background: "#B2E5F6",
@@ -447,7 +472,7 @@ const Spa = () => {
               disabled={!Boolean(selectedSlot)}
               onClick={handleReserveSpa}
             >
-              {selectedSlot?.isAdvanceNeeded ? "Pay And Reserve" : "Reserve"}
+              {spaToBook?.isAdvanceNeeded ? "Pay And Reserve" : "Reserve"}
             </Button>
           </Box>
         </Drawer>
@@ -455,6 +480,18 @@ const Spa = () => {
       <BookingHistoryDrawer
         open={isBookingHistoryDrawer}
         handleClose={() => setIsBookingHistoryDrawer(false)}
+      />
+      <PaymentDialog
+        openPaymentDialog={Boolean(openPaymentDialog)}
+        amountToPay={openPaymentDialog}
+        handlePaymentDialogClose={() => setOpenPaymentDialog(null)}
+        setSnack={setSnack}
+        fetchApi={bookSpa}
+        apiPayload={bookingPayload}
+        handleReset={() => {
+          setSpaToBook(null);
+          setSelectedSlot(null);
+        }}
       />
       <LoadingComponent open={bookSpaRes.isLoading} />
       <SnackAlert snack={snack} setSnack={setSnack} />
