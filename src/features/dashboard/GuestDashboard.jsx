@@ -914,7 +914,7 @@ const GuestDashboard = () => {
                                                             booking?.bookingRefNumber
                                                           );
                                                           navigate(
-                                                            "/LaundryHistory"
+                                                            "/LaundryHistoryForGuest"
                                                           );
                                                         }
                                                       }

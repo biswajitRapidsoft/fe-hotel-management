@@ -47,7 +47,11 @@ const HallBookingDashboard = React.lazy(() =>
 );
 const Parking = React.lazy(() => import("./features/parking/Parking"));
 
-const LaundryHistory = React.lazy(() =>
+const LaundryHistoryForAdmin = React.lazy(() =>
+  import("./features/dashboard/LaundryHistory")
+);
+
+const LaundryHistoryForGuest = React.lazy(() =>
   import("./features/dashboard/LaundryHistory")
 );
 
@@ -117,6 +121,12 @@ function App() {
             <Route path="/bar-admin" element={<BarAdmin />} />
             <Route path="/Parking" element={<Parking />} />
             <Route path="/managerDashboard" element={<ManagerDashboard />} />
+            <Route
+              path="/LaundryHistoryForGuest"
+              element={<LaundryHistoryForGuest />}
+            />
+
+            {/* LaundryHistoryForGuest */}
           </Route>
 
           <Route element={<Layout />}>
@@ -137,7 +147,10 @@ function App() {
               path="/housekeeper-dashboard"
               element={<HouseKeeperDashboard />}
             />
-            <Route path="/LaundryHistory" element={<LaundryHistory />} />
+            <Route
+              path="/LaundryHistory"
+              element={<LaundryHistoryForAdmin />}
+            />
           </Route>
         </Routes>
       </React.Suspense>
