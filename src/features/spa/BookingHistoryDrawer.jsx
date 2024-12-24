@@ -77,7 +77,7 @@ const BookingHistoryDrawer = ({ open, handleClose }) => {
             <Paper sx={{ display: "flex", gap: 1, p: 1 }} key={booking.id}>
               <Box
                 component="img"
-                src="http://192.168.12.43:8080/be-hms/download/Spa_1734595526336.jpeg"
+                src={booking.images[0] || ""}
                 sx={{ width: 175 }}
               />
               <Box sx={{ flexGrow: 1 }}>

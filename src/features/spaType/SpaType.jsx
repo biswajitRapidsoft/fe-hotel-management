@@ -1,7 +1,6 @@
 import React from "react";
 
 import {
-  Autocomplete,
   Box,
   Button,
   Checkbox,
@@ -9,7 +8,6 @@ import {
   FormControlLabel,
   FormGroup,
   Grid2 as Grid,
-  Paper,
   TextField,
 } from "@mui/material";
 
