@@ -100,9 +100,9 @@ const SpaTypeListTable = ({ saveSpaType }) => {
                 }}
               >
                 <TableCell>Sl No.</TableCell>
-                <TableCell>Spa Type</TableCell>
-                <TableCell>Hotel</TableCell>
+                <TableCell>Spa Name</TableCell>
                 <TableCell>Base Amount</TableCell>
+                <TableCell>Hotel</TableCell>
                 <TableCell>Is Advance Required</TableCell>
                 <TableCell>Images</TableCell>
                 <TableCell>Status</TableCell>
