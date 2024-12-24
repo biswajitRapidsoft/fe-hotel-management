@@ -796,7 +796,7 @@ const CustomLaundryListTableContainerForInvoice = memo(function ({
                       (sum, item) => sum + (item?.totalPrice || 0),
                       0
                     )
-                  ).toFixed(3)}
+                  ).toFixed(2)}
                 </Typography>
               </TableCell>
             </TableRow>
@@ -818,13 +818,14 @@ const HotelBillInvoice = () => {
     return sessionedEventData ? JSON.parse(sessionedEventData) : null;
   }, [bookingRefNo]);
 
+  console.log("invoiceData");
   const subTotalExpense = useMemo(
     () =>
       parseFloat(
         invoiceData?.bookingDto?.transactionDetails
           ?.filter((item) => !Boolean(item?.isCredit))
           ?.reduce((sum, item) => sum + (item.amount || 0), 0)
-      ).toFixed(3),
+      ).toFixed(2),
     [invoiceData]
   );
   // const subTotalAmountPaid = useMemo(
@@ -844,7 +845,7 @@ const HotelBillInvoice = () => {
         0
       ) || 0; // Ensure sum is a number
 
-    return sum.toFixed(3);
+    return sum.toFixed(2);
   }, [invoiceData]);
 
   const subTotalLaundryExpense = useMemo(() => {
@@ -854,7 +855,7 @@ const HotelBillInvoice = () => {
         0
       ) || 0; // Ensure sum is a number
 
-    return sum.toFixed(3);
+    return sum.toFixed(2);
   }, [invoiceData]);
 
   const subTotalFoodExpense = useMemo(
@@ -864,7 +865,7 @@ const HotelBillInvoice = () => {
           (sum, item) => sum + (item?.bookingDetails?.totalPrice || 0),
           0
         )
-      ).toFixed(3),
+      ).toFixed(2),
     [invoiceData]
   );
 
@@ -879,7 +880,7 @@ const HotelBillInvoice = () => {
       extraItemsExpense -
       foodExpense -
       laundrysExpense
-    ).toFixed(3);
+    ).toFixed(2);
   }, [
     subTotalExpense,
     subTotalExtraItemsExpense,
@@ -974,9 +975,9 @@ const HotelBillInvoice = () => {
       ...item,
       pricePerPiece:
         item?.quantity > 0
-          ? (item?.totalPrice / item?.quantity).toFixed(3)
-          : item?.totalPrice.toFixed(3),
-      totalPrice: item?.totalPrice.toFixed(3),
+          ? (item?.totalPrice / item?.quantity).toFixed(2)
+          : item?.totalPrice.toFixed(2),
+      totalPrice: item?.totalPrice.toFixed(2),
     }));
   }, [invoiceData?.bookingDto?.laundryDataList]);
 
@@ -992,7 +993,6 @@ const HotelBillInvoice = () => {
   }, []);
 
   const hotelLogo = JSON.parse(sessionStorage.getItem("data")).hotelLogoUrl;
-  console.log("hotelLogo", hotelLogo);
 
   return (
     <>
@@ -1037,12 +1037,16 @@ const HotelBillInvoice = () => {
                   px: 2,
                 }}
               >
-                <Box component="img" src={hotelLogo} sx={{ width: 180 }} />
+                <Box
+                  component="img"
+                  src={hotelLogo}
+                  sx={{ width: 120, height: 120 }}
+                />
                 <Box>
                   <Typography
                     sx={{
                       fontWeight: "bold",
-                      fontSize: "1.5rem",
+                      fontSize: "1.3rem",
                       textAlign: "right",
                     }}
                   >
@@ -1051,7 +1055,7 @@ const HotelBillInvoice = () => {
                   <Typography
                     sx={{
                       fontWeight: "bold",
-                      fontSize: "1.2rem",
+                      fontSize: "1rem",
                       textAlign: "right",
                     }}
                   >
@@ -1062,7 +1066,7 @@ const HotelBillInvoice = () => {
                   <Typography
                     sx={{
                       fontWeight: "bold",
-                      fontSize: "1.2rem",
+                      fontSize: "1rem",
                       textAlign: "right",
                     }}
                   >
@@ -1072,7 +1076,7 @@ const HotelBillInvoice = () => {
                   <Typography
                     sx={{
                       fontWeight: "bold",
-                      fontSize: "1.2rem",
+                      fontSize: "1rem",
                       textAlign: "right",
                     }}
                   >
@@ -1082,7 +1086,7 @@ const HotelBillInvoice = () => {
                   <Typography
                     sx={{
                       fontWeight: "bold",
-                      fontSize: "1.2rem",
+                      fontSize: "1rem",
                       textAlign: "right",
                     }}
                   >
@@ -1095,7 +1099,7 @@ const HotelBillInvoice = () => {
                 sx={{
                   width: "100%",
                   textAlign: "center",
-                  fontSize: "27px",
+                  fontSize: "17px",
                   fontWeight: 600,
                   textDecoration: "underline",
                 }}
@@ -1691,7 +1695,7 @@ const HotelBillInvoice = () => {
                       }}
                     >
                       {/* {invoiceData?.roomType?.type} */}
-                      --
+                      {JSON.parse(sessionStorage.getItem("data")).companyName}
                     </Typography>
                   </Typography>
                 </Grid>
@@ -1995,7 +1999,8 @@ const HotelBillInvoice = () => {
                         // fontWeight: 600,
                       }}
                     >
-                      {invoiceData?.bookingDto?.checkOutDate || "NA"}
+                      {/* {invoiceData?.bookingDto?.checkOutDate || "NA"} */}
+                      Direct Payment
                     </Typography>
                   </Typography>
                 </Grid>

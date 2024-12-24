@@ -204,6 +204,7 @@ const Loginv2 = () => {
             "rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px",
           borderRadius: "14px",
           display: "flex",
+          opacity: 0.93,
         }}
       >
         <Box
@@ -211,6 +212,7 @@ const Loginv2 = () => {
             background: "rgb(0,51,102)",
             background:
               "linear-gradient(159deg, rgba(0,51,102,1) 0%, rgba(15,82,186,1) 100%)",
+
             width: "50%",
             borderTopLeftRadius: "14px",
             borderBottomLeftRadius: "14px",
@@ -219,6 +221,7 @@ const Loginv2 = () => {
             justifyContent: "center",
             alignItems: "center",
             gap: 1,
+            // border: "10px solid black",
           }}
         >
           <Box sx={{ mb: 1 }}>
@@ -266,6 +269,8 @@ const Loginv2 = () => {
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
+            // border: "2px solid black",
+            // opacity: 0.5,
           }}
         >
           <Box

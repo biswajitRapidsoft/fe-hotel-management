@@ -33,6 +33,15 @@ const FrontdeskBookingHistory = React.lazy(() =>
 const HotelBillInvoice = React.lazy(() =>
   import("./features/HotelBillInvoice/HotelBillInvoice")
 );
+
+const ParkingBillInvoice = React.lazy(() =>
+  import("./features/ParkingInvoice/ParkingInvoice")
+);
+
+const FoodInvoice = React.lazy(() =>
+  import("./features/foodInvoice/FoodInvoice")
+);
+const BarInvoice = React.lazy(() => import("./features/BarInvoice/BarInvoice"));
 const HallBookingDashboard = React.lazy(() =>
   import("./features/hallBookingDashboard/HallBookingDashboard")
 );
@@ -76,6 +85,18 @@ function App() {
           <Route
             path="/hotelBillInvoice/:bookingRefNo"
             element={<HotelBillInvoice key="hotel-bill" />}
+          />
+          <Route
+            path="/parkingBillInvoice/:bookingRefNo"
+            element={<ParkingBillInvoice key="park-bill" />}
+          />
+          <Route
+            path="/foodBillInvoice/:bookingRefNo"
+            element={<FoodInvoice key="food-bill" />}
+          />
+          <Route
+            path="/BarInvoice/:bookingRefNo"
+            element={<BarInvoice key="food-bill" />}
           />
           <Route element={<SuperLayout />}>
             <Route path="/admin-dashboard" element={<AdminDashboard />} />

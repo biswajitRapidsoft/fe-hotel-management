@@ -1287,7 +1287,12 @@ const CustomFoodCard = React.memo(function ({ foodItem, handleAddItemToCart }) {
                       fontWeight: "bold",
                     }}
                   >
-                    {foodItem.ratingPoints ? foodItem.ratingPoints : 1}
+                    {/* {foodItem?.ratingPoints
+                      ? foodItem?.ratingPoints?.toFixed(1)
+                      : 1} */}
+                    {typeof foodItem?.ratingPoints === "number"
+                      ? foodItem.ratingPoints.toFixed(1)
+                      : "1.0"}
                   </Typography>
                   <StarIcon sx={{ color: "#fff", fontSize: "0.9rem" }} />
                 </Box>
