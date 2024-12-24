@@ -1,7 +1,6 @@
 import React from "react";
 
 import {
-  Autocomplete,
   Box,
   Button,
   Checkbox,
@@ -9,16 +8,10 @@ import {
   FormControlLabel,
   FormGroup,
   Grid2 as Grid,
-  Paper,
   TextField,
 } from "@mui/material";
 
-import { useGetHotelListByCompanyQuery } from "../../services/hotel";
-
 import { useSaveSpaTypeMutation } from "../../services/spa";
-
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import ClearIcon from "@mui/icons-material/Clear";
 
 import { useUploadFileMutation } from "../../services/hotel";
 
@@ -26,7 +19,6 @@ import SnackAlert from "../../components/Alert";
 
 import { UploadImageFormComponent } from "../roomType/RoomType";
 
-import { ADMIN } from "../../helper/constants";
 import LoadingComponent from "../../components/LoadingComponent";
 import SpaTypeListTable from "./SpaTypeListTable";
 
@@ -48,15 +40,6 @@ const SpaType = () => {
 
   const [uploadImage, uploadImageRes] = useUploadFileMutation();
   const [uploadedImageArr, setUploadedImageArr] = React.useState([]);
-  const {
-    data: hotelList = {
-      data: [],
-    },
-    isLoading,
-  } = useGetHotelListByCompanyQuery(
-    JSON.parse(sessionStorage.getItem("data")).companyId,
-    { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN }
-  );
 
   const handleChange = React.useCallback((e) => {
     if (e.target.name === "basePrice") {
@@ -98,7 +81,8 @@ const SpaType = () => {
       saveSpaType({
         name: formData.spaType,
         price: formData.basePrice,
-        hotelId: formData.selectedHotel.id,
+        // hotelId: formData.selectedHotel.id,
+        hotelId: sessionStorage.getItem("hotelIdForSpaType"),
         isAdvanceNeeded: formData.isAdvance,
         images: uploadedImageArr,
       })
@@ -204,7 +188,7 @@ const SpaType = () => {
             <TextField
               label={
                 <React.Fragment>
-                  Spa Type{" "}
+                  Spa Name{" "}
                   <Box
                     component="span"
                     sx={{
@@ -221,7 +205,7 @@ const SpaType = () => {
               variant="standard"
             />
           </Grid>
-          <Grid size={3}>
+          {/* <Grid size={3}>
             <Autocomplete
               options={hotelList.data}
               value={formData.selectedHotel}
@@ -287,7 +271,7 @@ const SpaType = () => {
                 />
               )}
             />
-          </Grid>
+          </Grid> */}
           <Grid size={3}>
             <TextField
               label={
@@ -362,7 +346,7 @@ const SpaType = () => {
       </Box>
       <SpaTypeListTable saveSpaType={saveSpaType} />
       <LoadingComponent
-        open={uploadImageRes.isLoading || saveSpaTypeRes.isLoading || isLoading}
+        open={uploadImageRes.isLoading || saveSpaTypeRes.isLoading}
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </Container>

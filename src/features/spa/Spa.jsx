@@ -3,6 +3,7 @@ import React from "react";
 import {
   useGetAllSpaTypeGuestQuery,
   useGetSpaSlotsQuery,
+  useBookSpaMutation,
 } from "../../services/spa";
 import {
   Box,
@@ -14,17 +15,33 @@ import {
   Button,
   Drawer,
   Divider,
-  TextField,
   Tab,
 } from "@mui/material";
 import { DrawerHeader } from "../restaurant/Restaurant";
 import { TabContext, TabList } from "@mui/lab";
 import { DAY, NIGHT } from "../../helper/constants";
 import moment from "moment";
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { StyledCalendarIcon } from "../dashboard/Dashboard";
+import dayjs from "dayjs";
+import LoadingComponent from "../../components/LoadingComponent";
+import SnackAlert from "../../components/Alert";
+import BookingHistoryDrawer from "./BookingHistoryDrawer";
+import { PaymentDialog } from "./SpaAdmin";
 
 const drawerWidth = 450;
 
 const Spa = () => {
+  const [openPaymentDialog, setOpenPaymentDialog] = React.useState(null);
+  const [isBookingHistoryDrawer, setIsBookingHistoryDrawer] =
+    React.useState(false);
+  const [snack, setSnack] = React.useState({
+    open: false,
+    message: "",
+    severity: "",
+  });
+  const [bookSpa, bookSpaRes] = useBookSpaMutation();
   const {
     data: spaTypeList = {
       data: [],
@@ -33,7 +50,8 @@ const Spa = () => {
   const [spaToBook, setSpaToBook] = React.useState(null);
   const [selectedSlotType, setSelectedSlotType] = React.useState(DAY);
   const [selectedSlot, setSelectedSlot] = React.useState(null);
-  const [selectedDate, setSelectedDate] = React.useState("");
+  const [selectedDate, setSelectedDate] = React.useState(dayjs(new Date()));
+  const [bookingPayload, setBookingPayload] = React.useState({});
 
   const {
     data: spaSlots = {
@@ -43,18 +61,97 @@ const Spa = () => {
     {
       spaTypeId: spaToBook?.id || null,
       shiftType: selectedSlotType,
-      date: moment(selectedDate).format("DD-MM-YYYY"),
+      date: selectedDate && moment(selectedDate.$d).format("DD-MM-YYYY"),
     },
-    { skip: !Boolean(selectedDate) }
+    {
+      skip: !Boolean(selectedDate) || !Boolean(spaToBook),
+      refetchOnMountOrArgChange: true,
+    }
   );
 
   const handleTabChange = React.useCallback((e, value) => {
     setSelectedSlotType(value);
+    setSelectedSlot(null);
   }, []);
+
+  const handleReserveSpa = React.useCallback(() => {
+    if (spaToBook.isAdvanceNeeded) {
+      setOpenPaymentDialog((spaToBook.price * 0.2).toFixed(2));
+      setBookingPayload({
+        spaTypeId: spaToBook.id,
+        hotelBookingReferenceNumber: sessionStorage.getItem("bookingRefNumber"),
+        startTime: `${moment(selectedDate.$d).format("DD-MM-YYYY")} ${
+          selectedSlot.startTime
+        }:00`,
+        endTime: `${moment(selectedDate.$d).format("DD-MM-YYYY")} ${
+          selectedSlot.endTime
+        }:00`,
+        bookingDate: moment(selectedDate.$d).format("DD-MM-YYYY"),
+        price: spaToBook.price,
+        transactionReferenceNo: null,
+        paymentMethod: null,
+        totalPrice: (spaToBook.price + spaToBook.price * 0.18).toFixed(2),
+        paidAmount: null,
+        hotelId: sessionStorage.getItem("hotelId"),
+      });
+    } else {
+      bookSpa({
+        spaTypeId: spaToBook.id,
+        hotelBookingReferenceNumber: sessionStorage.getItem("bookingRefNumber"),
+        startTime: `${moment(selectedDate.$d).format("DD-MM-YYYY")} ${
+          selectedSlot.startTime
+        }:00`,
+        endTime: `${moment(selectedDate.$d).format("DD-MM-YYYY")} ${
+          selectedSlot.endTime
+        }:00`,
+        bookingDate: moment(selectedDate.$d).format("DD-MM-YYYY"),
+        price: spaToBook.price,
+        transactionReferenceNo: null,
+        paymentMethod: null,
+        totalPrice: (spaToBook.price + spaToBook.price * 0.18).toFixed(2),
+        paidAmount: null,
+        hotelId: sessionStorage.getItem("hotelId"),
+      })
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            severity: "success",
+          });
+          setSelectedSlot(null);
+          setSpaToBook(null);
+          setSelectedDate(dayjs(new Date()));
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data,
+            severity: "error",
+          });
+        });
+    }
+  }, [bookSpa, spaToBook, selectedDate, selectedSlot]);
 
   return (
     <React.Fragment>
       <Box>
+        <Button
+          variant="contained"
+          size="small"
+          color="secondary"
+          sx={{
+            color: "white",
+            fontWeight: 600,
+            letterSpacing: 1,
+            display: "block",
+            ml: "auto",
+            mb: 1,
+          }}
+          onClick={() => setIsBookingHistoryDrawer(true)}
+        >
+          Spa Booking History
+        </Button>
         <Grid container spacing={2}>
           {spaTypeList.data.map((spa) => {
             return (
@@ -102,6 +199,7 @@ const Spa = () => {
                             letterSpacing: 1,
                             fontWeight: 600,
                             textTransform: "none",
+                            whiteSpace: "nowrap",
                             fontSize: 18,
                             "&.Mui-disabled": {
                               background: "#B2E5F6",
@@ -132,7 +230,10 @@ const Spa = () => {
           //   variant="persistent"
           anchor="right"
           open={Boolean(spaToBook)}
-          onClose={() => setSpaToBook(null)}
+          onClose={() => {
+            setSpaToBook(null);
+            setSelectedSlot(null);
+          }}
         >
           <DrawerHeader>
             <Typography
@@ -151,18 +252,54 @@ const Spa = () => {
                 </Typography>
               </Grid>
               <Grid size={12}>
-                <TextField
+                {/* <TextField
                   label="Booking Date"
                   type="date"
                   slotProps={{
                     inputLabel: {
                       shrink: true,
                     },
+                    htmlInput: {
+                      min: new Date().toISOString().split("T")[0],
+                    },
                   }}
                   value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedDate(e.target.value);
+                    setSelectedSlot(null);
+                  }}
                   fullWidth
-                />
+                /> */}
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    disablePast
+                    label={
+                      <React.Fragment>
+                        Booking Date{" "}
+                        <Box
+                          component="span"
+                          sx={{
+                            color: (theme) => theme.palette.secondary.main,
+                          }}
+                        >
+                          *
+                        </Box>
+                      </React.Fragment>
+                    }
+                    value={selectedDate}
+                    onChange={(newVal) => {
+                      setSelectedDate(newVal);
+                      setSelectedSlot(null);
+                    }}
+                    slotProps={{
+                      textField: { variant: "outlined", readOnly: true },
+                    }}
+                    slots={{
+                      openPickerIcon: StyledCalendarIcon,
+                    }}
+                    format="DD/MM/YYYY"
+                  />
+                </LocalizationProvider>
               </Grid>
               <Grid size={12}>
                 <Box>
@@ -201,7 +338,7 @@ const Spa = () => {
                           >
                             <Button
                               variant="outlined"
-                              color={slot.isBooked ? "disabled" : "success"}
+                              color={slot.isBooked ? "error" : "success"}
                               sx={{
                                 backgroundColor:
                                   selectedSlot &&
@@ -209,13 +346,20 @@ const Spa = () => {
                                     `${selectedSlot.shiftType}-${selectedSlot.startTime}-${selectedSlot.endTime}`
                                     ? "lightgreen"
                                     : "transparent",
-                                // "&:hover": {
-                                //   backgroundColor: false ? "lightblue" : "transparent",
-                                // },
+                                "&:hover": {
+                                  backgroundColor: !slot.isBooked
+                                    ? "lightblue"
+                                    : "transparent",
+                                },
                                 whiteSpace: "nowrap",
                               }}
                               fullWidth
-                              onClick={() => setSelectedSlot(slot)}
+                              disabled={slot.isBooked}
+                              onClick={() => {
+                                if (slot.isBooked === false) {
+                                  setSelectedSlot(slot);
+                                }
+                              }}
                             >
                               {`${slot.startTime}-${slot.endTime}`}
                             </Button>
@@ -241,6 +385,74 @@ const Spa = () => {
               p: 2,
             }}
           >
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                mb: 1,
+                width: "100%",
+              }}
+            >
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: "bold", letterSpacing: 1 }}
+              >
+                Total
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: "bold", letterSpacing: 1 }}
+              >
+                {`Rs. ${(spaToBook?.price || 0).toFixed(2)}`}
+              </Typography>
+            </Box>
+
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                mb: 1,
+                width: "100%",
+              }}
+            >
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: "bold", letterSpacing: 1 }}
+              >
+                GST (18%)
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: "bold", letterSpacing: 1 }}
+              >
+                {`Rs. ${((spaToBook?.price || 0) * 0.18).toFixed(2)}`}
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                mt: 1,
+                mb: 3,
+                width: "100%",
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: "bold", letterSpacing: 1 }}
+              >
+                Total <span style={{ fontSize: "10px" }}>(Including GST)</span>
+              </Typography>
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: "bold", letterSpacing: 1 }}
+              >
+                {`Rs. ${(
+                  (spaToBook?.price || 0) +
+                  (spaToBook?.price || 0) * 0.18
+                ).toFixed(2)}`}
+              </Typography>
+            </Box>
             <Button
               color="secondary"
               variant="contained"
@@ -257,14 +469,32 @@ const Spa = () => {
                   color: "#FFFFFF",
                 },
               }}
-              //   disabled={!Boolean(cartItems.length && dineType)}
-              //   onClick={handlePlaceOrder}
+              disabled={!Boolean(selectedSlot)}
+              onClick={handleReserveSpa}
             >
-              Reserve
+              {spaToBook?.isAdvanceNeeded ? "Pay And Reserve" : "Reserve"}
             </Button>
           </Box>
         </Drawer>
       </Box>
+      <BookingHistoryDrawer
+        open={isBookingHistoryDrawer}
+        handleClose={() => setIsBookingHistoryDrawer(false)}
+      />
+      <PaymentDialog
+        openPaymentDialog={Boolean(openPaymentDialog)}
+        amountToPay={openPaymentDialog}
+        handlePaymentDialogClose={() => setOpenPaymentDialog(null)}
+        setSnack={setSnack}
+        fetchApi={bookSpa}
+        apiPayload={bookingPayload}
+        handleReset={() => {
+          setSpaToBook(null);
+          setSelectedSlot(null);
+        }}
+      />
+      <LoadingComponent open={bookSpaRes.isLoading} />
+      <SnackAlert snack={snack} setSnack={setSnack} />
     </React.Fragment>
   );
 };

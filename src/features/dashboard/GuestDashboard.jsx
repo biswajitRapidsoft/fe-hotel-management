@@ -88,7 +88,7 @@ import {
 // import moment from "moment";
 import { useNavigate } from "react-router-dom";
 
-const Transition = React.forwardRef(function Transition(props, ref) {
+export const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 

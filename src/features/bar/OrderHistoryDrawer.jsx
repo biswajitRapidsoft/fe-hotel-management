@@ -282,7 +282,7 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
                     </Typography>
                     <Typography variant="h6" sx={{ fontWeight: "bold" }}>
                       Rs.{" "}
-                      {(order?.totalPrice || 0) +
+                      {(order?.totalAmount || 0) +
                         (order?.gstPrice || 0) -
                         (order?.discountPrice || 0)}
                     </Typography>

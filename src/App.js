@@ -70,6 +70,7 @@ const SpaType = React.lazy(() => import("./features/spaType/SpaType"));
 const Spa = React.lazy(() => import("./features/spa/Spa"));
 
 const LoginV2 = React.lazy(() => import("./features/login/Loginv2"));
+const SpaAdmin = React.lazy(() => import("./features/spa/SpaAdmin"));
 
 function App() {
   return (
@@ -124,6 +125,7 @@ function App() {
               path="/frontdeskBookingHistory"
               element={<FrontdeskBookingHistory />}
             />
+            <Route path="/spa-admin" element={<SpaAdmin />} />
             <Route path="/hallBookings" element={<HallBookingDashboard />} />
 
             <Route
