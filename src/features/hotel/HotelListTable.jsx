@@ -207,6 +207,7 @@ function Row({ hotel, sequence, setHotelToUpdate, handleChangeStatus }) {
         >
           <Chip
             label={hotel?.noOfHalls}
+            clickable
             color="secondary"
             sx={{
               color: "#fff",
@@ -221,6 +222,7 @@ function Row({ hotel, sequence, setHotelToUpdate, handleChangeStatus }) {
         >
           <Chip
             label={hotel?.noOfBanquets}
+            clickable
             color="secondary"
             sx={{
               color: "#fff",
@@ -235,6 +237,7 @@ function Row({ hotel, sequence, setHotelToUpdate, handleChangeStatus }) {
         >
           <Chip
             label={hotel?.noOfSpaType || 0}
+            clickable
             color="secondary"
             sx={{
               color: "#fff",

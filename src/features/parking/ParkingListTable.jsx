@@ -4,6 +4,7 @@ import {
   Collapse,
   IconButton,
   Paper,
+  Switch,
   Table,
   TableBody,
   TableCell,
@@ -17,7 +18,11 @@ import EditIcon from "@mui/icons-material/Edit";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
-const Row = ({ slNo, data, setParkingToUpdate }) => {
+import { useParkingSlotStatusChangeMutation } from "../../services/parking";
+import LoadingComponent from "../../components/LoadingComponent";
+import SnackAlert from "../../components/Alert";
+
+const Row = ({ slNo, data, setParkingToUpdate, handleChangeSlotStatus }) => {
   const [open, setOpen] = React.useState(false);
   return (
     <React.Fragment>
@@ -62,6 +67,7 @@ const Row = ({ slNo, data, setParkingToUpdate }) => {
                     <TableCell>Sl No.</TableCell>
                     <TableCell>Slot Number</TableCell>
                     <TableCell>Vehicle Type</TableCell>
+                    <TableCell>Status</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -71,6 +77,15 @@ const Row = ({ slNo, data, setParkingToUpdate }) => {
                         <TableCell>{index + 1}</TableCell>
                         <TableCell>{slotData.slotNumber}</TableCell>
                         <TableCell>{slotData.vehicleType}</TableCell>
+                        <TableCell>
+                          <Switch
+                            checked={slotData.isActive}
+                            color="success"
+                            onChange={(e) =>
+                              handleChangeSlotStatus(slotData.id)
+                            }
+                          />
+                        </TableCell>
                       </TableRow>
                     );
                   })}
@@ -85,6 +100,34 @@ const Row = ({ slNo, data, setParkingToUpdate }) => {
 };
 
 const ParkingListTable = ({ parkingData, setParkingToUpdate }) => {
+  const [snack, setSnack] = React.useState({
+    open: false,
+    message: "",
+    severity: "",
+  });
+  const [changeSlotStatus, changeSlotStatusRes] =
+    useParkingSlotStatusChangeMutation();
+  const handleChangeSlotStatus = React.useCallback(
+    (id) => {
+      changeSlotStatus({ id: id })
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            severity: "success",
+          });
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data,
+            severity: "success",
+          });
+        });
+    },
+    [changeSlotStatus]
+  );
   return (
     <React.Fragment>
       <Paper>
@@ -131,6 +174,7 @@ const ParkingListTable = ({ parkingData, setParkingToUpdate }) => {
                     slNo={index + 1}
                     data={data}
                     setParkingToUpdate={setParkingToUpdate}
+                    handleChangeSlotStatus={handleChangeSlotStatus}
                   />
                 );
               })}
@@ -138,6 +182,8 @@ const ParkingListTable = ({ parkingData, setParkingToUpdate }) => {
           </Table>
         </TableContainer>
       </Paper>
+      <SnackAlert snack={snack} setSnack={setSnack} />
+      <LoadingComponent open={changeSlotStatusRes.isLoading} />
     </React.Fragment>
   );
 };

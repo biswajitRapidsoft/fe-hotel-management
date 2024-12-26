@@ -3,6 +3,14 @@ import config from "../config/config";
 
 const parkingApi = apiSlice.injectEndpoints({
   endpoints: (build) => ({
+    parkingSlotStatusChange: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.parkingSlotStatusChange,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getParkingDataForAdmin"],
+    }),
     getParkingDataForAdmin: build.query({
       query: (payload) => ({
         url: config.apiName.getParkingDataForAdmin,
@@ -78,6 +86,7 @@ const parkingApi = apiSlice.injectEndpoints({
 });
 
 export const {
+  useParkingSlotStatusChangeMutation,
   useGetParkingDataForAdminQuery,
   useUpdateParkingAreaMutation,
   useCreateParkingAreaMutation,
