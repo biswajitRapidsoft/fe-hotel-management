@@ -3005,7 +3005,7 @@ const RoomServiceCard = memo(function ({
 
             justifyContent: "center",
             width: "100%",
-            bgcolor: "red",
+            // bgcolor: "red",
             bottom: 0,
             gap: 2,
             mt: 1,
@@ -8950,7 +8950,7 @@ const Dashboard = () => {
         ? {
             checkOutDate: customFormDrawerData?.checkOutDate
               ? moment(customFormDrawerData?.checkOutDate.$d).format(
-                  "DD-MM-YYYY"
+                  "DD-MM-YYYY HH:mm:ss"
                 )
               : null,
           }

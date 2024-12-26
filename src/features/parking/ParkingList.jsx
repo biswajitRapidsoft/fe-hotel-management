@@ -37,6 +37,7 @@ const ParkingList = () => {
     data: parkingData = {
       data: [],
     },
+    isLoading,
   } = useGetAllParkingDataQuery({
     hotelId: sessionStorage.getItem("hotelIdForParkingList"),
   });
@@ -302,7 +303,9 @@ const ParkingList = () => {
         setParkingToUpdate={setParkingToUpdate}
       />
       <LoadingComponent
-        open={createParkingRes.isLoading || updateParkingRes.isLoading}
+        open={
+          createParkingRes.isLoading || updateParkingRes.isLoading || isLoading
+        }
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </Container>
