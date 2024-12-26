@@ -21,6 +21,7 @@ import {
   DialogTitle,
   DialogActions,
   Grid2 as Grid,
+  Chip,
 } from "@mui/material";
 import { BootstrapDialog } from "../header/Header";
 
@@ -204,7 +205,13 @@ function Row({ hotel, sequence, setHotelToUpdate, handleChangeStatus }) {
             navigate("/HallList");
           }}
         >
-          <Typography sx={{ cursor: "pointer" }}>{hotel?.noOfHalls}</Typography>
+          <Chip
+            label={hotel?.noOfHalls}
+            color="secondary"
+            sx={{
+              color: "#fff",
+            }}
+          />
         </TableCell>
         <TableCell
           onClick={() => {
@@ -212,9 +219,13 @@ function Row({ hotel, sequence, setHotelToUpdate, handleChangeStatus }) {
             navigate("/BanquetList");
           }}
         >
-          <Typography sx={{ cursor: "pointer" }}>
-            {hotel?.noOfBanquets}
-          </Typography>
+          <Chip
+            label={hotel?.noOfBanquets}
+            color="secondary"
+            sx={{
+              color: "#fff",
+            }}
+          />
         </TableCell>
         <TableCell
           onClick={() => {
@@ -222,9 +233,13 @@ function Row({ hotel, sequence, setHotelToUpdate, handleChangeStatus }) {
             navigate("/spa-type");
           }}
         >
-          <Typography sx={{ cursor: "pointer" }}>
-            {hotel?.noOfSpaType || 0}
-          </Typography>
+          <Chip
+            label={hotel?.noOfSpaType || 0}
+            color="secondary"
+            sx={{
+              color: "#fff",
+            }}
+          />
         </TableCell>
         <TableCell
           onClick={() => {
@@ -232,9 +247,16 @@ function Row({ hotel, sequence, setHotelToUpdate, handleChangeStatus }) {
             navigate("/parking-list");
           }}
         >
-          <Typography sx={{ cursor: "pointer" }}>
-            {hotel?.noOfParkingAreaCounts || 0}
-          </Typography>
+          {/* <Typography sx={{ cursor: "pointer" }}> */}
+          <Chip
+            label={hotel?.noOfParkingAreaCounts || 0}
+            clickable
+            color="secondary"
+            sx={{
+              color: "#fff",
+            }}
+          />
+          {/* </Typography> */}
         </TableCell>
         <TableCell
           onClick={() => {
@@ -242,9 +264,14 @@ function Row({ hotel, sequence, setHotelToUpdate, handleChangeStatus }) {
             navigate("/PromocodeList");
           }}
         >
-          <Typography sx={{ cursor: "pointer" }}>
-            {hotel?.noOfCoupons}
-          </Typography>
+          <Chip
+            label={hotel?.noOfCoupons}
+            clickable
+            color="secondary"
+            sx={{
+              color: "#fff",
+            }}
+          />
         </TableCell>
         <TableCell>
           <Box
