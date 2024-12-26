@@ -17,7 +17,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 
-const Row = ({ slNo, data }) => {
+const Row = ({ slNo, data, setParkingToUpdate }) => {
   const [open, setOpen] = React.useState(false);
   return (
     <React.Fragment>
@@ -34,7 +34,7 @@ const Row = ({ slNo, data }) => {
         <TableCell>{data.areaName}</TableCell>
         <TableCell>{data.location}</TableCell>
         <TableCell>
-          <IconButton>
+          <IconButton onClick={() => setParkingToUpdate(data)}>
             <EditIcon />
           </IconButton>
         </TableCell>
@@ -84,7 +84,7 @@ const Row = ({ slNo, data }) => {
   );
 };
 
-const ParkingListTable = ({ parkingData }) => {
+const ParkingListTable = ({ parkingData, setParkingToUpdate }) => {
   return (
     <React.Fragment>
       <Paper>
@@ -125,7 +125,14 @@ const ParkingListTable = ({ parkingData }) => {
             </TableHead>
             <TableBody>
               {parkingData.map((data, index) => {
-                return <Row key={data.id} slNo={index + 1} data={data} />;
+                return (
+                  <Row
+                    key={data.id}
+                    slNo={index + 1}
+                    data={data}
+                    setParkingToUpdate={setParkingToUpdate}
+                  />
+                );
               })}
             </TableBody>
           </Table>

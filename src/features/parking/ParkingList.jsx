@@ -25,12 +25,14 @@ import {
   useGetAllParkingVehicleTypeQuery,
   useCreateParkingAreaMutation,
   useGetAllParkingDataQuery,
+  useUpdateParkingAreaMutation,
 } from "../../services/parking";
 import SnackAlert from "../../components/Alert";
 import LoadingComponent from "../../components/LoadingComponent";
 import ParkingListTable from "./ParkingListTable";
 
 const ParkingList = () => {
+  const [parkingToUpdate, setParkingToUpdate] = React.useState(null);
   const {
     data: parkingData = {
       data: [],
@@ -39,6 +41,7 @@ const ParkingList = () => {
     hotelId: sessionStorage.getItem("hotelIdForParkingList"),
   });
   const [createParking, createParkingRes] = useCreateParkingAreaMutation();
+  const [updateParking, updateParkingRes] = useUpdateParkingAreaMutation();
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
@@ -80,36 +83,91 @@ const ParkingList = () => {
   const handleSubmit = React.useCallback(
     (e) => {
       e.preventDefault();
-      createParking({
-        areaName: formData.parkingName,
-        locations: formData.areaName,
-        hotelDto: {
-          id: sessionStorage.getItem("hotelIdForParkingList"),
-        },
-        slotList: parkingSlotArr.map((slot) => ({
-          slotNumber: slot.slotName,
-          vehicleType: slot.vehicleType,
-        })),
-      })
-        .unwrap()
-        .then((res) => {
-          setSnack({
-            open: true,
-            message: res.message,
-            severity: "success",
-          });
-          handleResetForm();
+      if (Boolean(parkingToUpdate)) {
+        updateParking({
+          id: parkingToUpdate.id,
+          areaName: formData.parkingName,
+          locations: formData.areaName,
+          hotelDto: {
+            id: sessionStorage.getItem("hotelIdForParkingList"),
+          },
+          slotList: parkingSlotArr.map((slot) => ({
+            slotNumber: slot.slotName,
+            vehicleType: slot.vehicleType,
+          })),
         })
-        .catch((err) => {
-          setSnack({
-            open: true,
-            message: err.data?.message || err.data,
-            severity: "error",
+          .unwrap()
+          .then((res) => {
+            setSnack({
+              open: true,
+              message: res.message,
+              severity: "success",
+            });
+            handleResetForm();
+          })
+          .catch((err) => {
+            setSnack({
+              open: true,
+              message: err.data?.message || err.data,
+              severity: "error",
+            });
           });
-        });
+      } else {
+        createParking({
+          areaName: formData.parkingName,
+          locations: formData.areaName,
+          hotelDto: {
+            id: sessionStorage.getItem("hotelIdForParkingList"),
+          },
+          slotList: parkingSlotArr.map((slot) => ({
+            slotNumber: slot.slotName,
+            vehicleType: slot.vehicleType,
+          })),
+        })
+          .unwrap()
+          .then((res) => {
+            setSnack({
+              open: true,
+              message: res.message,
+              severity: "success",
+            });
+            handleResetForm();
+          })
+          .catch((err) => {
+            setSnack({
+              open: true,
+              message: err.data?.message || err.data,
+              severity: "error",
+            });
+          });
+      }
     },
-    [createParking, formData, parkingSlotArr, handleResetForm]
+    [
+      createParking,
+      formData,
+      parkingSlotArr,
+      handleResetForm,
+      updateParking,
+      parkingToUpdate,
+    ]
   );
+
+  React.useEffect(() => {
+    if (parkingToUpdate) {
+      setFormData({
+        parkingName: parkingToUpdate.areaName || "",
+        areaName: parkingToUpdate.location || "",
+      });
+      setParkingSlotArr(
+        parkingToUpdate.parkingSlotData.map((slotData) => ({
+          id: slotData.id,
+          slotName: slotData.slotNumber,
+          vehicleType: slotData.vehicleType,
+        }))
+      );
+    }
+  }, [parkingToUpdate]);
+
   return (
     <Container>
       <Box
@@ -235,12 +293,17 @@ const ParkingList = () => {
             type="submit"
             disabled={!isFormValid()}
           >
-            Add Parking
+            {Boolean(parkingToUpdate) ? "Update Parking" : "Add Parking"}
           </Button>
         </Box>
       </Box>
-      <ParkingListTable parkingData={parkingData.data} />
-      <LoadingComponent open={createParkingRes.isLoading} />
+      <ParkingListTable
+        parkingData={parkingData.data}
+        setParkingToUpdate={setParkingToUpdate}
+      />
+      <LoadingComponent
+        open={createParkingRes.isLoading || updateParkingRes.isLoading}
+      />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </Container>
   );
@@ -486,14 +549,16 @@ function AddParkingSlotFormComponent({
                           <TableCell>{parkingSlot.slotName}</TableCell>
                           <TableCell>{parkingSlot.vehicleType}</TableCell>
                           <TableCell>
-                            <IconButton
-                              size="small"
-                              onClick={() =>
-                                handleDeleteSlot(parkingSlot.slotName)
-                              }
-                            >
-                              <DeleteIcon fontSize="small" color="error" />
-                            </IconButton>
+                            {typeof parkingSlot.id !== "number" && (
+                              <IconButton
+                                size="small"
+                                onClick={() =>
+                                  handleDeleteSlot(parkingSlot.slotName)
+                                }
+                              >
+                                <DeleteIcon fontSize="small" color="error" />
+                              </IconButton>
+                            )}
                           </TableCell>
                         </TableRow>
                       );

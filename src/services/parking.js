@@ -3,6 +3,14 @@ import config from "../config/config";
 
 const parkingApi = apiSlice.injectEndpoints({
   endpoints: (build) => ({
+    updateParkingArea: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.updateParking,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllParkingData"],
+    }),
     getAllParkingVehicleType: build.query({
       query: () => ({
         url: config.apiName.getAllParkingVehicleType,
@@ -15,6 +23,7 @@ const parkingApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
+      invalidatesTags: ["getAllParkingData"],
     }),
     getAllParkingData: build.query({
       query: (payload) => ({
@@ -58,6 +67,7 @@ const parkingApi = apiSlice.injectEndpoints({
 });
 
 export const {
+  useUpdateParkingAreaMutation,
   useCreateParkingAreaMutation,
   useGetAllParkingVehicleTypeQuery,
   useGetAllParkingDataQuery,
