@@ -4,6 +4,7 @@ import "./App.css";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import LoadingComponent from "./components/LoadingComponent";
+import ParkingList from "./features/parking/ParkingList";
 
 // const Login = React.lazy(() => import("./features/login/Login"));
 const Dashboard = React.lazy(() => import("./features/dashboard/Dashboard"));
@@ -114,6 +115,7 @@ function App() {
             <Route path="/HallList" element={<HallList />} />
             <Route path="/BanquetList" element={<BanquetList />} />
             <Route path="/PromocodeList" element={<PromocodeList />} />
+            <Route path="/parking-list" element={<ParkingList />} />
             <Route path="/guest-dashboard" element={<GuestDashboard />} />
             <Route path="/resturant" element={<Restaurant />} />
             <Route path="/restaurant-admin" element={<RestaurantAdmin />} />

@@ -3,6 +3,19 @@ import config from "../config/config";
 
 const parkingApi = apiSlice.injectEndpoints({
   endpoints: (build) => ({
+    getAllParkingVehicleType: build.query({
+      query: () => ({
+        url: config.apiName.getAllParkingVehicleType,
+        method: "GET",
+      }),
+    }),
+    createParkingArea: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.createParkingArea,
+        method: "POST",
+        data: payload,
+      }),
+    }),
     getAllParkingData: build.query({
       query: (payload) => ({
         url: config.apiName.getAllParkingData,
@@ -45,6 +58,8 @@ const parkingApi = apiSlice.injectEndpoints({
 });
 
 export const {
+  useCreateParkingAreaMutation,
+  useGetAllParkingVehicleTypeQuery,
   useGetAllParkingDataQuery,
   useParkVehicleMutation,
   useReleaseVehicleMutation,

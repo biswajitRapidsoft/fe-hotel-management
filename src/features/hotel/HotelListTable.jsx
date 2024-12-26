@@ -20,7 +20,7 @@ import {
   DialogContent,
   DialogTitle,
   DialogActions,
-  // Grid2 as Grid,
+  Grid2 as Grid,
 } from "@mui/material";
 import { BootstrapDialog } from "../header/Header";
 
@@ -50,6 +50,7 @@ const tableHeader = [
   { label: "Halls" },
   { label: "Banquets" },
   { label: "Spa Types" },
+  { label: "Parkings" },
   { label: "PromoCode" },
   { label: "Action" },
 ];
@@ -227,6 +228,16 @@ function Row({ hotel, sequence, setHotelToUpdate, handleChangeStatus }) {
         </TableCell>
         <TableCell
           onClick={() => {
+            sessionStorage.setItem("hotelIdForParkingList", hotel?.id);
+            navigate("/parking-list");
+          }}
+        >
+          <Typography sx={{ cursor: "pointer" }}>
+            {hotel?.noOfParkingAreaCounts || 0}
+          </Typography>
+        </TableCell>
+        <TableCell
+          onClick={() => {
             sessionStorage.setItem("hotelIdForPromoCode", hotel?.id);
             navigate("/PromocodeList");
           }}
@@ -236,19 +247,25 @@ function Row({ hotel, sequence, setHotelToUpdate, handleChangeStatus }) {
           </Typography>
         </TableCell>
         <TableCell>
-          <IconButton onClick={() => setHotelToUpdate(hotel)}>
-            <EditIcon />
-          </IconButton>
-        </TableCell>
-        <TableCell>
-          <IconButton
-            sx={{ ml: "auto", display: "block" }}
-            size="small"
-            // onClick={() => setOpen(!open)}
-            onClick={() => setHotelDetailsDialog(hotel)}
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+            }}
           >
-            <InfoIcon />
-          </IconButton>
+            <IconButton onClick={() => setHotelToUpdate(hotel)}>
+              <EditIcon />
+            </IconButton>
+            <IconButton
+              sx={{ display: "block" }}
+              size="small"
+              // onClick={() => setOpen(!open)}
+              onClick={() => setHotelDetailsDialog(hotel)}
+            >
+              <InfoIcon />
+            </IconButton>
+          </Box>
         </TableCell>
       </TableRow>
       <TableRow>
@@ -370,30 +387,73 @@ const HotelDetailsDialog = ({
         <DialogContent dividers>
           <Box sx={{ px: 3 }}>
             <Box sx={{ mb: 2 }}>
-              <Box sx={{ display: "flex" }}>
-                <Typography sx={{ fontWeight: "bold" }} gutterBottom>
-                  GST IN :
-                </Typography>
-                <Typography gutterBottom>
-                  {viewHotelDetailsDialog?.gstIn}
-                </Typography>
-              </Box>
-              <Box sx={{ display: "flex" }}>
-                <Typography sx={{ fontWeight: "bold" }} gutterBottom>
-                  Address :
-                </Typography>
-                <Typography gutterBottom>
-                  {viewHotelDetailsDialog?.address}
-                </Typography>
-              </Box>
-              <Box sx={{ display: "flex" }}>
-                <Typography sx={{ fontWeight: "bold" }} gutterBottom>
-                  Email :
-                </Typography>
-                <Typography gutterBottom>
-                  {viewHotelDetailsDialog?.email}
-                </Typography>
-              </Box>
+              <Grid container>
+                <Grid size={{ xs: 6, lg: 4 }}>
+                  <Box sx={{ display: "flex" }}>
+                    <Typography
+                      sx={{ fontWeight: "bold", width: 80 }}
+                      gutterBottom
+                    >
+                      State:
+                    </Typography>
+                    <Typography gutterBottom>
+                      {viewHotelDetailsDialog?.state?.name}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid size={{ xs: 6, lg: 4 }}>
+                  <Box sx={{ display: "flex" }}>
+                    <Typography
+                      sx={{ fontWeight: "bold", width: 80 }}
+                      gutterBottom
+                    >
+                      City:
+                    </Typography>
+                    <Typography gutterBottom>
+                      {viewHotelDetailsDialog?.city?.name}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid size={{ xs: 6, lg: 4 }}>
+                  <Box sx={{ display: "flex" }}>
+                    <Typography
+                      sx={{ fontWeight: "bold", width: 80 }}
+                      gutterBottom
+                    >
+                      GST IN:
+                    </Typography>
+                    <Typography gutterBottom>
+                      {viewHotelDetailsDialog?.gstIn}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid size={{ xs: 6, lg: 4 }}>
+                  <Box sx={{ display: "flex" }}>
+                    <Typography
+                      sx={{ fontWeight: "bold", width: 80 }}
+                      gutterBottom
+                    >
+                      Address:
+                    </Typography>
+                    <Typography gutterBottom>
+                      {viewHotelDetailsDialog?.address}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid size={{ xs: 6, lg: 4 }}>
+                  <Box sx={{ display: "flex" }}>
+                    <Typography
+                      sx={{ fontWeight: "bold", width: 80 }}
+                      gutterBottom
+                    >
+                      Email:
+                    </Typography>
+                    <Typography gutterBottom>
+                      {viewHotelDetailsDialog?.email}
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
             </Box>
             <Box sx={{ height: "400px", overflowY: "auto" }}>
               <Table stickyHeader>
