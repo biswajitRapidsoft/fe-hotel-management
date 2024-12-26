@@ -286,12 +286,14 @@ function getBookingStatusColor(key) {
       return { color: "#01a837", bgcolor: "#c7ffd9" };
     case "Requested":
       return { color: "#cd5000", bgcolor: "#ffe3d1" };
-    case "In_Progress":
-      return { color: "#0068b7", bgcolor: "#d3ecff" };
-    case "Ready_For_Delivery":
+    // case "In_Progress":
+    //   return { color: "#0068b7", bgcolor: "#d3ecff" };
+    // case "Ready_For_Delivery":
+    //   return { color: "#6101a8", bgcolor: "#f0ddff" };
+    // case "Completed":
+    //   return { color: "#c60000", bgcolor: "#ffd6d6" };
+    case "Delivered":
       return { color: "#6101a8", bgcolor: "#f0ddff" };
-    case "Completed":
-      return { color: "#c60000", bgcolor: "#ffd6d6" };
     default:
       return { color: "inherit", bgcolor: "inherit" };
   }
@@ -397,7 +399,8 @@ const CustomRow = memo(function ({ tableHeaders, rowSerialNumber, row }) {
                   !Boolean(
                     // JSON.parse(sessionStorage.getItem("data"))?.roleType ===
                     //   CUSTOMER
-                    row?.laundryStatus === "Completed"
+                    // row?.laundryStatus === "Completed"
+                    row?.laundryStatus === "Delivered"
                   ) ? (
                   <>
                     <Box
