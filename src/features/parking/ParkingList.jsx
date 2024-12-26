@@ -24,7 +24,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import {
   useGetAllParkingVehicleTypeQuery,
   useCreateParkingAreaMutation,
-  useGetAllParkingDataQuery,
+  useGetParkingDataForAdminQuery,
   useUpdateParkingAreaMutation,
 } from "../../services/parking";
 import SnackAlert from "../../components/Alert";
@@ -38,7 +38,7 @@ const ParkingList = () => {
       data: [],
     },
     isLoading,
-  } = useGetAllParkingDataQuery({
+  } = useGetParkingDataForAdminQuery({
     hotelId: sessionStorage.getItem("hotelIdForParkingList"),
   });
   const [createParking, createParkingRes] = useCreateParkingAreaMutation();
