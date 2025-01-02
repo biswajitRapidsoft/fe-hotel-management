@@ -42,7 +42,7 @@ const parkingApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
-      invalidatesTags: ["getParkingDataForAdmin"],
+      invalidatesTags: ["getParkingDataForAdmin", "getHotelListByCompany"],
     }),
     getAllParkingData: build.query({
       query: (payload) => ({

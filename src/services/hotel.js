@@ -64,7 +64,7 @@ const hotelApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
-      invalidatesTags: ["getAllHalls"],
+      invalidatesTags: ["getAllHalls", "getHotelListByCompany"],
     }),
     getAllHalls: build.query({
       query: (payload) => ({
@@ -82,7 +82,7 @@ const hotelApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
-      invalidatesTags: ["getAllBanquet"],
+      invalidatesTags: ["getAllBanquet", "getHotelListByCompany"],
     }),
     getAllBanquet: build.query({
       query: (payload) => ({
@@ -120,7 +120,11 @@ const hotelApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
-      invalidatesTags: ["getAllPromoCode", "getAllPromoCodeListForAdmin"],
+      invalidatesTags: [
+        "getAllPromoCode",
+        "getAllPromoCodeListForAdmin",
+        "getHotelListByCompany",
+      ],
     }),
     getAllPromocodeTypes: build.query({
       query: (payload) => ({

@@ -120,7 +120,7 @@ const SpaTypeListTable = ({ saveSpaType }) => {
                       {spaType.isAdvanceNeeded ? "Yes" : "No"}
                     </TableCell>
                     <TableCell sx={{ display: "flex", alignItems: "center" }}>
-                      {Boolean(spaType.images.length) && (
+                      {Boolean(spaType?.images?.length) && (
                         <Box
                           key={spaType.images[0]}
                           component="img"
@@ -136,7 +136,7 @@ const SpaTypeListTable = ({ saveSpaType }) => {
                           }
                         />
                       )}
-                      {spaType.images.length > 1 && (
+                      {spaType?.images?.length > 1 && (
                         <Button
                           size="small"
                           sx={{ textTransform: "none" }}

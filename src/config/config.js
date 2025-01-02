@@ -67,7 +67,7 @@ const config = Object.freeze({
     getParkingDataForAdmin: "api/get/all/parkings/list/for/admin",
     parkingSlotStatusChange: "api/parking/slot/status/change",
     // DASHBOARD API ENDPOINTS
-    getAllRoomListByHotelId: "api/gpet/room/list",
+    getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",
     getAllPaymentMethods: "api/get/all/payment/methods",
     saveCustomerCheckIn: "api/customer/checkin",

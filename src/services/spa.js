@@ -9,7 +9,7 @@ const spaApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
-      invalidatesTags: ["getAllSpaType"],
+      invalidatesTags: ["getAllSpaType", "getHotelListByCompany"],
     }),
     getAllSpaType: build.query({
       query: (payload) => ({

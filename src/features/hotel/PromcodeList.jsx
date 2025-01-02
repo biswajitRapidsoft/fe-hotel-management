@@ -45,6 +45,7 @@ const PromcodeList = () => {
     promoCodeType: null,
     promoCodeTypeInputVal: "",
   });
+
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
