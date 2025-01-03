@@ -1,7 +1,7 @@
 import React from "react";
 import "./App.css";
 
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 import LoadingComponent from "./components/LoadingComponent";
 import ParkingList from "./features/parking/ParkingList";
@@ -78,6 +78,20 @@ const LoginV2 = React.lazy(() => import("./features/login/Loginv2"));
 const SpaAdmin = React.lazy(() => import("./features/spa/SpaAdmin"));
 
 function App() {
+  const location = useLocation();
+  // console.log("hello3", location);
+
+  React.useEffect(() => {
+    // console.log("hello", location);
+    if (
+      location.pathname === "/staff-login" ||
+      location.pathname === "/guest-login"
+    ) {
+      // console.log("hello1", location);
+      sessionStorage.clear();
+    }
+  }, [location]);
+
   return (
     <div className="App">
       <React.Suspense fallback={<LoadingComponent open={true} />}>
