@@ -198,7 +198,7 @@ function FormDialog({
       updateStatus({
         orderId: order.bookingDetails.orderId,
         bookingStatus: selectedStatus,
-        description: remark,
+        descriptions: remark,
       })
         .unwrap()
         .then((res) => {
