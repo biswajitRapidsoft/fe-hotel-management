@@ -16,6 +16,7 @@ const hallBookingDashboardApi = apiSlice.injectEndpoints({
           isForTodayEvents: payload?.isForTodayEvents || false,
           isForFutureEvents: payload?.isForFutureEvents || false,
           isForExpiredEvents: payload?.isForExpiredEvents || false,
+          capacity: payload?.capacity || null,
         },
       }),
       providesTags: ["getAllHallBookings"],
@@ -82,6 +83,13 @@ const hallBookingDashboardApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["getAllHallBookings", "getHallBookingChart"],
     }),
+    capacityFilterOptions: build.query({
+      query: (payload) => ({
+        url: config.apiName.capacityFilterOptions,
+        method: "GET",
+      }),
+      providesTags: ["capacityFilterOptions"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -95,4 +103,5 @@ export const {
   useBookHallFromFrontdeskMutation,
   useGetAllBanquetsByHotelIdQuery,
   useChangeHallBookingStatusMutation,
+  useCapacityFilterOptionsQuery,
 } = hallBookingDashboardApi;

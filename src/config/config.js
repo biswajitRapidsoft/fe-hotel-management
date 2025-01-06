@@ -99,6 +99,8 @@ const config = Object.freeze({
     bookHallFromFrontdesk: "api/book/hall",
     getAllBanquetsByHotelId: "api/get/all/banquets/by/hotel",
     changeHallBookingStatus: "api/change/hall/booking/status",
+    capacityFilterOptions: "api/get/hall/capacity/range",
+    // http://192.168.12.3:9000/api/get/hall/capacity/range
 
     // GUEST DASHBOARD API ENDPOINTS
     getAllHotels: "public/hotels/list",

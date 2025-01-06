@@ -25,6 +25,8 @@ import {
   Typography,
 } from "@mui/material";
 import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
+import RestaurantIcon from "@mui/icons-material/Restaurant";
+
 import Grid from "@mui/material/Grid2";
 import {
   AVAILABLE,
@@ -1349,10 +1351,9 @@ const RoomServiceCard = memo(function ({
   handleRoomCleanRequest,
   handleOpenShowcaseModalForLaundry,
 }) {
-  console.log(
-    "RoomServiceCard isSelectedRoom : ",
-    isSelectedRoom?.isRoomCleaningRequested
-  );
+  const navigate = useNavigate();
+
+  console.log("RoomServiceCard isSelectedRoom : ", isSelectedRoom);
   const selectedRoomStatusType = checkRoomStatusType(isSelectedRoom);
   const [selectedInvoice, setSelectedInvoice] = useState("Final Invoice");
 
@@ -2037,6 +2038,7 @@ const RoomServiceCard = memo(function ({
                                 width: "100%",
                                 display: "flex",
                                 flexWrap: "wrap",
+                                gap: 1,
                               }}
                             >
                               <Typography
@@ -2067,6 +2069,26 @@ const RoomServiceCard = memo(function ({
                                   <CleaningServicesIcon
                                     sx={{ fontSize: "17px" }}
                                   />
+                                </Button>
+                              </Tooltip>
+                              <Tooltip title={"Order Food"} arrow>
+                                <Button
+                                  variant="contained"
+                                  sx={{ minWidth: "unset", width: "15px" }}
+                                  onClick={() => {
+                                    sessionStorage.setItem(
+                                      "bookingRefNumber",
+                                      isSelectedRoom?.bookingDto
+                                        ?.bookingRefNumber
+                                    );
+                                    sessionStorage.setItem(
+                                      "hotelId",
+                                      isSelectedRoom?.bookingDto?.hotel?.id
+                                    );
+                                    navigate("/resturant");
+                                  }}
+                                >
+                                  <RestaurantIcon sx={{ fontSize: "17px" }} />
                                 </Button>
                               </Tooltip>
                             </Box>

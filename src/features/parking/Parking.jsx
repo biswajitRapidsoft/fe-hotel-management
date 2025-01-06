@@ -162,7 +162,7 @@ const CustomParentCard = memo(
   ({ parkingDataArray, onCardClick, selectedParkingArea }) => {
     return (
       // <Box>
-      <Grid container size={12} columnSpacing={4}>
+      <Grid container size={12} columnSpacing={4} rowSpacing={2}>
         {parkingDataArray?.map((item, index) => {
           const occupiedPercentage =
             (item.noOfOccupiedSlots / item.noOfSlots) * 100;
@@ -295,6 +295,7 @@ const CustomParentCard = memo(
 const CustomParkingSlots = memo(({ parkingDataArray }) => {
   const [parkVehicleOpen, setParkVehicleOpen] = React.useState(false);
   const [selectedSlot, setSelectedSlot] = React.useState(null);
+  console.log("selectedSlotin", selectedSlot);
 
   console.log("parkingDataArray inside slots", parkingDataArray);
   const handleVehicleParking = (slot) => {
@@ -768,7 +769,7 @@ const VehicleParkingDialog = ({ parkVehicleOpen, selectedSlot, onClose }) => {
                   <div style={{ width: "50%", fontWeight: "bold" }}>
                     Paid Amount
                   </div>
-                  <div>₹ {selectedSlot?.parkingVehicleData?.paidAmount}</div>
+                  <div>₹ {selectedSlot?.parkingVehicleData?.totalAmount}</div>
                 </div>
               </div>
             </div>

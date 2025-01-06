@@ -429,7 +429,7 @@ const CustomRow = memo(function ({ tableHeaders, rowSerialNumber, row }) {
                       JSON.parse(sessionStorage.getItem("data"))?.roleType ===
                         HOUSEKEEPER
                   ) &&
-                  Boolean(row?.laundryStatus === "Completed") ? (
+                  Boolean(row?.laundryStatus === "Delivered") ? (
                   <Box>
                     {Boolean(row?.isRated) ? (
                       <Rating value={row?.ratingPoints} disabled size="large" />

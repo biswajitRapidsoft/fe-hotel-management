@@ -166,12 +166,45 @@ const Spa = () => {
                 key={spa.id}
               >
                 <Card sx={{ boxShadow: 3 }}>
-                  <CardMedia
-                    component="img"
-                    height="200"
-                    image={spa.images[0]}
-                    alt={spa.name}
-                  />
+                  {/* <CardMedia
+                      component="img"
+                      height="200"
+                      image={spa.images[0]}
+                      alt={spa.name}
+                    /> */}
+
+                  {/* <Box sx={{ height: 200 }}> */}
+                  {spa?.images && spa?.images?.length > 0 ? (
+                    <CardMedia
+                      component="img"
+                      height="200"
+                      image={spa.images[0]}
+                      alt={spa.name}
+                    />
+                  ) : (
+                    // <CardMedia
+                    //   component="img"
+                    //   height="200"
+                    //   image=""
+                    //   alt="No image available"
+                    // />
+
+                    <CardContent
+                      style={{
+                        height: "200px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: "#f0f0f0",
+                      }}
+                    >
+                      <Typography variant="body2" color="textSecondary">
+                        No image available
+                      </Typography>
+                    </CardContent>
+                  )}
+                  {/* </Box> */}
+
                   <CardContent>
                     <Box
                       sx={{

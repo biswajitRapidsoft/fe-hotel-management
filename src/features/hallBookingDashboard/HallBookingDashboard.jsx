@@ -8,6 +8,7 @@ import {
   useGetAllHallStatusQuery,
   useGetHallBookingChartQuery,
   useGetIndividualHallBookingDataByIdQuery,
+  useCapacityFilterOptionsQuery,
 } from "../../services/hallBookingDashboard";
 import {
   Autocomplete,
@@ -169,7 +170,9 @@ const CustomHallBookingTableFIlters = memo(function ({
   handleChangeHallBookingTableFilters,
   hallStatuses,
   handleOpenCustomHallBookingDrawer,
+  capacityFilters,
 }) {
+  console.log("capacityFilters", capacityFilters);
   const handleChangeHallBookingTableFiltersOnChange = useCallback(
     (name, inputValue) => {
       handleChangeHallBookingTableFilters(name, inputValue);
@@ -406,8 +409,123 @@ const CustomHallBookingTableFIlters = memo(function ({
             />
           </Box>
         </Grid>
-        {/* <Grid size={{xs:12, md:2, lg:5.1, xl:6}}></Grid> */}
-        <Grid size={{ xs: 4, md: 6, lg: 8.5, xl: 9.5 }}></Grid>
+        <Grid size={{ xs: 4, lg: 2, xl: 1.5 }}>
+          <Box
+            sx={{
+              ".MuiTextField-root": {
+                width: "100%",
+                backgroundColor: "transparent",
+                ".MuiInputBase-root": {
+                  color: "#B4B4B4",
+                  background: "rgba(255, 255, 255, 0.25)",
+                },
+              },
+              ".MuiFormLabel-root": {
+                color: (theme) => theme.palette.primary.main,
+                fontWeight: 600,
+                fontSize: 14,
+              },
+              ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+                borderBottom: (theme) =>
+                  `1px solid ${theme.palette.primary.main}`,
+              },
+              ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+                borderBottom: (theme) =>
+                  `1px solid ${theme.palette.primary.main}`,
+              },
+              "& .MuiOutlinedInput-root": {
+                height: "35px",
+                minHeight: "35px",
+              },
+              "& .MuiInputBase-input": {
+                padding: "13px",
+                height: "100%",
+                boxSizing: "border-box",
+                fontSize: "13px",
+              },
+            }}
+          >
+            <Autocomplete
+              options={
+                capacityFilters?.map((item) => ({
+                  key: item.id,
+                  name: item.type,
+                })) || []
+              }
+              fullWidth
+              value={hallBookingTableFilters?.capacity || null}
+              onChange={(e, newVal) =>
+                handleChangeHallBookingTableFiltersOnChange("capacity", newVal)
+              }
+              inputValue={hallBookingTableFilters?.capacityInputVal}
+              onInputChange={(e, newVal) =>
+                handleChangeHallBookingTableFiltersOnChange(
+                  "capacityInputVal",
+                  newVal
+                )
+              }
+              getOptionLabel={(option) => option?.name}
+              clearOnEscape
+              disablePortal
+              popupIcon={<KeyboardArrowDownIcon color="primary" />}
+              sx={{
+                // width: 200,
+                ".MuiInputBase-root": {
+                  color: "#fff",
+                },
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover": {
+                  backgroundColor: "#E9E5F1",
+                  color: "#280071",
+                  fontWeight: 600,
+                },
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                  {
+                    backgroundColor: "#E9E5F1",
+                    color: "#280071",
+                    fontWeight: 600,
+                  },
+              }}
+              componentsProps={{
+                popper: {
+                  sx: {
+                    "& .MuiAutocomplete-listbox": {
+                      maxHeight: "150px",
+                      overflow: "auto",
+                    },
+                    "& .MuiAutocomplete-option": {
+                      fontSize: "13px",
+                    },
+                  },
+                },
+              }}
+              size="small"
+              clearIcon={<ClearIcon color="primary" />}
+              PaperComponent={(props) => (
+                <Paper
+                  sx={{
+                    background: "#fff",
+                    color: "#B4B4B4",
+                    borderRadius: "10px",
+                  }}
+                  {...props}
+                />
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Capacity"
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                    },
+                  }}
+                />
+              )}
+            />
+          </Box>
+        </Grid>
+        <Grid size={{ xs: 12, md: 2, lg: 5.1, xl: 8 }}></Grid>
+        {/* <Grid size={{ xs: 4, md: 6, lg: 8.5, xl: 9.5 }}></Grid> */}
         <Grid size={{ xs: 4, md: 2, lg: 1.5, xl: 1 }}>
           <Box
             sx={{
@@ -1122,16 +1240,16 @@ const CustomRow = memo(function ({
             ) : subitem?.key === "startTime" ? (
               <Typography sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
                 {row?.startTime &&
-                  moment(row?.startTime, "DD-MM-YYYY HH:mm:ss").format(
-                    "DD-MM-YYYY hh:mm A"
-                  )}
+                  moment(row?.startTime, "DD-MM-YYYY HH:mm:ss")
+                    // .utc()
+                    .format("DD-MM-YYYY hh:mm A")}
               </Typography>
             ) : subitem?.key === "endTime" ? (
               <Typography sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
                 {row?.endTime &&
-                  moment(row?.endTime, "DD-MM-YYYY HH:mm:ss").format(
-                    "DD-MM-YYYY hh:mm A"
-                  )}
+                  moment(row?.endTime, "DD-MM-YYYY HH:mm:ss")
+                    // .utc()
+                    .format("DD-MM-YYYY hh:mm A")}
               </Typography>
             ) : subitem?.key === "hallStatus" ? (
               // <Typography
@@ -2861,6 +2979,8 @@ const HallBookingDashboard = () => {
       isForTodayEvents: false,
       isForFutureEvents: false,
       isForExpiredEvents: false,
+      capacity: null,
+      capacityInputVal: "",
     }),
     []
   );
@@ -3028,6 +3148,7 @@ const HallBookingDashboard = () => {
       isForTodayEvents: hallBookingTableFilters?.isForTodayEvents || false,
       isForFutureEvents: hallBookingTableFilters?.isForFutureEvents || false,
       isForExpiredEvents: hallBookingTableFilters?.isForExpiredEvents || false,
+      capacity: hallBookingTableFilters?.capacity?.name,
     },
     {
       refetchOnMountOrArgChange: true,
@@ -3047,6 +3168,16 @@ const HallBookingDashboard = () => {
       skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== FRONTDESK,
     }
   );
+  const {
+    data: allCapacityFilters = { data: [] },
+    // isLoading: isGetAllHallCapacityDataLoading,
+  } = useCapacityFilterOptionsQuery();
+
+  console.log("allCapacityFilters", allCapacityFilters);
+  // {},
+  // {
+  //   skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== FRONTDESK,
+  // }
 
   console.log("allHallStatusTypeData : ", allHallStatusTypeData);
 
@@ -3637,6 +3768,13 @@ const HallBookingDashboard = () => {
         severity: "warning",
       });
       return;
+    } else if (Boolean(hallBookingFormData?.paidAmount === "")) {
+      setSnack({
+        open: true,
+        message: "Please pay the required amount",
+        severity: "warning",
+      });
+      return;
     }
     //  else if (
     //   hallBookingFormData?.paymentMethod?.key &&
@@ -4127,6 +4265,7 @@ const HallBookingDashboard = () => {
               handleChangeHallBookingTableFilters
             }
             hallStatuses={allHallStatusTypeData?.data || []}
+            capacityFilters={allCapacityFilters?.data || []}
             handleOpenCustomHallBookingDrawer={
               handleOpenCustomHallBookingDrawer
             }
