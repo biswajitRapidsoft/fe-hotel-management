@@ -189,6 +189,32 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
                       {order.bookingDetails.foodBookingStatus.replace("_", " ")}
                     </Typography>
                   </Box>
+                  {Boolean(
+                    order.bookingDetails.foodBookingStatus === "Cancelled"
+                  ) && (
+                    <Box
+                      sx={{
+                        width: "100%",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        py: 1,
+                      }}
+                    >
+                      <Typography sx={{ fontWeight: 600, letterSpacing: 1 }}>
+                        Cancellation Reason :{" "}
+                      </Typography>
+                      <Typography
+                        sx={{
+                          color: "gray",
+                          fontSize: "17px",
+                          // fontWeight: "bold",
+                        }}
+                      >
+                        {order.bookingDetails?.bookingCancelReason}
+                      </Typography>
+                    </Box>
+                  )}
+
                   <Grid container>
                     {order.itemsList.map((item) => {
                       return (
