@@ -399,7 +399,7 @@ function FormDialog({ open, handleClose, cancelFood, orderObj, setSnack }) {
       cancelFood({
         orderId: orderObj?.bookingDetails?.orderId,
         bookingStatus: CANCELLED,
-        description: remark,
+        descriptions: remark,
       })
         .unwrap()
         .then((res) => {

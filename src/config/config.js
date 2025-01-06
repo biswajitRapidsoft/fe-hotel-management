@@ -1,10 +1,11 @@
 const config = Object.freeze({
   // baseUrl: "http://192.168.12.37:9000/",
-  // baseUrl: "http://192.168.12.43:9000/",
+  baseUrl: "http://192.168.12.43:9000/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
   // baseUrl: "http://crimarrstaging.nyggs.com/backend/",
   // baseUrl: "http://192.168.30.44:9000/",
-  baseUrl: "http://192.168.12.43:8080/be-hms/",
+  // baseUrl: "http://192.168.12.43:8080/be-hms/",
+  // baseUrl: "http://192.168.12.3:9000/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
   // baseUrl: "http://192.168.12.3:9000/",
   apiName: {
@@ -67,7 +68,7 @@ const config = Object.freeze({
     getParkingDataForAdmin: "api/get/all/parkings/list/for/admin",
     parkingSlotStatusChange: "api/parking/slot/status/change",
     // DASHBOARD API ENDPOINTS
-    getAllRoomListByHotelId: "api/gpet/room/list",
+    getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",
     getAllPaymentMethods: "api/get/all/payment/methods",
     saveCustomerCheckIn: "api/customer/checkin",
