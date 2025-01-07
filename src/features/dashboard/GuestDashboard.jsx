@@ -1800,6 +1800,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
   const handleSubmitReserve = React.useCallback(
     (e) => {
       e.preventDefault();
+      const sessionData = JSON.parse(sessionStorage.getItem("data"));
 
       const isAdvanceValid =
         !hotelDetails?.isAdvanceRequired ||
@@ -1873,7 +1874,9 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
         firstName: formData.firstName,
         middleName: formData.middleName,
         lastName: formData.lastName,
-        phoneNumber: formData.phoneNumber,
+        alternativePhoneNumber: formData.phoneNumber,
+        phoneNumber: sessionData?.phoneNo || "",
+
         email: formData.email,
         address: formData.address,
         fromDate: formData.fromDate

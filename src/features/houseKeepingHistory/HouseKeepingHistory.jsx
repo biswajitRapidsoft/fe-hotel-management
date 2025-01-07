@@ -316,6 +316,7 @@ const HouseKeepingHistory = () => {
       { label: "Assigned Person", key: "assignedPerson" },
       { label: "Status", key: "serviceRequestStatus" },
       { label: "Service Type", key: "serviceTypeStatus" },
+      { label: "Remarks", key: "remarks" },
       { label: "Action", key: "HouseKeepingAction" },
     ];
   }, []);

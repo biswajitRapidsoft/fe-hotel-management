@@ -494,7 +494,15 @@ const HouseKeepingDialog = ({
         });
         return;
       }
-
+      const invalidItems = laundryItems.filter((item) => item.noOfQty <= 0);
+      if (invalidItems.length > 0) {
+        setSnack({
+          open: true,
+          message: "Please provide a valid quantity for all selected items.",
+          severity: "error",
+        });
+        return;
+      }
       const totalPrice = laundryItems.reduce(
         (sum, item) => sum + item.price,
         0

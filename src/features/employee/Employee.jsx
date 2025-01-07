@@ -56,13 +56,28 @@ const Employee = () => {
     phoneNo: "",
   });
 
+  // const handleChange = React.useCallback((e) => {
+  //   setFormData((prevData) => ({
+  //     ...prevData,
+  //     [e.target.name]:
+  //       e.target.name === "email"
+  //         ? e.target.value.toLowerCase()
+  //         : e.target.value,
+  //   }));
+  // }, []);
   const handleChange = React.useCallback((e) => {
+    const { name, value } = e.target;
+
+    if (name === "phoneNo") {
+      const numericRegex = /^[0-9]*$/;
+      if (!numericRegex.test(value)) {
+        return;
+      }
+    }
+
     setFormData((prevData) => ({
       ...prevData,
-      [e.target.name]:
-        e.target.name === "email"
-          ? e.target.value.toLowerCase()
-          : e.target.value,
+      [name]: name === "email" ? value.toLowerCase() : value,
     }));
   }, []);
 
@@ -228,6 +243,9 @@ const Employee = () => {
               name="phoneNo"
               value={formData.phoneNo}
               onChange={handleChange}
+              inputProps={{
+                maxLength: 10,
+              }}
               variant="standard"
             />
           </Grid>

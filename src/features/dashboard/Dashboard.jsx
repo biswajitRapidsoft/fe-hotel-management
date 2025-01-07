@@ -1709,6 +1709,50 @@ const RoomServiceCard = memo(function ({
                           </Typography>
                         </Grid>
 
+                        {/* Phone Number */}
+                        <Grid size={5}>
+                          <Typography
+                            sx={{
+                              fontSize: "15.5px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            Phone Number
+                          </Typography>
+                        </Grid>
+                        <Grid size={7}>
+                          <Typography
+                            sx={{
+                              fontSize: "15.5px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                            }}
+                          >
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "15.5px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                                marginRight: "5px",
+                              }}
+                            >
+                              :
+                            </Typography>
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "15.5px",
+                                // color: "#707070",
+                                // fontWeight: 600,
+                              }}
+                            >
+                              {isSelectedRoom?.bookingDto?.phoneNumber || ""}
+                            </Typography>
+                          </Typography>
+                        </Grid>
+
                         {/* BOOKING DATE */}
                         <Grid size={5}>
                           <Typography
@@ -1882,7 +1926,12 @@ const RoomServiceCard = memo(function ({
                                 // fontWeight: 600,
                               }}
                             >
-                              {isSelectedRoom?.bookingDto?.checkInDate || "NA"}
+                              {(isSelectedRoom?.bookingDto?.checkInDate &&
+                                moment(
+                                  isSelectedRoom?.bookingDto?.checkInDate +
+                                    " utc"
+                                ).format("DD/MM/YYYY hh:mma")) ||
+                                "NA"}
                             </Typography>
                           </Typography>
                         </Grid>
@@ -1926,7 +1975,13 @@ const RoomServiceCard = memo(function ({
                                 // fontWeight: 600,
                               }}
                             >
-                              {isSelectedRoom?.bookingDto?.checkOutDate || "NA"}
+                              {/* {isSelectedRoom?.bookingDto?.checkOutDate || "NA"} */}
+                              {(isSelectedRoom?.bookingDto?.checkOutDate &&
+                                moment(
+                                  isSelectedRoom?.bookingDto?.checkOutDate +
+                                    " utc"
+                                ).format("DD/MM/YYYY hh:mma")) ||
+                                "NA"}
                             </Typography>
                           </Typography>
                         </Grid>
@@ -7581,13 +7636,13 @@ const Dashboard = () => {
 
   const floorOptions = React.useMemo(
     () =>
-      apiRoomData.data.floorRoomMapData.map((item) => {
+      apiRoomData?.data?.floorRoomMapData?.map((item) => {
         return {
           floorNo: item?.floorNo,
           noOfRooms: item?.noOfRooms,
         };
       }),
-    [apiRoomData.data.floorRoomMapData]
+    [apiRoomData?.data?.floorRoomMapData]
   );
 
   const initialShowcaseDialogData = useMemo(

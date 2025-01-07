@@ -28,6 +28,7 @@ import moment from "moment";
 import {
   CANCELLED_BAR,
   DELIVERED,
+  DELIVERED_BAR,
   ORDER_PLACED,
   REJECTED,
 } from "../../helper/constants";
@@ -67,11 +68,13 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
     const tableTop = 80;
     doc.text("Items", 20, tableTop);
     doc.text("Quantity", 120, tableTop);
+    doc.text("Price", 180, tableTop);
 
     let yPosition = tableTop + 10;
     order.ordersList.forEach((item) => {
       doc.text(item.item.name, 20, yPosition);
       doc.text(item.noOfQty.toString(), 120, yPosition);
+      doc.text(item.item.price.toString(), 180, yPosition);
       yPosition += 10;
     });
 
@@ -287,7 +290,7 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
                         (order?.discountPrice || 0)}
                     </Typography>
                   </Box>
-                  {!["CANCELLED_BAR", "REJECTED", "DELIVERED"].includes(
+                  {![CANCELLED_BAR, REJECTED, DELIVERED_BAR].includes(
                     order.orderStatus
                   ) && (
                     <Button

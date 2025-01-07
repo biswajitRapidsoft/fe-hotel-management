@@ -645,6 +645,7 @@ const LaundryItemsDialog = ({ open, onClose, items, totalPrice }) => {
 };
 
 const LaundryStatusDialog = ({ open, onClose, items }) => {
+  console.log("items", items);
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
@@ -699,12 +700,18 @@ const LaundryStatusDialog = ({ open, onClose, items }) => {
         });
       });
   };
+  // const statusProgression = {
+  //   Requested: ["Approved", "In_Progress"],
+  //   Approved: ["In_Progress"],
+  //   In_Progress: ["Ready_For_Delivery"],
+  //   Ready_For_Delivery: ["Completed"],
+  //   Completed: [],
+  // };
+
   const statusProgression = {
-    Requested: ["Approved", "In_Progress"],
-    Approved: ["In_Progress"],
-    In_Progress: ["Ready_For_Delivery"],
-    Ready_For_Delivery: ["Completed"],
-    Completed: [],
+    Requested: ["Approved"],
+    Approved: ["Delivered"],
+    Delivered: [],
   };
 
   React.useEffect(() => {

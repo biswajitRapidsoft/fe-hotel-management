@@ -160,12 +160,27 @@ const Parking = () => {
 
 const CustomParentCard = memo(
   ({ parkingDataArray, onCardClick, selectedParkingArea }) => {
+    // console.log("parkingDataArray", parkingDataArray);
+
+    const calculateAvailableSlotsByType = (parkingSlotData) => {
+      const availableBikes = parkingSlotData.filter(
+        (slot) => !slot.isOccupied && slot.vehicleType === "Bike"
+      ).length;
+
+      const availableCars = parkingSlotData.filter(
+        (slot) => !slot.isOccupied && slot.vehicleType === "Car"
+      ).length;
+
+      return { availableBikes, availableCars };
+    };
     return (
       // <Box>
       <Grid container size={12} columnSpacing={4} rowSpacing={2}>
         {parkingDataArray?.map((item, index) => {
           const occupiedPercentage =
             (item.noOfOccupiedSlots / item.noOfSlots) * 100;
+          const { availableBikes, availableCars } =
+            calculateAvailableSlotsByType(item.parkingSlotData);
 
           return (
             <>
@@ -275,6 +290,42 @@ const CustomParentCard = memo(
                       <Box>
                         <Typography color="secondary">
                           {item?.noOfSlots}
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Box sx={{ display: "flex", gap: 0.5 }}>
+                        <span>.</span>
+                        <Typography>Available Bikes Slots</Typography>
+                      </Box>
+                      <Box>
+                        <Typography color="secondary">
+                          {availableBikes}
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Box sx={{ display: "flex", gap: 0.5 }}>
+                        <span>.</span>
+                        <Typography>Available Cars Slots</Typography>
+                      </Box>
+                      <Box>
+                        <Typography color="secondary">
+                          {availableCars}
                         </Typography>
                       </Box>
                     </Box>

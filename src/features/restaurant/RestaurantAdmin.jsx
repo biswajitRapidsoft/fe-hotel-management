@@ -220,6 +220,16 @@ function FormDialog({
     [updateStatus, selectedStatus, remark, order, setSnack, handleClose]
   );
 
+  const isStatusDisabled = React.useCallback(
+    (option) => {
+      const currentStatus = order?.bookingDetails?.foodBookingStatus;
+      return (
+        option === currentStatus ||
+        (currentStatus === "Food_Preparing" && option === "Order_Placed")
+      );
+    },
+    [order?.bookingDetails?.foodBookingStatus]
+  );
   React.useEffect(() => {
     setRemark("");
     setSelectedStatus(order?.bookingDetails?.foodBookingStatus || null);
@@ -290,7 +300,9 @@ function FormDialog({
           <Grid container rowSpacing={2}>
             <Grid size={12}>
               <Autocomplete
-                options={statusList}
+                // options={statusList}
+                options={statusList.filter((status) => status !== "Cancelled")}
+                // options={filteredStatusList}
                 getOptionLabel={(option) => option.replace("_", " ")}
                 value={selectedStatus}
                 onChange={(e, newVal) => setSelectedStatus(newVal)}
@@ -312,6 +324,7 @@ function FormDialog({
                     },
                 }}
                 clearIcon={<ClearIcon color="primary" />}
+                getOptionDisabled={isStatusDisabled}
                 PaperComponent={(props) => (
                   <Paper
                     sx={{

@@ -1102,6 +1102,26 @@ const ShowcaseBookingDialog = memo(function ({
                       </Box>
                     </Grid>
 
+                    <Grid size={4}>
+                      <Box sx={{ width: "100%" }}>
+                        <Typography
+                          sx={{
+                            fontSize: "12.5px",
+                            fontWeight: 550,
+                            lineHeight: "0.5",
+                          }}
+                        >
+                          Alternative Phone No.
+                        </Typography>
+                        <Typography
+                          component="span"
+                          sx={{ fontSize: "14.5px" }}
+                        >
+                          {bookingDetailsData?.alternativePhoneNumber}
+                        </Typography>
+                      </Box>
+                    </Grid>
+
                     {Boolean(bookingDetailsData?.email?.trim()) && (
                       <Grid size={4}>
                         <Box sx={{ width: "100%" }}>

@@ -47,6 +47,7 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
   const [cancelFood, cancelFoodRes] = useUpdateFoodOrderStatusMutation();
   const [rateFood, rateFoodRes] = useRateFoodMutation();
   const handleDownloadInvoice = React.useCallback((order) => {
+    console.log("order", order);
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.text("Restaurant Invoice", 20, 20);
@@ -81,11 +82,13 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
     const tableTop = 80;
     doc.text("Items", 20, tableTop);
     doc.text("Quantity", 120, tableTop);
+    doc.text("Price", 180, tableTop);
 
     let yPosition = tableTop + 10;
     order.itemsList.forEach((item) => {
       doc.text(item.itemName, 20, yPosition);
       doc.text(item.noOfItems.toString(), 120, yPosition);
+      doc.text(item.price.toString(), 180, yPosition);
       yPosition += 10;
     });
 

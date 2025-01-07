@@ -869,17 +869,44 @@ const HotelBillInvoice = () => {
     [invoiceData]
   );
 
-  const subTotalRoomCharges = useMemo(() => {
-    const expense = parseFloat(subTotalExpense) || 0;
-    const extraItemsExpense = parseFloat(subTotalExtraItemsExpense) || 0;
-    const laundrysExpense = parseFloat(subTotalLaundryExpense) || 0;
-    const foodExpense = parseFloat(subTotalFoodExpense) || 0;
+  const subTotalBarExpense = useMemo(() => {
+    const sum =
+      invoiceData?.bookingDto?.barOrderDtos?.reduce(
+        (sum, item) => sum + (item?.totalAmount + item?.gstPrice),
+        0
+      ) || 0;
+    return sum.toFixed(2);
+  }, [invoiceData]);
 
+  const subTotalSpaExpense = useMemo(() => {
+    const sum =
+      invoiceData?.bookingDto?.spaBookingDetails?.reduce(
+        (sum, item) => sum + (item?.totalPrice || 0),
+        0
+      ) || 0;
+    return sum.toFixed(2);
+  }, [invoiceData]);
+
+  console.log("subTotalBarExpense", subTotalBarExpense);
+  const subTotalRoomCharges = useMemo(() => {
+    // const expense = parseFloat(subTotalExpense) || 0;
+    // const extraItemsExpense = parseFloat(subTotalExtraItemsExpense) || 0;
+    // const laundrysExpense = parseFloat(subTotalLaundryExpense) || 0;
+    // const foodExpense = parseFloat(subTotalFoodExpense) || 0;
+
+    // return (
+    //   expense -
+    //   extraItemsExpense -
+    //   foodExpense -
+    //   laundrysExpense
+    // ).toFixed(2);
     return (
-      expense -
-      extraItemsExpense -
-      foodExpense -
-      laundrysExpense
+      subTotalExpense -
+      subTotalExtraItemsExpense -
+      subTotalLaundryExpense -
+      subTotalFoodExpense -
+      subTotalBarExpense -
+      subTotalSpaExpense
     ).toFixed(2);
   }, [
     subTotalExpense,
@@ -2330,7 +2357,7 @@ const HotelBillInvoice = () => {
                           <Typography
                             sx={{ textAlign: "right", fontWeight: 550 }}
                           >
-                            {subTotalLaundryExpense}
+                            {subTotalSpaExpense}
                           </Typography>
                         </Box>
                       </Grid>
@@ -2363,7 +2390,7 @@ const HotelBillInvoice = () => {
                           <Typography
                             sx={{ textAlign: "right", fontWeight: 550 }}
                           >
-                            {subTotalLaundryExpense}
+                            {subTotalBarExpense}
                           </Typography>
                         </Box>
                       </Grid>

@@ -312,7 +312,7 @@ const PromcodeList = () => {
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
                 disablePast
-                value={formData?.fromDate}
+                value={formData?.toDate}
                 minDate={formData?.fromDate}
                 onChange={handleDateChange("toDate")}
                 slotProps={{

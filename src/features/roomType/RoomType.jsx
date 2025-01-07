@@ -64,6 +64,8 @@ const RoomType = () => {
     isAdvance: false,
     rewardPoints: "",
   });
+
+  console.log("formDataMain", formData);
   const [extraItemsArr, setExtraItemsArr] = React.useState([]);
   const [uploadedImageArr, setUploadedImageArr] = React.useState([]);
   const {
@@ -148,18 +150,30 @@ const RoomType = () => {
     setUploadedImageArr([]);
   }, []);
 
+  // const isFormValid = React.useCallback(() => {
+  //   return Boolean(
+  //     formData.roomType.trim() &&
+  //       formData.description.trim() &&
+  //       formData.capacity.trim() &&
+  //       formData.basePrice.trim() &&
+  //       formData.isAdvance
+  //       ? formData.advanceAmount.trim()
+  //       : true && formData.rewardPoints
+  //   );
+  // }, [formData]);
+
   const isFormValid = React.useCallback(() => {
     return Boolean(
       formData.roomType.trim() &&
         formData.description.trim() &&
         formData.capacity.trim() &&
         formData.basePrice.trim() &&
-        formData.isAdvance
-        ? formData.advanceAmount.trim()
-        : true && formData.rewardPoints
+        formData.rewardPoints.trim() &&
+        (!formData.isAdvance || formData.advanceAmount.trim())
     );
   }, [formData]);
 
+  console.log("isFormValid", isFormValid);
   const handleSubmit = React.useCallback(
     (event) => {
       event.preventDefault();
@@ -169,7 +183,16 @@ const RoomType = () => {
           severity: "error",
           message: "Reward Points can be up to 200.",
         });
+      } else if (
+        parseInt(formData.advanceAmount) > parseInt(formData.basePrice)
+      ) {
+        return setSnack({
+          open: true,
+          severity: "error",
+          message: "Advance amount cannot be greater than base price.",
+        });
       }
+
       addRoomType({
         type: formData.roomType,
         description: formData.description,
@@ -512,6 +535,7 @@ export function UploadImageFormComponent({
                   opacity: image ? 1 : 0,
                 },
                 ref: imageRef,
+                accept: "image/*",
               }}
               onChange={(e) => setImage(e.target.value)}
               InputProps={{

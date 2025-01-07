@@ -450,6 +450,7 @@ const HotelList = () => {
               // disabled={Boolean(hotelToUpdate)}
               options={stateList.data}
               getOptionLabel={(option) => option.name}
+              disabled={Boolean(hotelToUpdate) ? true : false}
               value={formData.selectedState}
               onChange={(e, newVal) =>
                 handleChange({
@@ -495,6 +496,7 @@ const HotelList = () => {
               renderInput={(params) => (
                 <TextField
                   {...params}
+                  disabled={Boolean(hotelToUpdate) ? true : false}
                   label={
                     <React.Fragment>
                       Select State{" "}
@@ -516,6 +518,7 @@ const HotelList = () => {
           <Grid size={3}>
             <Autocomplete
               // disabled={Boolean(hotelToUpdate)}
+              disabled={Boolean(hotelToUpdate) ? true : false}
               options={cityList.data}
               getOptionLabel={(option) => option.name}
               value={formData.selectedCity}
@@ -566,6 +569,7 @@ const HotelList = () => {
               renderInput={(params) => (
                 <TextField
                   {...params}
+                  disabled={Boolean(hotelToUpdate) ? true : false}
                   label={
                     <React.Fragment>
                       Select City{" "}
@@ -714,7 +718,9 @@ const HotelList = () => {
                       opacity: 0,
                     },
                     ref: imageRef,
+                    accept: "image/*",
                   },
+
                   input: {
                     endAdornment: (
                       <InputAdornment position="end">

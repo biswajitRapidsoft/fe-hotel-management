@@ -75,7 +75,7 @@ const ExtraItem = () => {
     } else {
       setFormData((prevData) => ({
         ...prevData,
-        [e.target.name]: e.target.value,
+        [e.target.name]: e.target.value.trim(),
       }));
     }
   }, []);
