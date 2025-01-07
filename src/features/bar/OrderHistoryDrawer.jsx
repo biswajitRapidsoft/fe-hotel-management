@@ -332,9 +332,9 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
                         Review Your Order
                       </Button>
                     )}
-                  {/* {order.bookingDetails.isRated && (
+                  {order.isRated && (
                     <Rating
-                      value={order.bookingDetails.ratingPoints}
+                      value={order.ratingPoints}
                       disabled
                       size="large"
                       sx={{
@@ -344,7 +344,7 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
                         transform: "translateX(-50%)",
                       }}
                     />
-                  )} */}
+                  )}
                 </Box>
               </Grid>
             );
