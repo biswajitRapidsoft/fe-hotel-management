@@ -45,6 +45,7 @@ const BookingHistoryDrawer = ({ open, handleClose }) => {
   } = useGetSpaBookingHistoryGuestQuery(
     sessionStorage.getItem("bookingRefNumber")
   );
+  console.log("bookingHistorybb", bookingHistory?.data);
   const [cancelBooking, cancelBookingRes] = useCancelBookingForSpaMutation();
 
   const handleCancelBooking = React.useCallback((booking) => {
@@ -113,7 +114,7 @@ const BookingHistoryDrawer = ({ open, handleClose }) => {
                   <Typography sx={{ width: "100px", fontWeight: "bold" }}>
                     Price:
                   </Typography>
-                  <Typography>Rs. 1,000</Typography>
+                  <Typography>{booking?.totalPrice}</Typography>
                 </Box>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                   <Typography sx={{ width: "100px", fontWeight: "bold" }}>

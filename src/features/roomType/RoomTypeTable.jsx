@@ -153,6 +153,8 @@ const RoomTypeTable = () => {
                 <TableCell sx={{ width: "40%" }}>Extra items</TableCell>
                 <TableCell>Reward Points</TableCell>
                 <TableCell>Images</TableCell>
+                <TableCell>Base Price</TableCell>
+                <TableCell>Capacity</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -209,6 +211,9 @@ const RoomTypeTable = () => {
                         >{`+${roomType.images.length - 1} More`}</Button>
                       )}
                     </TableCell>
+
+                    <TableCell>₹{roomType.basePrice}</TableCell>
+                    <TableCell>{roomType.capacity}</TableCell>
                   </TableRow>
                 );
               })}

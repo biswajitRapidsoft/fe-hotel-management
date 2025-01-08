@@ -82,6 +82,18 @@ const parkingApi = apiSlice.injectEndpoints({
       }),
       // invalidatesTags: ["getAllParkingData"],
     }),
+    getAllParkingHistoryData: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllParkingHistoryData,
+        method: "GET",
+        params: {
+          hotelId: payload?.hotelId,
+          pageNo: payload?.pageNo,
+          pageSize: payload?.pageSize,
+        },
+      }),
+      providesTags: ["getAllParkingHistoryData"],
+    }),
   }),
 });
 
@@ -95,4 +107,5 @@ export const {
   useParkVehicleMutation,
   useReleaseVehicleMutation,
   useCheckVehicleParkingStatusMutation,
+  useGetAllParkingHistoryDataQuery,
 } = parkingApi;

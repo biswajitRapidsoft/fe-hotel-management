@@ -1237,6 +1237,10 @@ const CustomRow = memo(function ({
                   .filter(Boolean)
                   .join(" ")}
               </Typography>
+            ) : subitem?.key === "hallName" ? (
+              <Typography sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
+                {row?.hallDetailsDto && row?.hallDetailsDto?.hallName}
+              </Typography>
             ) : subitem?.key === "startTime" ? (
               <Typography sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
                 {row?.startTime &&
@@ -2990,6 +2994,7 @@ const HallBookingDashboard = () => {
       { label: "Guest Name", key: "guestName" },
       { label: "Phone No.", key: "phoneNumber" },
       { label: "Event Name", key: "eventName" },
+      { label: "Hall Name", key: "hallName" },
       { label: "Event Date", key: "eventDate" },
       { label: "From", key: "startTime" },
       { label: "To", key: "endTime" },

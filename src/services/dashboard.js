@@ -14,6 +14,33 @@ const dashboardApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["getMasterDataList"],
     }),
+
+    createMasterDiningType: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.createMasterDiningType,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllMasterDiningType"],
+    }),
+    addFoodItems: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.addFoodItems,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllMasterDiningType"],
+    }),
+    getAllMasterDiningType: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllMasterDiningType,
+        method: "GET",
+        params: {
+          hotelId: payload,
+        },
+      }),
+      providesTags: ["getAllMasterDiningType"],
+    }),
     //GUEST DASHBOARD
     getParkingDataForGuest: build.query({
       query: (payload) => ({
@@ -186,6 +213,18 @@ const dashboardApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["getAllLaundryHistory"],
     }),
+    getAllCleaningServiceRequestHistory: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllCleaningServiceRequestHistory,
+        method: "GET",
+        params: {
+          userId: payload?.userId,
+          pageNo: payload?.pageNo,
+          pageSize: payload?.pageSize,
+        },
+      }),
+      providesTags: ["getAllCleaningServiceRequestHistory"],
+    }),
 
     // FRONT-DESK DASHBOARD
     getAllRoomListByHotelId: build.query({
@@ -338,4 +377,8 @@ export const {
   useMakePaymentMutation,
   useMakePartialPaymentMutation,
   useLazyGetParkingDataForGuestQuery,
+  useGetAllCleaningServiceRequestHistoryQuery,
+  useCreateMasterDiningTypeMutation,
+  useGetAllMasterDiningTypeQuery,
+  useAddFoodItemsMutation,
 } = dashboardApi;

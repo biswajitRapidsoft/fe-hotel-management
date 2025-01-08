@@ -913,6 +913,8 @@ const HotelBillInvoice = () => {
     subTotalExtraItemsExpense,
     subTotalFoodExpense,
     subTotalLaundryExpense,
+    subTotalSpaExpense,
+    subTotalBarExpense,
   ]);
 
   const foodListTableHeaders = useMemo(

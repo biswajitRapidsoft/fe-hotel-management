@@ -1,10 +1,10 @@
 const config = Object.freeze({
-  baseUrl: "http://192.168.12.37:9000/",
+  // baseUrl: "http://192.168.12.37:9000/",
   // baseUrl: "http://192.168.12.43:9000/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
   // baseUrl: "http://crimarrstaging.nyggs.com/backend/",
   // baseUrl: "http://192.168.30.44:9000/",
-  // baseUrl: "http://192.168.12.43:8080/be-hms/",
+  baseUrl: "http://192.168.12.43:8080/be-hms/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/", // HO Staging
   // baseUrl: "http://192.168.12.3:9000/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
@@ -80,6 +80,9 @@ const config = Object.freeze({
     roomtypeByHotelId: "api/roomtype/by/hotelId",
     getPendingBookingRequestCounts:
       "api/get/pending/state/booking/request/count",
+    createMasterDiningType: "api/create/master/dinning",
+    getAllMasterDiningType: "api/get/all/master/dinning/type",
+    addFoodItems: "api/create/new/restaurant/item",
 
     //FRONTDESK BOOKING HISTORY
     roomBookingHistoryByHotelId: "api/booking/history",
@@ -133,12 +136,15 @@ const config = Object.freeze({
       "api/get/all/house-keeping/service/request/status",
     getAllHouseKeepingServiceTypes:
       "api/get/all/house-keeping/service/type/status",
+    getAllCleaningServiceRequestHistory:
+      "api/get/individual/staff/service/list",
 
     // PARKING DASHBOARD DATA
     getAllParkingData: "api/get/all/parking/list",
     parkVehicle: "api/park/vehicle",
     releaseVehicle: "api/release/vehicle",
     checkVehicleParkingStatus: "api/check/vehicle/parking/availability",
+    getAllParkingHistoryData: "api/get/all/parked/vehicle/data",
 
     // MANAGER DASHBOARD
     getAllDashboardDataForManager: "api/get/dashboard/data/for/manager",

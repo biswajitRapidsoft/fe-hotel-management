@@ -14,12 +14,15 @@ import { useNavigate } from "react-router";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import { MdOutlineCleaningServices } from "react-icons/md";
 import DryCleaningIcon from "@mui/icons-material/DryCleaning";
+import { FaParking } from "react-icons/fa";
+import { MdHistory } from "react-icons/md";
+
 // import GroupsIcon from "@mui/icons-material/Groups";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 // import AltRouteIcon from "@mui/icons-material/AltRoute";
 import KingBedIcon from "@mui/icons-material/KingBed";
 import RoofingIcon from "@mui/icons-material/Roofing";
-import { FRONTDESK, HOUSEKEEPER } from "../../helper/constants";
+import { FRONTDESK, HOUSEKEEPER, GUARD } from "../../helper/constants";
 import SpaIcon from "@mui/icons-material/Spa";
 const drawerWidth = 300;
 
@@ -131,6 +134,30 @@ const sideBarMenuOptions = [
     menuIconAlt: "Activity Logo",
     menuTitle: "Laundry History",
     visibility: [HOUSEKEEPER],
+  },
+  {
+    pathname: "/CleaningServiceHistory",
+    isLibraryIcon: true,
+    menuIcon: <MdOutlineCleaningServices style={{ color: "#fff" }} />,
+    menuIconAlt: "Activity Logo",
+    menuTitle: "Cleaning History",
+    visibility: [HOUSEKEEPER],
+  },
+  {
+    pathname: "/Parking",
+    isLibraryIcon: true,
+    menuIcon: <FaParking style={{ color: "#fff" }} />,
+    menuIconAlt: "Activity Logo",
+    menuTitle: "Parking Dashboard",
+    visibility: [GUARD],
+  },
+  {
+    pathname: "/ParkingHistory",
+    isLibraryIcon: true,
+    menuIcon: <MdHistory style={{ color: "#fff" }} />,
+    menuIconAlt: "Activity Logo",
+    menuTitle: "Parking History",
+    visibility: [GUARD],
   },
 ];
 

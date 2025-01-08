@@ -76,6 +76,14 @@ const Spa = React.lazy(() => import("./features/spa/Spa"));
 
 const LoginV2 = React.lazy(() => import("./features/login/Loginv2"));
 const SpaAdmin = React.lazy(() => import("./features/spa/SpaAdmin"));
+const CleaningServiceHistory = React.lazy(() =>
+  import("./features/dashboard/CleaningServiceHistory")
+);
+const ParkingHistory = React.lazy(() =>
+  import("./features/parking/ParkingHistory")
+);
+
+const FoodItemList = React.lazy(() => import("./features/hotel/FoodItemList"));
 
 function App() {
   const location = useLocation();
@@ -135,12 +143,12 @@ function App() {
             <Route path="/restaurant-admin" element={<RestaurantAdmin />} />
             <Route path="/bar" element={<Bar />} />
             <Route path="/bar-admin" element={<BarAdmin />} />
-            <Route path="/Parking" element={<Parking />} />
             <Route path="/managerDashboard" element={<ManagerDashboard />} />
             <Route
               path="/LaundryHistoryForGuest"
               element={<LaundryHistoryForGuest />}
             />
+            <Route path="/FoodItemList" element={<FoodItemList />} />
 
             {/* LaundryHistoryForGuest */}
           </Route>
@@ -167,6 +175,12 @@ function App() {
               path="/LaundryHistory"
               element={<LaundryHistoryForAdmin />}
             />
+            <Route
+              path="/CleaningServiceHistory"
+              element={<CleaningServiceHistory />}
+            />
+            <Route path="/Parking" element={<Parking />} />
+            <Route path="/ParkingHistory" element={<ParkingHistory />} />
           </Route>
         </Routes>
       </React.Suspense>
