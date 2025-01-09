@@ -1874,8 +1874,12 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
         firstName: formData.firstName,
         middleName: formData.middleName,
         lastName: formData.lastName,
-        alternativePhoneNumber: formData.phoneNumber,
-        phoneNumber: sessionData?.phoneNo || "",
+        // alternativePhoneNumber: formData.phoneNumber,
+        alternativePhoneNumber: Boolean(sessionData.phoneNo)
+          ? formData.phoneNumber
+          : "",
+        // phoneNumber: sessionData?.phoneNo || "",
+        phoneNumber: sessionData?.phoneNo || formData?.phoneNumber || "",
 
         email: formData.email,
         address: formData.address,

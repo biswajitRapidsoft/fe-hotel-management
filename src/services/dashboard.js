@@ -41,6 +41,13 @@ const dashboardApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["getAllMasterDiningType"],
     }),
+    getFoodType: build.query({
+      query: () => ({
+        url: config.apiName.getFoodType,
+        method: "GET",
+      }),
+      providesTags: ["getFoodType"],
+    }),
     //GUEST DASHBOARD
     getParkingDataForGuest: build.query({
       query: (payload) => ({
@@ -381,4 +388,5 @@ export const {
   useCreateMasterDiningTypeMutation,
   useGetAllMasterDiningTypeQuery,
   useAddFoodItemsMutation,
+  useGetFoodTypeQuery,
 } = dashboardApi;

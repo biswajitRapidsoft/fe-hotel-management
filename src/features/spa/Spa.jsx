@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 
 import {
   useGetAllSpaTypeGuestQuery,
@@ -16,6 +16,11 @@ import {
   Drawer,
   Divider,
   Tab,
+  Slide,
+  DialogTitle,
+  Dialog,
+  DialogContent,
+  IconButton,
 } from "@mui/material";
 import { DrawerHeader } from "../restaurant/Restaurant";
 import { TabContext, TabList } from "@mui/lab";
@@ -28,8 +33,12 @@ import dayjs from "dayjs";
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 import BookingHistoryDrawer from "./BookingHistoryDrawer";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { PaymentDialog } from "./SpaAdmin";
-
+export const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 const drawerWidth = 450;
 
 const Spa = () => {
@@ -52,6 +61,8 @@ const Spa = () => {
   const [selectedSlot, setSelectedSlot] = React.useState(null);
   const [selectedDate, setSelectedDate] = React.useState(dayjs(new Date()));
   const [bookingPayload, setBookingPayload] = React.useState({});
+  const [openSpaDetailsDialog, setOpenSpaDetailsDialog] = React.useState(false);
+  const [spaDetailsData, setSpaDetailsData] = React.useState(null);
 
   const {
     data: spaSlots = {
@@ -133,6 +144,15 @@ const Spa = () => {
     }
   }, [bookSpa, spaToBook, selectedDate, selectedSlot]);
 
+  // handleSpaDetails
+  const handleSpaDetails = (item) => {
+    setOpenSpaDetailsDialog(true);
+    setSpaDetailsData(item);
+  };
+  const handleSpaDetailsDialogClose = () => {
+    setOpenSpaDetailsDialog(false);
+    setSpaDetailsData(null);
+  };
   return (
     <React.Fragment>
       <Box>
@@ -180,6 +200,8 @@ const Spa = () => {
                       height="200"
                       image={spa.images[0]}
                       alt={spa.name}
+                      onClick={() => handleSpaDetails(spa)}
+                      sx={{ cursor: "pointer" }}
                     />
                   ) : (
                     // <CardMedia
@@ -486,6 +508,15 @@ const Spa = () => {
                 ).toFixed(2)}`}
               </Typography>
             </Box>
+            <Box sx={{ width: "100%", mb: 1 }}>
+              {Boolean(spaToBook?.isAdvanceNeeded) && (
+                <Typography sx={{ color: "gray" }}>
+                  You need to pay ₹{(spaToBook?.price * 0.2).toFixed(2)} in
+                  advance
+                </Typography>
+              )}
+            </Box>
+
             <Button
               color="secondary"
               variant="contained"
@@ -510,6 +541,12 @@ const Spa = () => {
           </Box>
         </Drawer>
       </Box>
+
+      <SpaDetailsDialog
+        open={openSpaDetailsDialog}
+        handleSpaDetailsDialogClose={handleSpaDetailsDialogClose}
+        spaDetailsData={spaDetailsData}
+      />
       <BookingHistoryDrawer
         open={isBookingHistoryDrawer}
         handleClose={() => setIsBookingHistoryDrawer(false)}
@@ -531,5 +568,194 @@ const Spa = () => {
     </React.Fragment>
   );
 };
+
+const SpaDetailsDialog = memo(function ({
+  open,
+  handleSpaDetailsDialogClose,
+  spaDetailsData,
+}) {
+  console.log("spaDetailsData", spaDetailsData);
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+
+  const goToPrevious = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? spaDetailsData?.images?.length - 1 : prevIndex - 1
+    );
+  };
+
+  const goToNext = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === spaDetailsData?.images?.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  const goToSlide = (index) => {
+    setCurrentIndex(index);
+  };
+
+  return (
+    <Dialog
+      TransitionComponent={Transition}
+      open={open}
+      onClose={handleSpaDetailsDialogClose}
+      maxWidth="md"
+      fullWidth
+    >
+      <DialogTitle sx={{ fontWeight: 600, fontSize: 24 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Typography
+            sx={{
+              fontSize: "1.7rem",
+              fontFamily: "'Times New Roman', Times, serif",
+              fontWeight: "bold",
+              // color: "#606470",
+              color: "#0f0f0f",
+            }}
+          >
+            {spaDetailsData?.name}
+          </Typography>
+        </Box>
+      </DialogTitle>
+
+      <DialogContent>
+        <Box
+          sx={{
+            width: "100%",
+            margin: "0 auto",
+            position: "relative",
+          }}
+        >
+          {spaDetailsData?.images?.length === 0 ? (
+            <Box
+              sx={{
+                textAlign: "center",
+                fontSize: "1.5rem",
+                color: "#555",
+                // margin: "20px 0",
+              }}
+            >
+              No images found
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                height: "400px",
+                overflow: "hidden",
+                borderRadius: "8px",
+                position: "relative",
+                // border: "2px solid black",
+                width: "100%",
+              }}
+            >
+              {/* Main image slider */}
+              <Box
+                sx={{
+                  display: "flex",
+                  transform: `translateX(-${currentIndex * 100}%)`,
+                  transition: "transform 0.5s ease-in-out",
+                }}
+              >
+                {spaDetailsData?.images?.map((image, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      flex: "0 0 100%",
+                      width: "100%",
+                      height: "100%",
+                    }}
+                  >
+                    <Box
+                      component="img"
+                      src={image}
+                      alt={`Image ${index + 1}`}
+                      sx={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  </Box>
+                ))}
+              </Box>
+
+              {/* Navigation buttons */}
+              {/* Navigation buttons */}
+              {spaDetailsData?.images?.length > 1 && (
+                <>
+                  <IconButton
+                    onClick={goToPrevious}
+                    sx={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "16px",
+                      transform: "translateY(-50%)",
+                      width: "40px",
+                      height: "40px",
+                      backgroundColor: "rgba(0, 0, 0, 0.5)",
+                      color: "#fff",
+                      "&:hover": {
+                        backgroundColor: "rgba(0, 0, 0, 0.7)",
+                      },
+                    }}
+                  >
+                    <ChevronLeftIcon />
+                  </IconButton>
+                  <IconButton
+                    onClick={goToNext}
+                    sx={{
+                      position: "absolute",
+                      top: "50%",
+                      right: "16px",
+                      transform: "translateY(-50%)",
+                      width: "40px",
+                      height: "40px",
+                      backgroundColor: "rgba(0, 0, 0, 0.5)",
+                      color: "#fff",
+                      "&:hover": {
+                        backgroundColor: "rgba(0, 0, 0, 0.7)",
+                      },
+                    }}
+                  >
+                    <ChevronRightIcon />
+                  </IconButton>
+                </>
+              )}
+
+              {/* Dots navigation */}
+              <Box
+                sx={{
+                  position: "absolute",
+                  bottom: "16px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  display: "flex",
+                  gap: "8px",
+                }}
+              >
+                {spaDetailsData?.images?.map((_, index) => (
+                  <Box
+                    key={index}
+                    onClick={() => goToSlide(index)}
+                    sx={{
+                      width: "8px",
+                      height: "8px",
+                      borderRadius: "50%",
+                      backgroundColor:
+                        index === currentIndex
+                          ? "rgba(255, 255, 255, 1)"
+                          : "rgba(255, 255, 255, 0.5)",
+                      cursor: "pointer",
+                      transition: "background-color 0.3s ease",
+                    }}
+                  />
+                ))}
+              </Box>
+            </Box>
+          )}
+        </Box>
+      </DialogContent>
+    </Dialog>
+  );
+});
 
 export default Spa;

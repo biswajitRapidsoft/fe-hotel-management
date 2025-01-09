@@ -17,9 +17,14 @@ import {
   IconButton,
   DialogTitle,
   DialogContent,
-  Link,
+  // Link,
   InputAdornment,
+  Autocomplete,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+
 import AttachmentIcon from "@mui/icons-material/Attachment";
 import ClearIcon from "@mui/icons-material/Clear";
 import CloseIcon from "@mui/icons-material/Close";
@@ -34,6 +39,7 @@ import {
   useCreateMasterDiningTypeMutation,
   useGetAllMasterDiningTypeQuery,
   useAddFoodItemsMutation,
+  useGetFoodTypeQuery,
 } from "../../services/dashboard";
 import { useUploadFileMutation } from "../../services/hotel";
 
@@ -81,7 +87,6 @@ const FoodItemList = () => {
     sessionStorage.getItem("hotelIdForFoodItem")
   );
 
-  console.log("diningTypeList", diningTypeList);
   const handleSubmit = React.useCallback(
     (event) => {
       event.preventDefault();
@@ -292,7 +297,6 @@ const FoodItemList = () => {
 };
 
 const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
-  console.log("itemsDialog", itemsDialog);
   const imageRef = React.useRef(null);
   const [formData, setFormData] = React.useState({
     itemName: "",
@@ -300,29 +304,71 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
     perUnitPrice: "",
     Image: "",
     ImageUrl: "",
+    selectedFoodType: null,
+    selectedFoodTypeInputVal: "",
   });
+
+  const [itemToUpdate, setItemToUpdate] = React.useState(null);
+  console.log("itemToUpdate", itemToUpdate);
+
+  const {
+    data: diningType = {
+      data: [],
+    },
+  } = useGetFoodTypeQuery();
+
+  React.useEffect(() => {
+    if (Boolean(itemToUpdate)) {
+      setFormData({
+        itemName: itemToUpdate.itemName,
+        description: itemToUpdate.descriptions,
+        perUnitPrice: itemToUpdate.perUnitPrice,
+        selectedFoodType: itemToUpdate.foodtype,
+        selectedFoodTypeInputVal: itemToUpdate.foodtype,
+        ImageUrl: itemToUpdate.image,
+      });
+
+      if (itemToUpdate.imageList) {
+        setUploadedImageArr(itemToUpdate.imageList);
+      }
+    }
+  }, [itemToUpdate]);
+
   const isFormValid = React.useCallback(() => {
     return Boolean(
-      formData.itemName.trim() &&
-        formData.description.trim() &&
-        formData.perUnitPrice.trim()
+      formData?.itemName?.trim() &&
+        formData?.description?.trim() &&
+        formData?.perUnitPrice &&
+        formData?.selectedFoodType
     );
   }, [formData]);
 
-  const handleClearImage = React.useCallback(() => {
-    setFormData({
-      ...formData,
-      hotelImage: "",
-      hotelImageUrl: "",
-    });
-  }, [formData]);
+  // const handleClearImage = React.useCallback(() => {
+  //   setFormData({
+  //     ...formData,
+  //     Image: "",
+  //     ImageUrl: "",
+  //   });
+  // }, [formData]);
   const [uploadFile, uploadFileRes] = useUploadFileMutation();
   const [addFoodItem, addFoodItemRes] = useAddFoodItemsMutation();
+  const [uploadedImageArr, setUploadedImageArr] = React.useState([]);
+
   const handleChange = React.useCallback((e) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [e.target.name]: e.target.value,
-    }));
+    if (e.target.name === "perUnitPrice") {
+      setFormData((prevData) => ({
+        ...prevData,
+        // [e.target.name]: e.target.value.replace(/\D/g, ""),
+        [e.target.name]: e.target.value
+          .replace(/[^0-9.]/g, "")
+          .replace(/(\..*?)\..*/g, "$1"),
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [e.target.name]: e.target.value,
+      }));
+    }
   }, []);
   const handleAttachmentClick = React.useCallback(() => {
     imageRef.current.click();
@@ -334,7 +380,10 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
       perUnitPrice: "",
       Image: "",
       ImageUrl: "",
+      selectedFoodType: null,
+      selectedFoodTypeInputVal: "",
     });
+    setUploadedImageArr([]);
   }, []);
 
   const handleUploadImage = React.useCallback(
@@ -345,6 +394,8 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
         uploadFile(formData)
           .unwrap()
           .then((res) => {
+            setUploadedImageArr((prevData) => [...prevData, res.data]);
+
             setFormData((prev) => ({
               ...prev,
               ImageUrl: res.data,
@@ -370,32 +421,66 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
   const handleSubmit = React.useCallback(
     (event) => {
       event.preventDefault();
-      addFoodItem({
-        companyId: JSON.parse(sessionStorage.getItem("data")).companyId,
-        hotelId: sessionStorage.getItem("hotelIdForFoodItem"),
-        itemName: formData.itemName,
-        description: formData.description,
-        perUnitPrice: formData.perUnitPrice,
-        imageUrl: formData.ImageUrl,
-        masterTypeId: itemsDialog.masterTypeId,
-      })
-        .unwrap()
-        .then((res) => {
-          handleResetFormItem();
-          setSnack({
-            open: true,
-            severity: "success",
-            message: res.message,
-          });
-          handleClose();
+      if (Boolean(itemToUpdate)) {
+        addFoodItem({
+          companyId: JSON.parse(sessionStorage.getItem("data")).companyId,
+          hotelId: sessionStorage.getItem("hotelIdForFoodItem"),
+          itemName: formData.itemName,
+          description: formData.description,
+          perUnitPrice: formData.perUnitPrice,
+          // imageUrl: formData.ImageUrl,
+          imageUrl: uploadedImageArr.join(","),
+          masterTypeId: itemsDialog.masterTypeId,
+          foodType: formData.selectedFoodType,
+          id: itemToUpdate.id,
         })
-        .catch((err) => {
-          setSnack({
-            open: true,
-            severity: "error",
-            message: err.data?.message || err.data,
+          .unwrap()
+          .then((res) => {
+            handleResetFormItem();
+            setSnack({
+              open: true,
+              severity: "success",
+              message: res.message,
+            });
+            handleClose();
+          })
+          .catch((err) => {
+            setSnack({
+              open: true,
+              severity: "error",
+              message: err.data?.message || err.data,
+            });
           });
-        });
+      } else {
+        addFoodItem({
+          companyId: JSON.parse(sessionStorage.getItem("data")).companyId,
+          hotelId: sessionStorage.getItem("hotelIdForFoodItem"),
+          itemName: formData.itemName,
+          description: formData.description,
+          perUnitPrice: formData.perUnitPrice,
+          // imageUrl: formData.ImageUrl,
+          imageUrl: uploadedImageArr.join(","),
+          masterTypeId: itemsDialog.masterTypeId,
+          foodType: formData.selectedFoodType,
+        })
+          .unwrap()
+          .then((res) => {
+            handleResetFormItem();
+            setSnack({
+              open: true,
+              severity: "success",
+              message: res.message,
+            });
+            handleClose();
+          })
+          .catch((err) => {
+            setSnack({
+              open: true,
+              severity: "error",
+              message: err.data?.message || err.data,
+            });
+          });
+      }
     },
     [
       addFoodItem,
@@ -404,13 +489,27 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
       setSnack,
       itemsDialog?.masterTypeId,
       handleClose,
+      itemToUpdate,
+      uploadedImageArr,
     ]
   );
+
+  const handleDeleteImageFromArray = React.useCallback((imgUrl) => {
+    setUploadedImageArr((prevImg) => prevImg.filter((url) => url !== imgUrl));
+  }, []);
+
+  const handleDialogClose = React.useCallback(() => {
+    handleResetFormItem();
+    setItemToUpdate(null);
+    setUploadedImageArr([]);
+    handleClose();
+  }, [handleResetFormItem, handleClose]);
+
   return (
     <>
       <BootstrapDialog
         open={open}
-        onClose={handleClose}
+        onClose={handleDialogClose}
         aria-labelledby="password-change-dialog-title"
         maxWidth="lg"
         fullWidth
@@ -437,7 +536,7 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
         </DialogTitle>
         <IconButton
           aria-label="close"
-          onClick={handleClose}
+          onClick={handleDialogClose}
           sx={{
             position: "absolute",
             right: 30,
@@ -559,11 +658,84 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
                       name="perUnitPrice"
                       value={formData.perUnitPrice}
                       onChange={handleChange}
+                      inputProps={{
+                        maxLength: 10,
+                      }}
                       variant="standard"
                     />
                   </Grid>
-
                   <Grid size={3}>
+                    <Autocomplete
+                      // disabled={Boolean(hotelToUpdate)}
+                      options={diningType?.data}
+                      getOptionLabel={(option) => option}
+                      disabled={Boolean(itemToUpdate) ? true : false}
+                      value={formData.selectedFoodType}
+                      onChange={(e, newVal) =>
+                        handleChange({
+                          target: { name: "selectedFoodType", value: newVal },
+                        })
+                      }
+                      inputValue={formData.selectedFoodTypeInputVal}
+                      onInputChange={(e, newVal) =>
+                        handleChange({
+                          target: {
+                            name: "selectedFoodTypeInputVal",
+                            value: newVal,
+                          },
+                        })
+                      }
+                      clearOnEscape
+                      disablePortal
+                      popupIcon={<KeyboardArrowDownIcon color="primary" />}
+                      sx={{
+                        "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover":
+                          {
+                            backgroundColor: "#E9E5F1",
+                            color: "#280071",
+                            fontWeight: 600,
+                          },
+                        "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                          {
+                            backgroundColor: "#E9E5F1",
+                            color: "#280071",
+                            fontWeight: 600,
+                          },
+                      }}
+                      clearIcon={<ClearIcon color="primary" />}
+                      PaperComponent={(props) => (
+                        <Paper
+                          sx={{
+                            background: "#fff",
+                            color: "#B4B4B4",
+                            borderRadius: "10px",
+                          }}
+                          {...props}
+                        />
+                      )}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          disabled={Boolean(itemToUpdate) ? true : false}
+                          label={
+                            <React.Fragment>
+                              Select Food Type{" "}
+                              <Box
+                                component="span"
+                                sx={{
+                                  color: (theme) => theme.palette.error.main,
+                                }}
+                              >
+                                *
+                              </Box>
+                            </React.Fragment>
+                          }
+                          variant="standard"
+                        />
+                      )}
+                    />
+                  </Grid>
+                  {/* <Grid size={3}>
                     {formData?.ImageUrl ? (
                       <Box
                         sx={{
@@ -627,7 +799,7 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
                         onChange={handleUploadImage}
                         label={
                           <React.Fragment>
-                            Hotel Logo{" "}
+                            Item image{" "}
                             <Box
                               component="span"
                               sx={{
@@ -641,6 +813,84 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
                         variant="standard"
                       />
                     )}
+                  </Grid> */}
+
+                  <Grid size={3}>
+                    <TextField
+                      type="file"
+                      name="hotelImage"
+                      slotProps={{
+                        htmlInput: {
+                          style: {
+                            // opacity: formData.hotelImage ? 1 : 0,
+                            opacity: 0,
+                          },
+                          ref: imageRef,
+                          accept: "image/*",
+                        },
+
+                        input: {
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <IconButton
+                                color="primary"
+                                onClick={handleAttachmentClick}
+                              >
+                                <AttachmentIcon
+                                  sx={{ transform: "rotate(45deg)" }}
+                                />
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        },
+                      }}
+                      onChange={handleUploadImage}
+                      label={
+                        <React.Fragment>
+                          Item image{" "}
+                          <Box
+                            component="span"
+                            sx={{
+                              color: (theme) => theme.palette.error.main,
+                            }}
+                          >
+                            *
+                          </Box>
+                        </React.Fragment>
+                      }
+                      variant="standard"
+                    />
+                  </Grid>
+                  <Grid size={12}>
+                    <Grid container spacing={2}>
+                      {uploadedImageArr.map((item, index) => {
+                        return (
+                          <Grid
+                            size={3}
+                            key={item}
+                            sx={{ position: "relative" }}
+                          >
+                            <Box
+                              component="img"
+                              src={item}
+                              alt={`image ${index}`}
+                              sx={{
+                                width: "100%",
+                                height: "100%",
+                                backgroundColor: "red",
+                              }}
+                            />
+                            <IconButton
+                              sx={{ position: "absolute", right: 1 }}
+                              color="error"
+                              onClick={() => handleDeleteImageFromArray(item)}
+                            >
+                              <CloseIcon />
+                            </IconButton>
+                          </Grid>
+                        );
+                      })}
+                    </Grid>
                   </Grid>
                 </Grid>
 
@@ -669,7 +919,9 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
                     disabled={!isFormValid()}
                     type="submit"
                   >
-                    Add Food Item
+                    {Boolean(itemToUpdate)
+                      ? "Update Food Item"
+                      : "Add Food Item"}
                   </Button>
                 </Box>
               </Box>
@@ -708,6 +960,7 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
                         <TableCell>Food Type</TableCell>
                         <TableCell>Price</TableCell>
                         <TableCell>Image</TableCell>
+                        <TableCell>Action</TableCell>
                         <TableCell />
                       </TableRow>
                     </TableHead>
@@ -744,6 +997,11 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
                                 />
                                 {item.name}
                               </Box>
+                            </TableCell>
+                            <TableCell>
+                              <IconButton onClick={() => setItemToUpdate(item)}>
+                                <EditIcon />
+                              </IconButton>
                             </TableCell>
                           </TableRow>
                         );

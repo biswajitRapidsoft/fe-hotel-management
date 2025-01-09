@@ -76,6 +76,11 @@ const Row = ({ booking, index, setUpdateStatusDialog }) => {
           .slice(0, 5)}-${booking.endTime
           .split(" ")[1]
           .slice(0, 5)}`}</TableCell>
+        <TableCell>
+          {booking?.roomDto?.roomNo} (floor-{booking?.roomDto?.floorNo})
+        </TableCell>
+        <TableCell>{booking?.basePrice}</TableCell>
+        <TableCell>{booking?.remarks}</TableCell>
         <TableCell
           sx={{
             color: (theme) =>
@@ -185,6 +190,23 @@ function FormDialog({
     setSelectedStatusInputVal(order?.status || "");
   }, [open, order]);
 
+  const isStatusDisabled = React.useCallback(
+    (option) => {
+      const statusSequence = [
+        "BOOKED",
+        "CONFIRMED",
+        "FOOD_PREPARING",
+        "ORDER_PLACED",
+        "DONE",
+        "CANCELLED",
+      ];
+      const currentStatusIndex = statusSequence.indexOf(order?.status);
+      const optionIndex = statusSequence.indexOf(option);
+
+      return optionIndex < currentStatusIndex;
+    },
+    [order]
+  );
   return (
     <React.Fragment>
       <Dialog
@@ -240,7 +262,7 @@ function FormDialog({
         }}
       >
         <DialogTitle sx={{ fontWeight: 600, fontSize: 24 }}>
-          Update Order Status
+          Update Spa Status
           <Typography sx={{ fontWeight: 600, color: "#7A7A7A" }}>
             {order?.bookingDetails?.orderId}
           </Typography>
@@ -271,6 +293,7 @@ function FormDialog({
                     },
                 }}
                 clearIcon={<ClearIcon color="primary" />}
+                getOptionDisabled={isStatusDisabled}
                 PaperComponent={(props) => (
                   <Paper
                     sx={{
@@ -500,6 +523,9 @@ const SpaAdmin = () => {
                 <TableCell>Guest</TableCell>
                 <TableCell>Date</TableCell>
                 <TableCell>Slot</TableCell>
+                <TableCell>Room No.</TableCell>
+                <TableCell>Base Price</TableCell>
+                <TableCell>Remarks</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell>Action</TableCell>
               </TableRow>

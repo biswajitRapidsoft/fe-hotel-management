@@ -34,6 +34,7 @@ const SpaType = () => {
     selectedHotelInputVal: "",
     basePrice: "",
     isAdvance: false,
+    advancePercentage: "",
   });
 
   const [saveSpaType, saveSpaTypeRes] = useSaveSpaTypeMutation();
@@ -47,6 +48,15 @@ const SpaType = () => {
         ...prevData,
         [e.target.name]: e.target.value.replace(/\D/g, ""),
       }));
+    } else if (e.target.name === "advancePercentage") {
+      setFormData((prevData) => {
+        const numericValue = e.target.value.replace(/\D/g, "");
+        const cappedValue = Math.min(parseInt(numericValue || "0", 10), 100);
+        return {
+          ...prevData,
+          [e.target.name]: cappedValue,
+        };
+      });
     } else if (e.target.type === "checkbox") {
       setFormData((prevData) => ({
         ...prevData,
@@ -67,6 +77,7 @@ const SpaType = () => {
       selectedHotelInputVal: "",
       basePrice: "",
       isAdvance: false,
+      advancePercentage: "",
     });
     setUploadedImageArr([]);
   }, []);
@@ -85,6 +96,7 @@ const SpaType = () => {
         hotelId: sessionStorage.getItem("hotelIdForSpaType"),
         isAdvanceNeeded: formData.isAdvance,
         images: uploadedImageArr,
+        advancePaymentPercentage: formData.advancePercentage,
       })
         .unwrap()
         .then((res) => {
@@ -290,9 +302,35 @@ const SpaType = () => {
               name="basePrice"
               value={formData.basePrice}
               onChange={handleChange}
+              inputProps={{
+                maxLength: 10,
+              }}
               variant="standard"
             />
           </Grid>
+          {formData.isAdvance && (
+            <Grid size={3}>
+              <TextField
+                label={
+                  <React.Fragment>
+                    Advance Percentage{" "}
+                    <Box
+                      component="span"
+                      sx={{
+                        color: (theme) => theme.palette.error.main,
+                      }}
+                    >
+                      *
+                    </Box>
+                  </React.Fragment>
+                }
+                name="advancePercentage"
+                value={formData.advancePercentage}
+                onChange={handleChange}
+                variant="standard"
+              />
+            </Grid>
+          )}
           <Grid size={3}>
             <FormGroup sx={{ mt: 1 }}>
               <FormControlLabel

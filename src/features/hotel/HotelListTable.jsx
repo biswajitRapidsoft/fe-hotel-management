@@ -53,7 +53,7 @@ const tableHeader = [
   { label: "Spa Types" },
   { label: "Parkings" },
   { label: "PromoCode" },
-  { label: "Food Items" },
+  { label: "Restaurant Items" },
   { label: "Action" },
 ];
 

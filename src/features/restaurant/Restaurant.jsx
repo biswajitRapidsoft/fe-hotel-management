@@ -1262,47 +1262,50 @@ const CustomFoodCard = React.memo(function ({ foodItem, handleAddItemToCart }) {
                 </Box>
               </Box>
               {/* {foodItem.ratingPoints && ( */}
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
+              {!Boolean(foodItem.ratingPoints === 0) && (
                 <Box
                   sx={{
-                    borderRadius: "7px",
                     display: "flex",
-                    gap: 0.7,
-                    // backgroundColor: "green",
-                    backgroundColor:
-                      foodItem.ratingPoints < 3 ? "red" : "green",
-
-                    px: 0.8,
-                    // p: 0.4,
-                    // py: 0.2,
                     justifyContent: "center",
                     alignItems: "center",
                   }}
                 >
-                  <Typography
+                  <Box
                     sx={{
-                      color: "#fff",
-                      fontSize: "0.9rem",
-                      fontWeight: "bold",
+                      borderRadius: "7px",
+                      display: "flex",
+                      gap: 0.7,
+                      // backgroundColor: "green",
+                      backgroundColor:
+                        foodItem.ratingPoints < 3 ? "red" : "green",
+
+                      px: 0.8,
+                      // p: 0.4,
+                      // py: 0.2,
+                      justifyContent: "center",
+                      alignItems: "center",
                     }}
                   >
-                    {/* {foodItem.ratingPoints
+                    <Typography
+                      sx={{
+                        color: "#fff",
+                        fontSize: "0.9rem",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {/* {foodItem.ratingPoints
                       ? foodItem.ratingPoints.toFixed(1)
                       : 1} */}
-                    {typeof foodItem?.ratingPoints === "number"
-                      ? foodItem.ratingPoints.toFixed(1)
-                      : "1.0"}
-                  </Typography>
-                  <StarIcon sx={{ color: "#fff", fontSize: "0.9rem" }} />
+                      {typeof foodItem?.ratingPoints === "number"
+                        ? foodItem.ratingPoints.toFixed(1)
+                        : "1.0"}
+                    </Typography>
+                    <StarIcon sx={{ color: "#fff", fontSize: "0.9rem" }} />
+                  </Box>
+                  {/* <Rating value={4} readOnly /> */}
                 </Box>
-                {/* <Rating value={4} readOnly /> */}
-              </Box>
+              )}
+
               {/* // )} */}
               {/* </Grid> */}
               {/* </Grid> */}
@@ -1320,6 +1323,9 @@ const CustomFoodCard = React.memo(function ({ foodItem, handleAddItemToCart }) {
             >
               <Box>
                 <Typography>{foodItem.itemName}</Typography>
+                <Typography sx={{ color: "gray" }}>
+                  {foodItem?.descriptions}
+                </Typography>
                 <Typography sx={{ fontWeight: "bold" }}>
                   Rs. {foodItem.perUnitPrice}
                 </Typography>
