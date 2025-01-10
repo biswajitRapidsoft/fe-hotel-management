@@ -24,6 +24,7 @@ import {
   FormControlLabel,
   Radio,
 } from "@mui/material";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import InfoIcon from "@mui/icons-material/Info";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -53,6 +54,13 @@ import {
 } from "../../helper/constants";
 
 const Row = ({ booking, index, setUpdateStatusDialog }) => {
+  const [showFullText, setShowFullText] = React.useState(false);
+  const handleToggle = () => setShowFullText((prev) => !prev);
+  const truncatedText =
+    booking?.remarks?.length > 20
+      ? `${booking?.remarks.substring(0, 20)}`
+      : booking?.remarks;
+
   return (
     <React.Fragment>
       <TableRow
@@ -76,11 +84,33 @@ const Row = ({ booking, index, setUpdateStatusDialog }) => {
           .slice(0, 5)}-${booking.endTime
           .split(" ")[1]
           .slice(0, 5)}`}</TableCell>
-        <TableCell>
-          {booking?.roomDto?.roomNo} (floor-{booking?.roomDto?.floorNo})
+        <TableCell align="center">
+          {booking?.roomDto?.roomNo ? (
+            <>
+              {booking?.roomDto?.roomNo} (floor-{booking?.roomDto?.floorNo})
+            </>
+          ) : (
+            "-"
+          )}
         </TableCell>
         <TableCell>{booking?.basePrice}</TableCell>
-        <TableCell>{booking?.remarks}</TableCell>
+        {/* <TableCell>{booking?.remarks}</TableCell> */}
+        <TableCell>
+          {!showFullText ? (
+            <>
+              {truncatedText}{" "}
+              {booking?.remarks?.length > 20 && (
+                <IconButton size="small" onClick={handleToggle}>
+                  <MoreHorizIcon fontSize="small" />
+                </IconButton>
+              )}
+            </>
+          ) : (
+            <Typography onClick={handleToggle} style={{ cursor: "pointer" }}>
+              {booking?.remarks}
+            </Typography>
+          )}
+        </TableCell>
         <TableCell
           sx={{
             color: (theme) =>

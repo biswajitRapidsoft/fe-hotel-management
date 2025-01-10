@@ -1,17 +1,21 @@
-import React, { memo, useCallback, useMemo, useState } from "react";
-import LoadingComponent from "../../components/LoadingComponent";
-import SnackAlert from "../../components/Alert";
+import React, {
+  // memo, useCallback,
+  useMemo,
+  // useState,
+} from "react";
+// import LoadingComponent from "../../components/LoadingComponent";
+// import SnackAlert from "../../components/Alert";
 import {
   Box,
-  Button,
+  // Button,
   Divider,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
+  // Paper,
+  // Table,
+  // TableBody,
+  // TableCell,
+  // TableContainer,
+  // TableHead,
+  // TableRow,
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
@@ -19,47 +23,48 @@ import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import moment from "moment";
 
-const getCellValue = (obj, key, fallback = "") => {
-  if (!key) return undefined;
-  return key
-    .split(".")
-    .reduce(
-      (acc, part) => (acc && acc[part] !== undefined ? acc[part] : fallback),
-      obj
-    );
-};
+// const getCellValue = (obj, key, fallback = "") => {
+//   if (!key) return undefined;
+//   return key
+//     .split(".")
+//     .reduce(
+//       (acc, part) => (acc && acc[part] !== undefined ? acc[part] : fallback),
+//       obj
+//     );
+// };
 const BarInvoice = () => {
   const { bookingRefNo } = useParams("bookingRefNo");
-  const [isPrinting, setIsPrinting] = useState(false);
-  const [snack, setSnack] = useState({
-    open: false,
-    message: "",
-    severity: "",
-  });
+  // const [isPrinting, setIsPrinting] = useState(false);
+  // const [snack, setSnack] = useState({
+  //   open: false,
+  //   message: "",
+  //   severity: "",
+  // });
 
   const invoiceData = useMemo(() => {
     const sessionedEventData = sessionStorage.getItem(
-      `foodBillInvoice-${bookingRefNo}`
+      `barBillInvoice-${bookingRefNo}`
     );
     return sessionedEventData ? JSON.parse(sessionedEventData) : null;
   }, [bookingRefNo]);
 
-  const barListTableHeaders = useMemo(
-    () => [
-      { label: "Sl. No.", key: "sno" },
-      { label: "Item", key: "itemName" },
-      { label: "Quantity", key: "totalQuantity" },
-    ],
-    []
-  );
+  console.log("invoiceData", invoiceData);
+  // const barListTableHeaders = useMemo(
+  //   () => [
+  //     { label: "Sl. No.", key: "sno" },
+  //     { label: "Item", key: "itemName" },
+  //     { label: "Quantity", key: "totalQuantity" },
+  //   ],
+  //   []
+  // );
 
-  const handlePrint = useCallback(() => {
-    setIsPrinting(true);
-    setTimeout(() => {
-      window.print();
-      setIsPrinting(false);
-    }, 0);
-  }, []);
+  // const handlePrint = useCallback(() => {
+  //   setIsPrinting(true);
+  //   setTimeout(() => {
+  //     window.print();
+  //     setIsPrinting(false);
+  //   }, 0);
+  // }, []);
   const hotelLogo = JSON.parse(sessionStorage.getItem("data")).hotelLogoUrl;
 
   return (
@@ -153,6 +158,751 @@ const BarInvoice = () => {
                   </Typography>
                 </Box>
               </Box>
+
+              <Typography
+                sx={{
+                  width: "100%",
+                  textAlign: "center",
+                  fontSize: "17px",
+                  fontWeight: 600,
+                  textDecoration: "underline",
+                }}
+              >
+                Bar Invoice
+              </Typography>
+
+              <Grid container size={12}>
+                {/* name */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Name
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {Boolean(invoiceData?.bookingDto?.firstName) &&
+                        `${invoiceData?.bookingDto?.firstName}`}
+                      {Boolean(invoiceData?.bookingDto?.middleName) &&
+                        ` ${invoiceData?.bookingDto?.middleName}`}
+                      {Boolean(invoiceData?.bookingDto?.lastName) &&
+                        ` ${invoiceData?.bookingDto?.lastName}`}{" "}
+                    </Typography>
+                  </Typography>
+                </Grid>
+
+                {/* date */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Invoice Date
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {/* {invoiceData?.bookingDto?.checkOutDate} */}
+                      {dayjs().format("DD-MM-YYYY")}
+                    </Typography>
+                  </Typography>
+                </Grid>
+
+                {/* address */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Address
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {invoiceData?.bookingDto?.address}
+                    </Typography>
+                  </Typography>
+                </Grid>
+                {/* booking ref no */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Booking No.
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {invoiceData?.bookingDto?.bookingRefNumber}
+                    </Typography>
+                  </Typography>
+                </Grid>
+
+                {/* email id */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Email ID
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {invoiceData?.bookingDto?.email || "NA"}
+                    </Typography>
+                  </Typography>
+                </Grid>
+                {/* booking date and time */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Booking Date
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {/* {invoiceData?.bookingDto?.bookedOn || "NA"} */}
+                      {moment(invoiceData?.bookingDto?.bookedOn).format(
+                        "DD-MM-YYYY hh:mm A"
+                      )}
+                    </Typography>
+                  </Typography>
+                </Grid>
+
+                {/* phone nos */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Phone No
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {invoiceData?.bookingDto?.phoneNumber}
+                    </Typography>
+                  </Typography>
+                </Grid>
+
+                {/* Room category */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Room category{" "}
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {invoiceData?.roomType?.type}
+                    </Typography>
+                  </Typography>
+                </Grid>
+
+                {/*Company Name{" "}
+                 */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Company Name{" "}
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {/* {invoiceData?.roomType?.type} */}
+                      {JSON.parse(sessionStorage.getItem("data")).companyName}
+                    </Typography>
+                  </Typography>
+                </Grid>
+
+                {/* PAX */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Pax
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {invoiceData?.bookingDto?.bookingMapData?.length}
+                    </Typography>
+                  </Typography>
+                </Grid>
+
+                {/* gst no. */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    GST Number
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {/* {invoiceData?.roomType?.type} */}
+                      --
+                    </Typography>
+                  </Typography>
+                </Grid>
+
+                {/* GSTN Bill */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    GSTN Bill
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {/* {invoiceData?.roomType?.type} */}
+                      --
+                    </Typography>
+                  </Typography>
+                </Grid>
+                {/* arrival date and time */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Arrival
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {invoiceData?.bookingDto?.checkInDate || "NA"}
+                    </Typography>
+                  </Typography>
+                </Grid>
+
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Room No.
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {invoiceData?.roomNo || "NA"}
+                    </Typography>
+                  </Typography>
+                </Grid>
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Departure
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {invoiceData?.bookingDto?.checkOutDate || "NA"}
+                    </Typography>
+                  </Typography>
+                </Grid>
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Billing Type
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {/* {invoiceData?.bookingDto?.checkOutDate || "NA"} */}
+                      Direct Payment
+                    </Typography>
+                  </Typography>
+                </Grid>
+              </Grid>
+
+              <Divider
+                sx={{
+                  borderBottomWidth: 2,
+                  backgroundColor: "black",
+                  my: 0.5,
+                }}
+              />
+
+              <Grid
+                container
+                size={12}
+                spacing={1}
+                sx={{
+                  gridTemplateColumns: {
+                    xs: "2fr", // Single column on small screens
+                  },
+                  gridAutoFlow: "dense", // Allow items to fill empty spaces
+                  width: "100%",
+                }}
+              ></Grid>
             </Grid>
           </Grid>
         </Box>

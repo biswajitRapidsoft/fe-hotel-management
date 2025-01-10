@@ -42,7 +42,8 @@ const ParkingBillInvoice = React.lazy(() =>
 const FoodInvoice = React.lazy(() =>
   import("./features/foodInvoice/FoodInvoice")
 );
-const BarInvoice = React.lazy(() => import("./features/BarInvoice/BarInvoice"));
+// const BarInvoice = React.lazy(() => import("./features/BarInvoice/BarInvoice"));
+const BarInvoice = React.lazy(() => import("./features/bar/BarInvoice"));
 const HallBookingDashboard = React.lazy(() =>
   import("./features/hallBookingDashboard/HallBookingDashboard")
 );

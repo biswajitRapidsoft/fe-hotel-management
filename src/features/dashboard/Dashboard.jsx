@@ -1928,10 +1928,12 @@ const RoomServiceCard = memo(function ({
                             >
                               {(isSelectedRoom?.bookingDto?.checkInDate &&
                                 moment(
-                                  isSelectedRoom?.bookingDto?.checkInDate +
-                                    " utc"
+                                  convertDateFormat(
+                                    isSelectedRoom?.bookingDto?.checkInDate
+                                  ) + " utc"
                                 ).format("DD/MM/YYYY hh:mma")) ||
                                 "NA"}
+                              {/* {isSelectedRoom?.bookingDto?.checkInDate} */}
                             </Typography>
                           </Typography>
                         </Grid>
@@ -1976,10 +1978,17 @@ const RoomServiceCard = memo(function ({
                               }}
                             >
                               {/* {isSelectedRoom?.bookingDto?.checkOutDate || "NA"} */}
-                              {(isSelectedRoom?.bookingDto?.checkOutDate &&
+                              {/* {(isSelectedRoom?.bookingDto?.checkOutDate &&
                                 moment(
                                   isSelectedRoom?.bookingDto?.checkOutDate +
                                     " utc"
+                                ).format("DD/MM/YYYY hh:mma")) ||
+                                "NA"} */}
+                              {(isSelectedRoom?.bookingDto?.checkOutDate &&
+                                moment(
+                                  convertDateFormat(
+                                    isSelectedRoom?.bookingDto?.checkOutDate
+                                  ) + " utc"
                                 ).format("DD/MM/YYYY hh:mma")) ||
                                 "NA"}
                             </Typography>
@@ -3214,7 +3223,7 @@ const RoomServiceCard = memo(function ({
                       "Food Invoice",
                       "Final Invoice",
                       "Bar Invoice",
-                      "Spa Invoice",
+                      // "Spa Invoice",
                     ]}
                     // disableClearable
                     fullWidth
@@ -9349,5 +9358,17 @@ const Dashboard = () => {
     </>
   );
 };
+
+function convertDateFormat(input) {
+  // Split the input date and time
+  const [date, time] = input.split(" ");
+
+  // Split the date into day, month, and year
+  const [day, month, year] = date.split("-");
+
+  // Return the new format: MM-DD-YYYY hh:mm
+  console.log(time + " : " + time + "timeeeeeee");
+  return `${month}-${day}-${year} ${time}`;
+}
 
 export default Dashboard;

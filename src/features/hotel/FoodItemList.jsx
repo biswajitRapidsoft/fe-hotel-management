@@ -371,6 +371,10 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
     }
   }, []);
   const handleAttachmentClick = React.useCallback(() => {
+    if (imageRef.current) {
+      imageRef.current.value = "";
+    }
+
     imageRef.current.click();
   }, []);
   const handleResetFormItem = React.useCallback(() => {
@@ -405,6 +409,10 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
               message: res.message,
               severity: "success",
             });
+
+            if (imageRef.current) {
+              imageRef.current.value = "";
+            }
           })
           .catch((err) => {
             setSnack({
@@ -413,6 +421,9 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
               severity: "error",
             });
           });
+        if (imageRef.current) {
+          imageRef.current.value = "";
+        }
       }
     },
     [uploadFile, setSnack]
@@ -496,6 +507,10 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
 
   const handleDeleteImageFromArray = React.useCallback((imgUrl) => {
     setUploadedImageArr((prevImg) => prevImg.filter((url) => url !== imgUrl));
+
+    if (imageRef.current) {
+      imageRef.current.value = "";
+    }
   }, []);
 
   const handleDialogClose = React.useCallback(() => {
@@ -982,21 +997,39 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
                             <TableCell>{item?.foodtype}</TableCell>
                             <TableCell>{item?.perUnitPrice}</TableCell>
                             <TableCell>
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 1,
-                                  //   width: 230,
-                                }}
-                              >
+                              {item?.imageList?.length > 0 ? (
                                 <Box
-                                  component="img"
-                                  src={item?.image}
-                                  sx={{ width: 50, height: 50 }}
-                                />
-                                {item.name}
-                              </Box>
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1,
+                                    //   width: 230,
+                                  }}
+                                >
+                                  <Box
+                                    component="img"
+                                    src={item?.imageList[0]}
+                                    sx={{ width: 50, height: 50 }}
+                                  />
+                                  {item.name}
+                                </Box>
+                              ) : (
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1,
+                                    //   width: 230,
+                                  }}
+                                >
+                                  <Box
+                                    component="img"
+                                    src={item?.image}
+                                    sx={{ width: 50, height: 50 }}
+                                  />
+                                  {item.name}
+                                </Box>
+                              )}
                             </TableCell>
                             <TableCell>
                               <IconButton onClick={() => setItemToUpdate(item)}>
