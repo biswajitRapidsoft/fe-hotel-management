@@ -1,6 +1,4 @@
 import React, { memo, useCallback, useMemo, useState } from "react";
-// import LoadingComponent from "../../components/LoadingComponent";
-// import SnackAlert from "../../components/Alert";
 import {
   Box,
   Button,
@@ -15,9 +13,9 @@ import {
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import { useParams } from "react-router-dom";
+// import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
-import moment from "moment";
+// import moment from "moment";
 
 // const getCellValue = (obj, key, fallback = "") => {
 //   if (!key) return undefined;
@@ -28,48 +26,17 @@ import moment from "moment";
 //       obj
 //     );
 // };
-const BarInvoice = () => {
-  const { bookingRefNo } = useParams("bookingRefNo");
-  const [isPrinting, setIsPrinting] = useState(false);
-  // const [snack, setSnack] = useState({
-  //   open: false,
-  //   message: "",
-  //   severity: "",
-  // });
 
-  const invoiceData = useMemo(() => {
-    const sessionedEventData = sessionStorage.getItem(
-      `barBillInvoice-${bookingRefNo}`
-    );
-    return sessionedEventData ? JSON.parse(sessionedEventData) : null;
-  }, [bookingRefNo]);
-
-  console.log("invoiceData", invoiceData);
-  const totalBarExpense = useMemo(() => {
-    const sum =
-      invoiceData?.bookingDto?.barOrderDtos?.reduce(
-        (sum, item) => sum + item?.totalAmount,
-        0
-      ) || 0;
-    return sum.toFixed(2);
-  }, [invoiceData]);
-
-  const subTotalBarExpense = useMemo(() => {
-    const sum =
-      invoiceData?.bookingDto?.barOrderDtos?.reduce(
-        (sum, item) => sum + (item?.totalAmount + item?.gstPrice),
-        0
-      ) || 0;
-    return sum.toFixed(2);
-  }, [invoiceData]);
-  // const barListTableHeaders = useMemo(
+const SpaInvoice = () => {
+  // const foodListTableHeaders = useMemo(
   //   () => [
   //     { label: "Sl. No.", key: "sno" },
-  //     { label: "Item", key: "itemName" },
-  //     { label: "Quantity", key: "totalQuantity" },
+  //     { label: "Start Time", key: "startTime" },
+  //     { label: "End Time", key: "endTime" },
   //   ],
   //   []
   // );
+  const [isPrinting, setIsPrinting] = useState(false);
 
   const handlePrint = useCallback(() => {
     setIsPrinting(true);
@@ -78,7 +45,26 @@ const BarInvoice = () => {
       setIsPrinting(false);
     }, 0);
   }, []);
-  const hotelLogo = JSON.parse(sessionStorage.getItem("data")).hotelLogoUrl;
+
+  const invoiceData = useMemo(() => {
+    const sessionedEventData = sessionStorage.getItem("orderForSpaInvoice");
+    return sessionedEventData ? JSON.parse(sessionedEventData) : null;
+  }, []);
+
+  const hotelLogo = JSON.parse(sessionStorage.getItem("orderForSpaInvoice"))
+    .hotelDto?.logoUrl;
+
+  const subTotalSpaCharges = useMemo(() => {
+    return invoiceData?.totalPrice - invoiceData?.paidAmount;
+  }, [invoiceData]);
+
+  const totalSpaCharges = useMemo(() => {
+    return invoiceData?.totalPrice - invoiceData?.totalPrice * 0.18;
+  }, [invoiceData]);
+
+  const gstCharges = useMemo(() => {
+    return invoiceData?.totalPrice * 0.18;
+  }, [invoiceData]);
 
   return (
     <>
@@ -117,7 +103,8 @@ const BarInvoice = () => {
                   component="img"
                   src={hotelLogo}
                   sx={{ width: 120, height: 120 }}
-                />{" "}
+                />
+                <Typography></Typography>
                 <Box>
                   <Typography
                     sx={{
@@ -126,7 +113,7 @@ const BarInvoice = () => {
                       textAlign: "right",
                     }}
                   >
-                    {invoiceData?.bookingDto?.hotel?.name}
+                    {invoiceData?.hotelDto?.name}
                   </Typography>
                   <Typography
                     sx={{
@@ -135,9 +122,9 @@ const BarInvoice = () => {
                       textAlign: "right",
                     }}
                   >
-                    {invoiceData?.bookingDto?.hotel?.address}
+                    {invoiceData?.hotelDto?.address}
                     {", "}
-                    {invoiceData?.bookingDto?.hotel?.state?.name}{" "}
+                    {invoiceData?.hotelDto?.state?.name}{" "}
                   </Typography>
                   <Typography
                     sx={{
@@ -147,7 +134,7 @@ const BarInvoice = () => {
                     }}
                   >
                     {" "}
-                    {invoiceData?.bookingDto?.hotel?.gstIn}
+                    {invoiceData?.hotelDto?.gstIn}
                   </Typography>
                   <Typography
                     sx={{
@@ -157,8 +144,9 @@ const BarInvoice = () => {
                     }}
                   >
                     {" "}
-                    {invoiceData?.bookingDto?.hotel?.email}
+                    {invoiceData?.hotelDto?.email}
                   </Typography>
+
                   <Typography
                     sx={{
                       fontWeight: "bold",
@@ -166,8 +154,8 @@ const BarInvoice = () => {
                       textAlign: "right",
                     }}
                   >
-                    {invoiceData?.bookingDto?.hotel?.contactNos?.length &&
-                      invoiceData?.bookingDto?.hotel?.contactNos?.join(", ")}
+                    {invoiceData?.hotelDto?.contactNos?.length &&
+                      invoiceData?.hotelDto?.contactNos?.join(", ")}
                   </Typography>
                 </Box>
               </Box>
@@ -181,22 +169,21 @@ const BarInvoice = () => {
                   textDecoration: "underline",
                 }}
               >
-                Bar Invoice
+                Spa Invoice
               </Typography>
 
               <Grid container size={12}>
-                {/* name */}
                 <Grid size={2}>
                   <Typography
                     sx={{
                       fontSize: "15.5px",
-                      // color: "#707070",
                       fontWeight: 600,
                     }}
                   >
                     Name
                   </Typography>
                 </Grid>
+
                 <Grid size={4}>
                   <Typography
                     sx={{
@@ -224,12 +211,12 @@ const BarInvoice = () => {
                         // fontWeight: 600,
                       }}
                     >
-                      {Boolean(invoiceData?.bookingDto?.firstName) &&
-                        `${invoiceData?.bookingDto?.firstName}`}
-                      {Boolean(invoiceData?.bookingDto?.middleName) &&
-                        ` ${invoiceData?.bookingDto?.middleName}`}
-                      {Boolean(invoiceData?.bookingDto?.lastName) &&
-                        ` ${invoiceData?.bookingDto?.lastName}`}{" "}
+                      {Boolean(invoiceData?.customerFirstName) &&
+                        `${invoiceData?.customerFirstName}`}
+                      {Boolean(invoiceData?.customerMiddleName) &&
+                        ` ${invoiceData?.customerMiddleName}`}
+                      {Boolean(invoiceData?.customerLastName) &&
+                        ` ${invoiceData?.customerLastName}`}{" "}
                     </Typography>
                   </Typography>
                 </Grid>
@@ -318,7 +305,7 @@ const BarInvoice = () => {
                         // fontWeight: 600,
                       }}
                     >
-                      {invoiceData?.bookingDto?.address}
+                      {invoiceData?.customerAddress}
                     </Typography>
                   </Typography>
                 </Grid>
@@ -361,7 +348,7 @@ const BarInvoice = () => {
                         // fontWeight: 600,
                       }}
                     >
-                      {invoiceData?.bookingDto?.bookingRefNumber}
+                      {invoiceData?.bookingSpaRefNumber}
                     </Typography>
                   </Typography>
                 </Grid>
@@ -384,6 +371,7 @@ const BarInvoice = () => {
                       fontSize: "15.5px",
                       // color: "#707070",
                       fontWeight: 600,
+                      wordBreak: "break-all",
                     }}
                   >
                     <Typography
@@ -405,7 +393,7 @@ const BarInvoice = () => {
                         // fontWeight: 600,
                       }}
                     >
-                      {invoiceData?.bookingDto?.email || "NA"}
+                      {invoiceData?.customerEmail || "NA"}
                     </Typography>
                   </Typography>
                 </Grid>
@@ -448,10 +436,10 @@ const BarInvoice = () => {
                         // fontWeight: 600,
                       }}
                     >
-                      {/* {invoiceData?.bookingDto?.bookedOn || "NA"} */}
-                      {moment(invoiceData?.bookingDto?.bookedOn).format(
+                      {invoiceData?.bookingDate || "NA"}
+                      {/* {moment(invoiceData?.bookingDate).format(
                         "DD-MM-YYYY hh:mm A"
-                      )}
+                      )} */}
                     </Typography>
                   </Typography>
                 </Grid>
@@ -495,141 +483,7 @@ const BarInvoice = () => {
                         // fontWeight: 600,
                       }}
                     >
-                      {invoiceData?.bookingDto?.phoneNumber}
-                    </Typography>
-                  </Typography>
-                </Grid>
-
-                {/* Room category */}
-                <Grid size={2}>
-                  <Typography
-                    sx={{
-                      fontSize: "15.5px",
-                      // color: "#707070",
-                      fontWeight: 600,
-                    }}
-                  >
-                    Room category{" "}
-                  </Typography>
-                </Grid>
-                <Grid size={4}>
-                  <Typography
-                    sx={{
-                      fontSize: "15.5px",
-                      // color: "#707070",
-                      fontWeight: 600,
-                    }}
-                  >
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontSize: "15.5px",
-                        // color: "#707070",
-                        fontWeight: 600,
-                        marginRight: "5px",
-                      }}
-                    >
-                      :
-                    </Typography>
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontSize: "15.5px",
-                        // color: "#707070",
-                        // fontWeight: 600,
-                      }}
-                    >
-                      {invoiceData?.roomType?.type}
-                    </Typography>
-                  </Typography>
-                </Grid>
-
-                {/*Company Name{" "}
-                 */}
-                <Grid size={2}>
-                  <Typography
-                    sx={{
-                      fontSize: "15.5px",
-                      // color: "#707070",
-                      fontWeight: 600,
-                    }}
-                  >
-                    Company Name{" "}
-                  </Typography>
-                </Grid>
-                <Grid size={4}>
-                  <Typography
-                    sx={{
-                      fontSize: "15.5px",
-                      // color: "#707070",
-                      fontWeight: 600,
-                    }}
-                  >
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontSize: "15.5px",
-                        // color: "#707070",
-                        fontWeight: 600,
-                        marginRight: "5px",
-                      }}
-                    >
-                      :
-                    </Typography>
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontSize: "15.5px",
-                        // color: "#707070",
-                        // fontWeight: 600,
-                      }}
-                    >
-                      {/* {invoiceData?.roomType?.type} */}
-                      {JSON.parse(sessionStorage.getItem("data")).companyName}
-                    </Typography>
-                  </Typography>
-                </Grid>
-
-                {/* PAX */}
-                <Grid size={2}>
-                  <Typography
-                    sx={{
-                      fontSize: "15.5px",
-                      // color: "#707070",
-                      fontWeight: 600,
-                    }}
-                  >
-                    Pax
-                  </Typography>
-                </Grid>
-                <Grid size={4}>
-                  <Typography
-                    sx={{
-                      fontSize: "15.5px",
-                      // color: "#707070",
-                      fontWeight: 600,
-                    }}
-                  >
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontSize: "15.5px",
-                        // color: "#707070",
-                        fontWeight: 600,
-                        marginRight: "5px",
-                      }}
-                    >
-                      :
-                    </Typography>
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontSize: "15.5px",
-                        // color: "#707070",
-                        // fontWeight: 600,
-                      }}
-                    >
-                      {invoiceData?.bookingDto?.bookingMapData?.length}
+                      {invoiceData?.customerPhoneNo}
                     </Typography>
                   </Typography>
                 </Grid>
@@ -679,50 +533,6 @@ const BarInvoice = () => {
                   </Typography>
                 </Grid>
 
-                {/* GSTN Bill */}
-                <Grid size={2}>
-                  <Typography
-                    sx={{
-                      fontSize: "15.5px",
-                      // color: "#707070",
-                      fontWeight: 600,
-                    }}
-                  >
-                    GSTN Bill
-                  </Typography>
-                </Grid>
-                <Grid size={4}>
-                  <Typography
-                    sx={{
-                      fontSize: "15.5px",
-                      // color: "#707070",
-                      fontWeight: 600,
-                    }}
-                  >
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontSize: "15.5px",
-                        // color: "#707070",
-                        fontWeight: 600,
-                        marginRight: "5px",
-                      }}
-                    >
-                      :
-                    </Typography>
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontSize: "15.5px",
-                        // color: "#707070",
-                        // fontWeight: 600,
-                      }}
-                    >
-                      {/* {invoiceData?.roomType?.type} */}
-                      --
-                    </Typography>
-                  </Typography>
-                </Grid>
                 {/* arrival date and time */}
                 <Grid size={2}>
                   <Typography
@@ -762,7 +572,7 @@ const BarInvoice = () => {
                         // fontWeight: 600,
                       }}
                     >
-                      {invoiceData?.bookingDto?.checkInDate || "NA"}
+                      {invoiceData?.startTime || "NA"}
                     </Typography>
                   </Typography>
                 </Grid>
@@ -805,7 +615,7 @@ const BarInvoice = () => {
                         // fontWeight: 600,
                       }}
                     >
-                      {invoiceData?.roomNo || "NA"}
+                      {invoiceData?.roomDto?.roomNo || "NA"}
                     </Typography>
                   </Typography>
                 </Grid>
@@ -847,7 +657,7 @@ const BarInvoice = () => {
                         // fontWeight: 600,
                       }}
                     >
-                      {invoiceData?.bookingDto?.checkOutDate || "NA"}
+                      {invoiceData?.endTime || "NA"}
                     </Typography>
                   </Typography>
                 </Grid>
@@ -926,10 +736,11 @@ const BarInvoice = () => {
                           }}
                         >
                           <Typography sx={{ fontWeight: 550 }}>
-                            Bar Charges
+                            Spa Charges
                           </Typography>
                         </Box>
                       </Grid>
+
                       <Grid size={6}>
                         <Box
                           sx={{
@@ -944,7 +755,8 @@ const BarInvoice = () => {
                           <Typography
                             sx={{ textAlign: "right", fontWeight: 550 }}
                           >
-                            {totalBarExpense}
+                            {totalSpaCharges}
+                            {/* {invoiceData?.totalPrice || "NA"} */}
                           </Typography>
                         </Box>
                       </Grid>
@@ -988,7 +800,8 @@ const BarInvoice = () => {
                           <Typography
                             sx={{ textAlign: "right", fontWeight: 550 }}
                           >
-                            {totalBarExpense * 0.18}
+                            {gstCharges}
+                            {/* {invoiceData?.totalPrice || "NA"} */}
                           </Typography>
                         </Box>
                       </Grid>
@@ -1005,10 +818,11 @@ const BarInvoice = () => {
                           }}
                         >
                           <Typography sx={{ fontWeight: 550 }}>
-                            SubTotal
+                            Paid Amount
                           </Typography>
                         </Box>
                       </Grid>
+
                       <Grid size={6}>
                         <Box
                           sx={{
@@ -1023,7 +837,44 @@ const BarInvoice = () => {
                           <Typography
                             sx={{ textAlign: "right", fontWeight: 550 }}
                           >
-                            {subTotalBarExpense}
+                            {/* {subTotalRoomCharges} */}
+                            {invoiceData?.paidAmount || "NA"}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderTop: "1.7px solid black",
+                            borderLeft: "1.7px solid black",
+                            bgcolor: "white",
+                            paddingLeft: "5px",
+                          }}
+                        >
+                          <Typography sx={{ fontWeight: 550 }}>
+                            Sub Total
+                          </Typography>
+                        </Box>
+                      </Grid>
+
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderTop: "1.7px solid black",
+                            borderRight: "1.7px solid black",
+                            bgcolor: "white",
+                          }}
+                        >
+                          <Typography
+                            sx={{ textAlign: "right", fontWeight: 550 }}
+                          >
+                            {subTotalSpaCharges}
                           </Typography>
                         </Box>
                       </Grid>
@@ -1119,6 +970,7 @@ const BarInvoice = () => {
             </Grid>
           </Grid>
         </Box>
+
         {!isPrinting && (
           <Box
             sx={{
@@ -1156,4 +1008,4 @@ const BarInvoice = () => {
   );
 };
 
-export default BarInvoice;
+export default SpaInvoice;

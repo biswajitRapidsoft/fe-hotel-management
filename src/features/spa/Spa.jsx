@@ -100,7 +100,7 @@ const Spa = () => {
         bookingDate: moment(selectedDate.$d).format("DD-MM-YYYY"),
         price: spaToBook.price,
         transactionReferenceNo: null,
-        paymentMethod: null,
+        paymentMethod: "Online",
         totalPrice: (spaToBook.price + spaToBook.price * 0.18).toFixed(2),
         paidAmount: null,
         hotelId: sessionStorage.getItem("hotelId"),

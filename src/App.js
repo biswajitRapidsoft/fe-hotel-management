@@ -74,7 +74,11 @@ const ManagerDashboard = React.lazy(() =>
 
 const SpaType = React.lazy(() => import("./features/spaType/SpaType"));
 const Spa = React.lazy(() => import("./features/spa/Spa"));
+const SpaInvoice = React.lazy(() => import("./features/spa/SpaInvoice"));
 
+const SpaInvoiceForFrontesk = React.lazy(() =>
+  import("./features/spaInvoiceForFrontdesk/SpaInvoiceForFrontdesk")
+);
 const LoginV2 = React.lazy(() => import("./features/login/Loginv2"));
 const SpaAdmin = React.lazy(() => import("./features/spa/SpaAdmin"));
 const CleaningServiceHistory = React.lazy(() =>
@@ -126,6 +130,11 @@ function App() {
           <Route
             path="/BarInvoice/:bookingRefNo"
             element={<BarInvoice key="food-bill" />}
+          />
+          <Route path="/spaInvoice" element={<SpaInvoice />} />
+          <Route
+            path="/SpaInvoiceForFrontesk/:bookingRefNo"
+            element={<SpaInvoiceForFrontesk />}
           />
           <Route element={<SuperLayout />}>
             <Route path="/admin-dashboard" element={<AdminDashboard />} />

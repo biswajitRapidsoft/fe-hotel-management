@@ -1299,12 +1299,22 @@ const DayCheckoutCard = memo(function ({
   dayCheckoutData,
   handleChangeSelectedRoomForDayCheckout,
 }) {
+  console.log("dayCheckoutData", dayCheckoutData);
   const handleChangeSelectedRoomForDayCheckoutOnClick = useCallback(
     (checkoutRoomData) => {
       handleChangeSelectedRoomForDayCheckout(checkoutRoomData);
     },
     [handleChangeSelectedRoomForDayCheckout]
   );
+
+  const isCheckoutDateExceedingToday = (checkoutDate) => {
+    if (!checkoutDate) return false;
+    const today = new Date();
+    const formattedCheckoutDate = new Date(
+      checkoutDate.replace(/-/g, "/") // Ensure cross-browser compatibility
+    );
+    return formattedCheckoutDate > today;
+  };
   return (
     <>
       <Box sx={{ width: "100%" }}>
@@ -1316,13 +1326,20 @@ const DayCheckoutCard = memo(function ({
           <Grid container size={12} spacing={1}>
             {Boolean(dayCheckoutData?.length) &&
               dayCheckoutData?.map((dayCheckoutItem, index) => {
+                const isExceeding = isCheckoutDateExceedingToday(
+                  dayCheckoutItem.checkOutDate
+                );
                 return (
                   <Grid key={`Day-Checkout-${index}`}>
                     <Button
                       variant="contained"
                       size="small"
-                      color="error"
-                      sx={{ minWidth: "unset", width: "37px" }}
+                      // color="error"
+                      sx={{
+                        minWidth: "unset",
+                        width: "37px",
+                        backgroundColor: isExceeding ? "red" : "orange",
+                      }}
                       onClick={() =>
                         handleChangeSelectedRoomForDayCheckoutOnClick(
                           dayCheckoutItem
@@ -1335,6 +1352,52 @@ const DayCheckoutCard = memo(function ({
                 );
               })}
           </Grid>
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            // , justifyContent: "space-between"
+            gap: 1,
+          }}
+        >
+          {/* in time  */}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 0.8,
+            }}
+          >
+            <Box
+              sx={{
+                borderRadius: "50%",
+                backgroundColor: "orange",
+                height: "0.7rem",
+                width: "0.7rem",
+              }}
+            />
+            <Typography sx={{ color: "gray" }}>Pending</Typography>
+          </Box>
+          {/* delayed */}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 0.8,
+            }}
+          >
+            <Box
+              sx={{
+                borderRadius: "50%",
+                backgroundColor: "red",
+                height: "0.7rem",
+                width: "0.7rem",
+              }}
+            />
+            <Typography sx={{ color: "gray" }}>Delayed</Typography>
+          </Box>
         </Box>
       </Box>
     </>
@@ -1491,6 +1554,18 @@ const RoomServiceCard = memo(function ({
       );
 
       window.open(`/BarInvoice/${bookingRefNumber}`, "_blank");
+    }
+  }, []);
+  const handleViewSpaBillInvoice = useCallback((roomData) => {
+    const bookingRefNumber = roomData?.bookingDto?.bookingRefNumber;
+
+    if (bookingRefNumber) {
+      sessionStorage.setItem(
+        `spaBillInvoice-${bookingRefNumber}`,
+        JSON.stringify(roomData)
+      );
+
+      window.open(`/SpaInvoiceForFrontesk/${bookingRefNumber}`, "_blank");
     }
   }, []);
 
@@ -3223,7 +3298,7 @@ const RoomServiceCard = memo(function ({
                       "Food Invoice",
                       "Final Invoice",
                       "Bar Invoice",
-                      // "Spa Invoice",
+                      "Spa Invoice",
                     ]}
                     // disableClearable
                     fullWidth
@@ -3302,6 +3377,8 @@ const RoomServiceCard = memo(function ({
                       handleViewFoodBillInvoice(isSelectedRoom);
                     } else if (selectedInvoice === "Bar Invoice") {
                       handleViewBarBillInvoice(isSelectedRoom);
+                    } else if (selectedInvoice === "Spa Invoice") {
+                      handleViewSpaBillInvoice(isSelectedRoom);
                     } else {
                       alert("Please select an option to view the bill.");
                     }
@@ -4850,7 +4927,7 @@ const CustomFormDrawer = memo(function ({
                         }}
                       >
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
-                          <DatePicker
+                          <DateTimePicker
                             disablePast
                             value={customFormDrawerData?.checkOutDate || null}
                             onChange={(newVal) =>
@@ -4889,7 +4966,7 @@ const CustomFormDrawer = memo(function ({
                             slots={{
                               openPickerIcon: StyledCalendarIcon,
                             }}
-                            format="DD-MM-YYYY"
+                            format="DD-MM-YYYY hh:mm A"
                           />
                         </LocalizationProvider>
                       </Box>

@@ -57,66 +57,72 @@ const BookingHistoryDrawer = ({ open, handleClose }) => {
     setCancelBookingDialog(booking);
   }, []);
 
+  // const handleDownloadInvoice = React.useCallback((order) => {
+  //   console.log("order", order);
+  //   const doc = new jsPDF();
+  //   doc.setFontSize(16);
+  //   doc.text("Restaurant Invoice", 20, 20);
+  //   doc.setFontSize(12);
+  //   doc.text(order.customerAddress, 20, 30);
+
+  //   doc.setFontSize(12);
+  //   doc.text(
+  //     `Customer Name: ${order.customerFirstName} ${
+  //       order.customerMiddleName || ""
+  //     } ${order.customerLastName || ""}`,
+  //     20,
+  //     50
+  //   );
+  //   doc.text(`Order Status: ${order.status.replace("_", " ")}`, 20, 55);
+  //   doc.text(
+  //     `Invoice Date: ${moment(order.endTime).format("DD/MM/YYYY hh:mma")}`,
+  //     20,
+  //     60
+  //   );
+  //   doc.text(`Invoice Number: ${order.bookingSpaRefNumber}`, 20, 65);
+
+  //   const tableTop = 80;
+  //   doc.text("Slot", 20, tableTop);
+  //   doc.text("Start Time", 100, tableTop);
+  //   doc.text("End Time", 150, tableTop);
+
+  //   let yPosition = tableTop + 10;
+
+  //   doc.text(
+  //     `${order.startTime.split(" ")[1].slice(0, 5)}-${order.endTime
+  //       .split(" ")[1]
+  //       .slice(0, 5)}`,
+  //     20,
+  //     yPosition
+  //   );
+  //   doc.text(order.startTime, 100, yPosition);
+  //   doc.text(order.endTime, 150, yPosition);
+  //   yPosition += 10;
+
+  //   // const total = order.bookingDetails.totalPrice;
+  //   doc.text("Subtotal:", 120, yPosition);
+  //   doc.text(`Rs. ${order?.paid.toFixed(2)}`, 150, yPosition);
+  //   yPosition += 10;
+
+  //   // const gst = total * 0.18;
+  //   // doc.text("GST (18%):", 140, yPosition);
+  //   // doc.text(`Rs. ${gst.toFixed(2)}`, 180, yPosition);
+  //   // yPosition += 10;
+
+  //   // const grandTotal = total + gst;
+  //   // doc.text("Total Amount:", 140, yPosition);
+  //   // doc.text(`Rs. ${grandTotal.toFixed(2)}`, 180, yPosition);
+  //   // yPosition += 10;
+
+  //   doc.save("restaurant_invoice.pdf");
+  // }, []);
   const handleDownloadInvoice = React.useCallback((order) => {
     console.log("order", order);
-    const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text("Restaurant Invoice", 20, 20);
-    doc.setFontSize(12);
-    doc.text(order.customerAddress, 20, 30);
-
-    doc.setFontSize(12);
-    doc.text(
-      `Customer Name: ${order.customerFirstName} ${
-        order.customerMiddleName || ""
-      } ${order.customerLastName || ""}`,
-      20,
-      50
-    );
-    doc.text(`Order Status: ${order.status.replace("_", " ")}`, 20, 55);
-    doc.text(
-      `Invoice Date: ${moment(order.endTime).format("DD/MM/YYYY hh:mma")}`,
-      20,
-      60
-    );
-    doc.text(`Invoice Number: ${order.bookingSpaRefNumber}`, 20, 65);
-
-    const tableTop = 80;
-    doc.text("Slot", 20, tableTop);
-    doc.text("Start Time", 100, tableTop);
-    doc.text("End Time", 150, tableTop);
-
-    let yPosition = tableTop + 10;
-
-    doc.text(
-      `${order.startTime.split(" ")[1].slice(0, 5)}-${order.endTime
-        .split(" ")[1]
-        .slice(0, 5)}`,
-      20,
-      yPosition
-    );
-    doc.text(order.startTime, 100, yPosition);
-    doc.text(order.endTime, 150, yPosition);
-    yPosition += 10;
-
-    // const total = order.bookingDetails.totalPrice;
-    doc.text("Subtotal:", 120, yPosition);
-    doc.text(`Rs. ${order?.totalPrice.toFixed(2)}`, 150, yPosition);
-    yPosition += 10;
-
-    // const gst = total * 0.18;
-    // doc.text("GST (18%):", 140, yPosition);
-    // doc.text(`Rs. ${gst.toFixed(2)}`, 180, yPosition);
-    // yPosition += 10;
-
-    // const grandTotal = total + gst;
-    // doc.text("Total Amount:", 140, yPosition);
-    // doc.text(`Rs. ${grandTotal.toFixed(2)}`, 180, yPosition);
-    // yPosition += 10;
-
-    doc.save("restaurant_invoice.pdf");
+    if (order) {
+      sessionStorage.setItem("orderForSpaInvoice", JSON.stringify(order));
+      window.open("/spaInvoice");
+    }
   }, []);
-
   return (
     <Drawer
       sx={{

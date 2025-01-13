@@ -307,6 +307,7 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
     selectedFoodType: null,
     selectedFoodTypeInputVal: "",
   });
+  const [uploadedImageArr, setUploadedImageArr] = React.useState([]);
 
   const [itemToUpdate, setItemToUpdate] = React.useState(null);
   console.log("itemToUpdate", itemToUpdate);
@@ -327,9 +328,10 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
         selectedFoodTypeInputVal: itemToUpdate.foodtype,
         ImageUrl: itemToUpdate.image,
       });
-
-      if (itemToUpdate.imageList) {
+      if (itemToUpdate.imageList && itemToUpdate.imageList.length > 0) {
         setUploadedImageArr(itemToUpdate.imageList);
+      } else if (itemToUpdate.image) {
+        setUploadedImageArr([itemToUpdate.image]);
       }
     }
   }, [itemToUpdate]);
@@ -352,7 +354,6 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
   // }, [formData]);
   const [uploadFile, uploadFileRes] = useUploadFileMutation();
   const [addFoodItem, addFoodItemRes] = useAddFoodItemsMutation();
-  const [uploadedImageArr, setUploadedImageArr] = React.useState([]);
 
   const handleChange = React.useCallback((e) => {
     if (e.target.name === "perUnitPrice") {
@@ -444,6 +445,7 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
           masterTypeId: itemsDialog.masterTypeId,
           foodType: formData.selectedFoodType,
           id: itemToUpdate.id,
+          isActive: itemsDialog?.isActive,
         })
           .unwrap()
           .then((res) => {
@@ -892,7 +894,6 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
                               sx={{
                                 width: "100%",
                                 height: "100%",
-                                backgroundColor: "red",
                               }}
                             />
                             <IconButton
