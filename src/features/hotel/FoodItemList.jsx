@@ -504,6 +504,7 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
       handleClose,
       itemToUpdate,
       uploadedImageArr,
+      itemsDialog?.isActive,
     ]
   );
 

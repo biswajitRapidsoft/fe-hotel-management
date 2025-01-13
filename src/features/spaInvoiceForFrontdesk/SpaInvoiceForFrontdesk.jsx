@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 // import LoadingComponent from "../../components/LoadingComponent";
 // import SnackAlert from "../../components/Alert";
 import {
