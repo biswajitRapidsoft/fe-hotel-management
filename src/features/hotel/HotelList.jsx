@@ -18,6 +18,8 @@ import {
   Table,
   InputAdornment,
   Link,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -824,18 +826,25 @@ function FloorFormComponent({
   floorIndex,
   setSnack,
 }) {
+  const [selectedTab, setSelectedTab] = React.useState("byRoomNumber");
   const [formData, setFormData] = React.useState({
     roomNumber: "",
     selectedRoomType: null,
     selectedRoomTypeInputVal: "",
   });
 
-  const handleChange = React.useCallback((e) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [e.target.name]: e.target.value,
-    }));
-  }, []);
+  const handleChange = React.useCallback(
+    (e) => {
+      setFormData((prevData) => ({
+        ...prevData,
+        [e.target.name]:
+          selectedTab === "byNumberOfRooms" && e.target.name === "roomNumber"
+            ? e.target.value.replace(/^0|\D/g, "")
+            : e.target.value,
+      }));
+    },
+    [selectedTab]
+  );
 
   const handleResetForm = React.useCallback(() => {
     setFormData({
@@ -865,25 +874,50 @@ function FloorFormComponent({
     const floorListToSet = [];
     floorList.forEach((item) => {
       if (item.id === floor.id) {
-        floorListToSet.push({
-          id: floor.id,
-          roomList: [
-            ...item.roomList,
-            {
+        if (selectedTab === "byRoomNumber") {
+          floorListToSet.push({
+            id: floor.id,
+            roomList: [
+              ...item.roomList,
+              {
+                // id: item.roomList.length + 1,
+                id: uuidv4(),
+                roomNumber: formData.roomNumber,
+                roomType: formData.selectedRoomType,
+              },
+            ],
+          });
+        } else {
+          const roomListToSet = [];
+          for (let i = 0; i < parseInt(formData.roomNumber); i++) {
+            roomListToSet.push({
               // id: item.roomList.length + 1,
               id: uuidv4(),
-              roomNumber: formData.roomNumber,
+              roomNumber: floorIndex + 1 * 100 + (i + 1),
               roomType: formData.selectedRoomType,
-            },
-          ],
-        });
+            });
+          }
+          floorListToSet.push({
+            id: floor.id,
+            roomList: [...item.roomList, ...roomListToSet],
+          });
+          setSelectedTab("byRoomNumber");
+        }
       } else {
         floorListToSet.push(item);
       }
     });
     setFloorList(floorListToSet);
     handleResetForm();
-  }, [floorList, setFloorList, floor, handleResetForm, formData, setSnack]);
+  }, [
+    floorList,
+    setFloorList,
+    floor,
+    handleResetForm,
+    formData,
+    setSnack,
+    selectedTab,
+  ]);
 
   const handleDeleteRoomForCurrentFloor = React.useCallback(
     (id) => {
@@ -901,6 +935,14 @@ function FloorFormComponent({
       setFloorList(floorListToSet);
     },
     [floor.id, floorList, setFloorList]
+  );
+
+  const handleTabChange = React.useCallback(
+    (e, newVal) => {
+      setSelectedTab(newVal);
+      handleResetForm();
+    },
+    [handleResetForm]
   );
 
   return (
@@ -966,13 +1008,30 @@ function FloorFormComponent({
         </Box>
       </Box>
       <Divider sx={{ borderColor: "#BDBDBD" }} />
-      <Box sx={{ p: 2, border: "1px solid #BDBDBD" }}>
+      <Box sx={{ pl: 2, pr: 2, pb: 2, border: "1px solid #BDBDBD" }}>
+        <Box sx={{ width: "100%" }}>
+          <Tabs
+            size="small"
+            variant="scrollable"
+            value={selectedTab}
+            onChange={handleTabChange}
+          >
+            <Tab value="byRoomNumber" label="Manually" />
+            <Tab
+              value="byNumberOfRooms"
+              label="Automatic"
+              disabled={Boolean(floor.roomList.length)}
+            />
+          </Tabs>
+        </Box>
         <Grid container columnSpacing={2}>
           <Grid size={3}>
             <TextField
               label={
                 <React.Fragment>
-                  Room Number{" "}
+                  {selectedTab === "byRoomNumber"
+                    ? "Room Number"
+                    : "Number of Rooms"}{" "}
                   <Box
                     component="span"
                     sx={{
