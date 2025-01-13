@@ -1,10 +1,10 @@
 const config = Object.freeze({
   // baseUrl: "http://192.168.12.37:9000/",
-  // baseUrl: "http://192.168.12.43:9000/",
+  baseUrl: "http://192.168.12.43:9000/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
   // baseUrl: "http://crimarrstaging.nyggs.com/backend/",
   // baseUrl: "http://192.168.30.44:9000/",
-  baseUrl: "http://192.168.12.43:8080/be-hms/",
+  // baseUrl: "http://192.168.12.43:8080/be-hms/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/", // HO Staging
   // baseUrl: "http://192.168.12.3:9000/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
@@ -149,6 +149,8 @@ const config = Object.freeze({
 
     // MANAGER DASHBOARD
     getAllDashboardDataForManager: "api/get/dashboard/data/for/manager",
+    getAllInventoryItemsByHotelId: "api/get/inventory/items/stock/list",
+    updateInventoryStock: "api/update/stock",
   },
 });
 
