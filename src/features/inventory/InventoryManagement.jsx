@@ -19,6 +19,9 @@ import {
   Autocomplete,
   TextField,
   Button,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -51,6 +54,7 @@ const InventoryManagement = () => {
     selectedInventory: null,
     selectedInventoryInputVal: "",
     quantity: "",
+    isRemove: false,
   });
 
   const handleChange = React.useCallback((e) => {
@@ -62,7 +66,8 @@ const InventoryManagement = () => {
     } else {
       setFormData((prevData) => ({
         ...prevData,
-        [e.target.name]: e.target.value,
+        [e.target.name]:
+          e.target.type === "checkbox" ? e.target.checked : e.target.value,
       }));
     }
   }, []);
@@ -84,7 +89,7 @@ const InventoryManagement = () => {
         },
         quantity: formData.quantity,
         hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
-        isAdded: true,
+        isAdded: formData.isRemove ? false : true,
       })
         .unwrap()
         .then((res) => {
@@ -246,6 +251,20 @@ const InventoryManagement = () => {
               onChange={handleChange}
               variant="standard"
             />
+          </Grid>
+          <Grid size={6}>
+            <FormGroup sx={{ mt: 1 }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formData.isRemove}
+                    name="isRemove"
+                    onChange={handleChange}
+                  />
+                }
+                label="Is Remove"
+              />
+            </FormGroup>
           </Grid>
         </Grid>
         <Box

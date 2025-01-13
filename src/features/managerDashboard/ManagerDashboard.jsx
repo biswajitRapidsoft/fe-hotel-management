@@ -1,6 +1,6 @@
 import React from "react";
 import Grid from "@mui/material/Grid2";
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import KingBedOutlinedIcon from "@mui/icons-material/KingBedOutlined";
 import ExitToAppOutlinedIcon from "@mui/icons-material/ExitToAppOutlined";
@@ -21,6 +21,8 @@ import {
 } from "chart.js";
 import BookingGroupedBarChart from "./BookingGroupedBarChart";
 
+import { useNavigate } from "react-router-dom";
+
 // Register ChartJS components
 ChartJS.register(
   CategoryScale,
@@ -34,6 +36,7 @@ ChartJS.register(
 );
 
 const ManagerDashboard = () => {
+  const navigate = useNavigate();
   const {
     data: dashboardData = {
       data: [],
@@ -170,7 +173,15 @@ const ManagerDashboard = () => {
           flexDirection: "column",
         }}
       >
-        <Box sx={{ width: "100%" }}>
+        <Box
+          sx={{
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            mb: 1,
+          }}
+        >
           <Typography
             sx={{
               fontSize: "1.6rem",
@@ -180,6 +191,23 @@ const ManagerDashboard = () => {
           >
             {JSON.parse(sessionStorage.getItem("data")).hotelName}
           </Typography>
+          <Button
+            color="secondary"
+            variant="contained"
+            sx={{
+              color: "#fff",
+              fontWeight: 600,
+              textTransform: "none",
+              fontSize: 18,
+              "&.Mui-disabled": {
+                background: "#B2E5F6",
+                color: "#FFFFFF",
+              },
+            }}
+            onClick={() => navigate("/inventoryManagement")}
+          >
+            Inventory Management
+          </Button>
         </Box>
         <Grid container size={12} spacing={2}>
           <Grid size={{ xs: 3 }}>

@@ -917,6 +917,7 @@ function FloorFormComponent({
     formData,
     setSnack,
     selectedTab,
+    floorIndex,
   ]);
 
   const handleDeleteRoomForCurrentFloor = React.useCallback(
