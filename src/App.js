@@ -90,6 +90,10 @@ const ParkingHistory = React.lazy(() =>
 
 const FoodItemList = React.lazy(() => import("./features/hotel/FoodItemList"));
 
+const InventoryManagement = React.lazy(() =>
+  import("./features/inventory/InventoryManagement")
+);
+
 function App() {
   const location = useLocation();
   // console.log("hello3", location);
@@ -154,6 +158,10 @@ function App() {
             <Route path="/bar" element={<Bar />} />
             <Route path="/bar-admin" element={<BarAdmin />} />
             <Route path="/managerDashboard" element={<ManagerDashboard />} />
+            <Route
+              path="/inventoryManagement"
+              element={<InventoryManagement />}
+            />
             <Route
               path="/LaundryHistoryForGuest"
               element={<LaundryHistoryForGuest />}
