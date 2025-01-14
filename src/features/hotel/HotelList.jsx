@@ -233,6 +233,11 @@ const HotelList = () => {
         selectedCity: null,
         selectedCityInputVal: "",
       }));
+    } else if (e.target.name === "phoneNumber") {
+      setFormData((prevData) => ({
+        ...prevData,
+        [e.target.name]: e.target.value.replace(/\D/g, ""),
+      }));
     } else {
       setFormData((prevData) => ({
         ...prevData,
@@ -675,6 +680,9 @@ const HotelList = () => {
               name="phoneNumber"
               value={formData.phoneNumber}
               onChange={handleChange}
+              inputProps={{
+                maxLength: 10,
+              }}
               variant="standard"
               // disabled={Boolean(hotelToUpdate)}
             />
