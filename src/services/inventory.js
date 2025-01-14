@@ -19,7 +19,20 @@ const inventoryApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
-      invalidatesTags: ["getAllInventoryItemsByHotelId"],
+      invalidatesTags: [
+        "getAllInventoryItemsByHotelId",
+        "getInventoryUpdateTrail",
+      ],
+    }),
+    getInventoryUpdateTrail: build.query({
+      query: (payload) => ({
+        url: config.apiName.getInventoryUpdateTrail,
+        method: "GET",
+        params: {
+          itemId: payload,
+        },
+      }),
+      providesTags: ["getInventoryUpdateTrail"],
     }),
   }),
   overrideExisting: false,
@@ -28,4 +41,5 @@ const inventoryApi = apiSlice.injectEndpoints({
 export const {
   useGetAllInventoryItemsByHotelIdQuery,
   useUpdateInventoryStockMutation,
+  useGetInventoryUpdateTrailQuery,
 } = inventoryApi;
