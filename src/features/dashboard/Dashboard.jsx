@@ -1377,7 +1377,7 @@ const DayCheckoutCard = memo(function ({
                 width: "0.7rem",
               }}
             />
-            <Typography sx={{ color: "gray" }}>Pending</Typography>
+            <Typography sx={{ color: "gray" }}>Today's Checkout</Typography>
           </Box>
           {/* delayed */}
           <Box
@@ -1396,7 +1396,7 @@ const DayCheckoutCard = memo(function ({
                 width: "0.7rem",
               }}
             />
-            <Typography sx={{ color: "gray" }}>Delayed</Typography>
+            <Typography sx={{ color: "gray" }}>Delayed Checkout</Typography>
           </Box>
         </Box>
       </Box>
