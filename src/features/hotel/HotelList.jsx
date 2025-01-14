@@ -893,7 +893,7 @@ function FloorFormComponent({
             roomListToSet.push({
               // id: item.roomList.length + 1,
               id: uuidv4(),
-              roomNumber: floorIndex + 1 * 100 + (i + 1),
+              roomNumber: (floorIndex + 1 * 100 + (i + 1)).toString(),
               roomType: formData.selectedRoomType,
             });
           }
