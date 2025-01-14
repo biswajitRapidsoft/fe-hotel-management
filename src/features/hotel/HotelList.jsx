@@ -21,6 +21,7 @@ import {
   Tabs,
   Tab,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ClearIcon from "@mui/icons-material/Clear";
 import AddIcon from "@mui/icons-material/Add";
@@ -832,6 +833,8 @@ function FloorFormComponent({
     selectedRoomType: null,
     selectedRoomTypeInputVal: "",
   });
+  const [floorRoomToUpdate, setFloorRoomToUpdate] = React.useState(null);
+  console.log("floorRoomToUpdate", floorRoomToUpdate);
 
   const handleChange = React.useCallback(
     (e) => {
@@ -846,6 +849,20 @@ function FloorFormComponent({
     [selectedTab]
   );
 
+  React.useEffect(() => {
+    setFormData({
+      roomNumber: floorRoomToUpdate?.roomNumber,
+      selectedRoomType:
+        roomTypeList?.find(
+          (room) => room.id === floorRoomToUpdate?.roomType?.id
+        ) || null,
+      selectedRoomTypeInputVal:
+        roomTypeList?.find(
+          (room) => room.id === floorRoomToUpdate?.roomType?.id
+        )?.type || "",
+    });
+  }, [floorRoomToUpdate, roomTypeList]);
+
   const handleResetForm = React.useCallback(() => {
     setFormData({
       roomNumber: "",
@@ -859,11 +876,16 @@ function FloorFormComponent({
 
     floorList.forEach((item) => {
       item.roomList.forEach((val) => {
-        roomNameArr.push(val.roomNumber.toLowerCase());
+        if (!floorRoomToUpdate || val.id !== floorRoomToUpdate.id) {
+          roomNameArr.push(val.roomNumber.toLowerCase());
+        }
       });
     });
 
-    if (roomNameArr.includes(formData.roomNumber.trim().toLocaleLowerCase())) {
+    if (
+      !floorRoomToUpdate &&
+      roomNameArr.includes(formData.roomNumber.trim().toLocaleLowerCase())
+    ) {
       return setSnack({
         open: true,
         message: "Room number already exists.",
@@ -875,23 +897,38 @@ function FloorFormComponent({
     floorList.forEach((item) => {
       if (item.id === floor.id) {
         if (selectedTab === "byRoomNumber") {
-          floorListToSet.push({
-            id: floor.id,
-            roomList: [
-              ...item.roomList,
-              {
-                // id: item.roomList.length + 1,
-                id: uuidv4(),
-                roomNumber: formData.roomNumber,
-                roomType: formData.selectedRoomType,
-              },
-            ],
-          });
+          if (floorRoomToUpdate) {
+            // Update existing room
+            floorListToSet.push({
+              ...item,
+              roomList: item.roomList.map((room) =>
+                room.id === floorRoomToUpdate.id
+                  ? {
+                      ...room,
+                      roomNumber: formData.roomNumber || room.roomNumber,
+                      roomType: formData.selectedRoomType,
+                    }
+                  : room
+              ),
+            });
+          } else {
+            // Add new room
+            floorListToSet.push({
+              id: floor.id,
+              roomList: [
+                ...item.roomList,
+                {
+                  id: uuidv4(),
+                  roomNumber: formData.roomNumber,
+                  roomType: formData.selectedRoomType,
+                },
+              ],
+            });
+          }
         } else {
           const roomListToSet = [];
           for (let i = 0; i < parseInt(formData.roomNumber); i++) {
             roomListToSet.push({
-              // id: item.roomList.length + 1,
               id: uuidv4(),
               roomNumber: (floorIndex + 1 * 100 + (i + 1)).toString(),
               roomType: formData.selectedRoomType,
@@ -907,7 +944,9 @@ function FloorFormComponent({
         floorListToSet.push(item);
       }
     });
+
     setFloorList(floorListToSet);
+    setFloorRoomToUpdate(null);
     handleResetForm();
   }, [
     floorList,
@@ -918,7 +957,73 @@ function FloorFormComponent({
     setSnack,
     selectedTab,
     floorIndex,
+    floorRoomToUpdate,
   ]);
+  // const handleAddRoomForCurrentFloor = React.useCallback(() => {
+  //   const roomNameArr = [];
+
+  //   floorList.forEach((item) => {
+  //     item.roomList.forEach((val) => {
+  //       roomNameArr.push(val.roomNumber.toLowerCase());
+  //     });
+  //   });
+
+  //   if (roomNameArr.includes(formData.roomNumber.trim().toLocaleLowerCase())) {
+  //     return setSnack({
+  //       open: true,
+  //       message: "Room number already exists.",
+  //       severity: "error",
+  //     });
+  //   }
+
+  //   const floorListToSet = [];
+  //   floorList.forEach((item) => {
+  //     if (item.id === floor.id) {
+  //       if (selectedTab === "byRoomNumber") {
+  //         floorListToSet.push({
+  //           id: floor.id,
+  //           roomList: [
+  //             ...item.roomList,
+  //             {
+  //               // id: item.roomList.length + 1,
+  //               id: uuidv4(),
+  //               roomNumber: formData.roomNumber,
+  //               roomType: formData.selectedRoomType,
+  //             },
+  //           ],
+  //         });
+  //       } else {
+  //         const roomListToSet = [];
+  //         for (let i = 0; i < parseInt(formData.roomNumber); i++) {
+  //           roomListToSet.push({
+  //             // id: item.roomList.length + 1,
+  //             id: uuidv4(),
+  //             roomNumber: (floorIndex + 1 * 100 + (i + 1)).toString(),
+  //             roomType: formData.selectedRoomType,
+  //           });
+  //         }
+  //         floorListToSet.push({
+  //           id: floor.id,
+  //           roomList: [...item.roomList, ...roomListToSet],
+  //         });
+  //         setSelectedTab("byRoomNumber");
+  //       }
+  //     } else {
+  //       floorListToSet.push(item);
+  //     }
+  //   });
+  //   setFloorList(floorListToSet);
+  //   handleResetForm();
+  // }, [
+  //   floorList,
+  //   setFloorList,
+  //   floor,
+  //   handleResetForm,
+  //   formData,
+  //   setSnack,
+  //   selectedTab,
+  //   floorIndex,
+  // ]);
 
   const handleDeleteRoomForCurrentFloor = React.useCallback(
     (id) => {
@@ -1134,13 +1239,14 @@ function FloorFormComponent({
               size="small"
               disabled={
                 !(
-                  Boolean(formData.roomNumber.trim()) &&
-                  Boolean(formData.selectedRoomType)
+                  Boolean(formData?.roomNumber?.trim()) &&
+                  Boolean(formData?.selectedRoomType)
                 )
               }
               onClick={handleAddRoomForCurrentFloor}
             >
-              Add Room
+              {/* Add Room */}
+              {Boolean(floorRoomToUpdate) ? "Update Room" : "Add Room"}
             </Button>
           </Grid>
 
@@ -1181,14 +1287,30 @@ function FloorFormComponent({
                             <TableCell>{room.roomType.type}</TableCell>
                             <TableCell>
                               {typeof room.id === "string" && (
-                                <IconButton
-                                  size="small"
-                                  onClick={() =>
-                                    handleDeleteRoomForCurrentFloor(room.id)
-                                  }
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1,
+                                  }}
                                 >
-                                  <DeleteIcon fontSize="small" color="error" />
-                                </IconButton>
+                                  <IconButton
+                                    size="small"
+                                    onClick={() =>
+                                      handleDeleteRoomForCurrentFloor(room.id)
+                                    }
+                                  >
+                                    <DeleteIcon
+                                      fontSize="small"
+                                      color="error"
+                                    />
+                                  </IconButton>
+                                  <IconButton
+                                    onClick={() => setFloorRoomToUpdate(room)}
+                                  >
+                                    <EditIcon />
+                                  </IconButton>
+                                </Box>
                               )}
                             </TableCell>
                           </TableRow>
