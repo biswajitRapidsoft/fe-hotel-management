@@ -13,12 +13,14 @@ import {
   TableRow,
   Toolbar,
   Typography,
+  IconButton,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
 
 import { ViewImageDialog } from "../roomType/RoomTypeTable";
 import SnackAlert from "../../components/Alert";
 
-const SpaTypeListTable = ({ saveSpaType }) => {
+const SpaTypeListTable = ({ saveSpaType, setSpaToUpdate }) => {
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
@@ -107,6 +109,7 @@ const SpaTypeListTable = ({ saveSpaType }) => {
                 <TableCell>Is Advance Required</TableCell>
                 <TableCell>Images</TableCell>
                 <TableCell>Status</TableCell>
+                <TableCell>Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -155,6 +158,11 @@ const SpaTypeListTable = ({ saveSpaType }) => {
                         checked={spaType.isActive}
                         onChange={(e) => handleChangeStatus(e, spaType)}
                       />
+                    </TableCell>
+                    <TableCell>
+                      <IconButton onClick={() => setSpaToUpdate(spaType)}>
+                        <EditIcon />
+                      </IconButton>
                     </TableCell>
                   </TableRow>
                 );
