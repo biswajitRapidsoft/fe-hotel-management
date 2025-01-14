@@ -19,57 +19,16 @@ import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import moment from "moment";
 
-// const getCellValue = (obj, key, fallback = "") => {
-//   if (!key) return undefined;
-//   return key
-//     .split(".")
-//     .reduce(
-//       (acc, part) => (acc && acc[part] !== undefined ? acc[part] : fallback),
-//       obj
-//     );
-// };
-const BarInvoice = () => {
+const SpaInvoiceForFrontdesk = () => {
   const { bookingRefNo } = useParams("bookingRefNo");
   const [isPrinting, setIsPrinting] = useState(false);
-  // const [snack, setSnack] = useState({
-  //   open: false,
-  //   message: "",
-  //   severity: "",
-  // });
 
   const invoiceData = useMemo(() => {
     const sessionedEventData = sessionStorage.getItem(
-      `barBillInvoice-${bookingRefNo}`
+      `spaBillInvoice-${bookingRefNo}`
     );
     return sessionedEventData ? JSON.parse(sessionedEventData) : null;
   }, [bookingRefNo]);
-
-  console.log("invoiceData", invoiceData);
-  const totalBarExpense = useMemo(() => {
-    const sum =
-      invoiceData?.bookingDto?.barOrderDtos?.reduce(
-        (sum, item) => sum + item?.totalAmount,
-        0
-      ) || 0;
-    return sum.toFixed(2);
-  }, [invoiceData]);
-
-  const subTotalBarExpense = useMemo(() => {
-    const sum =
-      invoiceData?.bookingDto?.barOrderDtos?.reduce(
-        (sum, item) => sum + (item?.totalAmount + item?.gstPrice),
-        0
-      ) || 0;
-    return sum.toFixed(2);
-  }, [invoiceData]);
-  // const barListTableHeaders = useMemo(
-  //   () => [
-  //     { label: "Sl. No.", key: "sno" },
-  //     { label: "Item", key: "itemName" },
-  //     { label: "Quantity", key: "totalQuantity" },
-  //   ],
-  //   []
-  // );
 
   const handlePrint = useCallback(() => {
     setIsPrinting(true);
@@ -78,6 +37,24 @@ const BarInvoice = () => {
       setIsPrinting(false);
     }, 0);
   }, []);
+
+  const totalSpaExpense = useMemo(() => {
+    const sum =
+      invoiceData?.bookingDto?.spaBookingDetails?.reduce(
+        (sum, item) => sum + item?.totalPrice,
+        0
+      ) || 0;
+    return sum.toFixed(2);
+  }, [invoiceData]);
+
+  const subTotalSpaExpense = useMemo(() => {
+    const sum =
+      invoiceData?.bookingDto?.spaBookingDetails?.reduce(
+        (sum, item) => sum + (item?.totalPrice + 0.18 * item?.totalPrice),
+        0
+      ) || 0;
+    return sum.toFixed(2);
+  }, [invoiceData]);
   const hotelLogo = JSON.parse(sessionStorage.getItem("data")).hotelLogoUrl;
 
   return (
@@ -181,7 +158,7 @@ const BarInvoice = () => {
                   textDecoration: "underline",
                 }}
               >
-                Bar Invoice
+                Spa Invoice
               </Typography>
 
               <Grid container size={12}>
@@ -926,7 +903,7 @@ const BarInvoice = () => {
                           }}
                         >
                           <Typography sx={{ fontWeight: 550 }}>
-                            Bar Charges
+                            Spa Charges
                           </Typography>
                         </Box>
                       </Grid>
@@ -944,7 +921,7 @@ const BarInvoice = () => {
                           <Typography
                             sx={{ textAlign: "right", fontWeight: 550 }}
                           >
-                            {totalBarExpense}
+                            {totalSpaExpense}
                           </Typography>
                         </Box>
                       </Grid>
@@ -988,7 +965,7 @@ const BarInvoice = () => {
                           <Typography
                             sx={{ textAlign: "right", fontWeight: 550 }}
                           >
-                            {totalBarExpense * 0.18}
+                            {totalSpaExpense * 0.18}
                           </Typography>
                         </Box>
                       </Grid>
@@ -1023,7 +1000,7 @@ const BarInvoice = () => {
                           <Typography
                             sx={{ textAlign: "right", fontWeight: 550 }}
                           >
-                            {subTotalBarExpense}
+                            {subTotalSpaExpense}
                           </Typography>
                         </Box>
                       </Grid>
@@ -1151,9 +1128,9 @@ const BarInvoice = () => {
             </Button>
           </Box>
         )}
-      </Box>
+      </Box>{" "}
     </>
   );
 };
 
-export default BarInvoice;
+export default SpaInvoiceForFrontdesk;

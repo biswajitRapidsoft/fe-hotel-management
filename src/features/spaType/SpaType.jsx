@@ -42,6 +42,10 @@ const SpaType = () => {
   const [uploadImage, uploadImageRes] = useUploadFileMutation();
   const [uploadedImageArr, setUploadedImageArr] = React.useState([]);
 
+  // state to manage updation of spa type
+  const [spaToUpdate, setSpaToUpdate] = React.useState(null);
+  console.log("spaToUpdate", spaToUpdate);
+
   const handleChange = React.useCallback((e) => {
     if (e.target.name === "basePrice") {
       setFormData((prevData) => ({
@@ -117,6 +121,17 @@ const SpaType = () => {
     },
     [saveSpaType, formData, uploadedImageArr, handleResetForm]
   );
+
+  React.useEffect(() => {
+    if (Boolean(spaToUpdate)) {
+      setFormData({
+        spaType: spaToUpdate?.name,
+        basePrice: spaToUpdate?.price,
+        isAdvance: Boolean(spaToUpdate?.isAdvanceNeeded),
+        advancePercentage: spaToUpdate?.advancePaymentPercentage,
+      });
+    }
+  }, [spaToUpdate]);
 
   const handleUploadImage = React.useCallback(
     (imgSource) => {
@@ -378,11 +393,15 @@ const SpaType = () => {
             type="submit"
             disabled={!isFormValid()}
           >
-            Add Spa Type
+            {/* Add Spa Type */}
+            {Boolean(spaToUpdate) ? "Update Spa Type" : "Add Spa Type"}
           </Button>
         </Box>
       </Box>
-      <SpaTypeListTable saveSpaType={saveSpaType} />
+      <SpaTypeListTable
+        saveSpaType={saveSpaType}
+        setSpaToUpdate={setSpaToUpdate}
+      />
       <LoadingComponent
         open={uploadImageRes.isLoading || saveSpaTypeRes.isLoading}
       />

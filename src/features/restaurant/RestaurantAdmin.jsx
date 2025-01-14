@@ -70,6 +70,7 @@ const Row = ({ order, index, setUpdateStatusDialog }) => {
             ? `${order?.bookingDto?.roomDto?.roomNo}(${order?.bookingDto?.roomDto?.floorNo})`
             : "--"}
         </TableCell>
+        <TableCell>{order?.bookingDetails?.bookingCancelReason}</TableCell>
         <TableCell>
           <Typography
             sx={{
@@ -476,6 +477,7 @@ const RestaurantAdmin = () => {
                 <TableCell>Phone no.</TableCell>
                 <TableCell>Dine Type</TableCell>
                 <TableCell>Room No.(Floor)</TableCell>
+                <TableCell>Remarks</TableCell>
                 <TableCell>Order Status</TableCell>
                 <TableCell />
               </TableRow>

@@ -18,7 +18,7 @@ export const PLACED_BAR = "PLACED";
 
 //FOOD ORDER STATUSES
 export const ORDER_PLACED = "Order_Placed";
-export const FOOD_PREPARING = "Food Preparing";
+export const FOOD_PREPARING = "Food_Preparing";
 export const DELIVERED = "Delivered";
 export const CANCELLED = "Cancelled";
 export const REJECTED = "Rejected";
