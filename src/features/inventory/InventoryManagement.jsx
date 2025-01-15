@@ -1,8 +1,13 @@
 import React from "react";
+import InfoIcon from "@mui/icons-material/Info";
+import CloseIcon from "@mui/icons-material/Close";
+import { BootstrapDialog } from "../header/Header";
+import moment from "moment";
 
 import {
   useGetAllInventoryItemsByHotelIdQuery,
   useUpdateInventoryStockMutation,
+  useGetInventoryUpdateTrailQuery,
 } from "../../services/inventory";
 import {
   Box,
@@ -22,6 +27,9 @@ import {
   FormGroup,
   FormControlLabel,
   Checkbox,
+  IconButton,
+  DialogTitle,
+  DialogContent,
 } from "@mui/material";
 
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -38,6 +46,9 @@ const InventoryManagement = () => {
     severity: "",
     message: "",
   });
+  const [viewDetailsDialog, setViewDetailsDialog] = React.useState(null);
+  console.log("viewDetailsDialog", viewDetailsDialog);
+
   const {
     data: inventoryList = {
       data: [],
@@ -55,7 +66,23 @@ const InventoryManagement = () => {
     selectedInventoryInputVal: "",
     quantity: "",
     isRemove: false,
+    isAdd: false,
   });
+
+  // const handleChange = React.useCallback((e) => {
+  //   if (e.target.name === "quantity") {
+  //     setFormData((prevData) => ({
+  //       ...prevData,
+  //       [e.target.name]: e.target.value.replace(/^0|\D/, ""),
+  //     }));
+  //   } else {
+  //     setFormData((prevData) => ({
+  //       ...prevData,
+  //       [e.target.name]:
+  //         e.target.type === "checkbox" ? e.target.checked : e.target.value,
+  //     }));
+  //   }
+  // }, []);
 
   const handleChange = React.useCallback((e) => {
     if (e.target.name === "quantity") {
@@ -63,15 +90,25 @@ const InventoryManagement = () => {
         ...prevData,
         [e.target.name]: e.target.value.replace(/^0|\D/, ""),
       }));
+    } else if (e.target.name === "isRemove") {
+      setFormData((prevData) => ({
+        ...prevData,
+        isRemove: e.target.checked,
+        isAdd: false,
+      }));
+    } else if (e.target.name === "isAdd") {
+      setFormData((prevData) => ({
+        ...prevData,
+        isAdd: e.target.checked,
+        isRemove: false,
+      }));
     } else {
       setFormData((prevData) => ({
         ...prevData,
-        [e.target.name]:
-          e.target.type === "checkbox" ? e.target.checked : e.target.value,
+        [e.target.name]: e.target.value,
       }));
     }
   }, []);
-
   const handleResetForm = React.useCallback(() => {
     setFormData({
       selectedInventory: null,
@@ -89,7 +126,8 @@ const InventoryManagement = () => {
         },
         quantity: formData.quantity,
         hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
-        isAdded: formData.isRemove ? false : true,
+        // isAdded: formData.isRemove ? false : true,
+        isAdded: formData.isAdd,
       })
         .unwrap()
         .then((res) => {
@@ -112,8 +150,16 @@ const InventoryManagement = () => {
   );
 
   const isFormValid = React.useCallback(() => {
-    return Boolean(formData.selectedInventory && formData.quantity);
+    return Boolean(
+      formData.selectedInventory &&
+        formData.quantity &&
+        (formData.isAdd || formData.isRemove)
+    );
   }, [formData]);
+
+  const handleCloseViewDetailsDialog = React.useCallback(() => {
+    setViewDetailsDialog(null);
+  }, []);
 
   return (
     <React.Fragment>
@@ -253,18 +299,32 @@ const InventoryManagement = () => {
             />
           </Grid>
           <Grid size={6}>
-            <FormGroup sx={{ mt: 1 }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formData.isRemove}
-                    name="isRemove"
-                    onChange={handleChange}
-                  />
-                }
-                label="Is Remove"
-              />
-            </FormGroup>
+            <Box sx={{ display: "flex" }}>
+              <FormGroup sx={{ mt: 1 }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={formData.isRemove}
+                      name="isRemove"
+                      onChange={handleChange}
+                    />
+                  }
+                  label="Is Remove"
+                />
+              </FormGroup>
+              <FormGroup sx={{ mt: 1 }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={formData.isAdd}
+                      name="isAdd"
+                      onChange={handleChange}
+                    />
+                  }
+                  label="Is Add"
+                />
+              </FormGroup>
+            </Box>
           </Grid>
         </Grid>
         <Box
@@ -339,6 +399,7 @@ const InventoryManagement = () => {
                 <TableCell>SL No.</TableCell>
                 <TableCell>Item Name</TableCell>
                 <TableCell>Quantity</TableCell>
+                <TableCell>Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -363,6 +424,13 @@ const InventoryManagement = () => {
                         {inventoryItem.extraItemDto.itemName}
                       </TableCell>
                       <TableCell>{inventoryItem.quantity}</TableCell>
+                      <TableCell>
+                        <IconButton
+                          onClick={() => setViewDetailsDialog(inventoryItem)}
+                        >
+                          <InfoIcon />
+                        </IconButton>
+                      </TableCell>
                     </TableRow>
                   );
                 } else {
@@ -373,8 +441,128 @@ const InventoryManagement = () => {
           </Table>
         </TableContainer>
       </Paper>
-      <LoadingComponent open={updateInventoryStockRes.isLoading || isLoading} />
+      <ViewDetailsDialog
+        open={Boolean(viewDetailsDialog)}
+        viewDetailsDialog={viewDetailsDialog}
+        handleClose={handleCloseViewDetailsDialog}
+        // detailsList={detailsList}
+      />
+      <LoadingComponent
+        open={
+          updateInventoryStockRes.isLoading || isLoading
+          // || isDetailsListLoading
+        }
+      />
       <SnackAlert snack={snack} setSnack={setSnack} />
+    </React.Fragment>
+  );
+};
+
+const ViewDetailsDialog = ({
+  open,
+  viewDetailsDialog,
+  handleClose,
+  // detailsList,
+}) => {
+  console.log("viewDetailsDialog", viewDetailsDialog);
+  const {
+    data: detailsList = {
+      data: [],
+    },
+    // isLoading: isDetailsListLoading,
+  } = useGetInventoryUpdateTrailQuery(viewDetailsDialog?.id, {
+    skip: !Boolean(viewDetailsDialog?.id),
+  });
+  return (
+    <React.Fragment>
+      <BootstrapDialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="password-change-dialog-title"
+        maxWidth="lg"
+        fullWidth
+        sx={{
+          ".MuiDialogTitle-root": {
+            px: 5,
+            py: 3,
+          },
+        }}
+        PaperProps={{
+          sx: { borderRadius: 4 },
+        }}
+      >
+        <DialogTitle id="view-image-dialog-title" sx={{ fontSize: 24 }}>
+          <Typography
+            sx={{
+              fontWeight: "bold",
+              fontSize: "1.9rem",
+              fontFamily: "'Times New Roman', Times, serif",
+            }}
+          >
+            {viewDetailsDialog?.extraItemDto?.itemName}
+          </Typography>
+        </DialogTitle>
+        <IconButton
+          aria-label="close"
+          onClick={handleClose}
+          sx={{
+            position: "absolute",
+            right: 30,
+            top: 16,
+            color: "#280071",
+          }}
+        >
+          <CloseIcon sx={{ fontSize: 30 }} />
+        </IconButton>
+        <DialogContent dividers>
+          <Box sx={{ height: "400px", overflowY: "auto", mb: 2 }}>
+            <Table stickyHeader>
+              <TableHead>
+                <TableRow
+                  sx={{
+                    ".MuiTableCell-root": {
+                      fontWeight: "bold",
+                      letterSpacing: 1,
+                      backgroundColor: "#e3f2fd",
+                    },
+                  }}
+                >
+                  <TableCell>Sl No.</TableCell>
+                  <TableCell>Quantity</TableCell>
+                  <TableCell>Created At</TableCell>
+                  <TableCell>Status</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {detailsList?.data?.trailMappingData?.map((item, index) => {
+                  return (
+                    <TableRow key={item.id}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{item.qty}</TableCell>
+                      <TableCell>
+                        {moment(item.createdAt).format("DD/MM/YYYY hh:mma")}
+                      </TableCell>
+                      <TableCell>
+                        {Boolean(item?.isAdded) ? (
+                          <Typography
+                            sx={{ color: "green", fontWeight: "bold" }}
+                          >
+                            Added
+                          </Typography>
+                        ) : (
+                          <Typography sx={{ color: "red", fontWeight: "bold" }}>
+                            Removed
+                          </Typography>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </Box>
+        </DialogContent>
+      </BootstrapDialog>
     </React.Fragment>
   );
 };

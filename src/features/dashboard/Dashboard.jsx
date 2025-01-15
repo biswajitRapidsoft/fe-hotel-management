@@ -1319,7 +1319,7 @@ const DayCheckoutCard = memo(function ({
     <>
       <Box sx={{ width: "100%" }}>
         <Box sx={{ width: "100%", height: "45px" }}>
-          <CustomPolygonHeader text="CHECKOUTS" />
+          <CustomPolygonHeader text="CHECKOUTS " />
         </Box>
 
         <Box sx={{ width: "100%", height: "90px", overflowY: "auto", mt: 1 }}>
