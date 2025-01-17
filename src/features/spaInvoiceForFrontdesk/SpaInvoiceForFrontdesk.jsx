@@ -70,11 +70,22 @@ const SpaInvoiceForFrontdesk = () => {
   const subTotalSpaExpense = useMemo(() => {
     const sum =
       invoiceData?.bookingDto?.spaBookingDetails?.reduce(
-        (sum, item) => sum + (item?.totalPrice + 0.18 * item?.totalPrice),
+        (sum, item) =>
+          sum + (item?.totalPrice + 0.18 * item?.totalPrice - item?.paidAmount),
         0
       ) || 0;
     return sum.toFixed(2);
   }, [invoiceData]);
+
+  const subTotalPaidAmount = useMemo(() => {
+    const sum =
+      invoiceData?.bookingDto?.spaBookingDetails?.reduce(
+        (sum, item) => sum + item?.paidAmount,
+        0
+      ) || 0;
+    return sum.toFixed(2);
+  }, [invoiceData]);
+
   const hotelLogo = JSON.parse(sessionStorage.getItem("data")).hotelLogoUrl;
 
   return (
@@ -948,6 +959,41 @@ const SpaInvoiceForFrontdesk = () => {
                             sx={{ textAlign: "right", fontWeight: 550 }}
                           >
                             {totalSpaExpense * 0.18}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderTop: "1.7px solid black",
+                            borderLeft: "1.7px solid black",
+                            bgcolor: "white",
+                            paddingLeft: "5px",
+                          }}
+                        >
+                          <Typography sx={{ fontWeight: 550 }}>
+                            Paid amount
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderTop: "1.7px solid black",
+                            borderRight: "1.7px solid black",
+                            bgcolor: "white",
+                          }}
+                        >
+                          <Typography
+                            sx={{ textAlign: "right", fontWeight: 550 }}
+                          >
+                            {subTotalPaidAmount}
                           </Typography>
                         </Box>
                       </Grid>

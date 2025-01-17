@@ -806,7 +806,8 @@ const Restaurant = () => {
                         <Box sx={{ display: "flex", gap: 2 }}>
                           <Box
                             component="img"
-                            src={cartItem.image}
+                            // src={cartItem.image}
+                            src={cartItem.imageList[0]}
                             sx={{ width: 50 }}
                           />
                           <Box

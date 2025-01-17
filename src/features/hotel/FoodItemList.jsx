@@ -450,6 +450,8 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
           .unwrap()
           .then((res) => {
             handleResetFormItem();
+            setItemToUpdate(null);
+
             setSnack({
               open: true,
               severity: "success",

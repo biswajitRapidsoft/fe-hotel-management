@@ -929,26 +929,126 @@ function FloorFormComponent({
     });
   }, []);
 
+  // const handleAddRoomForCurrentFloor = React.useCallback(() => {
+  //   const roomNameArr = [];
+
+  //   floorList.forEach((item) => {
+  //     item.roomList.forEach((val) => {
+  //       if (!floorRoomToUpdate || val.id !== floorRoomToUpdate.id) {
+  //         roomNameArr.push(val.roomNumber.toLowerCase());
+  //       }
+  //     });
+  //   });
+
+  //   if (
+  //     !floorRoomToUpdate &&
+  //     roomNameArr.includes(formData.roomNumber.trim().toLocaleLowerCase())
+  //   ) {
+  //     return setSnack({
+  //       open: true,
+  //       message: "Room number already exists.",
+  //       severity: "error",
+  //     });
+  //   }
+
+  //   const floorListToSet = [];
+  //   floorList.forEach((item) => {
+  //     if (item.id === floor.id) {
+  //       if (selectedTab === "byRoomNumber") {
+  //         if (floorRoomToUpdate) {
+  //           // Update existing room
+  //           floorListToSet.push({
+  //             ...item,
+  //             roomList: item.roomList.map((room) =>
+  //               room.id === floorRoomToUpdate.id
+  //                 ? {
+  //                     ...room,
+  //                     roomNumber: formData.roomNumber || room.roomNumber,
+  //                     roomType: formData.selectedRoomType,
+  //                   }
+  //                 : room
+  //             ),
+  //           });
+  //         } else {
+  //           floorListToSet.push({
+  //             id: floor.id,
+  //             roomList: [
+  //               ...item.roomList,
+  //               {
+  //                 id: uuidv4(),
+  //                 roomNumber: formData.roomNumber,
+  //                 roomType: formData.selectedRoomType,
+  //               },
+  //             ],
+  //           });
+  //         }
+  //       } else {
+  //         const roomListToSet = [];
+  //         for (let i = 0; i < parseInt(formData.roomNumber); i++) {
+  //           roomListToSet.push({
+  //             id: uuidv4(),
+  //             roomNumber: ((floorIndex + 1) * 100 + (i + 1)).toString(),
+  //             roomType: formData.selectedRoomType,
+  //           });
+  //         }
+  //         floorListToSet.push({
+  //           id: floor.id,
+  //           roomList: [...item.roomList, ...roomListToSet],
+  //         });
+  //         setSelectedTab("byRoomNumber");
+  //       }
+  //     } else {
+  //       floorListToSet.push(item);
+  //     }
+  //   });
+
+  //   setFloorList(floorListToSet);
+  //   setFloorRoomToUpdate(null);
+  //   handleResetForm();
+  // }, [
+  //   floorList,
+  //   setFloorList,
+  //   floor,
+  //   handleResetForm,
+  //   formData,
+  //   setSnack,
+  //   selectedTab,
+  //   floorIndex,
+  //   floorRoomToUpdate,
+  // ]);
+
   const handleAddRoomForCurrentFloor = React.useCallback(() => {
-    const roomNameArr = [];
+    // Validate room number format based on floor
+    // const currentFloorPrefix = (floorIndex + 1) * 100;
+    // const roomNumber = parseInt(formData.roomNumber);
 
-    floorList.forEach((item) => {
-      item.roomList.forEach((val) => {
-        if (!floorRoomToUpdate || val.id !== floorRoomToUpdate.id) {
-          roomNameArr.push(val.roomNumber.toLowerCase());
-        }
-      });
-    });
+    if (selectedTab === "byRoomNumber") {
+      // Check if room number matches floor prefix
+      if (!formData.roomNumber.startsWith((floorIndex + 1).toString())) {
+        return setSnack({
+          open: true,
+          message: `Room number must start with ${floorIndex + 1} for floor ${
+            floorIndex + 1
+          }`,
+          severity: "error",
+        });
+      }
 
-    if (
-      !floorRoomToUpdate &&
-      roomNameArr.includes(formData.roomNumber.trim().toLocaleLowerCase())
-    ) {
-      return setSnack({
-        open: true,
-        message: "Room number already exists.",
-        severity: "error",
-      });
+      // Check for duplicates within the same floor only
+      const isDuplicateInCurrentFloor = floor.roomList.some(
+        (room) =>
+          room.roomNumber.toLowerCase() ===
+            formData.roomNumber.trim().toLowerCase() &&
+          (!floorRoomToUpdate || room.id !== floorRoomToUpdate.id)
+      );
+
+      if (isDuplicateInCurrentFloor) {
+        return setSnack({
+          open: true,
+          message: "Room number already exists in this floor.",
+          severity: "error",
+        });
+      }
     }
 
     const floorListToSet = [];
@@ -983,21 +1083,21 @@ function FloorFormComponent({
             });
           }
         } else {
-          // const roomListToSet = [];
-          // for (let i = 0; i < parseInt(formData.roomNumber); i++) {
-          //   roomListToSet.push({
-          //     id: uuidv4(),
-          //     roomNumber: (floorIndex + 1 * 100 + (i + 1)).toString(),
-          //     roomType: formData.selectedRoomType,
-          //   });
-          // }
           const roomListToSet = [];
           for (let i = 0; i < parseInt(formData.roomNumber); i++) {
-            roomListToSet.push({
-              id: uuidv4(),
-              roomNumber: ((floorIndex + 1) * 100 + (i + 1)).toString(),
-              roomType: formData.selectedRoomType,
-            });
+            // Check if auto-generated room number already exists
+            const newRoomNumber = ((floorIndex + 1) * 100 + (i + 1)).toString();
+            const isDuplicateAutoRoom = item.roomList.some(
+              (room) => room.roomNumber === newRoomNumber
+            );
+
+            if (!isDuplicateAutoRoom) {
+              roomListToSet.push({
+                id: uuidv4(),
+                roomNumber: newRoomNumber,
+                roomType: formData.selectedRoomType,
+              });
+            }
           }
           floorListToSet.push({
             id: floor.id,
@@ -1024,71 +1124,6 @@ function FloorFormComponent({
     floorIndex,
     floorRoomToUpdate,
   ]);
-  // const handleAddRoomForCurrentFloor = React.useCallback(() => {
-  //   const roomNameArr = [];
-
-  //   floorList.forEach((item) => {
-  //     item.roomList.forEach((val) => {
-  //       roomNameArr.push(val.roomNumber.toLowerCase());
-  //     });
-  //   });
-
-  //   if (roomNameArr.includes(formData.roomNumber.trim().toLocaleLowerCase())) {
-  //     return setSnack({
-  //       open: true,
-  //       message: "Room number already exists.",
-  //       severity: "error",
-  //     });
-  //   }
-
-  //   const floorListToSet = [];
-  //   floorList.forEach((item) => {
-  //     if (item.id === floor.id) {
-  //       if (selectedTab === "byRoomNumber") {
-  //         floorListToSet.push({
-  //           id: floor.id,
-  //           roomList: [
-  //             ...item.roomList,
-  //             {
-  //               // id: item.roomList.length + 1,
-  //               id: uuidv4(),
-  //               roomNumber: formData.roomNumber,
-  //               roomType: formData.selectedRoomType,
-  //             },
-  //           ],
-  //         });
-  //       } else {
-  //         const roomListToSet = [];
-  //         for (let i = 0; i < parseInt(formData.roomNumber); i++) {
-  //           roomListToSet.push({
-  //             // id: item.roomList.length + 1,
-  //             id: uuidv4(),
-  //             roomNumber: (floorIndex + 1 * 100 + (i + 1)).toString(),
-  //             roomType: formData.selectedRoomType,
-  //           });
-  //         }
-  //         floorListToSet.push({
-  //           id: floor.id,
-  //           roomList: [...item.roomList, ...roomListToSet],
-  //         });
-  //         setSelectedTab("byRoomNumber");
-  //       }
-  //     } else {
-  //       floorListToSet.push(item);
-  //     }
-  //   });
-  //   setFloorList(floorListToSet);
-  //   handleResetForm();
-  // }, [
-  //   floorList,
-  //   setFloorList,
-  //   floor,
-  //   handleResetForm,
-  //   formData,
-  //   setSnack,
-  //   selectedTab,
-  //   floorIndex,
-  // ]);
 
   const handleDeleteRoomForCurrentFloor = React.useCallback(
     (id) => {
