@@ -818,7 +818,7 @@ const HotelBillInvoice = () => {
     return sessionedEventData ? JSON.parse(sessionedEventData) : null;
   }, [bookingRefNo]);
 
-  console.log("invoiceData");
+  // here all the items where iscredit is false is added
   const subTotalExpense = useMemo(
     () =>
       parseFloat(
@@ -827,6 +827,21 @@ const HotelBillInvoice = () => {
           ?.reduce((sum, item) => sum + (item.amount || 0), 0)
       ).toFixed(2),
     [invoiceData]
+  );
+  // here all the items where iscredit is true is added
+  const subTotalPaidExpense = useMemo(
+    () =>
+      parseFloat(
+        invoiceData?.bookingDto?.transactionDetails
+          ?.filter((item) => Boolean(item?.isCredit))
+          ?.reduce((sum, item) => sum + (item.amount || 0), 0)
+      ).toFixed(2),
+    [invoiceData]
+  );
+
+  const amountToBePaid = useMemo(
+    () => parseFloat(subTotalExpense - subTotalPaidExpense).toFixed(2),
+    [subTotalExpense, subTotalPaidExpense]
   );
   // const subTotalAmountPaid = useMemo(
   //   () =>
@@ -858,16 +873,25 @@ const HotelBillInvoice = () => {
     return sum.toFixed(2);
   }, [invoiceData]);
 
-  const subTotalFoodExpense = useMemo(
-    () =>
-      parseFloat(
-        invoiceData?.bookingDto?.foodDataList?.reduce(
-          (sum, item) => sum + (item?.bookingDetails?.totalPrice || 0),
-          0
-        )
-      ).toFixed(2),
-    [invoiceData]
-  );
+  // const subTotalFoodExpense = useMemo(
+  //   () =>
+  //     parseFloat(
+  //       invoiceData?.bookingDto?.foodDataList?.reduce(
+  //         (sum, item) => sum + (item?.bookingDetails?.totalPrice || 0),
+  //         0
+  //       )
+  //     ).toFixed(2),
+  //   [invoiceData]
+  // );
+
+  const subTotalFoodExpense = useMemo(() => {
+    const sum =
+      invoiceData?.bookingDto?.foodDataList?.reduce(
+        (sum, item) => sum + (item?.bookingDetails?.totalPrice || 0),
+        0
+      ) || 0;
+    return sum.toFixed(2);
+  }, [invoiceData]);
 
   const subTotalBarExpense = useMemo(() => {
     const sum =
@@ -888,34 +912,48 @@ const HotelBillInvoice = () => {
   }, [invoiceData]);
 
   console.log("subTotalBarExpense", subTotalBarExpense);
-  const subTotalRoomCharges = useMemo(() => {
-    // const expense = parseFloat(subTotalExpense) || 0;
-    // const extraItemsExpense = parseFloat(subTotalExtraItemsExpense) || 0;
-    // const laundrysExpense = parseFloat(subTotalLaundryExpense) || 0;
-    // const foodExpense = parseFloat(subTotalFoodExpense) || 0;
+  // const subTotalRoomCharges = useMemo(() => {
+  //   // const expense = parseFloat(subTotalExpense) || 0;
+  //   // const extraItemsExpense = parseFloat(subTotalExtraItemsExpense) || 0;
+  //   // const laundrysExpense = parseFloat(subTotalLaundryExpense) || 0;
+  //   // const foodExpense = parseFloat(subTotalFoodExpense) || 0;
 
-    // return (
-    //   expense -
-    //   extraItemsExpense -
-    //   foodExpense -
-    //   laundrysExpense
-    // ).toFixed(2);
-    return (
-      subTotalExpense -
-      subTotalExtraItemsExpense -
-      subTotalLaundryExpense -
-      subTotalFoodExpense -
-      subTotalBarExpense -
-      subTotalSpaExpense
-    ).toFixed(2);
-  }, [
-    subTotalExpense,
-    subTotalExtraItemsExpense,
-    subTotalFoodExpense,
-    subTotalLaundryExpense,
-    subTotalSpaExpense,
-    subTotalBarExpense,
-  ]);
+  //   // return (
+  //   //   expense -
+  //   //   extraItemsExpense -
+  //   //   foodExpense -
+  //   //   laundrysExpense
+  //   // ).toFixed(2);
+  //   return (
+  //     subTotalExpense -
+  //     subTotalExtraItemsExpense -
+  //     subTotalLaundryExpense -
+  //     subTotalFoodExpense -
+  //     subTotalBarExpense -
+  //     subTotalSpaExpense
+  //   ).toFixed(2);
+  // }, [
+  //   subTotalExpense,
+  //   subTotalExtraItemsExpense,
+  //   subTotalFoodExpense,
+  //   subTotalLaundryExpense,
+  //   subTotalSpaExpense,
+  //   subTotalBarExpense,
+  // ]);
+
+  const subTotalRoomCharges = useMemo(() => {
+    const sum =
+      // invoiceData?.bookingDto?.foodDataList?.reduce(
+      //   (sum, item) => sum + (item?.bookingDetails?.totalPrice || 0),
+      //   0
+      // ) || 0;
+      parseFloat(
+        invoiceData?.bookingDto?.gstPrice +
+          invoiceData?.bookingDto?.totalRoomCharge
+      );
+
+    return sum.toFixed(2);
+  }, [invoiceData]);
 
   const foodListTableHeaders = useMemo(
     () => [
@@ -1986,7 +2024,7 @@ const HotelBillInvoice = () => {
                         // fontWeight: 600,
                       }}
                     >
-                      {invoiceData?.bookingDto?.checkOutDate || "NA"}
+                      {/* {invoiceData?.bookingDto?.checkOutDate || "NA"} */}
                     </Typography>
                   </Typography>
                 </Grid>
@@ -2227,6 +2265,8 @@ const HotelBillInvoice = () => {
                             sx={{ textAlign: "right", fontWeight: 550 }}
                           >
                             {subTotalRoomCharges}
+                            {/* {invoiceData?.bookingDto?.gstPrice +
+                              invoiceData?.bookingDto?.totalRoomCharge} */}
                           </Typography>
                         </Box>
                       </Grid>
@@ -2396,6 +2436,7 @@ const HotelBillInvoice = () => {
                           </Typography>
                         </Box>
                       </Grid>
+
                       <Grid size={6}>
                         <Box
                           sx={{
@@ -2408,9 +2449,7 @@ const HotelBillInvoice = () => {
                             paddingLeft: "5px",
                           }}
                         >
-                          <Typography
-                            sx={{ fontSize: "20px", fontWeight: 600 }}
-                          >
+                          <Typography sx={{ fontWeight: 550 }}>
                             Total
                           </Typography>
                         </Box>
@@ -2427,13 +2466,83 @@ const HotelBillInvoice = () => {
                           }}
                         >
                           <Typography
+                            sx={{ textAlign: "right", fontWeight: 550 }}
+                          >
+                            {subTotalExpense}
+                          </Typography>
+                        </Box>
+                      </Grid>
+
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderLeft: "1.7px solid black",
+                            bgcolor: "white",
+                            paddingLeft: "5px",
+                          }}
+                        >
+                          <Typography sx={{ fontWeight: 550 }}>
+                            Paid Amount
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderRight: "1.7px solid black",
+                            bgcolor: "white",
+                          }}
+                        >
+                          <Typography
+                            sx={{ textAlign: "right", fontWeight: 550 }}
+                          >
+                            {subTotalPaidExpense}
+                            {/* {invoiceData?.bookingDto?.bookingAmount} */}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderLeft: "1.7px solid black",
+                            bgcolor: "white",
+                            paddingLeft: "5px",
+                          }}
+                        >
+                          <Typography
+                            sx={{ fontSize: "20px", fontWeight: 600 }}
+                          >
+                            Amount to pay
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderRight: "1.7px solid black",
+                            bgcolor: "white",
+                          }}
+                        >
+                          <Typography
                             sx={{
                               textAlign: "right",
                               fontSize: "19px",
                               fontWeight: 600,
                             }}
                           >
-                            {subTotalExpense}
+                            {amountToBePaid}
                           </Typography>
                         </Box>
                       </Grid>

@@ -55,16 +55,20 @@ const SpaInvoice = () => {
     .hotelDto?.logoUrl;
 
   const subTotalSpaCharges = useMemo(() => {
-    return invoiceData?.totalPrice - invoiceData?.paidAmount;
+    return (
+      invoiceData?.totalPrice -
+      invoiceData?.paidAmount +
+      invoiceData?.totalPrice * 0.18
+    );
   }, [invoiceData]);
 
-  const totalSpaCharges = useMemo(() => {
-    return invoiceData?.totalPrice - invoiceData?.totalPrice * 0.18;
-  }, [invoiceData]);
+  // const totalSpaCharges = useMemo(() => {
+  //   return invoiceData?.totalPrice - invoiceData?.totalPrice * 0.18;
+  // }, [invoiceData]);
 
-  const gstCharges = useMemo(() => {
-    return invoiceData?.totalPrice * 0.18;
-  }, [invoiceData]);
+  // const gstCharges = useMemo(() => {
+  //   return invoiceData?.totalPrice * 0.18;
+  // }, [invoiceData]);
 
   return (
     <>
@@ -755,8 +759,8 @@ const SpaInvoice = () => {
                           <Typography
                             sx={{ textAlign: "right", fontWeight: 550 }}
                           >
-                            {totalSpaCharges}
-                            {/* {invoiceData?.totalPrice || "NA"} */}
+                            {/* {totalSpaCharges} */}
+                            {invoiceData?.totalPrice || "NA"}
                           </Typography>
                         </Box>
                       </Grid>
@@ -800,8 +804,8 @@ const SpaInvoice = () => {
                           <Typography
                             sx={{ textAlign: "right", fontWeight: 550 }}
                           >
-                            {gstCharges}
-                            {/* {invoiceData?.totalPrice || "NA"} */}
+                            {/* {gstCharges} */}
+                            {invoiceData?.gstPrice || "NA"}
                           </Typography>
                         </Box>
                       </Grid>

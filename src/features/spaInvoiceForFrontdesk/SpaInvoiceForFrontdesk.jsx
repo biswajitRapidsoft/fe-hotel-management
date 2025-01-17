@@ -1,16 +1,18 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState, memo } from "react";
 // import LoadingComponent from "../../components/LoadingComponent";
 // import SnackAlert from "../../components/Alert";
 import {
   Box,
   Button,
   Divider,
-  // Paper,
-  // Table,
+  TableBody,
+  TableRow,
+  Paper,
+  Table,
   // TableBody,
-  // TableCell,
-  // TableContainer,
-  // TableHead,
+  TableCell,
+  TableContainer,
+  TableHead,
   // TableRow,
   Typography,
 } from "@mui/material";
@@ -19,10 +21,28 @@ import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import moment from "moment";
 
+const getCellValue = (obj, key, fallback = "") => {
+  if (!key) return undefined;
+  return key
+    .split(".")
+    .reduce(
+      (acc, part) => (acc && acc[part] !== undefined ? acc[part] : fallback),
+      obj
+    );
+};
+
 const SpaInvoiceForFrontdesk = () => {
   const { bookingRefNo } = useParams("bookingRefNo");
   const [isPrinting, setIsPrinting] = useState(false);
 
+  const spaListTableHeaders = useMemo(
+    () => [
+      { label: "Sl. No.", key: "sno" },
+      { label: "Start Time", key: "startTime" },
+      { label: "End Time", key: "endTime" },
+    ],
+    []
+  );
   const invoiceData = useMemo(() => {
     const sessionedEventData = sessionStorage.getItem(
       `spaBillInvoice-${bookingRefNo}`
@@ -700,49 +720,6 @@ const SpaInvoiceForFrontdesk = () => {
                     </Typography>
                   </Typography>
                 </Grid>
-                {/* arrival date and time */}
-                <Grid size={2}>
-                  <Typography
-                    sx={{
-                      fontSize: "15.5px",
-                      // color: "#707070",
-                      fontWeight: 600,
-                    }}
-                  >
-                    Arrival
-                  </Typography>
-                </Grid>
-                <Grid size={4}>
-                  <Typography
-                    sx={{
-                      fontSize: "15.5px",
-                      // color: "#707070",
-                      fontWeight: 600,
-                    }}
-                  >
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontSize: "15.5px",
-                        // color: "#707070",
-                        fontWeight: 600,
-                        marginRight: "5px",
-                      }}
-                    >
-                      :
-                    </Typography>
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontSize: "15.5px",
-                        // color: "#707070",
-                        // fontWeight: 600,
-                      }}
-                    >
-                      {invoiceData?.bookingDto?.checkInDate || "NA"}
-                    </Typography>
-                  </Typography>
-                </Grid>
 
                 <Grid size={2}>
                   <Typography
@@ -786,48 +763,7 @@ const SpaInvoiceForFrontdesk = () => {
                     </Typography>
                   </Typography>
                 </Grid>
-                <Grid size={2}>
-                  <Typography
-                    sx={{
-                      fontSize: "15.5px",
-                      // color: "#707070",
-                      fontWeight: 600,
-                    }}
-                  >
-                    Departure
-                  </Typography>
-                </Grid>
-                <Grid size={4}>
-                  <Typography
-                    sx={{
-                      fontSize: "15.5px",
-                      // color: "#707070",
-                      fontWeight: 600,
-                    }}
-                  >
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontSize: "15.5px",
-                        // color: "#707070",
-                        fontWeight: 600,
-                        marginRight: "5px",
-                      }}
-                    >
-                      :
-                    </Typography>
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontSize: "15.5px",
-                        // color: "#707070",
-                        // fontWeight: 600,
-                      }}
-                    >
-                      {invoiceData?.bookingDto?.checkOutDate || "NA"}
-                    </Typography>
-                  </Typography>
-                </Grid>
+
                 <Grid size={2}>
                   <Typography
                     sx={{
@@ -880,6 +816,52 @@ const SpaInvoiceForFrontdesk = () => {
                   my: 0.5,
                 }}
               />
+              <Grid
+                container
+                size={12}
+                spacing={1}
+                sx={{
+                  gridTemplateColumns: {
+                    xs: "2fr",
+                  },
+                  gridAutoFlow: "dense",
+                  width: "100%",
+                }}
+              >
+                {Boolean(
+                  invoiceData?.bookingDto?.spaBookingDetails?.length
+                ) && (
+                  <Grid size={12}>
+                    {Boolean(
+                      invoiceData?.bookingDto?.spaBookingDetails?.length
+                    ) && (
+                      <Box sx={{ width: "100%" }}>
+                        <Typography
+                          sx={{
+                            fontSize: "18px",
+                            fontWeight: 600,
+                            width: "100%",
+                            borderBottom: "2px solid #ccc",
+                            marginBottom: "5px",
+                          }}
+                        >
+                          Spa Details :
+                        </Typography>
+                        <Box sx={{ mb: 1 }}>
+                          <CustomSpaListTableContainerForInvoice
+                            spaListTableHeaders={spaListTableHeaders}
+                            spaListTableData={
+                              invoiceData?.bookingDto?.spaBookingDetails
+                            }
+                            isForCheckOut={true}
+                            // uniqueFoodItems={uniqueFoodItems}
+                          />
+                        </Box>
+                      </Box>
+                    )}
+                  </Grid>
+                )}
+              </Grid>
 
               <Grid container size={12} columnSpacing={2}>
                 <Grid size={12}>
@@ -1132,5 +1114,113 @@ const SpaInvoiceForFrontdesk = () => {
     </>
   );
 };
+
+const CustomSpaListTableContainerForInvoice = memo(function ({
+  spaListTableHeaders,
+  spaListTableData,
+  // isForCheckOut,
+}) {
+  return (
+    <React.Fragment>
+      <TableContainer
+        component={Paper}
+        sx={{
+          overflow: "auto",
+          // maxHeight: { xs: isForCheckOut ? "220px" : "310px" },
+          // xl: "calc(100vh - 280px)",
+          "&::-webkit-scrollbar": {
+            // height: "14px",
+          },
+          "&::-webkit-scrollbar-track": {
+            backgroundColor: "#ffffff00",
+            width: "none",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#280071",
+            borderRadius: "4px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: "#3b0b92",
+          },
+        }}
+      >
+        <Table aria-label="simple table" stickyHeader size="small">
+          <TableHead>
+            <TableRow>
+              {spaListTableHeaders?.map((item, index) => {
+                return (
+                  <TableCell
+                    key={`room-table-head-${index}`}
+                    align="center"
+                    sx={{
+                      backgroundColor: "#dbd8ff",
+                      fontWeight: "bold",
+                      // paddingY: "10px",
+                      fontSize: "13px",
+                    }}
+                  >
+                    {item?.label}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+          </TableHead>
+
+          <TableBody>
+            {spaListTableData?.map((row, index) => (
+              <CustomParentRowForSpa
+                spaListTableHeaders={spaListTableHeaders}
+                rowSerialNumber={index + 1}
+                key={row.id}
+                row={row}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </React.Fragment>
+  );
+});
+
+const CustomParentRowForSpa = memo(function ({
+  spaListTableHeaders,
+  rowSerialNumber,
+  key,
+  row,
+}) {
+  return (
+    <TableRow
+      hover
+      key={row?.id}
+      sx={{
+        cursor: "pointer",
+        height: 35,
+        backgroundColor: "inherit",
+        "&:hover": {
+          backgroundColor: "inherit",
+        },
+      }}
+    >
+      {spaListTableHeaders?.map((subitem, subIndex) => {
+        return (
+          <TableCell key={`table-body-cell=${subIndex}`} align="center">
+            <Typography sx={{ fontSize: "12px" }}>
+              {subitem?.key === "sno" ? (
+                <Typography sx={{ fontSize: "12px" }}>
+                  {rowSerialNumber}
+                </Typography>
+              ) : (
+                // </Box>
+                <Typography sx={{ fontSize: "12px", wordWrap: "break-word" }}>
+                  {getCellValue(row, subitem?.key)}
+                </Typography>
+              )}
+            </Typography>
+          </TableCell>
+        );
+      })}
+    </TableRow>
+  );
+});
 
 export default SpaInvoiceForFrontdesk;

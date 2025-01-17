@@ -1900,6 +1900,11 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
         isRewardsPointsUsed: isClaimPoints,
         noOfRewardsPointsUsed: userDetails?.data?.noOfRewardsPointsAvailable,
         rewardsPointPrice: userDetails?.data?.rewardsPointPrice,
+        gstPrice: isClaimPoints
+          ? (hotelDetails.basePrice * calculateNumberOfDays -
+              userDetails?.data?.rewardsPointPrice) *
+              0.18 || 0
+          : calculateNumberOfDays * Number(hotelDetails?.basePrice) * 0.18,
         // paymentDetails: Boolean(sessionStorage.getItem("paymentDetail"))
         //   ? sessionStorage.getItem("paymentDetail")
         //   : "",
@@ -2315,6 +2320,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                 </Grid>
               )}
 
+              {/* <></> */}
               {Boolean(userDetails?.data?.noOfRewardsPointsAvailable) &&
                 Boolean(calculateNumberOfDays) && (
                   <Grid size={12}>

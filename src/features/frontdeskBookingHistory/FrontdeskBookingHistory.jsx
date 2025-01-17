@@ -42,7 +42,9 @@ import {
   useCancelRoomBookingFromBookingHistoryMutation,
   useExportBookingHistoryMutation,
 } from "../../services/frontdeskBookingHistory";
-import moment from "moment";
+// import moment from "moment";
+import moment from "moment-timezone";
+
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -107,17 +109,22 @@ const filterBookingRooms = (
       return false;
     }
 
+    // :moment(booking.checkInDate).format("DD/MM/YYYY").utc(),
+
     const bookingDates = relevantBookings.map((booking) => ({
       startDate: dayjs(
         booking.bookingStatus === "Booked"
           ? booking.fromDate
-          : booking.checkInDate,
+          : // : booking.checkInDate,
+            moment(booking.checkInDateInUtc).tz("Asia/Kolkata"),
         "DD-MM-YYYY"
       ).startOf("day"),
       endDate: dayjs(
         booking.bookingStatus === "Booked"
           ? booking.toDate
-          : booking.checkOutDate,
+          : // : booking.checkOutDate,
+            moment(booking.checkOutDateInUtc).tz("Asia/Kolkata"),
+
         "DD-MM-YYYY"
       ).startOf("day"),
     }));
@@ -2457,6 +2464,7 @@ const CustomBookingHistoryDrawer = memo(function ({
                       <Autocomplete
                         options={roomtypeByHotelIdForBookingHistoryData || []}
                         disableClearable
+                        disabled={true}
                         fullWidth
                         value={bookingConfirmationFormData?.roomType || null}
                         onChange={(e, newVal) =>
@@ -2532,6 +2540,7 @@ const CustomBookingHistoryDrawer = memo(function ({
                             {...params}
                             label="Room Type"
                             variant="standard"
+                            disabled={true}
                             sx={{
                               // "& .MuiOutlinedInput-root": {
                               //   borderRadius: 2,
@@ -2934,21 +2943,13 @@ const FrontdeskBookingHistory = () => {
   const [bookingHistoryTableFilters, setBookingHistoryTableFilters] = useState(
     initialBookingHistoryTableFilters
   );
-  console.log("bookingHistoryTableFilters : ", bookingHistoryTableFilters);
   const [bookingHistoryTablePageNo, setBookingHistoryTablePageNo] = useState(0);
-  console.log(" bookingHistoryTablePageNo : ", bookingHistoryTablePageNo);
   const [bookingHistoryTableRowsPerPage, setBookingHistoryTableRowsPerPage] =
     useState(10);
-  console.log(
-    " bookingHistoryTableRowsPerPage : ",
-    bookingHistoryTableRowsPerPage
-  );
   const [debouncedBookingRefNoSearch, setDebouncedBookingRefNoSearch] =
     useState("");
   const [bookingConfirmationFormData, setBookingConfirmationFormData] =
     useState(initialBookingConfirmationFormData);
-
-  console.log("bookingConfirmationFormData : ", bookingConfirmationFormData);
 
   const {
     data: allBookingStatusTypeData = { data: [] },
@@ -2959,8 +2960,6 @@ const FrontdeskBookingHistory = () => {
       skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== FRONTDESK,
     }
   );
-
-  console.log("allBookingStatusTypeData : ", allBookingStatusTypeData);
 
   const {
     data: roomBookingHistoryByHotelIdData = {
@@ -3175,6 +3174,7 @@ const FrontdeskBookingHistory = () => {
             ...prevData,
             [name]: inputValue,
           }));
+          setBookingHistoryTablePageNo(0);
         }
       } else {
         setBookingHistoryTableFilters(initialBookingHistoryTableFilters);

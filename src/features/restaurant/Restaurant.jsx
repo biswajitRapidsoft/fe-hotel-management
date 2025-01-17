@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 
 import {
   Box,
@@ -13,8 +13,15 @@ import {
   FormControlLabel,
   FormGroup,
   IconButton,
-  // Rating,
+  Dialog,
+  DialogTitle,
+  Slide,
+  Rating,
+  DialogContent,
 } from "@mui/material";
+
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import StarIcon from "@mui/icons-material/Star";
 import LunchDiningIcon from "@mui/icons-material/LunchDining";
 import { MdOutlineRoomService } from "react-icons/md";
@@ -42,6 +49,10 @@ import { FaArrowAltCircleLeft } from "react-icons/fa";
 
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const drawerWidth = 399;
 
@@ -1061,291 +1072,517 @@ const Restaurant = () => {
 };
 
 const CustomFoodCard = React.memo(function ({ foodItem, handleAddItemToCart }) {
+  console.log("foodItem", foodItem.image);
+  const [openFoodDetailsDialog, setOpenFoodDetailsDialog] =
+    React.useState(false);
+
+  const [foodDetailsData, setFoodDetailsData] = React.useState(null);
+
+  const handleFoodDetails = (item) => {
+    setOpenFoodDetailsDialog(true);
+    setFoodDetailsData(item);
+  };
+  const handleFoodDetailsDialogClose = () => {
+    setOpenFoodDetailsDialog(false);
+    setFoodDetailsData(null);
+  };
+
   return (
-    <Grid
-      size={{ xs: 6, md: 3, xl: 2.4 }}
-      sx={{
-        // boxShadow: (theme) => theme.shadows[2],
-        boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
-        borderRadius: "10px",
-        backgroundColor: "#fff",
-        position: "relative",
-      }}
-    >
-      <Box
+    <>
+      <Grid
+        size={{ xs: 6, md: 3, xl: 2.4 }}
         sx={{
-          width: "77px",
-          height: "24px",
-          clipPath: `polygon(0 0, 100% 0, calc(100% - 22px) 100%, 0% 100%)`,
-          bgcolor: "lavender",
-          position: "absolute",
-          background: "#ffffff78",
-          backdropFilter: "blur(35px)",
-          WebkitBackdropFilter: "blur(35px)",
+          // boxShadow: (theme) => theme.shadows[2],
+          boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
+          borderRadius: "10px",
+          backgroundColor: "#fff",
+          position: "relative",
         }}
       >
         <Box
           sx={{
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            alignItems: "center",
-            // justifyContent: "space-evenly",
+            width: "77px",
+            height: "24px",
+            clipPath: `polygon(0 0, 100% 0, calc(100% - 22px) 100%, 0% 100%)`,
+            bgcolor: "lavender",
+            position: "absolute",
+            background: "#ffffff78",
+            backdropFilter: "blur(35px)",
+            WebkitBackdropFilter: "blur(35px)",
           }}
         >
           <Box
             sx={{
-              boxSizing: "border-box",
-              width: "18px",
-              height: "18px",
+              width: "100%",
+              height: "100%",
               display: "flex",
-              justifyContent: "center",
               alignItems: "center",
-              // border: "1.3px solid #ff0000",
-              border: Boolean(foodItem?.foodtype === "Non_Veg")
-                ? "1.3px solid #ff0000"
-                : "1.3px solid green",
-              ml: 1.5,
+              // justifyContent: "space-evenly",
             }}
           >
             <Box
               sx={{
-                minWidth: "13px",
-                minHeight: "13px",
-                borderRadius: "50%",
-                // bgcolor: "#ff0000",
-                bgcolor: Boolean(foodItem?.foodtype === "Non_Veg")
-                  ? "#ff0000"
-                  : "green",
+                boxSizing: "border-box",
+                width: "18px",
+                height: "18px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                // border: "1.3px solid #ff0000",
+                border: Boolean(foodItem?.foodtype === "Non_Veg")
+                  ? "1.3px solid #ff0000"
+                  : "1.3px solid green",
+                ml: 1.5,
               }}
-            ></Box>
+            >
+              <Box
+                sx={{
+                  minWidth: "13px",
+                  minHeight: "13px",
+                  borderRadius: "50%",
+                  // bgcolor: "#ff0000",
+                  bgcolor: Boolean(foodItem?.foodtype === "Non_Veg")
+                    ? "#ff0000"
+                    : "green",
+                }}
+              ></Box>
+            </Box>
           </Box>
         </Box>
-      </Box>
-      <Grid container sx={{ borderRadius: "10px" }}>
-        <Grid size={12}>
-          <Box
-            component="img"
-            src={foodItem.image}
-            alt="Food Image"
-            sx={{ width: "100%", height: 200, borderRadius: "10px" }}
-          />
-        </Grid>
-        <Grid size={12}>
-          <Box
-            sx={{
-              display: "flex",
-              // alignItems: "center",
-              justifyContent: "space-between",
-              p: 1,
-              backgroundColor: "#fff",
-              // backgroundColor: "red",
-              borderRadius: "10px",
-              flexDirection: "column",
-            }}
-          >
+        <Grid container sx={{ borderRadius: "10px" }}>
+          <Grid size={12}>
             <Box
+              component="img"
+              src={foodItem?.imageList[0] || ""}
+              alt="Food Image"
               sx={{
                 width: "100%",
+                height: 200,
+                borderRadius: "10px",
+                cursor: "pointer",
+              }}
+              onClick={() => handleFoodDetails(foodItem)}
+            />
+          </Grid>
+          <Grid size={12}>
+            <Box
+              sx={{
                 display: "flex",
+                // alignItems: "center",
                 justifyContent: "space-between",
-                px: 1,
-                // flexDirection: "column",
-                gap: 0.6,
-                mb: 0.3,
+                p: 1,
+                backgroundColor: "#fff",
+                // backgroundColor: "red",
+                borderRadius: "10px",
+                flexDirection: "column",
+              }}
+            >
+              <Box
+                sx={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  px: 1,
+                  // flexDirection: "column",
+                  gap: 0.6,
+                  mb: 0.3,
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    // , gap: 0.3
+                  }}
+                >
+                  {/* <Grid container size={12} spacing={1}> */}
+                  {/* <Grid size={{ xs: 6 }}> */}
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      // backgroundColor: "#F0F0F5",
+                      // borderRadius: "10px",
+                      px: 1,
+                      // width: "60%",
+                      height: "1.4rem",
+                    }}
+                  >
+                    <LunchDiningIcon
+                      sx={{ color: "gray", fontSize: "0.8rem" }}
+                    />
+
+                    <Typography
+                      sx={{
+                        fontSize: "0.7rem",
+                        fontWeight: "bold",
+                        color: "gray",
+                      }}
+                    >
+                      Dine-In
+                    </Typography>
+                  </Box>
+                  {/* </Grid> */}
+                  {/* <Grid size={{ xs: 6 }}> */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      // backgroundColor: "#F0F0F5",
+                      // borderRadius: "10px",
+                      px: 1,
+                      // width: "60%",
+                      height: "1.4rem",
+                    }}
+                  >
+                    {/* <Box
+                  sx={{
+                    height: "5px",
+                    width: "5px",
+                    borderRadius: "50%",
+                    backgroundColor: "gray",
+                  }}
+                ></Box> */}
+                    <EventAvailableIcon
+                      sx={{ color: "gray", fontSize: "0.8rem" }}
+                    />
+                    <Typography
+                      sx={{
+                        fontSize: "0.7rem",
+                        fontWeight: "bold",
+                        color: "gray",
+                      }}
+                    >
+                      Take-away
+                    </Typography>
+                  </Box>
+                  {/* </Grid> */}
+                  {/* <Grid size={{ xs: 6 }}> */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      // backgroundColor: "#F0F0F5",
+                      // borderRadius: "10px",
+                      px: 1,
+                      height: "1.4rem",
+
+                      // width: "60%",
+                    }}
+                  >
+                    {/* <Box
+                  sx={{
+                    height: "5px",
+                    width: "5px",
+                    borderRadius: "50%",
+                    backgroundColor: "gray",
+                  }}
+                ></Box> */}
+                    <MdOutlineRoomService
+                      style={{ color: "gray", fontSize: "0.8rem" }}
+                    />
+                    <Typography
+                      sx={{
+                        fontSize: "0.7rem",
+                        fontWeight: "bold",
+                        color: "gray",
+                      }}
+                    >
+                      Room Delivery
+                    </Typography>
+                  </Box>
+                </Box>
+                {/* {foodItem.ratingPoints && ( */}
+                {!Boolean(foodItem.ratingPoints === 0) && (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        borderRadius: "7px",
+                        display: "flex",
+                        gap: 0.7,
+                        // backgroundColor: "green",
+                        backgroundColor:
+                          foodItem.ratingPoints < 3 ? "red" : "green",
+
+                        px: 0.8,
+                        // p: 0.4,
+                        // py: 0.2,
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          color: "#fff",
+                          fontSize: "0.9rem",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {/* {foodItem.ratingPoints
+                      ? foodItem.ratingPoints.toFixed(1)
+                      : 1} */}
+                        {typeof foodItem?.ratingPoints === "number"
+                          ? foodItem.ratingPoints.toFixed(1)
+                          : "1.0"}
+                      </Typography>
+                      <StarIcon sx={{ color: "#fff", fontSize: "0.9rem" }} />
+                    </Box>
+                    {/* <Rating value={4} readOnly /> */}
+                  </Box>
+                )}
+
+                {/* // )} */}
+                {/* </Grid> */}
+                {/* </Grid> */}
+              </Box>
+              <Box
+                sx={{
+                  backgroundColor: "#E5F5FF",
+                  display: "flex",
+                  width: "100%",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  p: 2,
+                  borderRadius: "15px",
+                }}
+              >
+                <Box>
+                  <Typography>{foodItem.itemName}</Typography>
+                  <Typography sx={{ color: "gray" }}>
+                    {foodItem?.descriptions}
+                  </Typography>
+                  <Typography sx={{ fontWeight: "bold" }}>
+                    Rs. {foodItem.perUnitPrice}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    color="secondary"
+                    sx={{ color: "white", fontWeight: 600, letterSpacing: 1 }}
+                    onClick={() => handleAddItemToCart(foodItem)}
+                  >
+                    Add
+                  </Button>
+                </Box>
+              </Box>
+            </Box>
+          </Grid>
+        </Grid>
+      </Grid>
+
+      <FoodDetailsDialog
+        open={openFoodDetailsDialog}
+        foodDetailsData={foodDetailsData}
+        handleFoodDetailsDialogClose={handleFoodDetailsDialogClose}
+      />
+    </>
+  );
+});
+
+const FoodDetailsDialog = memo(function ({
+  open,
+  foodDetailsData,
+  handleFoodDetailsDialogClose,
+}) {
+  console.log("foodDetailsData", foodDetailsData);
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+  const goToPrevious = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? foodDetailsData?.imageList?.length - 1 : prevIndex - 1
+    );
+  };
+
+  const goToNext = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === foodDetailsData?.imageList?.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  const goToSlide = (index) => {
+    setCurrentIndex(index);
+  };
+
+  console.log("length", foodDetailsData?.imageList?.length);
+  return (
+    <Dialog
+      TransitionComponent={Transition}
+      open={open}
+      onClose={handleFoodDetailsDialogClose}
+      maxWidth="md"
+      fullWidth
+    >
+      <DialogTitle sx={{ fontWeight: 600, fontSize: 24 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Typography
+            sx={{
+              fontSize: "1.7rem",
+              fontFamily: "'Times New Roman', Times, serif",
+              fontWeight: "bold",
+              // color: "#606470",
+              color: "#0f0f0f",
+            }}
+          >
+            {foodDetailsData?.itemName}
+          </Typography>
+
+          <Rating
+            value={foodDetailsData?.ratingPoints}
+            disabled
+            sx={{ color: "#0f0f0f", fontSize: "1.1rem" }}
+          />
+        </Box>
+      </DialogTitle>
+
+      <DialogContent>
+        <Box
+          sx={{
+            width: "100%",
+            margin: "0 auto",
+            position: "relative",
+          }}
+        >
+          {foodDetailsData?.imageList?.length === 0 ? (
+            <Box
+              sx={{
+                textAlign: "center",
+                fontSize: "1.5rem",
+                color: "#555",
+              }}
+            >
+              No images found
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                height: "400px",
+                overflow: "hidden",
+                borderRadius: "8px",
+                position: "relative",
+                width: "100%",
               }}
             >
               <Box
                 sx={{
                   display: "flex",
-                  flexDirection: "column",
-                  // , gap: 0.3
+                  transform: `translateX(-${currentIndex * 100}%)`,
+                  transition: "transform 0.5s ease-in-out",
+                  height: "100%",
                 }}
               >
-                {/* <Grid container size={12} spacing={1}> */}
-                {/* <Grid size={{ xs: 6 }}> */}
-
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    // backgroundColor: "#F0F0F5",
-                    // borderRadius: "10px",
-                    px: 1,
-                    // width: "60%",
-                    height: "1.4rem",
-                  }}
-                >
-                  <LunchDiningIcon sx={{ color: "gray", fontSize: "0.8rem" }} />
-
-                  <Typography
-                    sx={{
-                      fontSize: "0.7rem",
-                      fontWeight: "bold",
-                      color: "gray",
-                    }}
-                  >
-                    Dine-In
-                  </Typography>
-                </Box>
-                {/* </Grid> */}
-                {/* <Grid size={{ xs: 6 }}> */}
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    // backgroundColor: "#F0F0F5",
-                    // borderRadius: "10px",
-                    px: 1,
-                    // width: "60%",
-                    height: "1.4rem",
-                  }}
-                >
-                  {/* <Box
-                  sx={{
-                    height: "5px",
-                    width: "5px",
-                    borderRadius: "50%",
-                    backgroundColor: "gray",
-                  }}
-                ></Box> */}
-                  <EventAvailableIcon
-                    sx={{ color: "gray", fontSize: "0.8rem" }}
-                  />
-                  <Typography
-                    sx={{
-                      fontSize: "0.7rem",
-                      fontWeight: "bold",
-                      color: "gray",
-                    }}
-                  >
-                    Take-away
-                  </Typography>
-                </Box>
-                {/* </Grid> */}
-                {/* <Grid size={{ xs: 6 }}> */}
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    // backgroundColor: "#F0F0F5",
-                    // borderRadius: "10px",
-                    px: 1,
-                    height: "1.4rem",
-
-                    // width: "60%",
-                  }}
-                >
-                  {/* <Box
-                  sx={{
-                    height: "5px",
-                    width: "5px",
-                    borderRadius: "50%",
-                    backgroundColor: "gray",
-                  }}
-                ></Box> */}
-                  <MdOutlineRoomService
-                    style={{ color: "gray", fontSize: "0.8rem" }}
-                  />
-                  <Typography
-                    sx={{
-                      fontSize: "0.7rem",
-                      fontWeight: "bold",
-                      color: "gray",
-                    }}
-                  >
-                    Room Delivery
-                  </Typography>
-                </Box>
-              </Box>
-              {/* {foodItem.ratingPoints && ( */}
-              {!Boolean(foodItem.ratingPoints === 0) && (
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
+                {foodDetailsData?.imageList?.map((image, index) => (
                   <Box
+                    key={index}
                     sx={{
-                      borderRadius: "7px",
-                      display: "flex",
-                      gap: 0.7,
-                      // backgroundColor: "green",
-                      backgroundColor:
-                        foodItem.ratingPoints < 3 ? "red" : "green",
-
-                      px: 0.8,
-                      // p: 0.4,
-                      // py: 0.2,
-                      justifyContent: "center",
-                      alignItems: "center",
+                      flex: "0 0 100%",
+                      width: "100%",
+                      height: "100%",
                     }}
                   >
-                    <Typography
+                    <Box
+                      component="img"
+                      src={image}
+                      alt={`Image ${index + 1}`}
                       sx={{
-                        color: "#fff",
-                        fontSize: "0.9rem",
-                        fontWeight: "bold",
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
                       }}
-                    >
-                      {/* {foodItem.ratingPoints
-                      ? foodItem.ratingPoints.toFixed(1)
-                      : 1} */}
-                      {typeof foodItem?.ratingPoints === "number"
-                        ? foodItem.ratingPoints.toFixed(1)
-                        : "1.0"}
-                    </Typography>
-                    <StarIcon sx={{ color: "#fff", fontSize: "0.9rem" }} />
+                    />
                   </Box>
-                  {/* <Rating value={4} readOnly /> */}
-                </Box>
-              )}
+                ))}
+              </Box>
+              {/* Navigation buttons */}
 
-              {/* // )} */}
-              {/* </Grid> */}
-              {/* </Grid> */}
-            </Box>
-            <Box
-              sx={{
-                backgroundColor: "#E5F5FF",
-                display: "flex",
-                width: "100%",
-                justifyContent: "space-between",
-                alignItems: "center",
-                p: 2,
-                borderRadius: "15px",
-              }}
-            >
-              <Box>
-                <Typography>{foodItem.itemName}</Typography>
-                <Typography sx={{ color: "gray" }}>
-                  {foodItem?.descriptions}
-                </Typography>
-                <Typography sx={{ fontWeight: "bold" }}>
-                  Rs. {foodItem.perUnitPrice}
-                </Typography>
+              {foodDetailsData?.imageList?.length > 1 && (
+                <>
+                  <IconButton
+                    onClick={goToPrevious}
+                    sx={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "16px",
+                      transform: "translateY(-50%)",
+                      width: "40px",
+                      height: "40px",
+                      backgroundColor: "rgba(0, 0, 0, 0.5)",
+                      color: "#fff",
+                      zIndex: 1,
+                      "&:hover": {
+                        backgroundColor: "rgba(0, 0, 0, 0.7)",
+                      },
+                    }}
+                  >
+                    <ChevronLeftIcon />
+                  </IconButton>
+
+                  <IconButton
+                    onClick={goToNext}
+                    sx={{
+                      position: "absolute",
+                      top: "50%",
+                      right: "16px",
+                      transform: "translateY(-50%)",
+                      width: "40px",
+                      height: "40px",
+                      backgroundColor: "rgba(0, 0, 0, 0.5)",
+                      color: "#fff",
+                      zIndex: 1,
+                      "&:hover": {
+                        backgroundColor: "rgba(0, 0, 0, 0.7)",
+                      },
+                    }}
+                  >
+                    <ChevronRightIcon />
+                  </IconButton>
+                </>
+              )}
+              {/* Dots navigation */}
+
+              <Box
+                sx={{
+                  position: "absolute",
+                  bottom: "16px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  display: "flex",
+                  gap: "8px",
+                }}
+              >
+                {foodDetailsData?.imageList?.map((_, index) => (
+                  <Box
+                    key={index}
+                    onClick={() => goToSlide(index)}
+                    sx={{
+                      width: "8px",
+                      height: "8px",
+                      borderRadius: "50%",
+                      backgroundColor:
+                        index === currentIndex
+                          ? "rgba(255, 255, 255, 1)"
+                          : "rgba(255, 255, 255, 0.5)",
+                      cursor: "pointer",
+                      transition: "background-color 0.3s ease",
+                    }}
+                  />
+                ))}
               </Box>
-              <Box>
-                <Button
-                  variant="contained"
-                  size="small"
-                  color="secondary"
-                  sx={{ color: "white", fontWeight: 600, letterSpacing: 1 }}
-                  onClick={() => handleAddItemToCart(foodItem)}
-                >
-                  Add
-                </Button>
-              </Box>
             </Box>
-          </Box>
-        </Grid>
-      </Grid>
-    </Grid>
+          )}
+        </Box>
+      </DialogContent>
+    </Dialog>
   );
 });
 

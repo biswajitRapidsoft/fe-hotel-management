@@ -24,6 +24,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import LiquorIcon from "@mui/icons-material/Liquor";
 import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import RestaurantIcon from "@mui/icons-material/Restaurant";
 
@@ -2228,6 +2229,26 @@ const RoomServiceCard = memo(function ({
                                   }}
                                 >
                                   <RestaurantIcon sx={{ fontSize: "17px" }} />
+                                </Button>
+                              </Tooltip>
+                              <Tooltip title={"Order Beverages"} arrow>
+                                <Button
+                                  variant="contained"
+                                  sx={{ minWidth: "unset", width: "15px" }}
+                                  onClick={() => {
+                                    sessionStorage.setItem(
+                                      "bookingRefNumber",
+                                      isSelectedRoom?.bookingDto
+                                        ?.bookingRefNumber
+                                    );
+                                    sessionStorage.setItem(
+                                      "hotelId",
+                                      isSelectedRoom?.bookingDto?.hotel?.id
+                                    );
+                                    navigate("/bar");
+                                  }}
+                                >
+                                  <LiquorIcon sx={{ fontSize: "17px" }} />
                                 </Button>
                               </Tooltip>
                             </Box>
@@ -6524,7 +6545,7 @@ const CustomFoodListTableContainer = memo(function ({
                 </TableCell>
               </TableRow>
             )}
-            <TableRow>
+            {/* <TableRow>
               <TableCell
                 colSpan={5}
                 style={{
@@ -6596,10 +6617,97 @@ const CustomFoodListTableContainer = memo(function ({
                   )}
                 </Typography>
               </TableCell>
-            </TableRow>
+            </TableRow> */}
           </TableBody>
         </Table>
       </TableContainer>
+      <Paper
+        sx={{
+          width: "100%",
+          // backgroundColor: "yellow",
+          display: "flex",
+          justifyContent: "flex-end",
+        }}
+      >
+        <Box sx={{ display: "flex", flexDirection: "column", mt: 1 }}>
+          {/* <Box sx={{ display: "flex", p: 0.4 }}>
+            <Typography>Gst </Typography>
+            <Typography>98</Typography>
+          </Box>
+          <Box sx={{ display: "flex", p: 0.4 }}>
+            <Typography>Total</Typography>
+            <Typography>1000</Typography>
+          </Box> */}
+          <Grid container size={12}>
+            <Grid size={{ xs: 6 }}>
+              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                <Typography sx={{ fontWeight: "bold" }}>Gst :</Typography>
+              </Box>
+            </Grid>
+            <Grid size={{ xs: 6 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  // , justifyContent: "flex-end"
+                  ml: 1,
+                }}
+              >
+                Rs.{" "}
+                <Typography>
+                  {foodListTableData?.reduce(
+                    (sum, item) => sum + (item?.bookingDetails?.gstPrice || 0),
+                    0
+                  )}
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid size={{ xs: 6 }}>
+              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                <Typography sx={{ fontWeight: "bold" }}>Total :</Typography>
+              </Box>
+            </Grid>
+            <Grid size={{ xs: 6 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  // , justifyContent: "flex-end"
+                  ml: 1,
+                }}
+              >
+                Rs.{" "}
+                {foodListTableData?.reduce(
+                  (sum, item) => sum + (item?.bookingDetails?.totalPrice || 0),
+                  0
+                )}
+              </Box>
+            </Grid>
+            <Grid size={{ xs: 6 }}>
+              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                <Typography sx={{ fontWeight: "bold" }}>Sub-Total :</Typography>
+              </Box>
+            </Grid>
+            <Grid size={{ xs: 6 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  // , justifyContent: "flex-end"
+                  ml: 1,
+                }}
+              >
+                Rs.{" "}
+                {(foodListTableData?.reduce(
+                  (sum, item) => sum + (item?.bookingDetails?.totalPrice || 0),
+                  0
+                ) || 0) +
+                  (foodListTableData?.reduce(
+                    (sum, item) => sum + (item?.bookingDetails?.gstPrice || 0),
+                    0
+                  ) || 0)}
+              </Box>
+            </Grid>
+          </Grid>
+        </Box>
+      </Paper>
     </React.Fragment>
   );
 });

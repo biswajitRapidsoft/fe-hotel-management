@@ -359,6 +359,7 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                               {booking?.bookingRefNumber || "N/A"}
                             </Typography>
                           </Box>
+
                           <Box
                             sx={{
                               display: "flex",
@@ -383,6 +384,18 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                               </Typography>
                             </Box>
                           </Box>
+
+                          {booking?.bookingStatus === "Cancelled" && (
+                            <Box sx={{ display: "flex", gap: 1 }}>
+                              <Typography sx={{ fontWeight: "bold" }}>
+                                Cancellation Reason:
+                              </Typography>
+                              <Typography>
+                                {booking?.rejectionReason || 0}
+                              </Typography>
+                            </Box>
+                          )}
+
                           <Box sx={{ display: "flex", gap: 1 }}>
                             {/* {booking.bookingStatus === "Booked" && ( */}
                             {/* {booking?.bookingStatus ===

@@ -44,6 +44,8 @@ import { ADMIN } from "../../helper/constants";
 const HotelList = () => {
   const [hotelToUpdate, setHotelToUpdate] = React.useState(null);
   console.log(hotelToUpdate, "hotelToUpdate");
+  const [gstError, setGstError] = React.useState(false);
+  const [gstHelperText, setGstHelperText] = React.useState("");
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
@@ -225,27 +227,69 @@ const HotelList = () => {
     [formData, addHotel, updateHotel, floorList, handleResetForm, hotelToUpdate]
   );
 
+  // const handleChange = React.useCallback((e) => {
+  //   if (e.target.name === "selectedState") {
+  //     setFormData((prevData) => ({
+  //       ...prevData,
+  //       [e.target.name]: e.target.value,
+  //       selectedCity: null,
+  //       selectedCityInputVal: "",
+  //     }));
+  //   } else if (e.target.name === "phoneNumber") {
+  //     setFormData((prevData) => ({
+  //       ...prevData,
+  //       [e.target.name]: e.target.value.replace(/\D/g, ""),
+  //     }));
+  //   } else {
+  //     setFormData((prevData) => ({
+  //       ...prevData,
+  //       [e.target.name]: e.target.value,
+  //     }));
+  //   }
+  // }, []);
+
   const handleChange = React.useCallback((e) => {
-    if (e.target.name === "selectedState") {
+    const { name, value } = e.target;
+
+    if (name === "gstIn") {
+      const regex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+
       setFormData((prevData) => ({
         ...prevData,
-        [e.target.name]: e.target.value,
+        [name]: value,
+      }));
+
+      if (value.length === 15) {
+        if (regex.test(value)) {
+          setGstError(false);
+          setGstHelperText("");
+        } else {
+          setGstError(true);
+          setGstHelperText("Invalid GST number format.");
+        }
+      } else {
+        setGstError(false);
+        setGstHelperText("");
+      }
+    } else if (name === "selectedState") {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
         selectedCity: null,
         selectedCityInputVal: "",
       }));
-    } else if (e.target.name === "phoneNumber") {
+    } else if (name === "phoneNumber") {
       setFormData((prevData) => ({
         ...prevData,
-        [e.target.name]: e.target.value.replace(/\D/g, ""),
+        [name]: value.replace(/\D/g, ""),
       }));
     } else {
       setFormData((prevData) => ({
         ...prevData,
-        [e.target.name]: e.target.value,
+        [name]: value,
       }));
     }
   }, []);
-
   const handleAddFloor = React.useCallback(() => {
     setFloorList((prevData) => [...prevData, { id: uuidv4(), roomList: [] }]);
   }, []);
@@ -637,6 +681,12 @@ const HotelList = () => {
               value={formData.gstIn}
               onChange={handleChange}
               variant="standard"
+              helperText={gstHelperText}
+              error={gstError}
+              inputProps={{
+                maxLength: 15,
+              }}
+
               // disabled={Boolean(hotelToUpdate)}
             />
           </Grid>
@@ -920,7 +970,6 @@ function FloorFormComponent({
               ),
             });
           } else {
-            // Add new room
             floorListToSet.push({
               id: floor.id,
               roomList: [
@@ -934,11 +983,19 @@ function FloorFormComponent({
             });
           }
         } else {
+          // const roomListToSet = [];
+          // for (let i = 0; i < parseInt(formData.roomNumber); i++) {
+          //   roomListToSet.push({
+          //     id: uuidv4(),
+          //     roomNumber: (floorIndex + 1 * 100 + (i + 1)).toString(),
+          //     roomType: formData.selectedRoomType,
+          //   });
+          // }
           const roomListToSet = [];
           for (let i = 0; i < parseInt(formData.roomNumber); i++) {
             roomListToSet.push({
               id: uuidv4(),
-              roomNumber: (floorIndex + 1 * 100 + (i + 1)).toString(),
+              roomNumber: ((floorIndex + 1) * 100 + (i + 1)).toString(),
               roomType: formData.selectedRoomType,
             });
           }
@@ -1159,6 +1216,9 @@ function FloorFormComponent({
               name="roomNumber"
               value={formData.roomNumber}
               onChange={handleChange}
+              inputProps={{
+                maxLength: selectedTab === "byRoomNumber" ? 5 : 2,
+              }}
               variant="standard"
             />
           </Grid>
