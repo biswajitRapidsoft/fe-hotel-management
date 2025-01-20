@@ -247,7 +247,7 @@ const FoodItemList = () => {
               >
                 <TableCell>Sl No.</TableCell>
                 <TableCell>Master Dining Type</TableCell>
-                <TableCell />
+                <TableCell>Details</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

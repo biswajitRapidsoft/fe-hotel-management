@@ -1618,7 +1618,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
   const [openHotelDetailsDialog, setOpenHotelDetailsDialog] =
     React.useState(false);
   const [hotelDetailsData, setHotelDetailsData] = React.useState(null);
-
+  console.log("hotelDetails", hotelDetails);
   const handleHotelDetails = (item) => {
     setOpenHotelDetailsDialog(true);
     setHotelDetailsData(item);
@@ -1749,6 +1749,12 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
         message: "Please provide number of people",
         severity: "error",
       });
+    } else if (Boolean(formData.noOfPeoples > hotelDetails.capacity)) {
+      return setSnack({
+        open: true,
+        message: `Maximum of ${hotelDetails?.capacity} people are allowed`,
+        severity: "error",
+      });
     } else if (!isAdvanceValid) {
       return setSnack({
         open: true,
@@ -1850,6 +1856,12 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
         return setSnack({
           open: true,
           message: "Please provide number of people",
+          severity: "error",
+        });
+      } else if (Boolean(formData.noOfPeoples > hotelDetails.capacity)) {
+        return setSnack({
+          open: true,
+          message: `Maximum of ${hotelDetails?.capacity} people are allowed`,
           severity: "error",
         });
       } else if (!isAdvanceValid) {
@@ -2920,7 +2932,6 @@ const HotelDetailsDialog = memo(function ({
   hotelDetailsData,
   toggleDrawer,
 }) {
-  console.log("hotelDetailsData", hotelDetailsData);
   const [currentIndex, setCurrentIndex] = React.useState(0);
 
   const goToPrevious = () => {
@@ -2950,7 +2961,6 @@ const HotelDetailsDialog = memo(function ({
   //   return () => clearInterval(timer);
   // }, [hotelDetailsData?.images?.length]);
 
-  console.log("hotelDetailsData", hotelDetailsData);
   return (
     <Dialog
       TransitionComponent={Transition}
@@ -3215,9 +3225,15 @@ const HotelDetailsDialog = memo(function ({
                 </Typography>
               </Box>
 
-              {/* <Grid container>
-                <Grid size={{ xs: 1 }}>Bathroom</Grid>
-              </Grid> */}
+              <Grid container>
+                <Grid size={{ xs: 1 }}>
+                  <Typography sx={{ fontWeight: "bold" }}>Capacity</Typography>
+                </Grid>
+                <Grid size={{ xs: 0.2 }}>-</Grid>
+                <Grid size={{ xs: 1 }}>
+                  <Typography>{hotelDetailsData?.capacity}</Typography>
+                </Grid>
+              </Grid>
 
               <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                 <Button
