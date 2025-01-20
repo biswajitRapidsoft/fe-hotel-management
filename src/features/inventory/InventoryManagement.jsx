@@ -356,6 +356,7 @@ const InventoryManagement = () => {
             type="submit"
           >
             Add Stock
+            {/* Add / Update Stock */}
           </Button>
         </Box>
       </Box>

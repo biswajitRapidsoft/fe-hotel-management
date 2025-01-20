@@ -382,7 +382,6 @@ const Bar = () => {
   } = useGetBarPromoCodeListQuery(
     JSON.parse(sessionStorage.getItem("hotelId"))
   );
-
   const handleTabChange = React.useCallback((e, value) => {
     setFoodType("ALL");
     setMealType(value);

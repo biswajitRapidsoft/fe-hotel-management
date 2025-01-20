@@ -2933,7 +2933,6 @@ const HotelDetailsDialog = memo(function ({
   toggleDrawer,
 }) {
   const [currentIndex, setCurrentIndex] = React.useState(0);
-
   const goToPrevious = () => {
     setCurrentIndex((prevIndex) =>
       prevIndex === 0 ? hotelDetailsData?.images?.length - 1 : prevIndex - 1
@@ -3026,7 +3025,7 @@ const HotelDetailsDialog = memo(function ({
                 sx={{
                   display: "flex",
                   transform: `translateX(-${currentIndex * 100}%)`,
-                  transition: "transform 0.5s ease-in-out",
+                  // transition: "transform 0.5s ease-in-out",
                 }}
               >
                 {hotelDetailsData?.images?.map((image, index) => (
@@ -3229,7 +3228,7 @@ const HotelDetailsDialog = memo(function ({
                 <Grid size={{ xs: 1 }}>
                   <Typography sx={{ fontWeight: "bold" }}>Capacity</Typography>
                 </Grid>
-                <Grid size={{ xs: 0.2 }}>-</Grid>
+                <Grid size={{ xs: 0.2 }}>:</Grid>
                 <Grid size={{ xs: 1 }}>
                   <Typography>{hotelDetailsData?.capacity}</Typography>
                 </Grid>

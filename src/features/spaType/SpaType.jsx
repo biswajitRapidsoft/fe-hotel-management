@@ -44,7 +44,6 @@ const SpaType = () => {
 
   // state to manage updation of spa type
   const [spaToUpdate, setSpaToUpdate] = React.useState(null);
-  console.log("spaToUpdate", spaToUpdate);
 
   const handleChange = React.useCallback((e) => {
     if (e.target.name === "basePrice") {
@@ -101,6 +100,7 @@ const SpaType = () => {
         isAdvanceNeeded: formData.isAdvance,
         images: uploadedImageArr,
         advancePaymentPercentage: formData.advancePercentage,
+        id: Boolean(spaToUpdate) ? spaToUpdate.id : "",
       })
         .unwrap()
         .then((res) => {
@@ -119,7 +119,7 @@ const SpaType = () => {
           });
         });
     },
-    [saveSpaType, formData, uploadedImageArr, handleResetForm]
+    [saveSpaType, formData, uploadedImageArr, handleResetForm, spaToUpdate]
   );
 
   React.useEffect(() => {
