@@ -2078,7 +2078,12 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
         >
           <Box>
             <Box>
-              <Rating value={hotelDetails?.averageRatingPoints} readOnly />
+              {/* <Rating value={hotelDetails?.averageRatingPoints} readOnly /> */}
+              <Rating
+                value={hotelDetails?.averageRatingPoints}
+                readOnly
+                precision={0.5}
+              />
             </Box>
 
             <Box
