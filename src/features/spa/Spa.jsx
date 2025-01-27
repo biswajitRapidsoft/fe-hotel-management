@@ -98,10 +98,11 @@ const Spa = () => {
           selectedSlot.endTime
         }:00`,
         bookingDate: moment(selectedDate.$d).format("DD-MM-YYYY"),
-        price: spaToBook.price,
+        // price: spaToBook.price,
+        gstPrice: spaToBook.price * 0.18,
         transactionReferenceNo: null,
         paymentMethod: "Online",
-        totalPrice: (spaToBook.price + spaToBook.price * 0.18).toFixed(2),
+        totalPrice: spaToBook.price.toFixed(2),
         paidAmount: null,
         hotelId: sessionStorage.getItem("hotelId"),
       });
@@ -116,10 +117,14 @@ const Spa = () => {
           selectedSlot.endTime
         }:00`,
         bookingDate: moment(selectedDate.$d).format("DD-MM-YYYY"),
-        price: spaToBook.price,
+        // price: spaToBook.price,
+        gstPrice: spaToBook.price * 0.18,
+
         transactionReferenceNo: null,
         paymentMethod: null,
-        totalPrice: (spaToBook.price + spaToBook.price * 0.18).toFixed(2),
+        // totalPrice: (spaToBook.price + spaToBook.price * 0.18).toFixed(2),
+        totalPrice: spaToBook.price.toFixed(2),
+
         paidAmount: null,
         hotelId: sessionStorage.getItem("hotelId"),
       })

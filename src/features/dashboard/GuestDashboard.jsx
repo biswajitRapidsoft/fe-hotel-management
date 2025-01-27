@@ -1618,7 +1618,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
   const [openHotelDetailsDialog, setOpenHotelDetailsDialog] =
     React.useState(false);
   const [hotelDetailsData, setHotelDetailsData] = React.useState(null);
-
+  console.log("hotelDetails", hotelDetails);
   const handleHotelDetails = (item) => {
     setOpenHotelDetailsDialog(true);
     setHotelDetailsData(item);
@@ -1749,6 +1749,12 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
         message: "Please provide number of people",
         severity: "error",
       });
+    } else if (Boolean(formData.noOfPeoples > hotelDetails.capacity)) {
+      return setSnack({
+        open: true,
+        message: `Maximum of ${hotelDetails?.capacity} people are allowed`,
+        severity: "error",
+      });
     } else if (!isAdvanceValid) {
       return setSnack({
         open: true,
@@ -1852,6 +1858,12 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
           message: "Please provide number of people",
           severity: "error",
         });
+      } else if (Boolean(formData.noOfPeoples > hotelDetails.capacity)) {
+        return setSnack({
+          open: true,
+          message: `Maximum of ${hotelDetails?.capacity} people are allowed`,
+          severity: "error",
+        });
       } else if (!isAdvanceValid) {
         return setSnack({
           open: true,
@@ -1900,6 +1912,11 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
         isRewardsPointsUsed: isClaimPoints,
         noOfRewardsPointsUsed: userDetails?.data?.noOfRewardsPointsAvailable,
         rewardsPointPrice: userDetails?.data?.rewardsPointPrice,
+        gstPrice: isClaimPoints
+          ? (hotelDetails.basePrice * calculateNumberOfDays -
+              userDetails?.data?.rewardsPointPrice) *
+              0.18 || 0
+          : calculateNumberOfDays * Number(hotelDetails?.basePrice) * 0.18,
         // paymentDetails: Boolean(sessionStorage.getItem("paymentDetail"))
         //   ? sessionStorage.getItem("paymentDetail")
         //   : "",
@@ -2061,7 +2078,12 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
         >
           <Box>
             <Box>
-              <Rating value={hotelDetails?.averageRatingPoints} readOnly />
+              {/* <Rating value={hotelDetails?.averageRatingPoints} readOnly /> */}
+              <Rating
+                value={hotelDetails?.averageRatingPoints}
+                readOnly
+                precision={0.5}
+              />
             </Box>
 
             <Box
@@ -2315,6 +2337,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                 </Grid>
               )}
 
+              {/* <></> */}
               {Boolean(userDetails?.data?.noOfRewardsPointsAvailable) &&
                 Boolean(calculateNumberOfDays) && (
                   <Grid size={12}>
@@ -2914,9 +2937,7 @@ const HotelDetailsDialog = memo(function ({
   hotelDetailsData,
   toggleDrawer,
 }) {
-  console.log("hotelDetailsData", hotelDetailsData);
   const [currentIndex, setCurrentIndex] = React.useState(0);
-
   const goToPrevious = () => {
     setCurrentIndex((prevIndex) =>
       prevIndex === 0 ? hotelDetailsData?.images?.length - 1 : prevIndex - 1
@@ -2944,7 +2965,6 @@ const HotelDetailsDialog = memo(function ({
   //   return () => clearInterval(timer);
   // }, [hotelDetailsData?.images?.length]);
 
-  console.log("hotelDetailsData", hotelDetailsData);
   return (
     <Dialog
       TransitionComponent={Transition}
@@ -3010,7 +3030,7 @@ const HotelDetailsDialog = memo(function ({
                 sx={{
                   display: "flex",
                   transform: `translateX(-${currentIndex * 100}%)`,
-                  transition: "transform 0.5s ease-in-out",
+                  // transition: "transform 0.5s ease-in-out",
                 }}
               >
                 {hotelDetailsData?.images?.map((image, index) => (
@@ -3209,9 +3229,15 @@ const HotelDetailsDialog = memo(function ({
                 </Typography>
               </Box>
 
-              {/* <Grid container>
-                <Grid size={{ xs: 1 }}>Bathroom</Grid>
-              </Grid> */}
+              <Grid container>
+                <Grid size={{ xs: 1 }}>
+                  <Typography sx={{ fontWeight: "bold" }}>Capacity</Typography>
+                </Grid>
+                <Grid size={{ xs: 0.2 }}>:</Grid>
+                <Grid size={{ xs: 1 }}>
+                  <Typography>{hotelDetailsData?.capacity}</Typography>
+                </Grid>
+              </Grid>
 
               <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                 <Button

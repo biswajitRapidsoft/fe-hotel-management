@@ -24,6 +24,7 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
+import LiquorIcon from "@mui/icons-material/Liquor";
 import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import RestaurantIcon from "@mui/icons-material/Restaurant";
 
@@ -1307,14 +1308,30 @@ const DayCheckoutCard = memo(function ({
     [handleChangeSelectedRoomForDayCheckout]
   );
 
+  // const isCheckoutDateExceedingToday = (checkoutDate) => {
+  //   console.log("checkoutDate", checkoutDate);
+  //   if (!checkoutDate) return false;
+  //   const today = new Date();
+  //   console.log("today", today);
+  //   const formattedCheckoutDate = new Date(checkoutDate);
+  //   console.log("formattedCheckoutDate", formattedCheckoutDate);
+  //   return formattedCheckoutDate > today;
+  // };
   const isCheckoutDateExceedingToday = (checkoutDate) => {
     if (!checkoutDate) return false;
+
     const today = new Date();
-    const formattedCheckoutDate = new Date(
-      checkoutDate.replace(/-/g, "/") // Ensure cross-browser compatibility
-    );
-    return formattedCheckoutDate > today;
+    // Set to beginning of current day
+    today.setHours(0, 0, 0, 0);
+
+    const checkoutDateTime = new Date(checkoutDate);
+    // Set to beginning of checkout day
+    checkoutDateTime.setHours(0, 0, 0, 0);
+
+    // If checkout date is before today, it's delayed (should be red)
+    return checkoutDateTime < today;
   };
+
   return (
     <>
       <Box sx={{ width: "100%" }}>
@@ -1327,7 +1344,7 @@ const DayCheckoutCard = memo(function ({
             {Boolean(dayCheckoutData?.length) &&
               dayCheckoutData?.map((dayCheckoutItem, index) => {
                 const isExceeding = isCheckoutDateExceedingToday(
-                  dayCheckoutItem.checkOutDate
+                  dayCheckoutItem.checkOutDateInUtc
                 );
                 return (
                   <Grid key={`Day-Checkout-${index}`}>
@@ -1415,7 +1432,8 @@ const RoomServiceCard = memo(function ({
   handleOpenShowcaseModalForLaundry,
 }) {
   const navigate = useNavigate();
-
+  const [customerGstNumber, setCustomerGstNumber] = React.useState("");
+  console.log("customerGstNumber", customerGstNumber);
   console.log("RoomServiceCard isSelectedRoom : ", isSelectedRoom);
   const selectedRoomStatusType = checkRoomStatusType(isSelectedRoom);
   const [selectedInvoice, setSelectedInvoice] = useState("Final Invoice");
@@ -1531,17 +1549,54 @@ const RoomServiceCard = memo(function ({
     [isSelectedRoom?.bookingDto?.laundryDataList, getUniqueLaudryItems]
   );
 
-  const handleViewHotelBillInvoice = useCallback((roomData) => {
-    const bookingRefNumber = roomData?.bookingDto?.bookingRefNumber;
+  const handleViewHotelBillInvoice = useCallback(
+    (roomData) => {
+      const bookingRefNumber = roomData?.bookingDto?.bookingRefNumber;
 
-    if (bookingRefNumber) {
-      sessionStorage.setItem(
-        `hotelBillInvoice-${bookingRefNumber}`,
-        JSON.stringify(roomData)
-      );
+      if (bookingRefNumber) {
+        sessionStorage.setItem(
+          `hotelBillInvoice-${bookingRefNumber}`,
+          JSON.stringify(roomData)
+        );
 
-      window.open(`/hotelBillInvoice/${bookingRefNumber}`, "_blank");
-    }
+        window.open(`/hotelBillInvoice/${bookingRefNumber}`, "_blank");
+      }
+    },
+    [customerGstNumber]
+  );
+  const handleViewHotelGstBillInvoice = useCallback(
+    (roomData) => {
+      const bookingRefNumber = roomData?.bookingDto?.bookingRefNumber;
+
+      if (bookingRefNumber) {
+        sessionStorage.setItem(
+          `hotelBillInvoice-${bookingRefNumber}`,
+          JSON.stringify(roomData)
+        );
+        sessionStorage.setItem("customerGstNumber", customerGstNumber);
+
+        window.open(`/hotelBillInvoice/${bookingRefNumber}`, "_blank");
+      }
+    },
+    [customerGstNumber]
+  );
+  React.useEffect(() => {
+    // useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      if (
+        performance.navigation.type === 1 ||
+        event.currentTarget.performance.navigation.type !== 0
+      ) {
+        sessionStorage.removeItem("customerGstNumber");
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+    // }, []);
   }, []);
   //
   const handleViewBarBillInvoice = useCallback((roomData) => {
@@ -2228,6 +2283,26 @@ const RoomServiceCard = memo(function ({
                                   }}
                                 >
                                   <RestaurantIcon sx={{ fontSize: "17px" }} />
+                                </Button>
+                              </Tooltip>
+                              <Tooltip title={"Order Beverages"} arrow>
+                                <Button
+                                  variant="contained"
+                                  sx={{ minWidth: "unset", width: "15px" }}
+                                  onClick={() => {
+                                    sessionStorage.setItem(
+                                      "bookingRefNumber",
+                                      isSelectedRoom?.bookingDto
+                                        ?.bookingRefNumber
+                                    );
+                                    sessionStorage.setItem(
+                                      "hotelId",
+                                      isSelectedRoom?.bookingDto?.hotel?.id
+                                    );
+                                    navigate("/bar");
+                                  }}
+                                >
+                                  <LiquorIcon sx={{ fontSize: "17px" }} />
                                 </Button>
                               </Tooltip>
                             </Box>
@@ -3388,6 +3463,98 @@ const RoomServiceCard = memo(function ({
                 </Button>
               </Box>
             )}
+
+            {Boolean(
+              Boolean(
+                isSelectedRoom?.bookingDto?.isCheckoutProceed === false
+              ) &&
+                Boolean(
+                  isSelectedRoom?.bookingDto?.isCheckedByKeepingStaff === true
+                )
+            ) &&
+              selectedInvoice === "Final Invoice" && (
+                <Box sx={{ width: "100%", gap: 1 }}>
+                  <Box
+                    sx={{
+                      ".MuiTextField-root": {
+                        width: "100%",
+                        backgroundColor: "transparent",
+                        ".MuiInputBase-root": {
+                          color: "#B4B4B4",
+                          background: "rgba(255, 255, 255, 0.25)",
+                        },
+                      },
+                      ".MuiFormLabel-root": {
+                        color: (theme) => theme.palette.primary.main,
+                        fontWeight: 600,
+                        fontSize: 14,
+                      },
+                      ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+                        borderBottom: (theme) =>
+                          `1px solid ${theme.palette.primary.main}`,
+                      },
+                      ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+                        borderBottom: (theme) =>
+                          `1px solid ${theme.palette.primary.main}`,
+                      },
+                      "& .MuiOutlinedInput-root": {
+                        height: "35px",
+                        minHeight: "35px",
+                      },
+                      "& .MuiInputBase-input": {
+                        padding: "13px",
+                        height: "100%",
+                        boxSizing: "border-box",
+                        fontSize: "13px",
+                      },
+                      width: "70%",
+                    }}
+                  >
+                    <TextField
+                      margin="normal"
+                      required
+                      fullWidth
+                      id="customerGstNumber"
+                      label="Gst Number"
+                      name="customerGstNumber"
+                      // autoComplete="noOfPeoples"
+                      inputProps={{
+                        maxLength: 15,
+                        style: {
+                          fontSize: "14px",
+                        },
+                      }}
+                      InputLabelProps={{
+                        style: {
+                          fontSize: "13px",
+                        },
+                      }}
+                      sx={{
+                        // "& .MuiInputBase-root": {
+                        //   height: "23px",
+                        // },
+                        "& .MuiTextField-root": {
+                          maxHeight: "10px",
+                          backgroundColor: "transparent",
+                        },
+                      }}
+                      variant="standard"
+                      value={customerGstNumber}
+                      onChange={(e) => setCustomerGstNumber(e.target.value)}
+                    />
+                  </Box>
+
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={() => {
+                      handleViewHotelGstBillInvoice(isSelectedRoom);
+                    }}
+                  >
+                    View GST Invoice
+                  </Button>
+                </Box>
+              )}
 
             {/* OCCUPIED ROOM CASE */}
             {selectedRoomStatusType?.key === OCCUPIED?.key && (
@@ -6524,7 +6691,7 @@ const CustomFoodListTableContainer = memo(function ({
                 </TableCell>
               </TableRow>
             )}
-            <TableRow>
+            {/* <TableRow>
               <TableCell
                 colSpan={5}
                 style={{
@@ -6596,10 +6763,97 @@ const CustomFoodListTableContainer = memo(function ({
                   )}
                 </Typography>
               </TableCell>
-            </TableRow>
+            </TableRow> */}
           </TableBody>
         </Table>
       </TableContainer>
+      <Paper
+        sx={{
+          width: "100%",
+          // backgroundColor: "yellow",
+          display: "flex",
+          justifyContent: "flex-end",
+        }}
+      >
+        <Box sx={{ display: "flex", flexDirection: "column", mt: 1 }}>
+          {/* <Box sx={{ display: "flex", p: 0.4 }}>
+            <Typography>Gst </Typography>
+            <Typography>98</Typography>
+          </Box>
+          <Box sx={{ display: "flex", p: 0.4 }}>
+            <Typography>Total</Typography>
+            <Typography>1000</Typography>
+          </Box> */}
+          <Grid container size={12}>
+            <Grid size={{ xs: 6 }}>
+              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                <Typography sx={{ fontWeight: "bold" }}>Gst :</Typography>
+              </Box>
+            </Grid>
+            <Grid size={{ xs: 6 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  // , justifyContent: "flex-end"
+                  ml: 1,
+                }}
+              >
+                Rs.{" "}
+                <Typography>
+                  {foodListTableData?.reduce(
+                    (sum, item) => sum + (item?.bookingDetails?.gstPrice || 0),
+                    0
+                  )}
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid size={{ xs: 6 }}>
+              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                <Typography sx={{ fontWeight: "bold" }}>Total :</Typography>
+              </Box>
+            </Grid>
+            <Grid size={{ xs: 6 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  // , justifyContent: "flex-end"
+                  ml: 1,
+                }}
+              >
+                Rs.{" "}
+                {foodListTableData?.reduce(
+                  (sum, item) => sum + (item?.bookingDetails?.totalPrice || 0),
+                  0
+                )}
+              </Box>
+            </Grid>
+            <Grid size={{ xs: 6 }}>
+              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                <Typography sx={{ fontWeight: "bold" }}>Sub-Total :</Typography>
+              </Box>
+            </Grid>
+            <Grid size={{ xs: 6 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  // , justifyContent: "flex-end"
+                  ml: 1,
+                }}
+              >
+                Rs.{" "}
+                {(foodListTableData?.reduce(
+                  (sum, item) => sum + (item?.bookingDetails?.totalPrice || 0),
+                  0
+                ) || 0) +
+                  (foodListTableData?.reduce(
+                    (sum, item) => sum + (item?.bookingDetails?.gstPrice || 0),
+                    0
+                  ) || 0)}
+              </Box>
+            </Grid>
+          </Grid>
+        </Box>
+      </Paper>
     </React.Fragment>
   );
 });
