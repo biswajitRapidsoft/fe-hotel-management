@@ -218,6 +218,7 @@ const GuestDashboard = () => {
       skip: !JSON.parse(sessionStorage.getItem("data"))?.roleType === CUSTOMER,
     }
   );
+
   const {
     data: userDetails = {
       data: [],

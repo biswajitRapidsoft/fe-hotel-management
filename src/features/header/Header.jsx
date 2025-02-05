@@ -132,6 +132,7 @@ const Header = () => {
     >
       <img
         src={logo}
+        // src={JSON.parse(sessionStorage.getItem("data")).hotelLogoUrl}
         alt="Logo"
         width="300"
         // style={{
