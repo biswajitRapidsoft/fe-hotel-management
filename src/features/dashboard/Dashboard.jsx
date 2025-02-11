@@ -1066,16 +1066,13 @@ const CustomFloorAccordion = memo(function ({
                             ?.includes(roomFilters?.searchKey?.toLowerCase())
                         : true;
 
-                      const matchesDate = roomFilters?.toDate
-                        ? new Date(room?.availableDate) <=
-                          new Date(roomFilters?.toDate)
-                        : true;
+                      // const matchesDate = roomFilters?.toDate
+                      //   ? new Date(room?.availableDate) <=
+                      //     new Date(roomFilters?.toDate)
+                      //   : true;
 
                       return (
-                        matchesRoomStatus &&
-                        matchesRoomType &&
-                        matchesSearchKey &&
-                        matchesDate
+                        matchesRoomStatus && matchesRoomType && matchesSearchKey
                       );
                     })
                     ?.map((roomDetailsItem, index) => {
@@ -1562,6 +1559,7 @@ const RoomServiceCard = memo(function ({
         window.open(`/hotelBillInvoice/${bookingRefNumber}`, "_blank");
       }
     },
+    // [customerGstNumber]
     [customerGstNumber]
   );
   const handleViewHotelGstBillInvoice = useCallback(

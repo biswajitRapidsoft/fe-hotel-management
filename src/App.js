@@ -94,6 +94,10 @@ const InventoryManagement = React.lazy(() =>
   import("./features/inventory/InventoryManagement")
 );
 
+const HotelBillInvoiceInHistory = React.lazy(() =>
+  import("./features/HotelBillInvoiceInHistory/HotelBillInvoiceInHistory")
+);
+
 function App() {
   const location = useLocation();
   // console.log("hello3", location);
@@ -122,6 +126,10 @@ function App() {
           <Route
             path="/hotelBillInvoice/:bookingRefNo"
             element={<HotelBillInvoice key="hotel-bill" />}
+          />
+          <Route
+            path="/HotelBillInvoiceInHistory/:bookingRefNo"
+            element={<HotelBillInvoiceInHistory key="hotel-bill-history" />}
           />
           <Route
             path="/parkingBillInvoice/:bookingRefNo"

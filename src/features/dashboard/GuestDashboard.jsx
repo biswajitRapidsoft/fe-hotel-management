@@ -2155,312 +2155,354 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
         onClose={toggleDrawer(false)}
         sx={{ zIndex: 1300 }}
       >
-        <Box sx={{ width: 500 }} role="presentation">
-          <Box
-            sx={{
-              p: 2,
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <Typography sx={{ fontWeight: 550, fontSize: "1.5em" }}>
-              Booking Details
-              {/* ({hotelDetailsData?.hotelDto?.name}) */}
-            </Typography>
-            <IconButton onClick={toggleDrawer(false)}>
-              <CloseIcon />
-            </IconButton>
-          </Box>
-          <Divider />
-          <Box
-            component="form"
-            onSubmit={handleSubmitReserve}
-            sx={{ px: 2, py: 2 }}
-          >
-            <Grid container size={12} spacing={2}>
-              <Grid size={{ xs: 6 }}>
-                <TextField
-                  id="outlined-basic"
-                  name="firstName"
-                  label="First Name"
-                  variant="outlined"
-                  value={formData.firstName}
-                  onChange={handleChangeInput}
-                  inputProps={{ maxLength: 25 }}
-                  required
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField
-                  id="outlined-basic"
-                  name="middleName"
-                  label="Middle Name"
-                  variant="outlined"
-                  value={formData.middleName}
-                  onChange={handleChangeInput}
-                  inputProps={{ maxLength: 25 }}
-                  // required
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField
-                  id="outlined-basic"
-                  name="lastName"
-                  label="Last Name"
-                  variant="outlined"
-                  value={formData.lastName}
-                  onChange={handleChangeInput}
-                  inputProps={{ maxLength: 25 }}
-                  // required
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField
-                  id="outlined-basic"
-                  name="phoneNumber"
-                  label="Phone No."
-                  variant="outlined"
-                  value={formData.phoneNumber}
-                  onChange={handleChangeInput}
-                  required
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField
-                  id="outlined-basic"
-                  name="email"
-                  label="Email"
-                  variant="outlined"
-                  value={formData.email}
-                  onChange={handleChangeInput}
-                  inputProps={{ maxLength: 50 }}
-                  required
-                />
-              </Grid>
-
-              <Grid size={{ xs: 6 }}>
-                <TextField
-                  id="outlined-basic"
-                  name="noOfPeoples"
-                  label="No. of people"
-                  variant="outlined"
-                  value={formData.noOfPeoples}
-                  onChange={handleChangeInput}
-                  required
-                  inputProps={{ maxLength: 2 }}
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="From Date"
-                    disablePast
-                    format="DD-MM-YYYY"
-                    value={formData.fromDate}
-                    onChange={handleDateChange("fromDate")}
-                    slotProps={{
-                      textField: {
-                        readOnly: true,
-                      },
-                    }}
-                  />
-                </LocalizationProvider>
-              </Grid>
-
-              <Grid size={{ xs: 6 }}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="To Date"
-                    format="DD-MM-YYYY"
-                    value={formData.toDate}
-                    onChange={handleDateChange("toDate")}
-                    minDate={
-                      formData.fromDate
-                        ? dayjs(formData.fromDate)
-                        : // .add(1, "day")
-                          undefined
-                    }
-                    slotProps={{
-                      textField: {
-                        readOnly: true,
-                      },
-                    }}
-                  />
-                </LocalizationProvider>
-              </Grid>
-              <Grid
-                size={{
-                  xs: hotelDetails?.isAdvanceRequired ? 6 : 12,
-                }}
-              >
-                <TextField
-                  id="outlined-basic"
-                  name="address"
-                  label="Address"
-                  variant="outlined"
-                  value={formData.address}
-                  onChange={handleChangeInput}
-                  fullWidth
-                  inputProps={{ maxLength: 50 }}
-                  required
-                />
-              </Grid>
-
-              {hotelDetails?.isAdvanceRequired && (
+        <Box
+          sx={{
+            width: 500,
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+          }}
+          role="presentation"
+        >
+          <Box>
+            <Box
+              sx={{
+                p: 2,
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <Typography sx={{ fontWeight: 550, fontSize: "1.5em" }}>
+                Booking Details
+                {/* ({hotelDetailsData?.hotelDto?.name}) */}
+              </Typography>
+              <IconButton onClick={toggleDrawer(false)}>
+                <CloseIcon />
+              </IconButton>
+            </Box>
+            <Divider />
+            <Box
+              component="form"
+              onSubmit={handleSubmitReserve}
+              sx={{
+                px: 2,
+                py: 2,
+                // , backgroundColor: "yellow"
+              }}
+            >
+              <Grid container size={12} spacing={2}>
                 <Grid size={{ xs: 6 }}>
                   <TextField
                     id="outlined-basic"
-                    name="advancePayment"
-                    label="Advance Payment "
+                    name="firstName"
+                    label="First Name"
                     variant="outlined"
-                    value={formData.advancePayment}
+                    value={formData.firstName}
                     onChange={handleChangeInput}
-                    fullWidth
-                    helperText={
-                      hotelDetails?.isAdvanceRequired &&
-                      calculateNumberOfDays > 0
-                        ? Number(formData.advancePayment) <
-                          Number(hotelDetails.advanceAmount) *
-                            calculateNumberOfDays
-                          ? `Please pay ₹${
-                              hotelDetails.advanceAmount * calculateNumberOfDays
-                            } in advance`
-                          : Number(formData.advancePayment) >
-                            Number(hotelDetails.basePrice) *
-                              calculateNumberOfDays
-                          ? `Advance amount cannot exceed ₹${
-                              hotelDetails.basePrice * calculateNumberOfDays
-                            }`
-                          : ""
-                        : ""
-                    }
+                    inputProps={{ maxLength: 25 }}
+                    required
                   />
                 </Grid>
-              )}
+                <Grid size={{ xs: 6 }}>
+                  <TextField
+                    id="outlined-basic"
+                    name="middleName"
+                    label="Middle Name"
+                    variant="outlined"
+                    value={formData.middleName}
+                    onChange={handleChangeInput}
+                    inputProps={{ maxLength: 25 }}
+                    // required
+                  />
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <TextField
+                    id="outlined-basic"
+                    name="lastName"
+                    label="Last Name"
+                    variant="outlined"
+                    value={formData.lastName}
+                    onChange={handleChangeInput}
+                    inputProps={{ maxLength: 25 }}
+                    // required
+                  />
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <TextField
+                    id="outlined-basic"
+                    name="phoneNumber"
+                    label="Phone No."
+                    variant="outlined"
+                    value={formData.phoneNumber}
+                    onChange={handleChangeInput}
+                    required
+                  />
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <TextField
+                    id="outlined-basic"
+                    name="email"
+                    label="Email"
+                    variant="outlined"
+                    value={formData.email}
+                    onChange={handleChangeInput}
+                    inputProps={{ maxLength: 50 }}
+                    required
+                  />
+                </Grid>
 
-              {/* <></> */}
-              {Boolean(userDetails?.data?.noOfRewardsPointsAvailable) &&
-                Boolean(calculateNumberOfDays) && (
-                  <Grid size={12}>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "flex-start",
+                <Grid size={{ xs: 6 }}>
+                  <TextField
+                    id="outlined-basic"
+                    name="noOfPeoples"
+                    label="No. of people"
+                    variant="outlined"
+                    value={formData.noOfPeoples}
+                    onChange={handleChangeInput}
+                    required
+                    inputProps={{ maxLength: 2 }}
+                  />
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="From Date"
+                      disablePast
+                      format="DD-MM-YYYY"
+                      value={formData.fromDate}
+                      onChange={handleDateChange("fromDate")}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        },
                       }}
-                    >
-                      <Typography variant="h6">Total Price: </Typography>
+                    />
+                  </LocalizationProvider>
+                </Grid>
+
+                <Grid size={{ xs: 6 }}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="To Date"
+                      format="DD-MM-YYYY"
+                      value={formData.toDate}
+                      onChange={handleDateChange("toDate")}
+                      minDate={
+                        formData.fromDate
+                          ? dayjs(formData.fromDate)
+                          : // .add(1, "day")
+                            undefined
+                      }
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        },
+                      }}
+                    />
+                  </LocalizationProvider>
+                </Grid>
+                <Grid
+                  size={{
+                    xs: hotelDetails?.isAdvanceRequired ? 6 : 12,
+                  }}
+                >
+                  <TextField
+                    id="outlined-basic"
+                    name="address"
+                    label="Address"
+                    variant="outlined"
+                    value={formData.address}
+                    onChange={handleChangeInput}
+                    fullWidth
+                    inputProps={{ maxLength: 50 }}
+                    required
+                  />
+                </Grid>
+
+                {hotelDetails?.isAdvanceRequired && (
+                  <Grid size={{ xs: 6 }}>
+                    <TextField
+                      id="outlined-basic"
+                      name="advancePayment"
+                      label="Advance Payment "
+                      variant="outlined"
+                      value={formData.advancePayment}
+                      onChange={handleChangeInput}
+                      fullWidth
+                      helperText={
+                        hotelDetails?.isAdvanceRequired &&
+                        calculateNumberOfDays > 0
+                          ? Number(formData.advancePayment) <
+                            Number(hotelDetails.advanceAmount) *
+                              calculateNumberOfDays
+                            ? `Please pay ₹${
+                                hotelDetails.advanceAmount *
+                                calculateNumberOfDays
+                              } in advance`
+                            : Number(formData.advancePayment) >
+                              Number(hotelDetails.basePrice) *
+                                calculateNumberOfDays
+                            ? `Advance amount cannot exceed ₹${
+                                hotelDetails.basePrice * calculateNumberOfDays
+                              }`
+                            : ""
+                          : ""
+                      }
+                    />
+                  </Grid>
+                )}
+
+                {/* <></> */}
+                {Boolean(userDetails?.data?.noOfRewardsPointsAvailable) &&
+                  Boolean(calculateNumberOfDays) && (
+                    <Grid size={12}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "flex-start",
+                        }}
+                      >
+                        <Typography variant="h6">Total Price: </Typography>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            flexDirection: "column",
+                          }}
+                        >
+                          {isClaimPoints && (
+                            <Typography variant="h6">
+                              Rs.{" "}
+                              {(
+                                hotelDetails.basePrice * calculateNumberOfDays -
+                                  userDetails?.data?.rewardsPointPrice || 0
+                              ).toFixed(2)}
+                            </Typography>
+                          )}
+                          <Typography
+                            variant={isClaimPoints ? "body2" : "h6"}
+                            sx={{
+                              textDecoration: isClaimPoints
+                                ? "line-through"
+                                : "none",
+                            }}
+                          >
+                            Rs.{" "}
+                            {(
+                              calculateNumberOfDays * hotelDetails.basePrice
+                            ).toFixed(2)}
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box>
+                        <FormGroup>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                defaultChecked
+                                size="small"
+                                checked={isClaimPoints}
+                                onChange={(e) =>
+                                  setIsClaimPoints(e.target.checked)
+                                }
+                              />
+                            }
+                            label="Claim Points"
+                          />
+                        </FormGroup>
+                      </Box>
                       <Box
                         sx={{
                           display: "flex",
                           alignItems: "center",
-                          flexDirection: "column",
+                          justifyContent: "space-between",
                         }}
                       >
-                        {isClaimPoints && (
-                          <Typography variant="h6">
-                            Rs.{" "}
-                            {(
-                              hotelDetails.basePrice * calculateNumberOfDays -
-                                userDetails?.data?.rewardsPointPrice || 0
-                            ).toFixed(2)}
-                          </Typography>
-                        )}
-                        <Typography
-                          variant={isClaimPoints ? "body2" : "h6"}
-                          sx={{
-                            textDecoration: isClaimPoints
-                              ? "line-through"
-                              : "none",
-                          }}
-                        >
-                          Rs.{" "}
-                          {(
-                            calculateNumberOfDays * hotelDetails.basePrice
-                          ).toFixed(2)}
+                        <Typography variant="body1">
+                          Available Points:{" "}
+                        </Typography>
+                        <Typography variant="body1">
+                          {`${
+                            userDetails?.data?.noOfRewardsPointsAvailable || 0
+                          } (Rs. ${(
+                            userDetails?.data?.rewardsPointPrice || 0
+                          ).toFixed(2)})`}
                         </Typography>
                       </Box>
-                    </Box>
-                    <Box>
-                      <FormGroup>
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              defaultChecked
-                              size="small"
-                              checked={isClaimPoints}
-                              onChange={(e) =>
-                                setIsClaimPoints(e.target.checked)
-                              }
-                            />
-                          }
-                          label="Claim Points"
-                        />
-                      </FormGroup>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Typography variant="body1">
-                        Available Points:{" "}
-                      </Typography>
-                      <Typography variant="body1">
-                        {`${
-                          userDetails?.data?.noOfRewardsPointsAvailable || 0
-                        } (Rs. ${(
-                          userDetails?.data?.rewardsPointPrice || 0
-                        ).toFixed(2)})`}
-                      </Typography>
-                    </Box>
-                  </Grid>
-                )}
+                    </Grid>
+                  )}
 
-              <Grid size={{ xs: 12 }}>
-                <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                  {!Boolean(hotelDetails?.isAdvanceRequired) && (
-                    <Button
-                      variant="contained"
-                      sx={{
-                        backgroundImage:
-                          "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
-                        backgroundColor: "inherit",
-                        color: "white",
-                        "&:hover": {
+                <Grid size={{ xs: 12 }}>
+                  <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                    {!Boolean(hotelDetails?.isAdvanceRequired) && (
+                      <Button
+                        variant="contained"
+                        sx={{
                           backgroundImage:
-                            "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
-                        },
-                      }}
-                      type="submit"
-                    >
-                      Reserve
-                    </Button>
-                  )}
-                  {Boolean(hotelDetails?.isAdvanceRequired) && (
-                    <Button
-                      variant="contained"
-                      sx={{
-                        backgroundImage:
-                          "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
-                        backgroundColor: "inherit",
-                        color: "white",
-                        "&:hover": {
+                            "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
+                          backgroundColor: "inherit",
+                          color: "white",
+                          "&:hover": {
+                            backgroundImage:
+                              "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
+                          },
+                        }}
+                        type="submit"
+                      >
+                        Reserve
+                      </Button>
+                    )}
+                    {Boolean(hotelDetails?.isAdvanceRequired) && (
+                      <Button
+                        variant="contained"
+                        sx={{
                           backgroundImage:
-                            "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
-                        },
-                      }}
-                      onClick={validateAndOpenPaymentDialog}
-                    >
-                      Pay and Reserve
-                    </Button>
-                  )}
-                </Box>
+                            "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
+                          backgroundColor: "inherit",
+                          color: "white",
+                          "&:hover": {
+                            backgroundImage:
+                              "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
+                          },
+                        }}
+                        onClick={validateAndOpenPaymentDialog}
+                      >
+                        Pay and Reserve
+                      </Button>
+                    )}
+                  </Box>
+                </Grid>
               </Grid>
-            </Grid>
+            </Box>
           </Box>
+
+          <Grid size={{ xs: 12 }}>
+            <Box
+              sx={{
+                backgroundColor: "rgba(63, 81, 181, 0.1)",
+                padding: "10px",
+                borderRadius: "8px",
+                boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.1)",
+                bottom: 0,
+                mt: "auto",
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: "1.2rem",
+                  fontWeight: "bold",
+                  color: "primary.main",
+                  textAlign: "center",
+                }}
+              >
+                {Boolean(hotelDetails?.rewardsPoints)
+                  ? `You have a total of ${hotelDetails?.rewardsPoints} reward points`
+                  : "You don't have any reward points"}
+              </Typography>
+            </Box>
+          </Grid>
         </Box>
       </Drawer>
       <LoadingComponent open={reserveHotelRoomRes.isLoading} />

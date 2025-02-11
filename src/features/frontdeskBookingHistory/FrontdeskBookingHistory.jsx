@@ -28,6 +28,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import ClearIcon from "@mui/icons-material/Clear";
+import DescriptionIcon from "@mui/icons-material/Description";
 import { StyledCalendarIcon } from "../dashboard/Dashboard";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { saveAs } from "file-saver";
@@ -1593,6 +1594,18 @@ const CustomRow = memo(function ({
     },
     [handleOpenShowcaseBookingDialogForDetails]
   );
+
+  const handleViewHotelBillInvoiceInHistory = useCallback((row) => {
+    const bookingRefNumber = row?.bookingRefNumber;
+    if (bookingRefNumber) {
+      sessionStorage.setItem(
+        `hotelBillInvoiceInHistory-${bookingRefNumber}`,
+        JSON.stringify(row)
+      );
+      window.open(`/hotelBillInvoiceInHistory/${bookingRefNumber}`, "_blank");
+    }
+  }, []);
+
   return (
     <TableRow
       hover
@@ -1743,6 +1756,31 @@ const CustomRow = memo(function ({
                       style={{ fontSize: "14px", fontWeight: 600 }}
                     />
                   </Button>
+                )}
+
+                {row?.bookingStatus === "Checked_Out" && (
+                  <Tooltip title={"View Invoice"} arrow>
+                    <Button
+                      variant="outlined"
+                      sx={{
+                        minWidth: "unset",
+                        width: "auto",
+                        paddingY: "4.8px",
+                        paddingX: "8px",
+                        color: "#0cb2e7",
+                        borderColor: "#0cb2e7",
+                        "&:hover": {
+                          borderColor: "#0a8db7",
+                          backgroundColor: "#ddf7ff",
+                        },
+                      }}
+                      onClick={() => handleViewHotelBillInvoiceInHistory(row)}
+                    >
+                      <DescriptionIcon
+                        style={{ fontSize: "14px", fontWeight: 600 }}
+                      />
+                    </Button>
+                  </Tooltip>
                 )}
               </Box>
             ) : (
