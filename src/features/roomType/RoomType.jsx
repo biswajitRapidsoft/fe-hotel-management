@@ -48,6 +48,11 @@ const RoomType = () => {
       data: 0,
     },
   } = useGetPerRewardPointValueQuery();
+
+  // usestate to update room
+  const [roomToUpdate, setRoomToUpdate] = React.useState(null);
+  console.log("roomToUpdate", roomToUpdate);
+
   const [uploadImage, uploadImageRes] = useUploadFileMutation();
   const [snack, setSnack] = React.useState({
     open: false,
@@ -65,8 +70,37 @@ const RoomType = () => {
     rewardPoints: "",
   });
 
-  console.log("formDataMain", formData);
   const [extraItemsArr, setExtraItemsArr] = React.useState([]);
+
+  React.useEffect(() => {
+    if (Boolean(roomToUpdate)) {
+      setFormData({
+        roomType: roomToUpdate?.type,
+        description: roomToUpdate?.description,
+        capacity: roomToUpdate?.capacity,
+        basePrice: roomToUpdate?.basePrice,
+        advanceAmount: roomToUpdate?.advanceAmount,
+        isAdvance: roomToUpdate?.isAdvanceRequired,
+        rewardPoints: roomToUpdate?.rewardsPoints,
+      });
+
+      if (roomToUpdate.extraItem) {
+        const mappedExtraItems = roomToUpdate.extraItem.map((item) => ({
+          extraItem: {
+            id: item.id,
+            name: item.itemName,
+          },
+          quantity: item.noOfItems,
+          isReusable: item.isReusable,
+        }));
+        setExtraItemsArr(mappedExtraItems);
+      }
+
+      if (roomToUpdate.images && Array.isArray(roomToUpdate.images)) {
+        setUploadedImageArr(roomToUpdate.images);
+      }
+    }
+  }, [roomToUpdate]);
   const [uploadedImageArr, setUploadedImageArr] = React.useState([]);
   const {
     data: extraItemList = {
@@ -152,28 +186,26 @@ const RoomType = () => {
 
   // const isFormValid = React.useCallback(() => {
   //   return Boolean(
-  //     formData.roomType.trim() &&
+  //     formData?.roomType.trim() &&
   //       formData.description.trim() &&
   //       formData.capacity.trim() &&
   //       formData.basePrice.trim() &&
-  //       formData.isAdvance
-  //       ? formData.advanceAmount.trim()
-  //       : true && formData.rewardPoints
+  //       formData.rewardPoints.trim() &&
+  //       (!formData.isAdvance || formData.advanceAmount.trim())
   //   );
   // }, [formData]);
 
   const isFormValid = React.useCallback(() => {
     return Boolean(
-      formData.roomType.trim() &&
-        formData.description.trim() &&
-        formData.capacity.trim() &&
-        formData.basePrice.trim() &&
-        formData.rewardPoints.trim() &&
-        (!formData.isAdvance || formData.advanceAmount.trim())
+      String(formData?.roomType || "").trim() &&
+        String(formData?.description || "").trim() &&
+        String(formData?.capacity || "").trim() &&
+        String(formData?.basePrice || "").trim() &&
+        String(formData?.rewardPoints || "").trim() &&
+        (!formData?.isAdvance || String(formData?.advanceAmount || "").trim())
     );
   }, [formData]);
 
-  console.log("isFormValid", isFormValid);
   const handleSubmit = React.useCallback(
     (event) => {
       event.preventDefault();
@@ -193,42 +225,87 @@ const RoomType = () => {
         });
       }
 
-      addRoomType({
-        type: formData.roomType,
-        description: formData.description,
-        capacity: formData.capacity,
-        basePrice: formData.basePrice,
-        companyId: JSON.parse(sessionStorage.getItem("data")).companyId,
-        isAdvanceRequired: formData.isAdvance,
-        advanceAmount: formData.advanceAmount,
-        rewardsPoints: formData.rewardPoints,
-        imageUrl: uploadedImageArr.join(","),
-        extraItemsList: extraItemsArr.map((extra) => ({
-          extraItems: {
-            id: extra.extraItem.id,
-          },
-          noOfItems: extra.quantity,
-          isReusable: extra.isReusable,
-        })),
-      })
-        .unwrap()
-        .then((res) => {
-          setSnack({
-            open: true,
-            severity: "success",
-            message: res.message,
-          });
+      if (Boolean(roomToUpdate)) {
+        addRoomType({
+          id: roomToUpdate?.id,
+          type: formData.roomType,
+          description: formData.description,
+          capacity: formData.capacity,
+          basePrice: formData.basePrice,
+          companyId: JSON.parse(sessionStorage.getItem("data")).companyId,
+          isAdvanceRequired: formData.isAdvance,
+          advanceAmount: formData.advanceAmount,
+          rewardsPoints: formData.rewardPoints,
+          imageUrl: uploadedImageArr.join(","),
+          extraItemsList: extraItemsArr.map((extra) => ({
+            extraItems: {
+              id: extra.extraItem.id,
+            },
+            noOfItems: extra.quantity,
+            isReusable: extra.isReusable,
+          })),
         })
-        .catch((err) => {
-          setSnack({
-            open: true,
-            severity: "error",
-            message: err.data?.message || err.data,
+          .unwrap()
+          .then((res) => {
+            setSnack({
+              open: true,
+              severity: "success",
+              message: res.message,
+            });
+          })
+          .catch((err) => {
+            setSnack({
+              open: true,
+              severity: "error",
+              message: err.data?.message || err.data,
+            });
           });
-        });
+      } else {
+        addRoomType({
+          type: formData.roomType,
+          description: formData.description,
+          capacity: formData.capacity,
+          basePrice: formData.basePrice,
+          companyId: JSON.parse(sessionStorage.getItem("data")).companyId,
+          isAdvanceRequired: formData.isAdvance,
+          advanceAmount: formData.advanceAmount,
+          rewardsPoints: formData.rewardPoints,
+          imageUrl: uploadedImageArr.join(","),
+          extraItemsList: extraItemsArr.map((extra) => ({
+            extraItems: {
+              id: extra.extraItem.id,
+            },
+            noOfItems: extra.quantity,
+            isReusable: extra.isReusable,
+          })),
+        })
+          .unwrap()
+          .then((res) => {
+            setSnack({
+              open: true,
+              severity: "success",
+              message: res.message,
+            });
+          })
+          .catch((err) => {
+            setSnack({
+              open: true,
+              severity: "error",
+              message: err.data?.message || err.data,
+            });
+          });
+      }
+
       handleResetForm();
     },
-    [formData, handleResetForm, addRoomType, extraItemsArr, uploadedImageArr]
+    [
+      formData,
+      handleResetForm,
+      addRoomType,
+      extraItemsArr,
+      uploadedImageArr,
+      roomToUpdate,
+    ]
   );
 
   return (
@@ -466,11 +543,11 @@ const RoomType = () => {
             type="submit"
             disabled={!isFormValid()}
           >
-            Add Room Type
+            {Boolean(roomToUpdate) ? "Update Room Type" : "Add Room Type"}
           </Button>
         </Box>
       </Box>
-      <RoomTypeTable />
+      <RoomTypeTable setRoomToUpdate={setRoomToUpdate} />
       <LoadingComponent
         open={isLoading || addRoomTypeRes.isLoading || uploadImageRes.isLoading}
       />

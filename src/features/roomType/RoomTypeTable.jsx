@@ -19,6 +19,7 @@ import {
   Grid2 as Grid,
   Chip,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
 import { useGetAllRoomTypesByCompanyQuery } from "../../services/roomType";
 import LoadingComponent from "../../components/LoadingComponent";
 import { BootstrapDialog } from "../header/Header";
@@ -71,7 +72,7 @@ const CustomChips = ({ itemList }) => {
   );
 };
 
-const RoomTypeTable = () => {
+const RoomTypeTable = ({ setRoomToUpdate }) => {
   const {
     data: roomTypeList = {
       data: [],
@@ -155,6 +156,7 @@ const RoomTypeTable = () => {
                 <TableCell>Images</TableCell>
                 <TableCell>Base Price</TableCell>
                 <TableCell>Capacity</TableCell>
+                <TableCell>Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -214,6 +216,11 @@ const RoomTypeTable = () => {
 
                     <TableCell>₹{roomType.basePrice}</TableCell>
                     <TableCell>{roomType.capacity}</TableCell>
+                    <TableCell>
+                      <IconButton onClick={() => setRoomToUpdate(roomType)}>
+                        <EditIcon />
+                      </IconButton>
+                    </TableCell>
                   </TableRow>
                 );
               })}

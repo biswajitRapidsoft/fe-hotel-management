@@ -31,6 +31,7 @@ import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import DryCleaningIcon from "@mui/icons-material/DryCleaning";
 import SpaIcon from "@mui/icons-material/Spa";
 
+import CallIcon from "@mui/icons-material/Call";
 // import { getStatusColour } from "./GuestBookingHistoryDrawer";
 import {
   Rating,
@@ -682,6 +683,23 @@ const GuestDashboard = () => {
                                             }}
                                           >
                                             Cancel
+                                          </Button>
+                                        )}
+                                        {booking?.bookingStatus ===
+                                          "Pending_Confirmation" && (
+                                          <Button
+                                            variant="contained"
+                                            sx={{
+                                              backgroundColor: "#17B169",
+                                              color: "#fff",
+                                              textTransform: "none",
+                                            }}
+                                            onClick={() => {
+                                              const phoneNumber = "+1234567890"; // Dummy phone number
+                                              window.location.href = `tel:${phoneNumber}`;
+                                            }}
+                                          >
+                                            <CallIcon />
                                           </Button>
                                         )}
 
@@ -2980,6 +2998,7 @@ const HotelDetailsDialog = memo(function ({
   hotelDetailsData,
   toggleDrawer,
 }) {
+  console.log("hotelDetailsData", hotelDetailsData);
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const goToPrevious = () => {
     setCurrentIndex((prevIndex) =>
@@ -3270,6 +3289,7 @@ const HotelDetailsDialog = memo(function ({
                 >
                   Details :
                 </Typography>
+                <Typography>{hotelDetailsData?.description}</Typography>
               </Box>
 
               <Grid container>
