@@ -18,13 +18,18 @@ import {
   DialogActions,
   Grid2 as Grid,
   Chip,
+  Switch,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
-import { useGetAllRoomTypesByCompanyQuery } from "../../services/roomType";
+import {
+  useGetAllRoomTypesByCompanyQuery,
+  useUpdateRoomTypeStatusMutation,
+} from "../../services/roomType";
 import LoadingComponent from "../../components/LoadingComponent";
 import { BootstrapDialog } from "../header/Header";
 import CloseIcon from "@mui/icons-material/Close";
 import { ADMIN } from "../../helper/constants";
+import SnackAlert from "../../components/Alert";
 
 const CustomChips = ({ itemList }) => {
   const [showMore, setShowMore] = React.useState(false);
@@ -83,6 +88,15 @@ const RoomTypeTable = ({ setRoomToUpdate }) => {
     { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN }
   );
 
+  const [updateRoomTypeStatus, updateRoomTypeStatusRes] =
+    useUpdateRoomTypeStatusMutation();
+
+  const [snack, setSnack] = React.useState({
+    open: false,
+    message: "",
+    severity: "",
+  });
+
   const [viewImageDialog, setViewImageDialog] = React.useState(null);
 
   const handleViewImageDialog = React.useCallback((title, imageList) => {
@@ -92,6 +106,28 @@ const RoomTypeTable = ({ setRoomToUpdate }) => {
   const handleCloseDialog = React.useCallback(() => {
     setViewImageDialog(null);
   }, []);
+
+  const handleUpdateStatus = React.useCallback(
+    (id) => {
+      updateRoomTypeStatus({ id: id })
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            severity: "success",
+          });
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data,
+            severity: "error",
+          });
+        });
+    },
+    [updateRoomTypeStatus]
+  );
 
   return (
     <React.Fragment>
@@ -220,6 +256,10 @@ const RoomTypeTable = ({ setRoomToUpdate }) => {
                       <IconButton onClick={() => setRoomToUpdate(roomType)}>
                         <EditIcon />
                       </IconButton>
+                      <Switch
+                        checked={roomType.isActive}
+                        onChange={() => handleUpdateStatus(roomType.id)}
+                      />
                     </TableCell>
                   </TableRow>
                 );
@@ -233,7 +273,8 @@ const RoomTypeTable = ({ setRoomToUpdate }) => {
         handleClose={handleCloseDialog}
         viewImageDialog={viewImageDialog}
       />
-      <LoadingComponent open={isLoading} />
+      <LoadingComponent open={isLoading || updateRoomTypeStatusRes.isLoading} />
+      <SnackAlert snack={snack} setSnack={setSnack} />
     </React.Fragment>
   );
 };

@@ -27,6 +27,14 @@ const roomTypeApi = apiSlice.injectEndpoints({
         method: "GET",
       }),
     }),
+    updateRoomTypeStatus: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.updateRoomTypeStatus,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllRoomTypesByCompany"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -35,4 +43,5 @@ export const {
   useGetAllRoomTypesByCompanyQuery,
   useAddRoomTypeMutation,
   useGetPerRewardPointValueQuery,
+  useUpdateRoomTypeStatusMutation,
 } = roomTypeApi;

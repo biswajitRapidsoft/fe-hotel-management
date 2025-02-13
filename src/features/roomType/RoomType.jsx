@@ -41,6 +41,7 @@ import LoadingComponent from "../../components/LoadingComponent";
 
 import SnackAlert from "../../components/Alert";
 import { ADMIN } from "../../helper/constants";
+import { v4 } from "uuid";
 
 const RoomType = () => {
   const {
@@ -227,7 +228,7 @@ const RoomType = () => {
 
       if (Boolean(roomToUpdate)) {
         addRoomType({
-          id: roomToUpdate?.id,
+          id: roomToUpdate?.id || null,
           type: formData.roomType,
           description: formData.description,
           capacity: formData.capacity,
@@ -237,7 +238,8 @@ const RoomType = () => {
           advanceAmount: formData.advanceAmount,
           rewardsPoints: formData.rewardPoints,
           imageUrl: uploadedImageArr.join(","),
-          extraItemsList: extraItemsArr.map((extra) => ({
+          extraItemsListDto: extraItemsArr.map((extra) => ({
+            isNewlyAdded: extra.uid ? true : false,
             extraItems: {
               id: extra.extraItem.id,
             },
@@ -252,6 +254,8 @@ const RoomType = () => {
               severity: "success",
               message: res.message,
             });
+            handleResetForm();
+            setRoomToUpdate(null);
           })
           .catch((err) => {
             setSnack({
@@ -286,6 +290,7 @@ const RoomType = () => {
               severity: "success",
               message: res.message,
             });
+            handleResetForm();
           })
           .catch((err) => {
             setSnack({
@@ -295,8 +300,6 @@ const RoomType = () => {
             });
           });
       }
-
-      handleResetForm();
     },
     [
       formData,
@@ -716,6 +719,7 @@ function ExtraItemFormComponent({
     setExtraItemsArr((preVal) => [
       ...preVal,
       {
+        uid: v4(),
         extraItem: formData.selectedExtraItem,
         quantity: formData.quantity,
         isReusable: formData.isReusable,
@@ -950,14 +954,16 @@ function ExtraItemFormComponent({
                               {item.isReusable ? "Yes" : "No"}
                             </TableCell>
                             <TableCell>
-                              <IconButton
-                                size="small"
-                                onClick={() =>
-                                  handleDeleteExtraItem(item.extraItem.id)
-                                }
-                              >
-                                <DeleteIcon fontSize="small" color="error" />
-                              </IconButton>
+                              {item.uid && (
+                                <IconButton
+                                  size="small"
+                                  onClick={() =>
+                                    handleDeleteExtraItem(item.extraItem.id)
+                                  }
+                                >
+                                  <DeleteIcon fontSize="small" color="error" />
+                                </IconButton>
+                              )}
                             </TableCell>
                           </TableRow>
                         );
