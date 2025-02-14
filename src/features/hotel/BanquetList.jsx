@@ -14,7 +14,10 @@ import {
   Grid2 as Grid,
   TextField,
   Button,
+  IconButton,
 } from "@mui/material";
+
+import EditIcon from "@mui/icons-material/Edit";
 
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
@@ -26,6 +29,7 @@ import {
 import { ADMIN } from "../../helper/constants";
 
 const BanquetList = () => {
+  const [banquetToUpdate, setBanquettoUpdate] = React.useState(null);
   const [formData, setFormData] = React.useState({
     banquetType: "",
     perPlatePrice: "",
@@ -62,19 +66,21 @@ const BanquetList = () => {
       e.preventDefault();
 
       const payload = {
+        id: banquetToUpdate?.id || null,
         hotel: {
           id: Boolean(sessionStorage.getItem("hotelIdForBanquet"))
             ? sessionStorage.getItem("hotelIdForBanquet")
             : "",
         },
         perPlatePrice: formData.perPlatePrice,
-        type: formData.banquetType,
+        type: formData.banquetType.trim(),
       };
       addBanquet(payload)
         .unwrap()
         .then((res) => {
           setSnack({ open: true, message: res.message, severity: "success" });
           handleResetForm();
+          setBanquettoUpdate(null);
         })
         .catch((err) => {
           setSnack({
@@ -84,7 +90,7 @@ const BanquetList = () => {
           });
         });
     },
-    [formData, handleResetForm, addBanquet]
+    [formData, handleResetForm, addBanquet, banquetToUpdate]
   );
 
   const handleChange = React.useCallback((e) => {
@@ -105,6 +111,16 @@ const BanquetList = () => {
     const { banquetType, perPlatePrice } = formData;
     return Boolean(banquetType && perPlatePrice);
   }, [formData]);
+
+  React.useEffect(() => {
+    if (banquetToUpdate) {
+      setFormData((prevData) => ({
+        ...prevData,
+        banquetType: banquetToUpdate.type,
+        perPlatePrice: banquetToUpdate.perPlatePrice,
+      }));
+    }
+  }, [banquetToUpdate]);
 
   return (
     <Container>
@@ -227,7 +243,7 @@ const BanquetList = () => {
             type="submit"
             disabled={!isFormValid()}
           >
-            Add Banquet
+            {Boolean(banquetToUpdate) ? "Update Banquet" : "Add Banquet"}
           </Button>
         </Box>
       </Box>
@@ -264,6 +280,7 @@ const BanquetList = () => {
                 <TableCell>Sl No.</TableCell>
                 <TableCell> Banquet Type</TableCell>
                 <TableCell>Price per plate</TableCell>
+                <TableCell>Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -277,10 +294,16 @@ const BanquetList = () => {
                         letterSpacing: 1,
                       },
                     }}
+                    key={item.id}
                   >
                     <TableCell> {index + 1}</TableCell>
                     <TableCell>{item?.type}</TableCell>
                     <TableCell>{item?.perPlatePrice}</TableCell>
+                    <TableCell>
+                      <IconButton onClick={() => setBanquettoUpdate(item)}>
+                        <EditIcon />
+                      </IconButton>
+                    </TableCell>
                   </TableRow>
                 );
               })}
