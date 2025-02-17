@@ -14,13 +14,23 @@ import {
   Grid2 as Grid,
   Autocomplete,
   TextField,
+  IconButton,
+  Switch,
 } from "@mui/material";
+
+import EditIcon from "@mui/icons-material/Edit";
 
 import { useGetAllUsersByCompanyQuery } from "../../services/users";
 import LoadingComponent from "../../components/LoadingComponent";
 import { ADMIN } from "../../helper/constants";
 
-const EmployeeListTable = ({ roleList, hotelList }) => {
+const EmployeeListTable = ({
+  roleList,
+  hotelList,
+  setEmployeeToUpdate,
+  saveUser,
+  setSnack,
+}) => {
   const [filterData, setFilterData] = React.useState({
     selectedRole: null,
     selectedRoleInputVal: "",
@@ -60,7 +70,36 @@ const EmployeeListTable = ({ roleList, hotelList }) => {
       ),
     [filterData, employeeList.data]
   );
-  console.log(filterData, "filterData");
+
+  const handleUpdateEmployeeStatus = React.useCallback(
+    async (e, employeeToUpdate) => {
+      saveUser({
+        id: employeeToUpdate ? employeeToUpdate.id : null,
+        userName: employeeToUpdate.name,
+        role: employeeToUpdate.role,
+        email: employeeToUpdate.email,
+        hotelId: employeeToUpdate.hotelDto.id,
+        companyId: JSON.parse(sessionStorage.getItem("data")).companyId,
+        phoneNo: employeeToUpdate.phoneNo,
+        isActive: e.target.checked,
+      })
+        .then((res) => {
+          setSnack({
+            open: true,
+            severity: "success",
+            message: res.message,
+          });
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            severity: "error",
+            message: err.data?.message || err.data,
+          });
+        });
+    },
+    [saveUser, setSnack]
+  );
 
   return (
     <React.Fragment>
@@ -214,6 +253,7 @@ const EmployeeListTable = ({ roleList, hotelList }) => {
                 <TableCell>Phone No.</TableCell>
                 <TableCell>Role</TableCell>
                 <TableCell>Hotel</TableCell>
+                <TableCell>Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -240,6 +280,23 @@ const EmployeeListTable = ({ roleList, hotelList }) => {
                         <Typography variant="body2">
                           {employee.hotelDto?.address}
                         </Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+                      >
+                        <IconButton
+                          onClick={() => setEmployeeToUpdate(employee)}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                        <Switch
+                          checked={employee.isActive}
+                          onChange={(e) =>
+                            handleUpdateEmployeeStatus(e, employee)
+                          }
+                        />
                       </Box>
                     </TableCell>
                   </TableRow>

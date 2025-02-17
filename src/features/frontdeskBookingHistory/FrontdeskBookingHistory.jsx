@@ -28,6 +28,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import ClearIcon from "@mui/icons-material/Clear";
+import DescriptionIcon from "@mui/icons-material/Description";
 import { StyledCalendarIcon } from "../dashboard/Dashboard";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { saveAs } from "file-saver";
@@ -42,7 +43,9 @@ import {
   useCancelRoomBookingFromBookingHistoryMutation,
   useExportBookingHistoryMutation,
 } from "../../services/frontdeskBookingHistory";
-import moment from "moment";
+// import moment from "moment";
+import moment from "moment-timezone";
+
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -107,17 +110,22 @@ const filterBookingRooms = (
       return false;
     }
 
+    // :moment(booking.checkInDate).format("DD/MM/YYYY").utc(),
+
     const bookingDates = relevantBookings.map((booking) => ({
       startDate: dayjs(
         booking.bookingStatus === "Booked"
           ? booking.fromDate
-          : booking.checkInDate,
+          : // : booking.checkInDate,
+            moment(booking.checkInDateInUtc).tz("Asia/Kolkata"),
         "DD-MM-YYYY"
       ).startOf("day"),
       endDate: dayjs(
         booking.bookingStatus === "Booked"
           ? booking.toDate
-          : booking.checkOutDate,
+          : // : booking.checkOutDate,
+            moment(booking.checkOutDateInUtc).tz("Asia/Kolkata"),
+
         "DD-MM-YYYY"
       ).startOf("day"),
     }));
@@ -1586,6 +1594,18 @@ const CustomRow = memo(function ({
     },
     [handleOpenShowcaseBookingDialogForDetails]
   );
+
+  const handleViewHotelBillInvoiceInHistory = useCallback((row) => {
+    const bookingRefNumber = row?.bookingRefNumber;
+    if (bookingRefNumber) {
+      sessionStorage.setItem(
+        `hotelBillInvoiceInHistory-${bookingRefNumber}`,
+        JSON.stringify(row)
+      );
+      window.open(`/hotelBillInvoiceInHistory/${bookingRefNumber}`, "_blank");
+    }
+  }, []);
+
   return (
     <TableRow
       hover
@@ -1736,6 +1756,31 @@ const CustomRow = memo(function ({
                       style={{ fontSize: "14px", fontWeight: 600 }}
                     />
                   </Button>
+                )}
+
+                {row?.bookingStatus === "Checked_Out" && (
+                  <Tooltip title={"View Invoice"} arrow>
+                    <Button
+                      variant="outlined"
+                      sx={{
+                        minWidth: "unset",
+                        width: "auto",
+                        paddingY: "4.8px",
+                        paddingX: "8px",
+                        color: "#0cb2e7",
+                        borderColor: "#0cb2e7",
+                        "&:hover": {
+                          borderColor: "#0a8db7",
+                          backgroundColor: "#ddf7ff",
+                        },
+                      }}
+                      onClick={() => handleViewHotelBillInvoiceInHistory(row)}
+                    >
+                      <DescriptionIcon
+                        style={{ fontSize: "14px", fontWeight: 600 }}
+                      />
+                    </Button>
+                  </Tooltip>
                 )}
               </Box>
             ) : (
@@ -2457,6 +2502,7 @@ const CustomBookingHistoryDrawer = memo(function ({
                       <Autocomplete
                         options={roomtypeByHotelIdForBookingHistoryData || []}
                         disableClearable
+                        disabled={true}
                         fullWidth
                         value={bookingConfirmationFormData?.roomType || null}
                         onChange={(e, newVal) =>
@@ -2532,6 +2578,7 @@ const CustomBookingHistoryDrawer = memo(function ({
                             {...params}
                             label="Room Type"
                             variant="standard"
+                            disabled={true}
                             sx={{
                               // "& .MuiOutlinedInput-root": {
                               //   borderRadius: 2,
@@ -2934,21 +2981,13 @@ const FrontdeskBookingHistory = () => {
   const [bookingHistoryTableFilters, setBookingHistoryTableFilters] = useState(
     initialBookingHistoryTableFilters
   );
-  console.log("bookingHistoryTableFilters : ", bookingHistoryTableFilters);
   const [bookingHistoryTablePageNo, setBookingHistoryTablePageNo] = useState(0);
-  console.log(" bookingHistoryTablePageNo : ", bookingHistoryTablePageNo);
   const [bookingHistoryTableRowsPerPage, setBookingHistoryTableRowsPerPage] =
     useState(10);
-  console.log(
-    " bookingHistoryTableRowsPerPage : ",
-    bookingHistoryTableRowsPerPage
-  );
   const [debouncedBookingRefNoSearch, setDebouncedBookingRefNoSearch] =
     useState("");
   const [bookingConfirmationFormData, setBookingConfirmationFormData] =
     useState(initialBookingConfirmationFormData);
-
-  console.log("bookingConfirmationFormData : ", bookingConfirmationFormData);
 
   const {
     data: allBookingStatusTypeData = { data: [] },
@@ -2959,8 +2998,6 @@ const FrontdeskBookingHistory = () => {
       skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== FRONTDESK,
     }
   );
-
-  console.log("allBookingStatusTypeData : ", allBookingStatusTypeData);
 
   const {
     data: roomBookingHistoryByHotelIdData = {
@@ -3175,6 +3212,7 @@ const FrontdeskBookingHistory = () => {
             ...prevData,
             [name]: inputValue,
           }));
+          setBookingHistoryTablePageNo(0);
         }
       } else {
         setBookingHistoryTableFilters(initialBookingHistoryTableFilters);

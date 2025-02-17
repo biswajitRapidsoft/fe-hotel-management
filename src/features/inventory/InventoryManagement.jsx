@@ -294,6 +294,9 @@ const InventoryManagement = () => {
               }
               name="quantity"
               value={formData.quantity}
+              inputProps={{
+                maxlength: 10,
+              }}
               onChange={handleChange}
               variant="standard"
             />
@@ -353,6 +356,7 @@ const InventoryManagement = () => {
             type="submit"
           >
             Add Stock
+            {/* Add / Update Stock */}
           </Button>
         </Box>
       </Box>
@@ -516,50 +520,69 @@ const ViewDetailsDialog = ({
         </IconButton>
         <DialogContent dividers>
           <Box sx={{ height: "400px", overflowY: "auto", mb: 2 }}>
-            <Table stickyHeader>
-              <TableHead>
-                <TableRow
-                  sx={{
-                    ".MuiTableCell-root": {
-                      fontWeight: "bold",
-                      letterSpacing: 1,
-                      backgroundColor: "#e3f2fd",
-                    },
-                  }}
+            {Boolean(viewDetailsDialog?.id) ? (
+              <Table stickyHeader>
+                <TableHead>
+                  <TableRow
+                    sx={{
+                      ".MuiTableCell-root": {
+                        fontWeight: "bold",
+                        letterSpacing: 1,
+                        backgroundColor: "#e3f2fd",
+                      },
+                    }}
+                  >
+                    <TableCell>Sl No.</TableCell>
+                    <TableCell>Quantity</TableCell>
+                    <TableCell>Created At</TableCell>
+                    <TableCell>Status</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {detailsList?.data?.trailMappingData?.map((item, index) => {
+                    return (
+                      <TableRow key={item.id}>
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell>{item.qty}</TableCell>
+                        <TableCell>
+                          {moment(item.createdAt).format("DD/MM/YYYY hh:mma")}
+                        </TableCell>
+                        <TableCell>
+                          {Boolean(item?.isAdded) ? (
+                            <Typography
+                              sx={{ color: "green", fontWeight: "bold" }}
+                            >
+                              Added
+                            </Typography>
+                          ) : (
+                            <Typography
+                              sx={{ color: "red", fontWeight: "bold" }}
+                            >
+                              Removed
+                            </Typography>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            ) : (
+              <Box
+                sx={{
+                  height: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Typography
+                  sx={{ fontWeight: "bold", fontSize: "1.5rem", color: "gray" }}
                 >
-                  <TableCell>Sl No.</TableCell>
-                  <TableCell>Quantity</TableCell>
-                  <TableCell>Created At</TableCell>
-                  <TableCell>Status</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {detailsList?.data?.trailMappingData?.map((item, index) => {
-                  return (
-                    <TableRow key={item.id}>
-                      <TableCell>{index + 1}</TableCell>
-                      <TableCell>{item.qty}</TableCell>
-                      <TableCell>
-                        {moment(item.createdAt).format("DD/MM/YYYY hh:mma")}
-                      </TableCell>
-                      <TableCell>
-                        {Boolean(item?.isAdded) ? (
-                          <Typography
-                            sx={{ color: "green", fontWeight: "bold" }}
-                          >
-                            Added
-                          </Typography>
-                        ) : (
-                          <Typography sx={{ color: "red", fontWeight: "bold" }}>
-                            Removed
-                          </Typography>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                  No transaction details available
+                </Typography>
+              </Box>
+            )}
           </Box>
         </DialogContent>
       </BootstrapDialog>

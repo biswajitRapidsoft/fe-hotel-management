@@ -89,16 +89,37 @@ const FoodInvoice = () => {
     }));
   }, [invoiceData?.bookingDto?.foodDataList]);
 
-  const subTotalFoodExpense = useMemo(
-    () =>
-      parseFloat(
-        invoiceData?.bookingDto?.foodDataList?.reduce(
-          (sum, item) => sum + (item?.bookingDetails?.totalPrice || 0),
-          0
-        )
-      ).toFixed(2),
-    [invoiceData]
-  );
+  // const subTotalFoodExpense = useMemo(
+  //   () =>
+  //     parseFloat(
+  //       invoiceData?.bookingDto?.foodDataList?.reduce(
+  //         (sum, item) => sum + (item?.bookingDetails?.totalPrice || 0),
+  //         0
+  //       )
+  //     ).toFixed(2),Food Details :
+
+  //   [invoiceData]
+  // );
+
+  const subTotalFoodExpense = useMemo(() => {
+    const sum =
+      invoiceData?.bookingDto?.foodDataList?.reduce(
+        (sum, item) => sum + (item?.bookingDetails?.totalPrice || 0),
+        0
+      ) || 0;
+    return sum.toFixed(2);
+  }, [invoiceData]);
+
+  // const gstIncludedPrice
+
+  const totalFoodExpense = useMemo(() => {
+    const sum =
+      invoiceData?.bookingDto?.foodDataList?.reduce(
+        (sum, item) => sum + (item?.totalPrice + 0.18 * item?.totalPrice),
+        0
+      ) || 0;
+    return sum.toFixed(2);
+  }, [invoiceData]);
 
   return (
     <>
@@ -1015,6 +1036,87 @@ const FoodInvoice = () => {
                             sx={{ textAlign: "right", fontWeight: 550 }}
                           >
                             {subTotalFoodExpense}
+                          </Typography>
+                        </Box>
+                      </Grid>
+
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderTop: "1.7px solid black",
+                            borderLeft: "1.7px solid black",
+                            bgcolor: "white",
+                            paddingLeft: "5px",
+                          }}
+                        >
+                          <Typography sx={{ fontWeight: 550 }}>
+                            GST Charges{" "}
+                            <span
+                              style={{
+                                color: "gray",
+                                fontStyle: "italic",
+                                fontSize: "0.9rem",
+                              }}
+                            >
+                              (18%)
+                            </span>
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderTop: "1.7px solid black",
+                            borderRight: "1.7px solid black",
+                            bgcolor: "white",
+                          }}
+                        >
+                          <Typography
+                            sx={{ textAlign: "right", fontWeight: 550 }}
+                          >
+                            {subTotalFoodExpense * 0.18}
+                          </Typography>
+                        </Box>
+                      </Grid>
+
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderTop: "1.7px solid black",
+                            borderLeft: "1.7px solid black",
+                            bgcolor: "white",
+                            paddingLeft: "5px",
+                          }}
+                        >
+                          <Typography sx={{ fontWeight: 550 }}>
+                            Sub Total
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderTop: "1.7px solid black",
+                            borderRight: "1.7px solid black",
+                            bgcolor: "white",
+                          }}
+                        >
+                          <Typography
+                            sx={{ textAlign: "right", fontWeight: 550 }}
+                          >
+                            {totalFoodExpense}
                           </Typography>
                         </Box>
                       </Grid>

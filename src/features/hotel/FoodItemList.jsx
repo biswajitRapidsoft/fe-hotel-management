@@ -247,7 +247,7 @@ const FoodItemList = () => {
               >
                 <TableCell>Sl No.</TableCell>
                 <TableCell>Master Dining Type</TableCell>
-                <TableCell />
+                <TableCell>Details</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -450,6 +450,8 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
           .unwrap()
           .then((res) => {
             handleResetFormItem();
+            setItemToUpdate(null);
+
             setSnack({
               open: true,
               severity: "success",

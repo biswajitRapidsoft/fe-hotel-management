@@ -87,7 +87,7 @@ const ManagerDashboard = () => {
       labels: months,
       datasets: [
         {
-          label: "OutSourcing",
+          label: "InSourcing",
           data: outSourcingData,
           borderColor: "rgb(75, 192, 192)",
           fill: true,
@@ -95,7 +95,7 @@ const ManagerDashboard = () => {
           tension: 0.4,
         },
         {
-          label: "InSourcing",
+          label: "OutSourcing",
           data: inSourcingData,
           borderColor: "rgb(255, 99, 132)",
           fill: true,

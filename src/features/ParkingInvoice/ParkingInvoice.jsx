@@ -1,17 +1,17 @@
-import React, { memo, useCallback, useMemo, useState } from "react";
-import LoadingComponent from "../../components/LoadingComponent";
-import SnackAlert from "../../components/Alert";
+import React, { useMemo } from "react";
+// import LoadingComponent from "../../components/LoadingComponent";
+// import SnackAlert from "../../components/Alert";
 import {
   Box,
-  Button,
+  // Button,
   Divider,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
+  // Paper,
+  // Table,
+  // TableBody,
+  // TableCell,
+  // TableContainer,
+  // TableHead,
+  // TableRow,
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
@@ -19,20 +19,20 @@ import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import moment from "moment";
 
-const getCellValue = (obj, key, fallback = "") => {
-  if (!key) return undefined;
-  return key
-    .split(".")
-    .reduce(
-      (acc, part) => (acc && acc[part] !== undefined ? acc[part] : fallback),
-      obj
-    );
-};
+// const getCellValue = (obj, key, fallback = "") => {
+//   if (!key) return undefined;
+//   return key
+//     .split(".")
+//     .reduce(
+//       (acc, part) => (acc && acc[part] !== undefined ? acc[part] : fallback),
+//       obj
+//     );
+// };
 
 const ParkingInvoice = () => {
   const { bookingRefNo } = useParams("bookingRefNo");
-  const [isPrinting, setIsPrinting] = useState(false);
-
+  // const [isPrinting, setIsPrinting] = useState(false);
+  // console.log("isPrinting", isPrinting);
   const invoiceData = useMemo(() => {
     const sessionedEventData = sessionStorage.getItem(
       `parkingBillInvoice-${bookingRefNo}`
@@ -42,13 +42,14 @@ const ParkingInvoice = () => {
 
   console.log("invoiceDataparking", invoiceData);
 
-  const handlePrint = useCallback(() => {
-    setIsPrinting(true);
-    setTimeout(() => {
-      window.print();
-      setIsPrinting(false);
-    }, 0);
-  }, []);
+  // const handlePrint = useCallback(() => {
+  //   setIsPrinting(true);
+  //   setTimeout(() => {
+  //     window.print();
+  //     setIsPrinting(false);
+  //   }, 0);
+  // }, []);
+
   const hotelLogo = JSON.parse(sessionStorage.getItem("data")).hotelLogoUrl;
 
   return (

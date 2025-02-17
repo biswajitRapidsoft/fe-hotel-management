@@ -13,7 +13,7 @@ import { useLocation, useNavigate, Link as RouterLink } from "react-router-dom";
 import React from "react";
 import hotelImage from "../../img/hotel1.jpg";
 import logo from "../../img/logo.svg";
-import { useTheme } from "@mui/material/styles";
+// import { useTheme } from "@mui/material/styles";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
 import Visibility from "@mui/icons-material/Visibility";
@@ -42,27 +42,27 @@ import {
 const phoneRegex = /^[0-9]{10}$/;
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link
-        sx={{ color: "#FFFFFF", textDecoration: "none" }}
-        href="/"
-        onClick={(e) => e.preventDefault()}
-      >
-        HOMS
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
+// function Copyright(props) {
+//   return (
+//     <Typography
+//       variant="body2"
+//       color="text.secondary"
+//       align="center"
+//       {...props}
+//     >
+//       {"Copyright © "}
+//       <Link
+//         sx={{ color: "#FFFFFF", textDecoration: "none" }}
+//         href="/"
+//         onClick={(e) => e.preventDefault()}
+//       >
+//         HOMS
+//       </Link>{" "}
+//       {new Date().getFullYear()}
+//       {"."}
+//     </Typography>
+//   );
+// }
 
 const validationSchema = Yup.object().shape({
   username: Yup.string()
@@ -209,7 +209,7 @@ const Loginv2 = () => {
       >
         <Box
           sx={{
-            background: "rgb(0,51,102)",
+            // background: "rgb(0,51,102)",
             background:
               "linear-gradient(159deg, rgba(0,51,102,1) 0%, rgba(15,82,186,1) 100%)",
 

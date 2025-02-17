@@ -1,17 +1,17 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState, memo } from "react";
 // import LoadingComponent from "../../components/LoadingComponent";
 // import SnackAlert from "../../components/Alert";
 import {
   Box,
   Button,
   Divider,
-  // Paper,
-  // Table,
-  // TableBody,
-  // TableCell,
-  // TableContainer,
-  // TableHead,
-  // TableRow,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
@@ -28,7 +28,16 @@ import moment from "moment";
 //       obj
 //     );
 // };
+
 const BarInvoice = () => {
+  const barListTableHeaders = useMemo(
+    () => [
+      { label: "Sl. No.", key: "sno" },
+      { label: "Item Name", key: "itemName" },
+      { label: "Quantity", key: "quantity" },
+    ],
+    []
+  );
   const { bookingRefNo } = useParams("bookingRefNo");
   const [isPrinting, setIsPrinting] = useState(false);
   // const [snack, setSnack] = useState({
@@ -126,7 +135,7 @@ const BarInvoice = () => {
                       textAlign: "right",
                     }}
                   >
-                    {invoiceData?.bookingDto?.hotel?.name}
+                    {/* {invoiceData?.bookingDto?.hotel?.name} */}
                   </Typography>
                   <Typography
                     sx={{
@@ -904,6 +913,48 @@ const BarInvoice = () => {
                 }}
               />
 
+              <Grid
+                container
+                size={12}
+                spacing={1}
+                sx={{
+                  gridTemplateColumns: {
+                    xs: "2fr",
+                  },
+                  gridAutoFlow: "dense",
+                  width: "100%",
+                }}
+              >
+                {Boolean(invoiceData?.bookingDto?.barOrderDtos?.length) && (
+                  <Grid size={12}>
+                    {Boolean(invoiceData?.bookingDto?.barOrderDtos?.length) && (
+                      <Box sx={{ width: "100%" }}>
+                        <Typography
+                          sx={{
+                            fontSize: "18px",
+                            fontWeight: 600,
+                            width: "100%",
+                            borderBottom: "2px solid #ccc",
+                            marginBottom: "5px",
+                          }}
+                        >
+                          Bar Details :
+                        </Typography>
+                        <Box sx={{ mb: 1 }}>
+                          <CustomBarListTableContainerForInvoice
+                            barListTableHeaders={barListTableHeaders}
+                            barListTableData={
+                              invoiceData?.bookingDto?.barOrderDtos
+                            }
+                            isForCheckOut={true}
+                            // uniqueFoodItems={uniqueFoodItems}
+                          />
+                        </Box>
+                      </Box>
+                    )}
+                  </Grid>
+                )}
+              </Grid>
               <Grid container size={12} columnSpacing={2}>
                 <Grid size={12}>
                   <Box
@@ -1155,5 +1206,117 @@ const BarInvoice = () => {
     </>
   );
 };
+
+const CustomBarListTableContainerForInvoice = memo(function ({
+  barListTableHeaders,
+  barListTableData,
+}) {
+  return (
+    <React.Fragment>
+      <TableContainer
+        component={Paper}
+        sx={{
+          overflow: "auto",
+          // maxHeight: { xs: isForCheckOut ? "220px" : "310px" },
+          // xl: "calc(100vh - 280px)",
+          "&::-webkit-scrollbar": {
+            // height: "14px",
+          },
+          "&::-webkit-scrollbar-track": {
+            backgroundColor: "#ffffff00",
+            width: "none",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#280071",
+            borderRadius: "4px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: "#3b0b92",
+          },
+        }}
+      >
+        <Table aria-label="simple table" stickyHeader size="small">
+          <TableHead>
+            <TableRow>
+              {barListTableHeaders?.map((item, index) => {
+                return (
+                  <TableCell
+                    key={`room-table-head-${index}`}
+                    align="center"
+                    sx={{
+                      backgroundColor: "#dbd8ff",
+                      fontWeight: "bold",
+                      // paddingY: "10px",
+                      fontSize: "13px",
+                    }}
+                  >
+                    {item?.label}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+          </TableHead>
+
+          <TableBody>
+            {barListTableData?.flatMap((row) =>
+              // Use flatMap to flatten the nested arrays
+              row.ordersList.map((orderItem, orderIndex) => (
+                <CustomParentRowForBar
+                  barListTableHeaders={barListTableHeaders}
+                  rowSerialNumber={orderIndex + 1}
+                  key={`${row.id}-${orderItem.id}`}
+                  row={orderItem} // Pass orderItem as row
+                />
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </React.Fragment>
+  );
+});
+
+const CustomParentRowForBar = memo(function ({
+  barListTableHeaders,
+  rowSerialNumber,
+  key,
+  row,
+}) {
+  const getCellValue = (row, key) => {
+    switch (key) {
+      case "sno":
+        return rowSerialNumber;
+      case "itemName":
+        return row?.item?.name || "-";
+      case "quantity":
+        return row?.noOfQty || "-";
+      default:
+        return "-";
+    }
+  };
+  console.log("row", row);
+  return (
+    <TableRow
+      hover
+      key={row?.id}
+      sx={{
+        cursor: "pointer",
+        height: 35,
+        backgroundColor: "inherit",
+        "&:hover": {
+          backgroundColor: "inherit",
+        },
+      }}
+    >
+      {barListTableHeaders?.map((subitem, subIndex) => (
+        <TableCell key={`table-body-cell-${subIndex}`} align="center">
+          <Typography sx={{ fontSize: "12px", wordWrap: "break-word" }}>
+            {getCellValue(row, subitem?.key)}
+          </Typography>
+        </TableCell>
+      ))}
+    </TableRow>
+  );
+});
 
 export default BarInvoice;
