@@ -7,6 +7,15 @@ import LoadingComponent from "./components/LoadingComponent";
 import ParkingList from "./features/parking/ParkingList";
 
 // const Login = React.lazy(() => import("./features/login/Login"));
+
+const SuperAdminDashboard = React.lazy(() =>
+  import("./features/dashboard/SuperAdminDashboard")
+);
+
+const SuperAdminEmployeeList = React.lazy(() =>
+  import("./features/dashboard/SuperAdminEmployeeList")
+);
+
 const Dashboard = React.lazy(() => import("./features/dashboard/Dashboard"));
 const Layout = React.lazy(() => import("./routes/Layout"));
 const SuperLayout = React.lazy(() => import("./routes/SuperLayout"));
@@ -151,6 +160,14 @@ function App() {
             element={<SpaInvoiceForFrontesk />}
           />
           <Route element={<SuperLayout />}>
+            <Route
+              path="/super-admin-dashboard"
+              element={<SuperAdminDashboard />}
+            />
+            <Route
+              path="/employee-list/:companyId"
+              element={<SuperAdminEmployeeList />}
+            />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route path="/hotel-list" element={<HotelList />} />
             <Route path="/room-type" element={<RoomType />} />

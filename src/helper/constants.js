@@ -24,7 +24,7 @@ export const CANCELLED = "Cancelled";
 export const REJECTED = "Rejected";
 
 // ROLES
-export const SUPER_ADMIN = "SUPER_ADMIN";
+export const SUPER_ADMIN = "Super_Admin";
 export const ADMIN = "Admin";
 export const CUSTOMER = "Customer";
 export const FRONTDESK = "Front_Desk_Staff";

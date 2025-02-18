@@ -37,6 +37,7 @@ import {
   GUARD,
   BARSTAFF,
   MANAGER,
+  SUPER_ADMIN,
 } from "../../helper/constants";
 
 const phoneRegex = /^[0-9]{10}$/;
@@ -144,6 +145,8 @@ const Loginv2 = () => {
             navigate("/bar-admin");
           } else if (res.data.roleType === MANAGER) {
             navigate("/managerDashboard");
+          } else if (res.data.roleType === SUPER_ADMIN) {
+            navigate("/super-admin-dashboard");
           } else {
             navigate("/");
           }

@@ -3,7 +3,23 @@ import config from "../config/config";
 
 const dashboardApi = apiSlice.injectEndpoints({
   endpoints: (build) => ({
-    // SUPER ADMIN DASHBOARD
+    // SUPER ADMIN
+    saveCompany: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.saveCompany,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllCompany"],
+    }),
+    getAllCompany: build.query({
+      query: () => ({
+        url: config.apiName.getAllCompany,
+        method: "GET",
+      }),
+      providesTags: ["getAllCompany"],
+    }),
+    // ADMIN DASHBOARD
     getMasterDataList: build.query({
       query: (payload) => ({
         url: config.apiName.getMasterDataList,
@@ -354,6 +370,8 @@ const dashboardApi = apiSlice.injectEndpoints({
 });
 
 export const {
+  useSaveCompanyMutation,
+  useGetAllCompanyQuery,
   useGetMasterDataListQuery,
   useGetAllRoomListByHotelIdQuery,
   useGetAllHotelsQuery,

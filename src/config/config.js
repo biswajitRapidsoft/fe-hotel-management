@@ -74,6 +74,8 @@ const config = Object.freeze({
     getBarItemTypeByCompanyId: "api/get/bar/menu",
     getBarSubmenuTypeByMenuId: "api/get-sub/menu/id",
     saveBarItem: "api/save/bar/items",
+    saveCompany: "api/save/company",
+    getAllCompany: "api/get/all/company",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",

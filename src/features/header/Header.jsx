@@ -19,6 +19,7 @@ import {
   CUSTOMER,
   FRONTDESK,
   HOUSEKEEPER,
+  SUPER_ADMIN,
 } from "../../helper/constants";
 
 import Grid from "@mui/material/Grid2";
@@ -637,6 +638,8 @@ export const getUserType = (type) => {
     return "FrontDesk";
   } else if (type === HOUSEKEEPER) {
     return "HouseKeeper";
+  } else if (type === SUPER_ADMIN) {
+    return "Super Admin";
   } else {
     return "USER";
   }
