@@ -70,6 +70,10 @@ const config = Object.freeze({
     getParkingDataForAdmin: "api/get/all/parkings/list/for/admin",
     parkingSlotStatusChange: "api/parking/slot/status/change",
     updateRoomTypeStatus: "api/update/status/room/type",
+    addBarMasterDiningType: "api/save/barmenu/categories",
+    getBarItemTypeByCompanyId: "api/get/bar/menu",
+    getBarSubmenuTypeByMenuId: "api/get-sub/menu/id",
+    saveBarItem: "api/save/bar/items",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",
@@ -86,7 +90,6 @@ const config = Object.freeze({
     getAllMasterDiningType: "api/get/all/master/dinning/type",
     addFoodItems: "api/create/new/restaurant/item",
     getFoodType: "api/get/restaurant/item/type",
-
     //FRONTDESK BOOKING HISTORY
     roomBookingHistoryByHotelId: "api/booking/history",
     getAllBookingStatusType: "api/get/all/booking/status/type",

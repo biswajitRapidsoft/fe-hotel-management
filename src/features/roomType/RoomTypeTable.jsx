@@ -253,13 +253,17 @@ const RoomTypeTable = ({ setRoomToUpdate }) => {
                     <TableCell>₹{roomType.basePrice}</TableCell>
                     <TableCell>{roomType.capacity}</TableCell>
                     <TableCell>
-                      <IconButton onClick={() => setRoomToUpdate(roomType)}>
-                        <EditIcon />
-                      </IconButton>
-                      <Switch
-                        checked={roomType.isActive}
-                        onChange={() => handleUpdateStatus(roomType.id)}
-                      />
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+                      >
+                        <IconButton onClick={() => setRoomToUpdate(roomType)}>
+                          <EditIcon />
+                        </IconButton>
+                        <Switch
+                          checked={roomType.isActive}
+                          onChange={() => handleUpdateStatus(roomType.id)}
+                        />
+                      </Box>
                     </TableCell>
                   </TableRow>
                 );

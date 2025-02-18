@@ -132,6 +132,45 @@ const hotelApi = apiSlice.injectEndpoints({
         method: "GET",
       }),
     }),
+
+    getBarItemTypeByCompanyId: build.query({
+      query: (payload) => ({
+        url: config.apiName.getBarItemTypeByCompanyId,
+        method: "GET",
+        params: {
+          companyId: payload.companyId,
+          hotelId: payload.hotelId,
+        },
+      }),
+      providesTags: ["getBarItemTypeByCompanyId"],
+    }),
+
+    addBarMasterDiningType: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.addBarMasterDiningType,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getHotelListByCompany", "getBarItemTypeByCompanyId"],
+    }),
+    getBarSubmenuTypeByMenuId: build.query({
+      query: (payload) => ({
+        url: config.apiName.getBarSubmenuTypeByMenuId,
+        method: "GET",
+        params: {
+          menuId: payload,
+        },
+      }),
+    }),
+
+    saveBarItem: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.saveBarItem,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getBarItemTypeByCompanyId"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -152,4 +191,8 @@ export const {
   useGetAllPromoCodeListForAdminQuery,
   useCreatePromoCodeMutation,
   useGetAllPromocodeTypesQuery,
+  useGetBarItemTypeByCompanyIdQuery,
+  useAddBarMasterDiningTypeMutation,
+  useGetBarSubmenuTypeByMenuIdQuery,
+  useSaveBarItemMutation,
 } = hotelApi;

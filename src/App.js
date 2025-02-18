@@ -98,6 +98,8 @@ const HotelBillInvoiceInHistory = React.lazy(() =>
   import("./features/HotelBillInvoiceInHistory/HotelBillInvoiceInHistory")
 );
 
+const BarItemList = React.lazy(() => import("./features/hotel/BarItemList"));
+
 function App() {
   const location = useLocation();
   // console.log("hello3", location);
@@ -175,7 +177,7 @@ function App() {
               element={<LaundryHistoryForGuest />}
             />
             <Route path="/FoodItemList" element={<FoodItemList />} />
-
+            <Route path="/barItemList" element={<BarItemList />} />
             {/* LaundryHistoryForGuest */}
           </Route>
 

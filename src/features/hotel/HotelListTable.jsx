@@ -38,7 +38,7 @@ import { ADMIN } from "../../helper/constants";
 import SnackAlert from "../../components/Alert";
 
 const tableHeader = [
-  { label: "Sl No." },
+  { label: "Sl." },
   { label: "Hotel Name" },
   // { label: "State" },
   // { label: "City" },
@@ -50,10 +50,11 @@ const tableHeader = [
   // { label: "Phone No." },
   { label: "Halls" },
   { label: "Banquets" },
-  { label: "Spa Types" },
+  { label: "Spa" },
   { label: "Parkings" },
   { label: "PromoCode" },
-  { label: "Restaurant Items" },
+  { label: "Restaurant" },
+  { label: "Bar" },
   { label: "Action" },
 ];
 
@@ -293,12 +294,27 @@ function Row({ hotel, sequence, setHotelToUpdate, handleChangeStatus }) {
             }}
           />
         </TableCell>
+        <TableCell
+          onClick={() => {
+            sessionStorage.setItem("hotelIdForBarItem", hotel?.id);
+
+            navigate("/barItemList");
+          }}
+        >
+          <Chip
+            label={hotel?.noOfBarMenu}
+            clickable
+            color="secondary"
+            sx={{
+              color: "#fff",
+            }}
+          />
+        </TableCell>
         <TableCell>
           <Box
             sx={{
               display: "flex",
               alignItems: "center",
-              gap: 1,
             }}
           >
             <IconButton onClick={() => setHotelToUpdate(hotel)}>
