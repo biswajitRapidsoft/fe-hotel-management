@@ -4,7 +4,9 @@ import {
   Button,
   Container,
   Grid2 as Grid,
+  IconButton,
   Paper,
+  Switch,
   Table,
   TableBody,
   TableCell,
@@ -15,6 +17,7 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
 import { useParams } from "react-router-dom";
 
 import {
@@ -108,6 +111,47 @@ const SuperAdminEmployeeList = () => {
     },
     [saveUser, formData, companyId, employeeToUpdate, handleResetForm]
   );
+
+  const handleUpdateEmployeeStatus = React.useCallback(
+    (e, employee) => {
+      saveUser({
+        id: employee.id,
+        userName: employee.name,
+        role: ADMIN,
+        email: employee.email,
+        companyId: companyId,
+        phoneNo: employee.phoneNo,
+        isActive: e.target.checked,
+      })
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            severity: "success",
+            message: res.message,
+          });
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            severity: "error",
+            message: err.data?.message || err.data,
+          });
+        });
+    },
+    [saveUser, companyId]
+  );
+
+  React.useEffect(() => {
+    if (employeeToUpdate) {
+      setFormData((prevData) => ({
+        ...prevData,
+        name: employeeToUpdate.name || "",
+        email: employeeToUpdate.email || "",
+        phoneNo: employeeToUpdate.phoneNumber || "",
+      }));
+    }
+  }, [employeeToUpdate]);
 
   return (
     <React.Fragment>
@@ -341,17 +385,17 @@ const SuperAdminEmployeeList = () => {
                               gap: 0.5,
                             }}
                           >
-                            {/* <IconButton
-                            onClick={() => setEmployeeToUpdate(employee)}
-                          >
-                            <EditIcon />
-                          </IconButton>
-                          <Switch
-                            checked={employee.isActive}
-                            onChange={(e) =>
-                              handleUpdateEmployeeStatus(e, employee)
-                            }
-                          /> */}
+                            <IconButton
+                              onClick={() => setEmployeeToUpdate(employee)}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                            <Switch
+                              checked={employee.isActive}
+                              onChange={(e) =>
+                                handleUpdateEmployeeStatus(e, employee)
+                              }
+                            />
                           </Box>
                         </TableCell>
                       </TableRow>
@@ -362,7 +406,7 @@ const SuperAdminEmployeeList = () => {
           </TableContainer>
         </Paper>
       </Container>
-      <LoadingComponent open={saveUserRes.isLoading} />
+      <LoadingComponent open={isLoading || saveUserRes.isLoading} />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </React.Fragment>
   );
