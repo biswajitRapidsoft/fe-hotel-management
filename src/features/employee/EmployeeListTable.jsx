@@ -288,6 +288,9 @@ const EmployeeListTable = ({
                       >
                         <IconButton
                           onClick={() => setEmployeeToUpdate(employee)}
+                          disabled={[SUPER_ADMIN, ADMIN].includes(
+                            employee.role
+                          )}
                         >
                           <EditIcon />
                         </IconButton>
@@ -296,6 +299,9 @@ const EmployeeListTable = ({
                           onChange={(e) =>
                             handleUpdateEmployeeStatus(e, employee)
                           }
+                          disabled={[SUPER_ADMIN, ADMIN].includes(
+                            employee.role
+                          )}
                         />
                       </Box>
                     </TableCell>
