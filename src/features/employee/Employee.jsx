@@ -18,7 +18,7 @@ import { useGetHotelListByCompanyQuery } from "../../services/hotel";
 
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ClearIcon from "@mui/icons-material/Clear";
-import { ADMIN } from "../../helper/constants";
+import { ADMIN, SUPER_ADMIN } from "../../helper/constants";
 
 const Employee = () => {
   const [employeeToUpdate, setEmployeeToUpdate] = React.useState(null);
@@ -277,7 +277,7 @@ const Employee = () => {
           </Grid>
           <Grid size={3}>
             <Autocomplete
-              options={roleList.data}
+              options={roleList.data.filter((item) => item !== SUPER_ADMIN)}
               // options={roleList.data.filter((item) => item !== "Customer")}
               value={formData.selectedRole}
               onChange={(e, newVal) =>

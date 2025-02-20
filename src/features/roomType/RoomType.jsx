@@ -180,6 +180,7 @@ const RoomType = () => {
       basePrice: "",
       advanceAmount: "",
       isAdvance: false,
+      rewardPoints: "",
     });
     setExtraItemsArr([]);
     setUploadedImageArr([]);
@@ -275,7 +276,7 @@ const RoomType = () => {
           advanceAmount: formData.advanceAmount,
           rewardsPoints: formData.rewardPoints,
           imageUrl: uploadedImageArr.join(","),
-          extraItemsList: extraItemsArr.map((extra) => ({
+          extraItemsListDto: extraItemsArr.map((extra) => ({
             extraItems: {
               id: extra.extraItem.id,
             },

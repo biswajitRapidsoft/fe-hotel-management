@@ -22,7 +22,7 @@ import EditIcon from "@mui/icons-material/Edit";
 
 import { useGetAllUsersByCompanyQuery } from "../../services/users";
 import LoadingComponent from "../../components/LoadingComponent";
-import { ADMIN } from "../../helper/constants";
+import { ADMIN, SUPER_ADMIN } from "../../helper/constants";
 
 const EmployeeListTable = ({
   roleList,
@@ -163,7 +163,7 @@ const EmployeeListTable = ({
                 <Autocomplete
                   disablePortal
                   size="small"
-                  options={roleList}
+                  options={roleList.filter((item) => item !== SUPER_ADMIN)}
                   value={filterData.selectedRole}
                   onChange={(e, newVal) => handleChange("selectedRole", newVal)}
                   inputValue={filterData.selectedRoleInputVal}
