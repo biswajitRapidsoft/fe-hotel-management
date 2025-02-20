@@ -101,6 +101,7 @@ const SpaType = () => {
         images: uploadedImageArr,
         advancePaymentPercentage: formData.advancePercentage,
         id: Boolean(spaToUpdate) ? spaToUpdate.id : "",
+        isActive: spaToUpdate.isActive ? true : false,
       })
         .unwrap()
         .then((res) => {
