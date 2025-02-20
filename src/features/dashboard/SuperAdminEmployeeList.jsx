@@ -84,7 +84,7 @@ const SuperAdminEmployeeList = () => {
       saveUser({
         id: employeeToUpdate ? employeeToUpdate.id : null,
         userName: formData.name,
-        role: SUPER_ADMIN,
+        role: ADMIN,
         email: formData.email,
         hotelId: null,
         companyId: companyId,
