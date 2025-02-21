@@ -343,7 +343,7 @@ const SuperAdminEmployeeList = () => {
                   <TableCell>Email</TableCell>
                   <TableCell>Phone No.</TableCell>
                   <TableCell>Role</TableCell>
-                  <TableCell>Hotel</TableCell>
+                  {/* <TableCell>Hotel</TableCell> */}
                   <TableCell>Action</TableCell>
                 </TableRow>
               </TableHead>
@@ -367,7 +367,7 @@ const SuperAdminEmployeeList = () => {
                         <TableCell>{employee.email}</TableCell>
                         <TableCell>{employee.phoneNumber}</TableCell>
                         <TableCell>{employee.role}</TableCell>
-                        <TableCell>
+                        {/* <TableCell>
                           <Box
                             sx={{ display: "flex", flexDirection: "column" }}
                           >
@@ -376,7 +376,7 @@ const SuperAdminEmployeeList = () => {
                               {employee.hotelDto?.address}
                             </Typography>
                           </Box>
-                        </TableCell>
+                        </TableCell> */}
                         <TableCell>
                           <Box
                             sx={{
