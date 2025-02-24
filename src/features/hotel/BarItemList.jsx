@@ -438,6 +438,7 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
             severity: "success",
           });
           handleResetFormItem();
+          setItemToUpdate(null);
           handleClose();
         })
         .catch((err) => {
