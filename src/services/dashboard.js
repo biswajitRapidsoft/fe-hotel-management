@@ -83,6 +83,8 @@ const dashboardApi = apiSlice.injectEndpoints({
           hotelId: payload.hotelId,
           roomTypeId: payload.roomTypeId,
           priceRange: payload.priceRange,
+          fromDate: payload.fromDate,
+          toDate: payload.toDate,
         },
       }),
     }),

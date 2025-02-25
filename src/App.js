@@ -108,7 +108,12 @@ const HotelBillInvoiceInHistory = React.lazy(() =>
 );
 
 const BarItemList = React.lazy(() => import("./features/hotel/BarItemList"));
-
+const StockManagement = React.lazy(() =>
+  import("./features/stockManagement/StockManagement")
+);
+const BarStockManagement = React.lazy(() =>
+  import("./features/stockManagement/BarStockManagement")
+);
 function App() {
   const location = useLocation();
   // console.log("hello3", location);
@@ -188,6 +193,11 @@ function App() {
             <Route
               path="/inventoryManagement"
               element={<InventoryManagement />}
+            />
+            <Route path="/StockManagement" element={<StockManagement />} />
+            <Route
+              path="/BarStockManagement"
+              element={<BarStockManagement />}
             />
             <Route
               path="/LaundryHistoryForGuest"

@@ -1117,7 +1117,12 @@ const CustomFoodCard = React.memo(function ({ foodItem, handleAddItemToCart }) {
             component="img"
             src={foodItem.imageUrl}
             alt="Food Image"
-            sx={{ width: "100%", height: 200, borderRadius: "10px" }}
+            sx={{
+              width: "100%",
+              height: 200,
+              borderRadius: "10px",
+              opacity: Boolean(foodItem?.isoutOfStock) ? 0.5 : 1,
+            }}
           />
         </Grid>
 
@@ -1137,6 +1142,21 @@ const CustomFoodCard = React.memo(function ({ foodItem, handleAddItemToCart }) {
               flexDirection: "column",
             }}
           >
+            <Box
+              sx={{
+                // backgroundColor: "yellow",
+                height: "1.2rem",
+                display: "flex",
+                justifyContent: "flex-end",
+              }}
+            >
+              {Boolean(foodItem?.isoutOfStock) && (
+                <Typography sx={{ color: "red", fontSize: "0.8rem" }}>
+                  Out of Stock !!
+                </Typography>
+              )}
+            </Box>
+
             <Box
               sx={{
                 width: "100%",

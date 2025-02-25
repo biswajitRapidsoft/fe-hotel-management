@@ -159,6 +159,8 @@ const config = Object.freeze({
     getAllInventoryItemsByHotelId: "api/get/inventory/items/stock/list",
     updateInventoryStock: "api/update/stock",
     getInventoryUpdateTrail: "api/get/inventory/item/trail/list",
+    getBarItemsStock: "api/get/items/bar/hotel/id",
+    updateBarItemsStock: "api/update/bar/items/stock",
   },
 });
 

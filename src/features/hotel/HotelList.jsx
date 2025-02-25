@@ -886,6 +886,8 @@ function FloorFormComponent({
   setSnack,
 }) {
   const [selectedTab, setSelectedTab] = React.useState("byRoomNumber");
+
+  console.log("selectedTab", selectedTab);
   const [formData, setFormData] = React.useState({
     roomNumber: "",
     selectedRoomType: null,

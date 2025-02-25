@@ -25,7 +25,7 @@ const barApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
-      invalidatesTags: ["barOrderHistory"],
+      invalidatesTags: ["barOrderHistory", "getAllBarItemList"],
     }),
     barOrderHistory: build.query({
       query: (payload) => ({

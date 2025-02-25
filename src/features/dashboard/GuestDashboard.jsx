@@ -10,6 +10,8 @@ import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 // import Confetti from "react-confetti";
+// import dayjs from "dayjs";
+
 import Swal from "sweetalert2";
 import SportsGymnasticsIcon from "@mui/icons-material/SportsGymnastics";
 import WeekendIcon from "@mui/icons-material/Weekend";
@@ -30,8 +32,10 @@ import CleaningServicesIcon from "@mui/icons-material/CleaningServices";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import DryCleaningIcon from "@mui/icons-material/DryCleaning";
 import SpaIcon from "@mui/icons-material/Spa";
-
+// import moment from "moment";
 import CallIcon from "@mui/icons-material/Call";
+import InfoIcon from "@mui/icons-material/Info";
+
 // import { getStatusColour } from "./GuestBookingHistoryDrawer";
 import {
   Rating,
@@ -88,9 +92,24 @@ import {
 } from "@mui/lab";
 // import moment from "moment";
 import { useNavigate } from "react-router-dom";
+import { StyledCalendarIcon } from "../../features/dashboard/Dashboard";
+import { styled } from "@mui/material/styles";
+import { tooltipClasses } from "@mui/material/Tooltip";
 
 export const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
+});
+
+const CustomTooltip = styled(({ className, ...props }) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))({
+  [`& .${tooltipClasses.tooltip}`]: {
+    maxWidth: 500,
+    backgroundColor: "#71797E	",
+  },
+  [`& .${tooltipClasses.arrow}`]: {
+    color: "#71797E",
+  },
 });
 
 const GuestDashboard = () => {
@@ -125,7 +144,11 @@ const GuestDashboard = () => {
     hotel: null,
     roomType: null,
     priceRange: null,
+    fromDate: null,
+    toDate: null,
   });
+
+  console.log("filters", filters);
 
   const [makePartialPaymentPayload, setMakePartialPaymentPayload] =
     React.useState(null);
@@ -182,16 +205,31 @@ const GuestDashboard = () => {
       setOpenPaymentDialog(true);
     }
   }, []);
+
   const {
     data: hotelList = {
       data: [],
     },
     isLoading,
+    isSuccess: isGetHotelListSuccess,
+    isError: isGetHotelListError,
+    error: hotelListError,
+    isFetching: isHotelListFetching,
   } = useGetAllHotelsQuery(
     {
       hotelId: filters?.hotel?.id,
       roomTypeId: filters?.roomType?.id,
       priceRange: filters?.priceRange?.type,
+      ...(filters.fromDate &&
+        filters.toDate && {
+          fromDate: filters.fromDate.format("DD-MM-YYYY"),
+          toDate: filters.toDate.format("DD-MM-YYYY"),
+        }),
+      ...(!filters.fromDate &&
+        !filters.toDate && {
+          fromDate: dayjs().format("DD-MM-YYYY"),
+          toDate: dayjs().add(3, "day").format("DD-MM-YYYY"),
+        }),
     },
     {
       refetchOnMountOrArgChange: true,
@@ -201,6 +239,22 @@ const GuestDashboard = () => {
         !Boolean(JSON.parse(sessionStorage.getItem("data"))?.phoneNo),
     }
   );
+  React.useEffect(() => {
+    if (isGetHotelListSuccess && hotelList?.data) {
+      setSnack({
+        open: true,
+        message: hotelList?.message || "Hotels fetched successfully",
+        severity: "success",
+      });
+    }
+    if (isGetHotelListError) {
+      setSnack({
+        open: true,
+        message: hotelListError?.data?.message || "Failed to fetch hotels",
+        severity: "error",
+      });
+    }
+  }, [isGetHotelListSuccess, isGetHotelListError, hotelList, hotelListError]);
 
   const {
     data: filterList = {
@@ -1178,7 +1232,8 @@ const GuestDashboard = () => {
           roomCleanRequestRes.isLoading ||
           makePartialPaymentRes.isLoading ||
           requestRoomCheckoutRes.isLoading ||
-          rateStayRes.isLoading
+          rateStayRes.isLoading ||
+          isHotelListFetching
         }
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
@@ -1618,6 +1673,108 @@ const CustomRoomFilters = memo(function ({
               )}
             />
           </Box>
+          <Box>
+            <Grid>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="From Date"
+                  disablePast
+                  value={filters?.fromDate}
+                  onChange={(newVal) =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      fromDate: newVal,
+                      toDate:
+                        prev.toDate && newVal && newVal.isAfter(prev.toDate)
+                          ? null
+                          : prev.toDate,
+                    }))
+                  }
+                  slotProps={{
+                    textField: {
+                      variant: "outlined",
+                      size: "small",
+                      // readOnly: true,
+                      clearable: true,
+                      onKeyDown: (e) => {
+                        e.preventDefault();
+                      },
+                      sx: {
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: 2,
+                          width: 200,
+                          height: 35,
+                          backgroundColor: "rgba(255, 255, 255, 0.25)",
+                          color: "#B4B4B4",
+                        },
+                        "& .MuiTextField-root": {
+                          width: "100%",
+                          backgroundColor: "transparent",
+                        },
+                        "& .MuiFormLabel-root": {
+                          color: (theme) => theme.palette.primary.main,
+                          fontWeight: 600,
+                          fontSize: 18,
+                        },
+                      },
+                    },
+                  }}
+                  slots={{
+                    openPickerIcon: StyledCalendarIcon,
+                  }}
+                  format="DD/MM/YYYY"
+                />
+              </LocalizationProvider>
+            </Grid>
+          </Box>
+          <Box>
+            <Grid>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="To Date"
+                  disablePast
+                  value={filters?.toDate}
+                  onChange={(newVal) =>
+                    setFilters((prev) => ({ ...prev, toDate: newVal }))
+                  }
+                  minDate={filters?.fromDate}
+                  slotProps={{
+                    textField: {
+                      variant: "outlined",
+                      size: "small",
+                      // readOnly: true,
+                      clearable: true,
+                      onKeyDown: (e) => {
+                        e.preventDefault();
+                      },
+                      sx: {
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: 2,
+                          width: 200,
+                          height: 35,
+                          backgroundColor: "rgba(255, 255, 255, 0.25)",
+                          color: "#B4B4B4",
+                        },
+                        "& .MuiTextField-root": {
+                          width: "100%",
+                          backgroundColor: "transparent",
+                        },
+                        "& .MuiFormLabel-root": {
+                          color: (theme) => theme.palette.primary.main,
+                          fontWeight: 600,
+                          fontSize: 18,
+                        },
+                      },
+                    },
+                  }}
+                  slots={{
+                    openPickerIcon: StyledCalendarIcon,
+                  }}
+                  format="DD/MM/YYYY"
+                />
+              </LocalizationProvider>
+            </Grid>
+          </Box>
 
           {/* <Box>
             <Button variant="contained">Submit</Button>
@@ -1633,7 +1790,6 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [openPaymentDialog, setOpenPaymentDialog] = React.useState(false);
   const [reservationPayload, setReservationPayload] = React.useState(null);
-
   const [openHotelDetailsDialog, setOpenHotelDetailsDialog] =
     React.useState(false);
   const [hotelDetailsData, setHotelDetailsData] = React.useState(null);
@@ -2096,13 +2252,54 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
           }}
         >
           <Box>
-            <Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               {/* <Rating value={hotelDetails?.averageRatingPoints} readOnly /> */}
               <Rating
                 value={hotelDetails?.averageRatingPoints}
                 readOnly
                 precision={0.5}
               />
+              <CustomTooltip
+                arrow
+                title={
+                  <Box>
+                    <Box sx={{ display: "flex", flexDirection: "column" }}>
+                      {hotelDetails?.checkAvailableDates.map((item, index) => {
+                        return (
+                          <Box sx={{ display: "flex", gap: 1.4 }}>
+                            <Typography
+                              sx={{ fontWeight: "bold", color: "#fff" }}
+                            >
+                              {item.date}:
+                            </Typography>
+                            <Typography
+                              sx={{ fontWeight: "bold", color: "#17B169" }}
+                            >
+                              {item.available === true
+                                ? "Available"
+                                : "Partially Available"}
+                            </Typography>
+                          </Box>
+                        );
+                      })}
+                    </Box>
+                  </Box>
+                }
+              >
+                <InfoIcon
+                  sx={{
+                    cursor: "pointer",
+                    color: "#17B169	",
+                    // color: "#D27D2D		",
+                  }}
+                />
+              </CustomTooltip>
             </Box>
 
             <Box
