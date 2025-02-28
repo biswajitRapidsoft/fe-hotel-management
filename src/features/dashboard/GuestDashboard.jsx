@@ -118,6 +118,7 @@ const GuestDashboard = () => {
     React.useState(false);
   const [selectedBookingRefNumber, setSelectedBookingRefNumber] =
     React.useState(null);
+  const [selectedBooking, setSelectedBooking] = React.useState(null);
 
   const [cancelBookingOpen, setCancelBookingOpen] = React.useState(false);
   const [reviewDialog, setReviewDialog] = React.useState(null);
@@ -148,7 +149,7 @@ const GuestDashboard = () => {
     toDate: null,
   });
 
-  console.log("filters", filters);
+  // console.log("filters", filters);
 
   const [makePartialPaymentPayload, setMakePartialPaymentPayload] =
     React.useState(null);
@@ -175,7 +176,7 @@ const GuestDashboard = () => {
   };
 
   const handleMakePayment = React.useCallback((booking) => {
-    console.log("bookinggg", booking);
+    // console.log("bookinggg", booking);
     const totalDebit = booking?.transactionDetails
       ?.filter((item) => !item.isCredit)
       ?.reduce((sum, item) => sum + item.amount, 0);
@@ -186,7 +187,7 @@ const GuestDashboard = () => {
 
     const difference = totalDebit - totalCredit;
 
-    console.log("difference", difference);
+    // console.log("difference", difference);
     if (Boolean(difference <= 0)) {
       Swal.fire({
         position: "center",
@@ -286,9 +287,10 @@ const GuestDashboard = () => {
     }
   );
 
-  const handleCancelClick = (bookingRefNumber) => {
-    setSelectedBookingRefNumber(bookingRefNumber);
+  const handleCancelClick = (booking) => {
+    setSelectedBookingRefNumber(booking?.bookingRefNumber);
     setCancelBookingOpen(true);
+    setSelectedBooking(booking);
   };
 
   // api call for room cleaning
@@ -730,9 +732,7 @@ const GuestDashboard = () => {
                                               textTransform: "none",
                                             }}
                                             onClick={() => {
-                                              handleCancelClick(
-                                                booking?.bookingRefNumber
-                                              );
+                                              handleCancelClick(booking);
                                               // handleBookingCancel(booking.bookingRefNumber);
                                             }}
                                           >
@@ -1201,6 +1201,7 @@ const GuestDashboard = () => {
 
       <CancelRoomDialog
         open={cancelBookingOpen}
+        selectedBooking={selectedBooking}
         onClose={() => setCancelBookingOpen(false)}
         selectedBookingRefNumber={selectedBookingRefNumber}
       />
@@ -1246,7 +1247,7 @@ function ReviewDialog({ open, handleClose, rateStay, setSnack, orderObj }) {
   const [rating, setRating] = React.useState(0);
   const [review, setReview] = React.useState("");
 
-  console.log("orderObj", orderObj);
+  // console.log("orderObj", orderObj);
   const handleSubmitReview = React.useCallback(
     (event) => {
       event.preventDefault();
@@ -1793,7 +1794,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
   const [openHotelDetailsDialog, setOpenHotelDetailsDialog] =
     React.useState(false);
   const [hotelDetailsData, setHotelDetailsData] = React.useState(null);
-  console.log("hotelDetails", hotelDetails);
+  // console.log("hotelDetails", hotelDetails);
   const handleHotelDetails = (item) => {
     setOpenHotelDetailsDialog(true);
     setHotelDetailsData(item);
@@ -2270,7 +2271,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                 title={
                   <Box>
                     <Box sx={{ display: "flex", flexDirection: "column" }}>
-                      {hotelDetails?.checkAvailableDates.map((item, index) => {
+                      {hotelDetails?.checkAvailableDates?.map((item, index) => {
                         return (
                           <Box sx={{ display: "flex", gap: 1.4 }}>
                             <Typography
@@ -2752,7 +2753,7 @@ export const PaymentDialog = memo(function ({
   setDrawerOpen = () => {},
   handleAfterSuccessFunction = () => {},
 }) {
-  console.log("amount", reservationPayload);
+  // console.log("amount", reservationPayload);
   const [paymentMethod, setPaymentMethod] = React.useState("card");
   const [cardNumber, setCardNumber] = React.useState("");
   const [upiNumber, setUpiNumber] = React.useState("");
@@ -3195,7 +3196,7 @@ const HotelDetailsDialog = memo(function ({
   hotelDetailsData,
   toggleDrawer,
 }) {
-  console.log("hotelDetailsData", hotelDetailsData);
+  // console.log("hotelDetailsData", hotelDetailsData);
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const goToPrevious = () => {
     setCurrentIndex((prevIndex) =>
@@ -3528,7 +3529,13 @@ const HotelDetailsDialog = memo(function ({
   );
 });
 
-const CancelRoomDialog = ({ open, onClose, selectedBookingRefNumber }) => {
+const CancelRoomDialog = ({
+  open,
+  onClose,
+  selectedBookingRefNumber,
+  selectedBooking,
+}) => {
+  console.log("selectedBooking", selectedBooking?.roomType);
   const [rejectionReason, setRejectionReason] = React.useState("");
   const [cancelBooking, cancelBookingRes] = useCancelHotelRoomMutation();
   const [snack, setSnack] = React.useState({
@@ -3536,6 +3543,15 @@ const CancelRoomDialog = ({ open, onClose, selectedBookingRefNumber }) => {
     message: "",
     severity: "",
   });
+
+  const advanceAmount = selectedBooking?.advanceAmount || 0;
+  const cancellationFeePercentage =
+    selectedBooking?.cancellationFeePercentage || 0;
+
+  const cancellationAmount = (advanceAmount * cancellationFeePercentage) / 100;
+  const finalAmount = advanceAmount - cancellationAmount;
+
+  console.log("Final Amount after cancellation:", finalAmount);
 
   const handleDialogClose = () => {
     setRejectionReason("");
@@ -3610,6 +3626,12 @@ const CancelRoomDialog = ({ open, onClose, selectedBookingRefNumber }) => {
               </Typography>
             </Box>
             <Box sx={{ margin: "auto" }}>
+              <Typography
+                sx={{ fontWeight: "bold", color: "red", fontSize: "0.9rem" }}
+              >
+                <sup>*</sup> Cancellation fee of ₹ {finalAmount} will be
+                deducted
+              </Typography>
               <Typography
                 sx={{
                   fontFamily: "'Times New Roman', Times, serif",

@@ -55,7 +55,7 @@ import LoadingComponent from "../../components/LoadingComponent";
 // });
 
 const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
-  console.log("bookingDetails", bookingDetails);
+  // console.log("bookingDetails", bookingDetails);
   // const [cancelBookingOpen, setCancelBookingOpen] = React.useState(false);
   // const [selectedBookingRefNumber, setSelectedBookingRefNumber] =
   //   React.useState(null);
@@ -386,14 +386,25 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                           </Box>
 
                           {booking?.bookingStatus === "Cancelled" && (
-                            <Box sx={{ display: "flex", gap: 1 }}>
-                              <Typography sx={{ fontWeight: "bold" }}>
-                                Cancellation Reason:
+                            <>
+                              <Box sx={{ display: "flex", gap: 1 }}>
+                                <Typography sx={{ fontWeight: "bold" }}>
+                                  Cancellation Reason:
+                                </Typography>
+                                <Typography>
+                                  {booking?.rejectionReason || 0}
+                                </Typography>
+                              </Box>
+                              <Typography
+                                sx={{
+                                  fontWeight: "bold",
+                                  color: "red",
+                                  fontSize: "0.9rem",
+                                }}
+                              >
+                                Cancellation fee of ₹ 100 deducted
                               </Typography>
-                              <Typography>
-                                {booking?.rejectionReason || 0}
-                              </Typography>
-                            </Box>
+                            </>
                           )}
 
                           <Box sx={{ display: "flex", gap: 1 }}>
@@ -729,7 +740,7 @@ function ReviewDialog({ open, handleClose, rateStay, setSnack, orderObj }) {
   const [rating, setRating] = React.useState(0);
   const [review, setReview] = React.useState("");
 
-  console.log("orderObj", orderObj);
+  // console.log("orderObj", orderObj);
   const handleSubmitReview = React.useCallback(
     (event) => {
       event.preventDefault();

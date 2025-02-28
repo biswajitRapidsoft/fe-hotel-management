@@ -69,6 +69,7 @@ const RoomType = () => {
     advanceAmount: "",
     isAdvance: false,
     rewardPoints: "",
+    cancellationFeePercentage: "",
   });
 
   const [extraItemsArr, setExtraItemsArr] = React.useState([]);
@@ -82,6 +83,7 @@ const RoomType = () => {
         basePrice: roomToUpdate?.basePrice,
         advanceAmount: roomToUpdate?.advanceAmount,
         isAdvance: roomToUpdate?.isAdvanceRequired,
+        cancellationFeePercentage: roomToUpdate?.cancellationFeePercentage,
         rewardPoints: roomToUpdate?.rewardsPoints,
       });
 
@@ -143,9 +145,13 @@ const RoomType = () => {
 
   const handleChange = React.useCallback((e) => {
     if (
-      ["capacity", "basePrice", "advanceAmount", "rewardPoints"].includes(
-        e.target.name
-      )
+      [
+        "capacity",
+        "basePrice",
+        "advanceAmount",
+        "rewardPoints",
+        "cancellationFeePercentage",
+      ].includes(e.target.name)
     ) {
       setFormData((prevData) => ({
         ...prevData,
@@ -181,6 +187,7 @@ const RoomType = () => {
       advanceAmount: "",
       isAdvance: false,
       rewardPoints: "",
+      cancellationFeePercentage: "",
     });
     setExtraItemsArr([]);
     setUploadedImageArr([]);
@@ -204,7 +211,12 @@ const RoomType = () => {
         String(formData?.capacity || "").trim() &&
         String(formData?.basePrice || "").trim() &&
         String(formData?.rewardPoints || "").trim() &&
-        (!formData?.isAdvance || String(formData?.advanceAmount || "").trim())
+        (!formData?.isAdvance ||
+          String(
+            formData?.advanceAmount ||
+              String(formData?.cancellationFeePercentage) ||
+              ""
+          ).trim())
     );
   }, [formData]);
 
@@ -237,6 +249,7 @@ const RoomType = () => {
           companyId: JSON.parse(sessionStorage.getItem("data")).companyId,
           isAdvanceRequired: formData.isAdvance,
           advanceAmount: formData.advanceAmount,
+          cancellationFeePercentage: Number(formData.cancellationFeePercentage),
           rewardsPoints: formData.rewardPoints,
           imageUrl: uploadedImageArr.join(","),
           extraItemsListDto: extraItemsArr.map((extra) => ({
@@ -274,6 +287,7 @@ const RoomType = () => {
           companyId: JSON.parse(sessionStorage.getItem("data")).companyId,
           isAdvanceRequired: formData.isAdvance,
           advanceAmount: formData.advanceAmount,
+          cancellationFeePercentage: Number(formData.cancellationFeePercentage),
           rewardsPoints: formData.rewardPoints,
           imageUrl: uploadedImageArr.join(","),
           extraItemsListDto: extraItemsArr.map((extra) => ({
@@ -477,6 +491,29 @@ const RoomType = () => {
                 }
                 name="advanceAmount"
                 value={formData.advanceAmount}
+                onChange={handleChange}
+                variant="standard"
+              />
+            </Grid>
+          )}
+          {formData.isAdvance && (
+            <Grid size={3}>
+              <TextField
+                label={
+                  <React.Fragment>
+                    Cancellation Fee Percentage{" "}
+                    <Box
+                      component="span"
+                      sx={{
+                        color: (theme) => theme.palette.error.main,
+                      }}
+                    >
+                      *
+                    </Box>
+                  </React.Fragment>
+                }
+                name="cancellationFeePercentage"
+                value={formData.cancellationFeePercentage}
                 onChange={handleChange}
                 variant="standard"
               />
