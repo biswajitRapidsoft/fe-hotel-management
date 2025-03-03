@@ -22,6 +22,7 @@ import {
   DialogActions,
   Grid2 as Grid,
   Chip,
+  Button,
 } from "@mui/material";
 import { BootstrapDialog } from "../header/Header";
 
@@ -59,6 +60,7 @@ const tableHeader = [
 ];
 
 const HotelListTable = ({ setHotelToUpdate }) => {
+  const navigate = useNavigate();
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
@@ -108,12 +110,39 @@ const HotelListTable = ({ setHotelToUpdate }) => {
             },
           ]}
         >
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: "bold", letterSpacing: 1 }}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between  ",
+              width: "100%",
+              alignItems: "center",
+            }}
           >
-            Hotel List
-          </Typography>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", letterSpacing: 1 }}
+            >
+              Hotel List
+            </Typography>
+            <Button
+              color="secondary"
+              variant="contained"
+              size="small"
+              sx={{
+                color: "#fff",
+                fontWeight: 600,
+                textTransform: "none",
+                fontSize: 18,
+                "&.Mui-disabled": {
+                  background: "#B2E5F6",
+                  color: "#FFFFFF",
+                },
+              }}
+              onClick={() => navigate("/ConfigurePrice")}
+            >
+              Configure Price
+            </Button>
+          </Box>
         </Toolbar>
         <TableContainer sx={{ maxHeight: 600 }}>
           <Table stickyHeader>

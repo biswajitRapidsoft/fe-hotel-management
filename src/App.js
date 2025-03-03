@@ -114,6 +114,10 @@ const StockManagement = React.lazy(() =>
 const BarStockManagement = React.lazy(() =>
   import("./features/stockManagement/BarStockManagement")
 );
+
+const ConfigurePrice = React.lazy(() =>
+  import("./features/hotel/ConfigurePrice")
+);
 function App() {
   const location = useLocation();
   // console.log("hello3", location);
@@ -175,6 +179,7 @@ function App() {
             />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route path="/hotel-list" element={<HotelList />} />
+            <Route path="/ConfigurePrice" element={<ConfigurePrice />} />
             <Route path="/room-type" element={<RoomType />} />
             <Route path="/extra-item" element={<ExtraItem />} />
             <Route path="/employee-list" element={<EmployeeList />} />

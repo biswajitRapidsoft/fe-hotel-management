@@ -76,6 +76,10 @@ const config = Object.freeze({
     saveBarItem: "api/save/bar/items",
     saveCompany: "api/save/company",
     getAllCompany: "api/get/all/company",
+    getAllConfiguredPrices: "api/get/hotel/room-type/price-config",
+    updateConfiguredPrices: "api/hotel/room-type/price-config/save",
+    getAllConfiguredPricesTableData: "api/get/price-config/room/type",
+    updateConfigurationStatus: "api/dynamic-price-configuration/update-status",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",

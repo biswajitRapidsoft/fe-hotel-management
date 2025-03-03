@@ -72,16 +72,6 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
     message: "",
     severity: "",
   });
-  // const [makePartialPayment, makePartialPaymentRes] =
-  //   useMakePartialPaymentMutation();
-  // const [requestRoomCheckout, requestRoomCheckoutRes] =
-  //   useRequestRoomCheckoutMutation();
-  // const [roomCleanRequest, roomCleanRequestRes] = useRoomCleanRequestMutation();
-  // const [makePartialPaymentPayload, setMakePartialPaymentPayload] =
-  //   React.useState(null);
-  // const [cancelBooking, cancelBookingRes] = useCancelHotelRoomMutation();
-
-  // const navigate = useNavigate();
 
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
@@ -359,7 +349,6 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                               {booking?.bookingRefNumber || "N/A"}
                             </Typography>
                           </Box>
-
                           <Box
                             sx={{
                               display: "flex",
@@ -384,7 +373,6 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                               </Typography>
                             </Box>
                           </Box>
-
                           {booking?.bookingStatus === "Cancelled" && (
                             <>
                               <Box sx={{ display: "flex", gap: 1 }}>
@@ -402,11 +390,15 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                                   fontSize: "0.9rem",
                                 }}
                               >
-                                Cancellation fee of ₹ 100 deducted
+                                Cancellation fee of ₹{" "}
+                                {(booking?.roomType?.advanceAmount *
+                                  booking?.roomType
+                                    ?.cancellationFeePercentage) /
+                                  100}
+                                deducted
                               </Typography>
                             </>
                           )}
-
                           <Box sx={{ display: "flex", gap: 1 }}>
                             {/* {booking.bookingStatus === "Booked" && ( */}
                             {/* {booking?.bookingStatus ===

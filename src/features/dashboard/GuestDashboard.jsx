@@ -3626,12 +3626,15 @@ const CancelRoomDialog = ({
               </Typography>
             </Box>
             <Box sx={{ margin: "auto" }}>
-              <Typography
-                sx={{ fontWeight: "bold", color: "red", fontSize: "0.9rem" }}
-              >
-                <sup>*</sup> Cancellation fee of ₹ {finalAmount} will be
-                deducted
-              </Typography>
+              {Boolean(selectedBooking?.cancellationFeePercentage) && (
+                <Typography
+                  sx={{ fontWeight: "bold", color: "red", fontSize: "0.9rem" }}
+                >
+                  <sup>*</sup> Cancellation fee of ₹ {finalAmount} will be
+                  deducted
+                </Typography>
+              )}
+
               <Typography
                 sx={{
                   fontFamily: "'Times New Roman', Times, serif",

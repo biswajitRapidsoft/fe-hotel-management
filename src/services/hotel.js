@@ -171,6 +171,43 @@ const hotelApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["getBarItemTypeByCompanyId"],
     }),
+    getAllConfiguredPrices: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllConfiguredPrices,
+        method: "GET",
+        params: {
+          companyId: payload.companyId,
+          fromDate: payload.fromDate,
+          toDate: payload.toDate,
+        },
+      }),
+      providesTags: ["getAllConfiguredPrices"],
+    }),
+    updateConfiguredPrices: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.updateConfiguredPrices,
+        method: "POST",
+        data: payload,
+      }),
+    }),
+    getAllConfiguredPricesTableData: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllConfiguredPricesTableData,
+        method: "GET",
+        params: {
+          companyId: payload.companyId,
+        },
+      }),
+      providesTags: ["getAllConfiguredPricesTableData"],
+    }),
+    updateConfigurationStatus: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.updateConfigurationStatus,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllConfiguredPricesTableData"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -195,4 +232,8 @@ export const {
   useAddBarMasterDiningTypeMutation,
   useGetBarSubmenuTypeByMenuIdQuery,
   useSaveBarItemMutation,
+  useGetAllConfiguredPricesQuery,
+  useUpdateConfiguredPricesMutation,
+  useGetAllConfiguredPricesTableDataQuery,
+  useUpdateConfigurationStatusMutation,
 } = hotelApi;
