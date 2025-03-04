@@ -717,8 +717,11 @@ const GuestDashboard = () => {
                                       }}
                                     >
                                       <Box sx={{ display: "flex", gap: 1 }}>
-                                        {booking?.bookingStatus ===
-                                          "Pending_Confirmation" && (
+                                        {Boolean(
+                                          booking?.bookingStatus ===
+                                            "Pending_Confirmation" ||
+                                            booking?.bookingStatus === "Booked"
+                                        ) && (
                                           <Button
                                             variant="contained"
                                             sx={{
@@ -1786,6 +1789,7 @@ const CustomRoomFilters = memo(function ({
     </>
   );
 });
+
 const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
   const [isClaimPoints, setIsClaimPoints] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
@@ -1794,7 +1798,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
   const [openHotelDetailsDialog, setOpenHotelDetailsDialog] =
     React.useState(false);
   const [hotelDetailsData, setHotelDetailsData] = React.useState(null);
-  // console.log("hotelDetails", hotelDetails);
+  console.log("hotelDetails", hotelDetails);
   const handleHotelDetails = (item) => {
     setOpenHotelDetailsDialog(true);
     setHotelDetailsData(item);
@@ -1966,10 +1970,20 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
       roomTypeId: hotelDetails?.id,
       hotelId: hotelDetails?.hotelDto?.id,
       paidAmount: formData.advancePayment,
-      bookingAmount: isClaimPoints
+      // bookingAmount: isClaimPoints
+      //   ? hotelDetails.basePrice * calculateNumberOfDays -
+      //       userDetails?.data?.rewardsPointPrice || 0
+      //   : calculateNumberOfDays * Number(hotelDetails?.basePrice),
+      bookingAmount: hotelDetails?.configurationPrice
+        ? isClaimPoints
+          ? hotelDetails.configurationPrice * calculateNumberOfDays -
+            (userDetails?.data?.rewardsPointPrice || 0)
+          : calculateNumberOfDays * Number(hotelDetails.configurationPrice)
+        : isClaimPoints
         ? hotelDetails.basePrice * calculateNumberOfDays -
-            userDetails?.data?.rewardsPointPrice || 0
+          (userDetails?.data?.rewardsPointPrice || 0)
         : calculateNumberOfDays * Number(hotelDetails?.basePrice),
+
       isRewardsPointsUsed: isClaimPoints,
       noOfRewardsPointsUsed: userDetails?.data?.noOfRewardsPointsAvailable,
       rewardsPointPrice: userDetails?.data?.rewardsPointPrice,
@@ -2342,9 +2356,48 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
               <Typography sx={{ color: "gray" }}>
                 {hotelDetails?.type}
               </Typography>
-              <Typography>
-                <strong>₹{hotelDetails?.basePrice}</strong> per night
-              </Typography>
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <Box sx={{ display: "flex ", flexDirection: "column" }}>
+                  {hotelDetails?.configurationPrice && (
+                    <Typography sx={{ fontWeight: "bold" }}>
+                      ₹{hotelDetails?.configurationPrice}
+                    </Typography>
+                  )}
+
+                  <Typography
+                    sx={{
+                      textDecoration: Boolean(hotelDetails?.configurationPrice)
+                        ? "line-through"
+                        : "",
+                      color: Boolean(hotelDetails?.configurationPrice)
+                        ? "gray"
+                        : "black",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    ₹{hotelDetails?.basePrice}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "flex-end",
+                  }}
+                >
+                  <Typography>per night</Typography>
+                </Box>
+              </Box>
+              {/* <Typography>
+                <span
+                  style={{
+                    fontWeight: "bold",
+                    textDecoration: "line-through",
+                  }}
+                >
+                  ₹{hotelDetails?.basePrice}
+                </span>
+                per night
+              </Typography> */}
             </Box>
             <Box sx={{ display: "flex", marginY: "auto" }}>
               <Button
@@ -2690,6 +2743,57 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                     )}
                   </Box>
                 </Grid>
+
+                {Boolean(hotelDetails?.priceConfigurationDto?.length > 0) && (
+                  <Grid size={{ xs: 12 }}>
+                    <Box
+                    // sx={{ maxHeight: "100px", overflow: "auto" }}
+                    >
+                      <Box
+                        sx={{
+                          backgroundColor: "#b7410e",
+                          backgroundImage:
+                            " linear-gradient(316deg, #b7410e 0%, #FF5349 74%)",
+                          p: 1.4,
+                          borderRadius: "0.4rem",
+                        }}
+                      >
+                        <Typography sx={{ color: "#fff", fontWeight: "bold" }}>
+                          Lower Prices on these dates
+                        </Typography>
+                      </Box>
+                      {hotelDetails?.priceConfigurationDto.map(
+                        (item, index) => {
+                          return (
+                            <Paper
+                              sx={{
+                                display: "flex",
+                                gap: 2,
+                                mt: 0.4,
+                                p: 1,
+                                // boxShadow: " rgba(149, 157, 165, 0.2) 0px 8px 24px",
+                                backgroundColor: "#D3D3D3	",
+                              }}
+                            >
+                              <Typography>
+                                {/* {moment(item?.startDate).format(
+                                  "DD/MM/YYYY hh:mma"
+                                ) -
+                                  moment(item?.endDate).format(
+                                    "DD/MM/YYYY hh:mma"
+                                  )} */}
+                                {dayjs(item?.startDate).format("DD-MM-YYYY")} -{" "}
+                                {dayjs(item?.endDate).format("DD-MM-YYYY")}
+                                {/* {item?.startDate}-{item?.endDate} */}
+                              </Typography>
+                              <Typography>₹ {item?.price}</Typography>
+                            </Paper>
+                          );
+                        }
+                      )}
+                    </Box>
+                  </Grid>
+                )}
               </Grid>
             </Box>
           </Box>
@@ -3535,7 +3639,7 @@ const CancelRoomDialog = ({
   selectedBookingRefNumber,
   selectedBooking,
 }) => {
-  console.log("selectedBooking", selectedBooking?.roomType);
+  console.log("selectedBooking", selectedBooking?.roomType?.advanceAmount);
   const [rejectionReason, setRejectionReason] = React.useState("");
   const [cancelBooking, cancelBookingRes] = useCancelHotelRoomMutation();
   const [snack, setSnack] = React.useState({
@@ -3551,7 +3655,7 @@ const CancelRoomDialog = ({
   const cancellationAmount = (advanceAmount * cancellationFeePercentage) / 100;
   const finalAmount = advanceAmount - cancellationAmount;
 
-  console.log("Final Amount after cancellation:", finalAmount);
+  console.log("Final Amount after cancellation:", advanceAmount);
 
   const handleDialogClose = () => {
     setRejectionReason("");
@@ -3626,14 +3730,26 @@ const CancelRoomDialog = ({
               </Typography>
             </Box>
             <Box sx={{ margin: "auto" }}>
-              {Boolean(selectedBooking?.cancellationFeePercentage) && (
-                <Typography
-                  sx={{ fontWeight: "bold", color: "red", fontSize: "0.9rem" }}
-                >
-                  <sup>*</sup> Cancellation fee of ₹ {finalAmount} will be
-                  deducted
-                </Typography>
-              )}
+              {Boolean(selectedBooking?.roomType?.isAdvanceRequired) &&
+                Boolean(selectedBooking?.roomType?.cancellationFeePercentage) &&
+                Boolean(selectedBooking?.bookingStatus === "Booked") && (
+                  <Typography
+                    sx={{
+                      fontWeight: "bold",
+                      color: "red",
+                      fontSize: "0.9rem",
+                    }}
+                  >
+                    <sup>*</sup>
+                    Cancellation fee of ₹{" "}
+                    {(selectedBooking?.roomType?.advanceAmount *
+                      selectedBooking?.roomType?.cancellationFeePercentage) /
+                      100}{" "}
+                    will be deducted
+                    {/* <sup>*</sup> Cancellation fee of ₹ {finalAmount} will be */}
+                    {/* deducted */}
+                  </Typography>
+                )}
 
               <Typography
                 sx={{

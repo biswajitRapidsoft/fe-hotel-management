@@ -3675,7 +3675,8 @@ const CustomFormDrawer = memo(function ({
   handleSubmitRoomBookingCanelation,
   handleSubmitBookingForGuestByFrontDesk,
 }) {
-  console.log("CustomFormDrawer customDrawerOpen : ", customDrawerOpen, type);
+  // console.log("CustomFormDrawer customDrawerOpen : ", customDrawerOpen, type);
+  console.log("customFormDrawerData", customFormDrawerData);
 
   // const numberOfDaysOfStay = useMemo(() => {
   //   if (customFormDrawerData?.checkOutDate) {
@@ -8620,7 +8621,10 @@ const Dashboard = () => {
               roomDto: inputValue,
               isAdvanceRequired:
                 inputValue?.roomType?.isAdvanceRequired || false,
-              roomBasePrice: inputValue?.roomType?.basePrice || 0,
+              // roomBasePrice: inputValue?.roomType?.basePrice || 0,
+              roomBasePrice: Boolean(inputValue?.roomType?.configurationPrice)
+                ? inputValue?.roomType?.configurationPrice
+                : inputValue?.roomType?.basePrice,
               advanceAmount: inputValue?.roomType?.advanceAmount || 0,
             }));
           }

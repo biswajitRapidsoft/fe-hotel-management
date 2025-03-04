@@ -159,6 +159,7 @@ const HotelList = () => {
                 roomType: {
                   id: room.roomType.id,
                 },
+                // noOfKeys: room.noOfKeys,
               })),
             };
           }),
@@ -206,6 +207,7 @@ const HotelList = () => {
                 roomType: {
                   id: room.roomType.id,
                 },
+                noOfKeys: room.noOfKeys,
               })),
             };
           }),
@@ -887,14 +889,15 @@ function FloorFormComponent({
 }) {
   const [selectedTab, setSelectedTab] = React.useState("byRoomNumber");
 
-  console.log("selectedTab", selectedTab);
+  console.log("floor.....", floor);
   const [formData, setFormData] = React.useState({
     roomNumber: "",
     selectedRoomType: null,
     selectedRoomTypeInputVal: "",
+    noOfKeys: "",
   });
   const [floorRoomToUpdate, setFloorRoomToUpdate] = React.useState(null);
-  console.log("floorRoomToUpdate", floorRoomToUpdate);
+  // console.log("floorRoomToUpdate", floorRoomToUpdate);
 
   const handleChange = React.useCallback(
     (e) => {
@@ -928,6 +931,7 @@ function FloorFormComponent({
       roomNumber: "",
       selectedRoomType: null,
       selectedRoomTypeInputVal: "",
+      noOfKeys: "",
     });
   }, []);
 
@@ -1067,6 +1071,7 @@ function FloorFormComponent({
                       ...room,
                       roomNumber: formData.roomNumber || room.roomNumber,
                       roomType: formData.selectedRoomType,
+                      noOfKeys: formData.noOfKeys,
                     }
                   : room
               ),
@@ -1080,6 +1085,7 @@ function FloorFormComponent({
                   id: uuidv4(),
                   roomNumber: formData.roomNumber,
                   roomType: formData.selectedRoomType,
+                  noOfKeys: formData.noOfKeys,
                 },
               ],
             });
@@ -1098,6 +1104,7 @@ function FloorFormComponent({
                 id: uuidv4(),
                 roomNumber: newRoomNumber,
                 roomType: formData.selectedRoomType,
+                noOfKeys: formData.noOfKeys,
               });
             }
           }
@@ -1326,7 +1333,31 @@ function FloorFormComponent({
               )}
             />
           </Grid>
-          <Grid size={6}>
+          <Grid size={3}>
+            <TextField
+              label={
+                <React.Fragment>
+                  No. of keys
+                  <Box
+                    component="span"
+                    sx={{
+                      color: (theme) => theme.palette.error.main,
+                    }}
+                  >
+                    *
+                  </Box>
+                </React.Fragment>
+              }
+              name="noOfKeys"
+              value={formData.noOfKeys}
+              onChange={handleChange}
+              inputProps={{
+                maxLength: 3,
+              }}
+              variant="standard"
+            />
+          </Grid>
+          <Grid size={3}>
             <Button
               color="secondary"
               variant="contained"
@@ -1372,6 +1403,7 @@ function FloorFormComponent({
                         <TableCell>S.No.</TableCell>
                         <TableCell>Room Number</TableCell>
                         <TableCell>Room Type</TableCell>
+                        <TableCell>No. of keys</TableCell>
                         <TableCell>Action</TableCell>
                       </TableRow>
                     </TableHead>
@@ -1390,6 +1422,7 @@ function FloorFormComponent({
                             <TableCell>{index + 1}</TableCell>
                             <TableCell>{room.roomNumber}</TableCell>
                             <TableCell>{room.roomType.type}</TableCell>
+                            <TableCell>{room.noOfKeys}</TableCell>
                             <TableCell>
                               {typeof room.id === "string" && (
                                 <Box

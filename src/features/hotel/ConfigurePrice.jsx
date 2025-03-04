@@ -186,7 +186,7 @@ const ConfigurePrice = () => {
           });
         });
     },
-    [updateConfigStatus]
+    [updateConfigStatus, handleCloseDialog]
   );
   const handleSubmit = React.useCallback(
     (e) => {
