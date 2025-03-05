@@ -2294,11 +2294,17 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                               {item.date}:
                             </Typography>
                             <Typography
-                              sx={{ fontWeight: "bold", color: "#17B169" }}
+                              sx={{
+                                fontWeight: "bold",
+                                //  color: "#17B169"
+                                color: Boolean(item.available === true)
+                                  ? "#17B169"
+                                  : "#AA0000",
+                              }}
                             >
                               {item.available === true
                                 ? "Available"
-                                : "Partially Available"}
+                                : " Unavailable"}
                             </Typography>
                           </Box>
                         );
@@ -2310,8 +2316,15 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                 <InfoIcon
                   sx={{
                     cursor: "pointer",
-                    color: "#17B169	",
-                    // color: "#D27D2D		",
+                    color: hotelDetails?.checkAvailableDates?.every(
+                      (item) => item.available === false
+                    )
+                      ? "#AA0000"
+                      : hotelDetails?.checkAvailableDates?.some(
+                          (item) => item.available === false
+                        )
+                      ? "#D27D2D"
+                      : "#17B169",
                   }}
                 />
               </CustomTooltip>

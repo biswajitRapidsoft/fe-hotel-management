@@ -107,6 +107,7 @@ const SpaTypeListTable = ({ saveSpaType, setSpaToUpdate }) => {
                 <TableCell>Base Amount</TableCell>
                 <TableCell>Hotel</TableCell>
                 <TableCell>Is Advance Required</TableCell>
+                <TableCell>Advance Percentage</TableCell>
                 <TableCell>Images</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell>Action</TableCell>
@@ -123,6 +124,7 @@ const SpaTypeListTable = ({ saveSpaType, setSpaToUpdate }) => {
                     <TableCell>
                       {spaType.isAdvanceNeeded ? "Yes" : "No"}
                     </TableCell>
+                    <TableCell>{spaType?.advancePaymentPercentage}</TableCell>
                     <TableCell
                     //  sx={{ display: "flex", alignItems: "center" }}
                     >

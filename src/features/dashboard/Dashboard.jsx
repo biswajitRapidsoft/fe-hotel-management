@@ -8219,12 +8219,40 @@ const Dashboard = () => {
     []
   );
 
+  // const handleRoomSelect = useCallback((selectedRoom) => {
+  //   console.log("selectedRoom in room select", selectedRoom);
+  //   setIsSelectedRoom((prevState) => {
+  //     if (!selectedRoom || prevState?.id === selectedRoom?.id) {
+  //       return null;
+  //     }
+  //     return {
+  //       ...selectedRoom,
+  //       bookingDto:
+  //         selectedRoom.bookingList.find((item) => item.fromDate === ite) || null,
+  //     };
+  //     // return selectedRoom;
+  //   });
+  // }, []);
   const handleRoomSelect = useCallback((selectedRoom) => {
+    console.log("selectedRoom in room select", selectedRoom);
+
     setIsSelectedRoom((prevState) => {
       if (!selectedRoom || prevState?.id === selectedRoom?.id) {
         return null;
       }
-      return selectedRoom;
+
+      const today = dayjs().format("DD-MM-YYYY");
+      console.log("today", today);
+
+      return {
+        ...selectedRoom,
+        bookingDto:
+          selectedRoom.bookingList?.find(
+            (booking) =>
+              // booking.bookingStatus === "Booked" &&
+              booking.fromDate === today
+          ) || null,
+      };
     });
   }, []);
 

@@ -661,7 +661,7 @@ const Bar = () => {
                 })}
               </TabList>
             </TabContext>
-            <FormGroup row>
+            {/* <FormGroup row>
               <FormControlLabel
                 control={
                   <Checkbox
@@ -688,7 +688,7 @@ const Bar = () => {
                   />
                 );
               })}
-            </FormGroup>
+            </FormGroup> */}
           </Box>
           <Grid container spacing={2}>
             {getFilterdMenuList(menuList.data, mealType, foodType).map(

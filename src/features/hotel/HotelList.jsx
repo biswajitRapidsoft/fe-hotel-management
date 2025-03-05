@@ -415,6 +415,7 @@ const HotelList = () => {
                 id: room.id,
                 roomNumber: room.roomNo,
                 roomType: room.roomType,
+                isActive: room.isActive,
               };
             }),
           };
@@ -427,7 +428,7 @@ const HotelList = () => {
       );
     }
   }, [hotelToUpdate, stateList.data, cityList.data]);
-
+  console.log(floorList, "floorListttt");
   return (
     <Container>
       <Box
@@ -830,6 +831,7 @@ const HotelList = () => {
                 handleDeleteFloor={handleDeleteFloor}
                 floorIndex={index}
                 setSnack={setSnack}
+                hotelToUpdate={hotelToUpdate}
               />
             );
           })}
@@ -886,9 +888,10 @@ function FloorFormComponent({
   handleDeleteFloor,
   floorIndex,
   setSnack,
+  hotelToUpdate,
 }) {
   const [selectedTab, setSelectedTab] = React.useState("byRoomNumber");
-
+  // console.log("hotelToUpdate", floor);
   console.log("floor.....", floor);
   const [formData, setFormData] = React.useState({
     roomNumber: "",
@@ -1404,6 +1407,7 @@ function FloorFormComponent({
                         <TableCell>Room Number</TableCell>
                         <TableCell>Room Type</TableCell>
                         <TableCell>No. of keys</TableCell>
+                        <TableCell>Status</TableCell>
                         <TableCell>Action</TableCell>
                       </TableRow>
                     </TableHead>
@@ -1423,6 +1427,14 @@ function FloorFormComponent({
                             <TableCell>{room.roomNumber}</TableCell>
                             <TableCell>{room.roomType.type}</TableCell>
                             <TableCell>{room.noOfKeys}</TableCell>
+                            <TableCell>
+                              {Boolean(hotelToUpdate)
+                                ? Boolean(room?.isActive)
+                                  ? "Active"
+                                  : "In-Active"
+                                : "Active"}
+                              {/* {Boolean(room?.isActive) ? "Active" : "In-Active"} */}
+                            </TableCell>
                             <TableCell>
                               {typeof room.id === "string" && (
                                 <Box

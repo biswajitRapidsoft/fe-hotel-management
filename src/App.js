@@ -118,6 +118,17 @@ const BarStockManagement = React.lazy(() =>
 const ConfigurePrice = React.lazy(() =>
   import("./features/hotel/ConfigurePrice")
 );
+
+const FoodInvoiceInBookingHistory = React.lazy(() =>
+  import("./features/foodInvoice/FoodInvoiceInBookingHistory")
+);
+const SpaInvoiceInBookingHistory = React.lazy(() =>
+  import("./features/spa/SpaInvoiceInBookingHistory")
+);
+const BarInvoiceInBookingHistory = React.lazy(() =>
+  import("./features/BarInvoice/BarInvoiceInBookingHistory")
+);
+
 function App() {
   const location = useLocation();
   // console.log("hello3", location);
@@ -160,6 +171,10 @@ function App() {
             element={<FoodInvoice key="food-bill" />}
           />
           <Route
+            path="/foodBillInvoiceInBookingHistory/:bookingRefNo"
+            element={<FoodInvoiceInBookingHistory key="food-billHistory" />}
+          />
+          <Route
             path="/BarInvoice/:bookingRefNo"
             element={<BarInvoice key="food-bill" />}
           />
@@ -167,6 +182,14 @@ function App() {
           <Route
             path="/SpaInvoiceForFrontesk/:bookingRefNo"
             element={<SpaInvoiceForFrontesk />}
+          />
+          <Route
+            path="/SpaInvoiceInBookingHistory/:bookingRefNo"
+            element={<SpaInvoiceInBookingHistory />}
+          />
+          <Route
+            path="/BarInvoiceInBookingHistory/:bookingRefNo"
+            element={<BarInvoiceInBookingHistory />}
           />
           <Route element={<SuperLayout />}>
             <Route

@@ -85,8 +85,19 @@ const SpaType = () => {
     setUploadedImageArr([]);
   }, []);
 
+  // const isFormValid = React.useCallback(() => {
+  //   return Boolean(formData.spaType.trim() && formData.basePrice);
+  // }, [formData]);
   const isFormValid = React.useCallback(() => {
-    return Boolean(formData.spaType.trim() && formData.basePrice);
+    if (!formData.spaType.trim() || !formData.basePrice) {
+      return false;
+    }
+
+    if (formData.isAdvance && !formData.advancePercentage) {
+      return false;
+    }
+
+    return true;
   }, [formData]);
 
   const handleSubmit = React.useCallback(

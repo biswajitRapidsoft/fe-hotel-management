@@ -20,6 +20,9 @@ import {
   Toolbar,
   Typography,
   InputAdornment,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
 } from "@mui/material";
 
 import InfoIcon from "@mui/icons-material/Info";
@@ -315,12 +318,19 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
     ImageUrl: "",
     selectedFoodType: null,
     selectedFoodTypeInputVal: "",
-    consumeType: null,
-    consumeTypeInputVal: "",
+    // consumeType: null,
+    // consumeTypeInputVal: "",
+    consumeType: "Food",
   });
 
   const [uploadedImageArr, setUploadedImageArr] = React.useState([]);
 
+  const handleCheckboxChange = (e) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      consumeType: e.target.value,
+    }));
+  };
   const handleChange = React.useCallback((e) => {
     if (e.target.name === "perUnitPrice") {
       setFormData((prevData) => ({
@@ -411,7 +421,7 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
     return Boolean(
       formData.itemName.trim() &&
         formData.perUnitPrice &&
-        formData.selectedFoodType &&
+        // formData.selectedFoodType &&
         formData.consumeType
     );
   }, [formData]);
@@ -426,7 +436,8 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
         price: formData.perUnitPrice,
         consumeType: formData.consumeType,
         // foodType: "Alcoholic",
-        subMenuId: formData.selectedFoodType.id,
+        // subMenuId: formData.selectedFoodType.id,
+        subMenuId: 1,
         hotelId: sessionStorage.getItem("hotelIdForBarItem"),
         isActive: itemToUpdate ? itemToUpdate.isActive : null,
       })
@@ -618,7 +629,7 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
                   variant="standard"
                 />
               </Grid>
-              <Grid size={3}>
+              {/* <Grid size={3}>
                 <Autocomplete
                   // disabled={Boolean(hotelToUpdate)}
                   options={barSubMenuList.data}
@@ -688,8 +699,43 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
                     />
                   )}
                 />
+              </Grid> */}
+
+              <Grid size={6}>
+                {/* <FormGroup row> */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    //  justifyContent: "space-evenly"
+                    gap: 2,
+                    pl: 2,
+                    alignItems: "center",
+                  }}
+                >
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={formData.consumeType === "Drink"}
+                        onChange={handleCheckboxChange}
+                        value="Drink"
+                      />
+                    }
+                    label="Drink"
+                  />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={formData.consumeType === "Food"}
+                        onChange={handleCheckboxChange}
+                        value="Food"
+                      />
+                    }
+                    label="Food"
+                  />
+                </Box>
+                {/* </FormGroup> */}
               </Grid>
-              <Grid size={3}>
+              {/* <Grid size={3}>
                 <Autocomplete
                   // disabled={Boolean(hotelToUpdate)}
                   options={["Drink", "Food"]}
@@ -759,7 +805,7 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
                     />
                   )}
                 />
-              </Grid>
+              </Grid> */}
               <Grid size={3}>
                 <TextField
                   type="file"
