@@ -80,6 +80,7 @@ const filterBookingRooms = (
   bookingRoomsTableData,
   bookingConfirmationFormData
 ) => {
+  console.log(bookingConfirmationFormData, "formDataaaaa");
   // console.log(
   //   "filterBookingRooms bookingRoomsTableData; ",
   //   bookingRoomsTableData
@@ -3137,6 +3138,10 @@ const FrontdeskBookingHistory = () => {
       bookingConfirmationFormData
     );
   }, [getRoomsByRoomTypeData?.data, bookingConfirmationFormData]);
+
+  // const filteredRooms = useMemo(() => {
+  //   return getRoomsByRoomTypeData?.data;
+  // }, [getRoomsByRoomTypeData?.data]);
 
   const [confirmBookingByFrontDesk, confirmBookingByFrontDeskRes] =
     useConFirmBookingMutation();

@@ -258,7 +258,7 @@ const dashboardApi = apiSlice.injectEndpoints({
         method: "GET",
         params: {
           hotelId: payload?.hotelId,
-          dateFilterKey: payload?.dateFilterKey,
+          fromDate: payload?.fromDate,
         },
       }),
       providesTags: ["getAllRoomListByHotelId"],
