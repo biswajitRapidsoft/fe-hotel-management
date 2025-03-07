@@ -37,7 +37,6 @@ const Employee = () => {
     { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN }
   );
 
-  console.log("roleList", roleList?.data);
   const {
     data: hotelList = {
       data: [],
@@ -56,7 +55,6 @@ const Employee = () => {
     selectedHotelInputVal: "",
     phoneNo: "",
   });
-
   // const handleChange = React.useCallback((e) => {
   //   setFormData((prevData) => ({
   //     ...prevData,
@@ -130,9 +128,9 @@ const Employee = () => {
 
   const isFormValid = React.useCallback(() => {
     return Boolean(
-      formData.name.trim() &&
-        formData.email.trim() &&
-        formData.phoneNo.trim() &&
+      formData?.name?.trim() &&
+        formData?.email?.trim() &&
+        formData?.phoneNo?.trim() &&
         formData.selectedRole &&
         formData.selectedHotel
     );

@@ -85,6 +85,8 @@ const dashboardApi = apiSlice.injectEndpoints({
           priceRange: payload.priceRange,
           fromDate: payload.fromDate,
           toDate: payload.toDate,
+          cityId: payload.cityId,
+          stateId: payload.stateId,
         },
       }),
     }),

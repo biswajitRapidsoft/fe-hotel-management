@@ -35,6 +35,7 @@ const SpaType = () => {
     basePrice: "",
     isAdvance: false,
     advancePercentage: "",
+    description: "",
   });
 
   const [saveSpaType, saveSpaTypeRes] = useSaveSpaTypeMutation();
@@ -81,6 +82,7 @@ const SpaType = () => {
       basePrice: "",
       isAdvance: false,
       advancePercentage: "",
+      description: "",
     });
     setUploadedImageArr([]);
   }, []);
@@ -113,6 +115,7 @@ const SpaType = () => {
         advancePaymentPercentage: formData.advancePercentage,
         id: Boolean(spaToUpdate) ? spaToUpdate.id : "",
         isActive: Boolean(spaToUpdate) ? spaToUpdate.isActive : true,
+        description: formData.description,
       })
         .unwrap()
         .then((res) => {
@@ -141,6 +144,7 @@ const SpaType = () => {
         basePrice: spaToUpdate?.price,
         isAdvance: Boolean(spaToUpdate?.isAdvanceNeeded),
         advancePercentage: spaToUpdate?.advancePaymentPercentage,
+        description: spaToUpdate.description,
       });
     }
   }, [spaToUpdate]);
@@ -332,6 +336,28 @@ const SpaType = () => {
               inputProps={{
                 maxLength: 10,
               }}
+              variant="standard"
+            />
+          </Grid>{" "}
+          <Grid size={3}>
+            <TextField
+              label={
+                <React.Fragment>
+                  Description
+                  <Box
+                    component="span"
+                    sx={{
+                      color: (theme) => theme.palette.error.main,
+                    }}
+                  >
+                    *
+                  </Box>
+                </React.Fragment>
+              }
+              inputProps={{ maxLength: 50 }}
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
               variant="standard"
             />
           </Grid>

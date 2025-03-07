@@ -667,6 +667,12 @@ export function UploadImageFormComponent({
               }}
               variant="standard"
               autoComplete="off"
+              helperText={
+                <>
+                  <span style={{ color: "red" }}>*</span> png,jpeg,jpg
+                  extensions allowed
+                </>
+              }
             />
           </Grid>
           <Grid size={9}>

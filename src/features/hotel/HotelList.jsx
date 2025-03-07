@@ -159,7 +159,7 @@ const HotelList = () => {
                 roomType: {
                   id: room.roomType.id,
                 },
-                // noOfKeys: room.noOfKeys,
+                noOfKeys: room.noOfKeys,
               })),
             };
           }),
@@ -416,6 +416,7 @@ const HotelList = () => {
                 roomNumber: room.roomNo,
                 roomType: room.roomType,
                 isActive: room.isActive,
+                noOfKeys: room.noOfKeys,
               };
             }),
           };
