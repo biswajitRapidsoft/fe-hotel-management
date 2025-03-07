@@ -205,6 +205,32 @@ const filterBookingRooms = (
   bookingRoomsTableData,
   bookingConfirmationFormData
 ) => {
+  // return bookingRoomsTableData.filter((bookingData) => {
+  //   return (
+  //     bookingData.bookingList?.every(
+  //       (booking) =>
+  //         (new Date(
+  //           booking.fromDate?.split("-").reverse().join("-")
+  //         ).getTime() <
+  //           new Date(bookingConfirmationFormData.from?.$d).getTime() &&
+  //           new Date(
+  //             booking.toDate?.split("-").reverse().join("-") + "T00:00:00"
+  //           ).getTime() <
+  //             new Date(bookingConfirmationFormData.to?.$d).getTime()) ||
+  //         (new Date(
+  //           booking.fromDate?.split("-").reverse().join("-")
+  //         ).getTime() >
+  //           new Date(bookingConfirmationFormData.from?.$d).getTime() &&
+  //           new Date(
+  //             booking.toDate?.split("-").reverse().join("-") + "T00:00:00"
+  //           ).getTime() >
+  //             new Date(bookingConfirmationFormData.to?.$d).getTime())
+  //     ) ||
+  //     bookingData.bookingList === null ||
+  //     bookingData.bookingList.length === 0
+  //   );
+  // });
+
   return bookingRoomsTableData.filter((bookingData) => {
     return (
       bookingData.bookingList?.every(
@@ -213,13 +239,17 @@ const filterBookingRooms = (
             booking.fromDate?.split("-").reverse().join("-")
           ).getTime() <
             new Date(bookingConfirmationFormData.from?.$d).getTime() &&
-            new Date(booking.toDate?.split("-").reverse().join("-")).getTime() <
-              new Date(bookingConfirmationFormData.to?.$d).getTime()) ||
+            new Date(
+              booking.toDate?.split("-").reverse().join("-") + "T00:00:00"
+            ).getTime() <
+              new Date(bookingConfirmationFormData.from?.$d).getTime()) ||
           (new Date(
             booking.fromDate?.split("-").reverse().join("-")
           ).getTime() >
-            new Date(bookingConfirmationFormData.from?.$d).getTime() &&
-            new Date(booking.toDate?.split("-").reverse().join("-")).getTime() >
+            new Date(bookingConfirmationFormData.to?.$d).getTime() &&
+            new Date(
+              booking.toDate?.split("-").reverse().join("-") + "T00:00:00"
+            ).getTime() >
               new Date(bookingConfirmationFormData.to?.$d).getTime())
       ) ||
       bookingData.bookingList === null ||
