@@ -53,6 +53,14 @@ const HotelBillInvoiceInHistory = () => {
     return sessionedEventData ? JSON.parse(sessionedEventData) : null;
   }, [bookingRefNo]);
 
+  const subTotalKeyLost = useMemo(
+    () =>
+      invoiceData?.keysDataList?.filter((item) => item?.isKeyLost)?.length || 0,
+    [invoiceData]
+  );
+
+  const subTotalKeysExpense = subTotalKeyLost * 100;
+
   const subTotalExpense = useMemo(
     () =>
       parseFloat(
@@ -62,6 +70,9 @@ const HotelBillInvoiceInHistory = () => {
       ).toFixed(2),
     [invoiceData]
   );
+  const totalExpense = useMemo(() => {
+    return (parseFloat(subTotalExpense) + subTotalKeysExpense).toFixed(2);
+  }, [subTotalExpense, subTotalKeysExpense]);
 
   // here all the items where iscredit is true is added
   const subTotalPaidExpense = useMemo(
@@ -78,6 +89,9 @@ const HotelBillInvoiceInHistory = () => {
     () => parseFloat(subTotalExpense - subTotalPaidExpense).toFixed(2),
     [subTotalExpense, subTotalPaidExpense]
   );
+  const totalAmountToBePaid = useMemo(() => {
+    return (parseFloat(amountToBePaid) + subTotalKeysExpense).toFixed(2);
+  }, [amountToBePaid, subTotalKeysExpense]);
 
   const subTotalExtraItemsExpense = useMemo(() => {
     const sum =
@@ -2188,6 +2202,39 @@ const HotelBillInvoiceInHistory = () => {
                             </Typography>
                           </Box>
                         </Grid>
+                        <Grid size={6}>
+                          <Box
+                            sx={{
+                              width: "100%",
+                              height: "30px",
+                              border: "1.3px solid black",
+                              borderLeft: "1.7px solid black",
+                              bgcolor: "white",
+                              paddingLeft: "5px",
+                            }}
+                          >
+                            <Typography sx={{ fontWeight: 550 }}>
+                              Lost Key Price
+                            </Typography>
+                          </Box>
+                        </Grid>
+                        <Grid size={6}>
+                          <Box
+                            sx={{
+                              width: "100%",
+                              height: "30px",
+                              border: "1.3px solid black",
+                              borderRight: "1.7px solid black",
+                              bgcolor: "white",
+                            }}
+                          >
+                            <Typography
+                              sx={{ textAlign: "right", fontWeight: 550 }}
+                            >
+                              {subTotalKeysExpense}
+                            </Typography>
+                          </Box>
+                        </Grid>
 
                         <Grid size={6}>
                           <Box
@@ -2220,7 +2267,8 @@ const HotelBillInvoiceInHistory = () => {
                             <Typography
                               sx={{ textAlign: "right", fontWeight: 550 }}
                             >
-                              {subTotalExpense}
+                              {totalExpense}
+                              {/* {subTotalExpense} */}
                             </Typography>
                           </Box>
                         </Grid>
@@ -2294,7 +2342,8 @@ const HotelBillInvoiceInHistory = () => {
                                 fontWeight: 600,
                               }}
                             >
-                              {amountToBePaid}
+                              {totalAmountToBePaid}
+                              {/* {amountToBePaid} */}
                             </Typography>
                           </Box>
                         </Grid>
