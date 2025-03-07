@@ -76,128 +76,151 @@ dayjs.extend(customParseFormat);
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
 
+// const filterBookingRooms = (
+//   bookingRoomsTableData,
+//   bookingConfirmationFormData
+// ) => {
+//   console.log(bookingConfirmationFormData, "formDataaaaa");
+//   // console.log(
+//   //   "filterBookingRooms bookingRoomsTableData; ",
+//   //   bookingRoomsTableData
+//   // );
+//   if (!bookingConfirmationFormData?.from || !bookingConfirmationFormData?.to) {
+//     // return bookingRoomsTableData;
+//     return [];
+//   }
+
+//   const startDate = dayjs(bookingConfirmationFormData.from).startOf("day");
+//   const endDate = dayjs(bookingConfirmationFormData.to).startOf("day");
+
+//   console.log("filterBookingRooms startDate; ", startDate);
+
+//   return bookingRoomsTableData.filter((item) => {
+//     if (!item?.bookingList || item.bookingList.length === 0) {
+//       return true;
+//     }
+
+//     const relevantBookings = item.bookingList.filter(
+//       (booking) =>
+//         booking.bookingStatus === "Booked" ||
+//         booking.bookingStatus === "Checked_In"
+//     );
+//     // console.log("filterBookingRooms relevantBookings; ", relevantBookings);
+
+//     if (relevantBookings.length === 0) {
+//       return false;
+//     }
+
+//     // :moment(booking.checkInDate).format("DD/MM/YYYY").utc(),
+
+//     const bookingDates = relevantBookings.map((booking) => ({
+//       startDate: dayjs(
+//         booking.bookingStatus === "Booked"
+//           ? booking.fromDate
+//           : // : booking.checkInDate,
+//             moment(booking.checkInDateInUtc).tz("Asia/Kolkata"),
+//         "DD-MM-YYYY"
+//       ).startOf("day"),
+//       endDate: dayjs(
+//         booking.bookingStatus === "Booked"
+//           ? booking.toDate
+//           : // : booking.checkOutDate,
+//             moment(booking.checkOutDateInUtc).tz("Asia/Kolkata"),
+
+//         "DD-MM-YYYY"
+//       ).startOf("day"),
+//     }));
+
+//     // console.log("filterBookingRooms bookingDates; ", bookingDates);
+
+//     bookingDates.sort((a, b) => a.endDate.diff(b.endDate));
+
+//     console.log("filterBookingRooms bookingDates; ", bookingDates);
+
+//     const isStartDateBeforeOrEqualAnyEndDate = bookingDates.some((date) =>
+//       startDate.isBefore(date.endDate)
+//     );
+
+//     const isStartDateAfterAllEndDates = bookingDates.every((date) =>
+//       startDate.isAfter(date.endDate)
+//     );
+//     // const isStartDateAfterAllEndDates = startDate.isAfter(
+//     //   bookingDates[bookingDates.length - 1].endDate
+//     // );
+
+//     // console.log(
+//     //   "filterBookingRooms isStartDateBeforeOrEqualAnyEndDate & ; ",
+//     //   isStartDateBeforeOrEqualAnyEndDate,
+//     //   isStartDateAfterAllEndDates
+//     // );
+
+//     if (isStartDateAfterAllEndDates) {
+//       return true;
+//     }
+
+//     if (isStartDateBeforeOrEqualAnyEndDate) {
+//       const closestEndDateBooking = bookingDates.find((date) =>
+//         startDate.isBefore(date.endDate)
+//       );
+
+//       // console.log(
+//       //   "filterBookingRooms closestEndDateBooking ; ",
+//       //   closestEndDateBooking
+//       // );
+
+//       if (closestEndDateBooking) {
+//         const nextBookingStartDate = bookingDates
+//           .filter((date) =>
+//             date.startDate.isAfter(closestEndDateBooking.endDate)
+//           )
+//           .sort((a, b) => a.startDate.diff(b.startDate))[0]?.startDate;
+
+//         // console.log(
+//         //   "filterBookingRooms nextBookingStartDate ; ",
+//         //   nextBookingStartDate
+//         // );
+//         if (nextBookingStartDate && nextBookingStartDate.isAfter(endDate)) {
+//           return true;
+//         }
+
+//         const compatibleStartDate = bookingDates.find((date) =>
+//           endDate.isBefore(date.startDate)
+//         );
+
+//         // console.log(
+//         //   "filterBookingRooms compatibleStartDate ; ",
+//         //   compatibleStartDate,
+//         //   !!compatibleStartDate
+//         // );
+
+//         return !!compatibleStartDate;
+//       }
+//     }
+
+//     return false;
+//   });
+// };
+
 const filterBookingRooms = (
   bookingRoomsTableData,
   bookingConfirmationFormData
 ) => {
-  console.log(bookingConfirmationFormData, "formDataaaaa");
-  // console.log(
-  //   "filterBookingRooms bookingRoomsTableData; ",
-  //   bookingRoomsTableData
-  // );
-  if (!bookingConfirmationFormData?.from || !bookingConfirmationFormData?.to) {
-    // return bookingRoomsTableData;
-    return [];
-  }
-
-  const startDate = dayjs(bookingConfirmationFormData.from).startOf("day");
-  const endDate = dayjs(bookingConfirmationFormData.to).startOf("day");
-
-  console.log("filterBookingRooms startDate; ", startDate);
-
-  return bookingRoomsTableData.filter((item) => {
-    if (!item?.bookingList || item.bookingList.length === 0) {
-      return true;
-    }
-
-    const relevantBookings = item.bookingList.filter(
-      (booking) =>
-        booking.bookingStatus === "Booked" ||
-        booking.bookingStatus === "Checked_In"
+  return bookingRoomsTableData.filter((bookingData) => {
+    return (
+      bookingData.bookingList?.every(
+        (booking) =>
+          (new Date(booking.fromDate).getDate() <
+            new Date(bookingConfirmationFormData.from?.$d).getDate() &&
+            new Date(booking.toDate).getDate() <
+              new Date(bookingConfirmationFormData.to?.$d).getDate()) ||
+          (new Date(booking.fromDate).getDate() >
+            new Date(bookingConfirmationFormData.from?.$d).getDate() &&
+            booking.toDate.getDate() >
+              new Date(bookingConfirmationFormData.to?.$d).getDate())
+      ) ||
+      bookingData.bookingList === null ||
+      bookingData.bookingList.length === 0
     );
-    // console.log("filterBookingRooms relevantBookings; ", relevantBookings);
-
-    if (relevantBookings.length === 0) {
-      return false;
-    }
-
-    // :moment(booking.checkInDate).format("DD/MM/YYYY").utc(),
-
-    const bookingDates = relevantBookings.map((booking) => ({
-      startDate: dayjs(
-        booking.bookingStatus === "Booked"
-          ? booking.fromDate
-          : // : booking.checkInDate,
-            moment(booking.checkInDateInUtc).tz("Asia/Kolkata"),
-        "DD-MM-YYYY"
-      ).startOf("day"),
-      endDate: dayjs(
-        booking.bookingStatus === "Booked"
-          ? booking.toDate
-          : // : booking.checkOutDate,
-            moment(booking.checkOutDateInUtc).tz("Asia/Kolkata"),
-
-        "DD-MM-YYYY"
-      ).startOf("day"),
-    }));
-
-    // console.log("filterBookingRooms bookingDates; ", bookingDates);
-
-    bookingDates.sort((a, b) => a.endDate.diff(b.endDate));
-
-    console.log("filterBookingRooms bookingDates; ", bookingDates);
-
-    const isStartDateBeforeOrEqualAnyEndDate = bookingDates.some((date) =>
-      startDate.isBefore(date.endDate)
-    );
-
-    const isStartDateAfterAllEndDates = bookingDates.every((date) =>
-      startDate.isAfter(date.endDate)
-    );
-    // const isStartDateAfterAllEndDates = startDate.isAfter(
-    //   bookingDates[bookingDates.length - 1].endDate
-    // );
-
-    // console.log(
-    //   "filterBookingRooms isStartDateBeforeOrEqualAnyEndDate & ; ",
-    //   isStartDateBeforeOrEqualAnyEndDate,
-    //   isStartDateAfterAllEndDates
-    // );
-
-    if (isStartDateAfterAllEndDates) {
-      return true;
-    }
-
-    if (isStartDateBeforeOrEqualAnyEndDate) {
-      const closestEndDateBooking = bookingDates.find((date) =>
-        startDate.isBefore(date.endDate)
-      );
-
-      // console.log(
-      //   "filterBookingRooms closestEndDateBooking ; ",
-      //   closestEndDateBooking
-      // );
-
-      if (closestEndDateBooking) {
-        const nextBookingStartDate = bookingDates
-          .filter((date) =>
-            date.startDate.isAfter(closestEndDateBooking.endDate)
-          )
-          .sort((a, b) => a.startDate.diff(b.startDate))[0]?.startDate;
-
-        // console.log(
-        //   "filterBookingRooms nextBookingStartDate ; ",
-        //   nextBookingStartDate
-        // );
-        if (nextBookingStartDate && nextBookingStartDate.isAfter(endDate)) {
-          return true;
-        }
-
-        const compatibleStartDate = bookingDates.find((date) =>
-          endDate.isBefore(date.startDate)
-        );
-
-        // console.log(
-        //   "filterBookingRooms compatibleStartDate ; ",
-        //   compatibleStartDate,
-        //   !!compatibleStartDate
-        // );
-
-        return !!compatibleStartDate;
-      }
-    }
-
-    return false;
   });
 };
 
