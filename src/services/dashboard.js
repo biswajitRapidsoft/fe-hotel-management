@@ -254,13 +254,34 @@ const dashboardApi = apiSlice.injectEndpoints({
     }),
 
     // FRONT-DESK DASHBOARD
+
+    getKeysData: build.query({
+      query: (payload) => ({
+        url: config.apiName.getKeysData,
+        method: "GET",
+        params: {
+          bookingRefNumber: payload,
+        },
+      }),
+      providesTags: ["getKeysData"],
+    }),
+
+    allocateNewKeyToCustomer: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.allocateNewKeyToCustomer,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getKeysData"],
+    }),
+
     getAllRoomListByHotelId: build.query({
       query: (payload) => ({
         url: config.apiName.getAllRoomListByHotelId,
         method: "GET",
         params: {
           hotelId: payload?.hotelId,
-          dateFilterKey: payload?.dateFilterKey,
+          fromDate: payload?.fromDate,
         },
       }),
       providesTags: ["getAllRoomListByHotelId"],
@@ -374,6 +395,8 @@ const dashboardApi = apiSlice.injectEndpoints({
 });
 
 export const {
+  useGetKeysDataQuery,
+  useAllocateNewKeyToCustomerMutation,
   useSaveCompanyMutation,
   useGetAllCompanyQuery,
   useGetMasterDataListQuery,

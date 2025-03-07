@@ -4,12 +4,12 @@ const config = Object.freeze({
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
   // baseUrl: "http://crimarrstaging.nyggs.com/backend/",
   // baseUrl: "http://192.168.30.44:9000/",
-  // baseUrl: "http://192.168.12.43:8080/be-hms/",
+  baseUrl: "http://192.168.12.43:8080/be-hms/",
   // baseUrl: "https://hms.watsoo.com/backend/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/", // HO Staging
   // baseUrl: "http://192.168.12.3:9000/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
-  baseUrl: "http://192.168.12.3:9000/",
+  // baseUrl: "http://192.168.12.3:9000/",
   apiName: {
     loginAsCustomer: "login/as/customer",
     loginAsStaff: "login",
@@ -97,6 +97,8 @@ const config = Object.freeze({
     getAllMasterDiningType: "api/get/all/master/dinning/type",
     addFoodItems: "api/create/new/restaurant/item",
     getFoodType: "api/get/restaurant/item/type",
+    allocateNewKeyToCustomer: "api/issue/new/key/customer",
+    getKeysData: "api/get/key/by-booking/number",
     //FRONTDESK BOOKING HISTORY
     roomBookingHistoryByHotelId: "api/booking/history",
     getAllBookingStatusType: "api/get/all/booking/status/type",
