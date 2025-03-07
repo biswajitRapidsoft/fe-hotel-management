@@ -23,6 +23,7 @@ import {
   Checkbox,
   FormControlLabel,
   FormGroup,
+  Switch,
 } from "@mui/material";
 
 import InfoIcon from "@mui/icons-material/Info";
@@ -63,7 +64,15 @@ const BarItemList = () => {
   const [formData, setFormData] = React.useState({
     diningType: "",
   });
+  const [barItemTypeToUpdate, setBarItemTypeToUpdate] = React.useState(null);
 
+  React.useEffect(() => {
+    if (Boolean(barItemTypeToUpdate)) {
+      setFormData({
+        diningType: barItemTypeToUpdate?.menuName,
+      });
+    }
+  }, [barItemTypeToUpdate]);
   const [itemsDialog, setItemsDialog] = React.useState(null);
 
   const [addBarMasterDineType, addBarMasterDineTypeRes] =
@@ -90,12 +99,45 @@ const BarItemList = () => {
     setItemsDialog(null);
   }, []);
 
+  const handleChangeStatus = React.useCallback(
+    (e, item) => {
+      const payload = {
+        menuName: item?.menuName,
+        company: JSON.parse(sessionStorage.getItem("data")).companyId,
+        id: item?.id,
+        isActive: e.target.checked,
+      };
+      addBarMasterDineType(payload)
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            severity: "success",
+            message: res.message,
+          });
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            severity: "error",
+            message: err.data?.message || err.data,
+          });
+        });
+    },
+    [addBarMasterDineType, barItemTypeToUpdate]
+  );
+
   const handleSubmit = React.useCallback(
     (event) => {
       event.preventDefault();
       addBarMasterDineType({
         menuName: formData.diningType,
-        company: { id: sessionStorage.getItem("hotelIdForBarItem") },
+        // hotelId: { id: sessionStorage.getItem("hotelIdForBarItem") },
+        company: JSON.parse(sessionStorage.getItem("data")).companyId,
+        id: Boolean(barItemTypeToUpdate) ? barItemTypeToUpdate?.id : "",
+        isActive: Boolean(barItemTypeToUpdate)
+          ? barItemTypeToUpdate?.isActive
+          : "",
       })
         .unwrap()
         .then((res) => {
@@ -213,7 +255,9 @@ const BarItemList = () => {
             type="submit"
             disabled={!Boolean(isFormValid())}
           >
-            Add Bar Item Type
+            {Boolean(barItemTypeToUpdate)
+              ? "Update Bar Item Type"
+              : "Add Bar Item Type"}
           </Button>
         </Box>
       </Box>
@@ -250,6 +294,7 @@ const BarItemList = () => {
                 <TableCell>Sl No.</TableCell>
                 <TableCell>Bar Item Type</TableCell>
                 <TableCell>Details</TableCell>
+                <TableCell>Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -274,6 +319,16 @@ const BarItemList = () => {
                         onClick={() => setItemsDialog(item)}
                       >
                         <InfoIcon />
+                      </IconButton>
+                    </TableCell>
+                    <TableCell>
+                      <Switch
+                        color="success"
+                        checked={item?.isActive}
+                        onChange={(e) => handleChangeStatus(e, item)}
+                      />
+                      <IconButton onClick={() => setBarItemTypeToUpdate(item)}>
+                        <EditIcon />
                       </IconButton>
                     </TableCell>
                   </TableRow>

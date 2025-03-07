@@ -9,8 +9,7 @@ import roomServices from "../../img/roomservices.png";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
-// import Confetti from "react-confetti";
-// import dayjs from "dayjs";
+import PhoneIcon from "@mui/icons-material/Phone";
 
 import Swal from "sweetalert2";
 import SportsGymnasticsIcon from "@mui/icons-material/SportsGymnastics";
@@ -73,6 +72,12 @@ import {
   useMakePartialPaymentMutation,
   useAddRatingMutation,
 } from "../../services/dashboard";
+
+import {
+  useGetCityListQuery,
+  useGetStateListQuery,
+} from "../../services/hotel";
+
 import TextField from "@mui/material/TextField";
 import { CUSTOMER } from "../../helper/constants";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -147,6 +152,10 @@ const GuestDashboard = () => {
     priceRange: null,
     fromDate: null,
     toDate: null,
+    selectedState: null,
+    selectStateInputVal: "",
+    selectedCity: null,
+    selectedCityInputVal: "",
   });
 
   // console.log("filters", filters);
@@ -221,6 +230,10 @@ const GuestDashboard = () => {
       hotelId: filters?.hotel?.id,
       roomTypeId: filters?.roomType?.id,
       priceRange: filters?.priceRange?.type,
+      cityId: filters?.selectedCity?.id,
+
+      stateId: filters?.selectedState?.id,
+
       ...(filters.fromDate &&
         filters.toDate && {
           fromDate: filters.fromDate.format("DD-MM-YYYY"),
@@ -256,6 +269,20 @@ const GuestDashboard = () => {
       });
     }
   }, [isGetHotelListSuccess, isGetHotelListError, hotelList, hotelListError]);
+
+  const {
+    data: stateList = {
+      data: [],
+    },
+  } = useGetStateListQuery({});
+
+  const {
+    data: cityList = {
+      data: [],
+    },
+  } = useGetCityListQuery(filters?.selectedState?.id, {
+    skip: !Boolean(filters.selectedState),
+  });
 
   const {
     data: filterList = {
@@ -375,6 +402,7 @@ const GuestDashboard = () => {
     }
   };
 
+  console.log("bookingDetails", bookingDetails?.data);
   return (
     <>
       <Box
@@ -397,6 +425,8 @@ const GuestDashboard = () => {
               filterOptions={filterList?.data}
               setFilters={setFilters}
               filters={filters}
+              stateList={stateList}
+              cityList={cityList}
             />
           </Box>
           <Box sx={{ display: "flex", gap: 1 }}>
@@ -651,6 +681,7 @@ const GuestDashboard = () => {
                                     </Typography>
                                     <Typography>
                                       {booking?.hotel?.name || "N/A"}
+                                      {booking?.hotel?.contactNos[0]}
                                     </Typography>
                                   </Box>
 
@@ -752,7 +783,9 @@ const GuestDashboard = () => {
                                               textTransform: "none",
                                             }}
                                             onClick={() => {
-                                              const phoneNumber = "+1234567890"; // Dummy phone number
+                                              // const phoneNumber = "+1234567890";
+                                              const phoneNumber =
+                                                booking?.hotel?.contactNos[0];
                                               window.location.href = `tel:${phoneNumber}`;
                                             }}
                                           >
@@ -1353,6 +1386,8 @@ const CustomRoomFilters = memo(function ({
   filterOptions,
   setFilters,
   filters,
+  stateList,
+  cityList,
 }) {
   return (
     <>
@@ -1666,6 +1701,214 @@ const CustomRoomFilters = memo(function ({
                 <TextField
                   {...params}
                   label="Price Range"
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      width: 200,
+                      height: 35,
+                    },
+                  }}
+                />
+              )}
+            />
+          </Box>
+          <Box
+            sx={{
+              ".MuiTextField-root": {
+                width: "100%",
+                backgroundColor: "transparent",
+                ".MuiInputBase-root": {
+                  color: "#B4B4B4",
+                  background: "rgba(255, 255, 255, 0.25)",
+                },
+              },
+              ".MuiFormLabel-root": {
+                color: (theme) => theme.palette.primary.main,
+                fontWeight: 600,
+                fontSize: 14,
+              },
+              ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+                borderBottom: (theme) =>
+                  `1px solid ${theme.palette.primary.main}`,
+              },
+              ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+                borderBottom: (theme) =>
+                  `1px solid ${theme.palette.primary.main}`,
+              },
+              "& .MuiOutlinedInput-root": {
+                height: "35px",
+                minHeight: "35px",
+              },
+              "& .MuiInputBase-input": {
+                padding: "13px",
+                height: "100%",
+                boxSizing: "border-box",
+                fontSize: "13px",
+              },
+            }}
+          >
+            <Autocomplete
+              options={stateList?.data || []}
+              // disableClearable
+              fullWidth
+              value={filters.selectedState}
+              onChange={(e, newVal) =>
+                setFilters((prev) => ({ ...prev, selectedState: newVal }))
+              }
+              getOptionLabel={(option) => option.name || ""}
+              clearOnEscape
+              disablePortal
+              popupIcon={<KeyboardArrowDownIcon color="primary" />}
+              sx={{
+                // width: 200,
+                ".MuiInputBase-root": {
+                  color: "#fff",
+                },
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover": {
+                  backgroundColor: "#E9E5F1",
+                  color: "#280071",
+                  fontWeight: 600,
+                },
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                  {
+                    backgroundColor: "#E9E5F1",
+                    color: "#280071",
+                    fontWeight: 600,
+                  },
+              }}
+              componentsProps={{
+                popper: {
+                  sx: {
+                    "& .MuiAutocomplete-listbox": {
+                      maxHeight: "150px",
+                      overflow: "auto",
+                    },
+                    "& .MuiAutocomplete-option": {
+                      fontSize: "13px",
+                    },
+                  },
+                },
+              }}
+              size="small"
+              clearIcon={<ClearIcon color="primary" />}
+              PaperComponent={(props) => (
+                <Paper
+                  sx={{
+                    background: "#fff",
+                    color: "#B4B4B4",
+                    borderRadius: "10px",
+                  }}
+                  {...props}
+                />
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Select state"
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      width: 200,
+                      height: 35,
+                    },
+                  }}
+                />
+              )}
+            />
+          </Box>
+          <Box
+            sx={{
+              ".MuiTextField-root": {
+                width: "100%",
+                backgroundColor: "transparent",
+                ".MuiInputBase-root": {
+                  color: "#B4B4B4",
+                  background: "rgba(255, 255, 255, 0.25)",
+                },
+              },
+              ".MuiFormLabel-root": {
+                color: (theme) => theme.palette.primary.main,
+                fontWeight: 600,
+                fontSize: 14,
+              },
+              ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+                borderBottom: (theme) =>
+                  `1px solid ${theme.palette.primary.main}`,
+              },
+              ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+                borderBottom: (theme) =>
+                  `1px solid ${theme.palette.primary.main}`,
+              },
+              "& .MuiOutlinedInput-root": {
+                height: "35px",
+                minHeight: "35px",
+              },
+              "& .MuiInputBase-input": {
+                padding: "13px",
+                height: "100%",
+                boxSizing: "border-box",
+                fontSize: "13px",
+              },
+            }}
+          >
+            <Autocomplete
+              options={cityList?.data || []}
+              // disableClearable
+              fullWidth
+              value={filters.selectedCity}
+              onChange={(e, newVal) =>
+                setFilters((prev) => ({ ...prev, selectedCity: newVal }))
+              }
+              getOptionLabel={(option) => option.name || ""}
+              clearOnEscape
+              disablePortal
+              popupIcon={<KeyboardArrowDownIcon color="primary" />}
+              sx={{
+                // width: 200,
+                ".MuiInputBase-root": {
+                  color: "#fff",
+                },
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover": {
+                  backgroundColor: "#E9E5F1",
+                  color: "#280071",
+                  fontWeight: 600,
+                },
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                  {
+                    backgroundColor: "#E9E5F1",
+                    color: "#280071",
+                    fontWeight: 600,
+                  },
+              }}
+              componentsProps={{
+                popper: {
+                  sx: {
+                    "& .MuiAutocomplete-listbox": {
+                      maxHeight: "150px",
+                      overflow: "auto",
+                    },
+                    "& .MuiAutocomplete-option": {
+                      fontSize: "13px",
+                    },
+                  },
+                },
+              }}
+              size="small"
+              clearIcon={<ClearIcon color="primary" />}
+              PaperComponent={(props) => (
+                <Paper
+                  sx={{
+                    background: "#fff",
+                    color: "#B4B4B4",
+                    borderRadius: "10px",
+                  }}
+                  {...props}
+                />
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Select city"
                   sx={{
                     "& .MuiOutlinedInput-root": {
                       borderRadius: 2,
@@ -2275,11 +2518,14 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
               }}
             >
               {/* <Rating value={hotelDetails?.averageRatingPoints} readOnly /> */}
-              <Rating
-                value={hotelDetails?.averageRatingPoints}
-                readOnly
-                precision={0.5}
-              />
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Rating
+                  value={hotelDetails?.averageRatingPoints}
+                  readOnly
+                  precision={0.5}
+                />
+                <Typography>({hotelDetails?.reveiwedBy})</Typography>
+              </Box>
               <CustomTooltip
                 arrow
                 title={
@@ -2369,36 +2615,41 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
               <Typography sx={{ color: "gray" }}>
                 {hotelDetails?.type}
               </Typography>
-              <Box sx={{ display: "flex", gap: 1 }}>
-                <Box sx={{ display: "flex ", flexDirection: "column" }}>
-                  {hotelDetails?.configurationPrice && (
-                    <Typography sx={{ fontWeight: "bold" }}>
-                      ₹{hotelDetails?.configurationPrice}
-                    </Typography>
-                  )}
+              <Box sx={{ display: "flex", gap: 1, flexDirection: "column" }}>
+                <Box sx={{ display: "flex", gap: 1 }}>
+                  <Box sx={{ display: "flex ", flexDirection: "column" }}>
+                    {hotelDetails?.configurationPrice && (
+                      <Typography sx={{ fontWeight: "bold" }}>
+                        ₹{hotelDetails?.configurationPrice}
+                      </Typography>
+                    )}
 
-                  <Typography
+                    <Typography
+                      sx={{
+                        textDecoration: Boolean(
+                          hotelDetails?.configurationPrice
+                        )
+                          ? "line-through"
+                          : "",
+                        color: Boolean(hotelDetails?.configurationPrice)
+                          ? "gray"
+                          : "black",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      ₹{hotelDetails?.basePrice}
+                    </Typography>
+                  </Box>
+                  <Box
                     sx={{
-                      textDecoration: Boolean(hotelDetails?.configurationPrice)
-                        ? "line-through"
-                        : "",
-                      color: Boolean(hotelDetails?.configurationPrice)
-                        ? "gray"
-                        : "black",
-                      fontWeight: "bold",
+                      display: "flex",
+                      alignItems: "flex-end",
                     }}
                   >
-                    ₹{hotelDetails?.basePrice}
-                  </Typography>
+                    <Typography>per night</Typography>
+                  </Box>
                 </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "flex-end",
-                  }}
-                >
-                  <Typography>per night</Typography>
-                </Box>
+                {/* <Typography>18% gst applicable</Typography> */}
               </Box>
               {/* <Typography>
                 <span
@@ -2634,6 +2885,16 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                     />
                   </Grid>
                 )}
+                {hotelDetails?.isAdvanceRequired && (
+                  <Grid size={12}>
+                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                      <span style={{ color: "red" }}>*</span>
+                      <Typography sx={{ color: "gray" }}>
+                        18% GST applicable
+                      </Typography>
+                    </Box>
+                  </Grid>
+                )}
 
                 {/* <></> */}
                 {Boolean(userDetails?.data?.noOfRewardsPointsAvailable) &&
@@ -2663,6 +2924,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                               ).toFixed(2)}
                             </Typography>
                           )}
+
                           <Typography
                             variant={isClaimPoints ? "body2" : "h6"}
                             sx={{
@@ -2756,7 +3018,36 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                     )}
                   </Box>
                 </Grid>
-
+                <Grid size={{ xs: 12 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: 2,
+                      backgroundColor: "#6CB4EE",
+                      p: 2,
+                      borderRadius: "0.5rem",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        backgroundColor: "#F0F8FF",
+                        borderRadius: "50%",
+                        p: 1,
+                      }}
+                    >
+                      <PhoneIcon sx={{ color: "#899499	" }} />
+                    </Box>
+                    <Box>
+                      <Typography sx={{ fontWeight: "bold" }}>
+                        Contact Us :
+                      </Typography>
+                      <Typography>
+                        {hotelDetails?.hotelDto?.contactNos[0]}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Grid>
                 {Boolean(hotelDetails?.priceConfigurationDto?.length > 0) && (
                   <Grid size={{ xs: 12 }}>
                     <Box

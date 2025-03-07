@@ -247,8 +247,14 @@ const Spa = () => {
                         <Typography variant="body1" sx={{ fontSize: 18 }}>
                           {`Rs. ${spa.price.toFixed(2)}`}
                         </Typography>
+                        {/* <Typography>lorem20</Typography> */}
                       </Box>
-                      <Box>
+                      <Box
+                      // sx={{
+                      //   border: "2px solid black",
+                      //   height: "100%",
+                      // }}
+                      >
                         <Button
                           color="secondary"
                           variant="contained"

@@ -12,6 +12,7 @@ import {
   Divider,
   DialogContent,
   TextField,
+  InputAdornment,
 } from "@mui/material";
 
 import {
@@ -23,7 +24,8 @@ import {
 } from "../../helper/constants";
 
 import Grid from "@mui/material/Grid2";
-
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -77,6 +79,19 @@ const Header = () => {
   const [openDialog, setOpenDialog] = React.useState(false);
   const [openPasswordChangeDialog, setOpenPasswordChangeDialog] =
     React.useState(false);
+
+  const [showPassword, setShowPassword] = React.useState({
+    currentPassword: false,
+    newPassword: false,
+    confirmNewPassword: false,
+  });
+
+  const togglePasswordVisibility = (field) => {
+    setShowPassword((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
+  };
 
   const handleClickOpenDialog = React.useCallback(() => {
     setOpenDialog(true);
@@ -339,6 +354,9 @@ const Header = () => {
         open={openPasswordChangeDialog}
         handleClose={handleClosePasswordChangeDialog}
         setSnack={setSnack}
+        showPassword={showPassword}
+        setShowPassword={setShowPassword}
+        togglePasswordVisibility={togglePasswordVisibility}
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </StyledHeaderBox>
@@ -378,6 +396,9 @@ const PasswordChangeDialog = React.memo(function ({
   open,
   handleClose,
   setSnack,
+  showPassword,
+  setShowPassword,
+  togglePasswordVisibility,
 }) {
   const [changePassword, changePasswordRes] = useChangePasswordMutation();
   const [formData, setFormData] = React.useState({
@@ -516,30 +537,84 @@ const PasswordChangeDialog = React.memo(function ({
                 <TextField
                   label="Current Password"
                   variant="standard"
-                  type="password"
+                  type={showPassword.currentPassword ? "text" : "password"}
                   name="currentPassword"
                   value={formData.currentPassword}
                   onChange={handleChange}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() =>
+                            togglePasswordVisibility("currentPassword")
+                          }
+                          edge="end"
+                        >
+                          {showPassword.currentPassword ? (
+                            <VisibilityOffIcon />
+                          ) : (
+                            <VisibilityIcon />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </Grid>
               <Grid size={12}>
                 <TextField
                   label="New Password"
                   variant="standard"
-                  type="password"
+                  type={showPassword.newPassword ? "text" : "password"}
                   name="newPassword"
                   value={formData.newPassword}
                   onChange={handleChange}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() =>
+                            togglePasswordVisibility("newPassword")
+                          }
+                          edge="end"
+                        >
+                          {showPassword.newPassword ? (
+                            <VisibilityOffIcon />
+                          ) : (
+                            <VisibilityIcon />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </Grid>
               <Grid size={12}>
                 <TextField
                   label="Confirm New Password"
                   variant="standard"
-                  type="password"
+                  type={showPassword.confirmNewPassword ? "text" : "password"}
                   name="confirmNewPassword"
                   value={formData.confirmNewPassword}
                   onChange={handleChange}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() =>
+                            togglePasswordVisibility("confirmNewPassword")
+                          }
+                          edge="end"
+                        >
+                          {showPassword.confirmNewPassword ? (
+                            <VisibilityOffIcon />
+                          ) : (
+                            <VisibilityIcon />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </Grid>
             </Grid>
