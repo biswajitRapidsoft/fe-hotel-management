@@ -310,6 +310,7 @@ const dashboardApi = apiSlice.injectEndpoints({
         "getAllRoomListByHotelId",
         "getTodayCheckoutRoomsByHotelId",
         "roomBookingHistoryByHotelId",
+        "getKeysData",
       ],
     }),
     getTodayCheckoutRoomsByHotelId: build.query({
