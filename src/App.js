@@ -132,6 +132,9 @@ const BarInvoiceInBookingHistory = React.lazy(() =>
 function App() {
   const location = useLocation();
   // console.log("hello3", location);
+  document.title = sessionStorage.getItem("data")
+    ? JSON.parse(sessionStorage.getItem("data")).roleType.replace(/_/g, " ")
+    : document.title;
 
   React.useEffect(() => {
     // console.log("hello", location);
