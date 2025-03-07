@@ -97,6 +97,8 @@ const config = Object.freeze({
     getAllMasterDiningType: "api/get/all/master/dinning/type",
     addFoodItems: "api/create/new/restaurant/item",
     getFoodType: "api/get/restaurant/item/type",
+    allocateNewKeyToCustomer: "api/issue/new/key/customer",
+    getKeysData: "api/get/key/by-booking/number",
     //FRONTDESK BOOKING HISTORY
     roomBookingHistoryByHotelId: "api/booking/history",
     getAllBookingStatusType: "api/get/all/booking/status/type",

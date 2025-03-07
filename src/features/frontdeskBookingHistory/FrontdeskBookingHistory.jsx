@@ -209,14 +209,18 @@ const filterBookingRooms = (
     return (
       bookingData.bookingList?.every(
         (booking) =>
-          (new Date(booking.fromDate).getDate() <
-            new Date(bookingConfirmationFormData.from?.$d).getDate() &&
-            new Date(booking.toDate).getDate() <
-              new Date(bookingConfirmationFormData.to?.$d).getDate()) ||
-          (new Date(booking.fromDate).getDate() >
-            new Date(bookingConfirmationFormData.from?.$d).getDate() &&
-            booking.toDate.getDate() >
-              new Date(bookingConfirmationFormData.to?.$d).getDate())
+          (new Date(
+            booking.fromDate?.split("-").reverse().join("-")
+          ).getTime() <
+            new Date(bookingConfirmationFormData.from?.$d).getTime() &&
+            new Date(booking.toDate?.split("-").reverse().join("-")).getTime() <
+              new Date(bookingConfirmationFormData.to?.$d).getTime()) ||
+          (new Date(
+            booking.fromDate?.split("-").reverse().join("-")
+          ).getTime() >
+            new Date(bookingConfirmationFormData.from?.$d).getTime() &&
+            new Date(booking.toDate?.split("-").reverse().join("-")).getTime() >
+              new Date(bookingConfirmationFormData.to?.$d).getTime())
       ) ||
       bookingData.bookingList === null ||
       bookingData.bookingList.length === 0

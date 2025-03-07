@@ -65,6 +65,8 @@ import {
   useRoomCleanRequestMutation,
   useRoomtypeByHotelIdQuery,
   useSaveCustomerCheckInMutation,
+  useAllocateNewKeyToCustomerMutation,
+  useGetKeysDataQuery,
 } from "../../services/dashboard";
 import { checkRoomStatusType } from "../../helper/helperFunctions";
 import moment from "moment";
@@ -1427,8 +1429,16 @@ const RoomServiceCard = memo(function ({
   handleRequestRoomCheckout,
   handleRoomCleanRequest,
   handleOpenShowcaseModalForLaundry,
+  handleAssignNewKey,
 }) {
   const navigate = useNavigate();
+  const {
+    data: keysData = {
+      data: [],
+    },
+  } = useGetKeysDataQuery(isSelectedRoom?.bookingDto?.bookingRefNumber, {
+    skip: !Boolean(isSelectedRoom?.bookingDto?.bookingRefNumber),
+  });
   const [customerGstNumber, setCustomerGstNumber] = React.useState("");
   console.log("customerGstNumber", customerGstNumber);
   console.log("RoomServiceCard isSelectedRoom : ", isSelectedRoom);
@@ -1560,7 +1570,7 @@ const RoomServiceCard = memo(function ({
       }
     },
     // [customerGstNumber]
-    [customerGstNumber]
+    []
   );
   const handleViewHotelGstBillInvoice = useCallback(
     (roomData) => {
@@ -2187,6 +2197,107 @@ const RoomServiceCard = memo(function ({
                       </Grid>
                     </Grid>
                   </Box>
+
+                  {/* KEY ALLOCATION */}
+                  {!Boolean(
+                    Boolean(
+                      isSelectedRoom?.bookingDto?.isCheckoutProceed === false
+                    ) &&
+                      Boolean(
+                        isSelectedRoom?.bookingDto?.isCheckedByKeepingStaff ===
+                          true
+                      )
+                  ) &&
+                    Boolean(keysData.data) && (
+                      <Box sx={{ width: "100%", mt: 1 }}>
+                        <Grid container>
+                          <Grid size={12}>
+                            <Typography
+                              sx={{
+                                fontSize: "16.5px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                                width: "100%",
+                                borderBottom: "2px solid #ccc",
+                                marginBottom: "5px",
+                              }}
+                            >
+                              Key Allocation
+                            </Typography>
+                          </Grid>
+                          <Grid size={12}>
+                            <Grid container>
+                              <Grid size={6}>
+                                <Typography
+                                  sx={{ fontWeight: "bold" }}
+                                  color="success"
+                                >
+                                  Key Allocated
+                                </Typography>
+                              </Grid>
+                              <Grid size={6}>
+                                <Typography
+                                  sx={{ fontWeight: "bold" }}
+                                  color="success"
+                                >
+                                  {keysData.data.reduce((prev, curr) => {
+                                    return prev + (curr.isKeyLost ? 0 : 1);
+                                  }, 0)}
+                                </Typography>
+                              </Grid>
+                            </Grid>
+                          </Grid>
+                          <Grid size={12}>
+                            <Grid container>
+                              <Grid size={6}>
+                                <Typography
+                                  sx={{ fontWeight: "bold" }}
+                                  color="error"
+                                >
+                                  Key Lost
+                                </Typography>
+                              </Grid>
+                              <Grid size={6}>
+                                <Typography
+                                  sx={{ fontWeight: "bold" }}
+                                  color="error"
+                                >
+                                  {keysData.data.reduce((prev, curr) => {
+                                    return prev + (curr.isKeyLost ? 1 : 0);
+                                  }, 0)}
+                                </Typography>
+                              </Grid>
+                            </Grid>
+                          </Grid>
+                          <Grid size={12}>
+                            <Grid container>
+                              <Grid size={6}>
+                                <Typography sx={{ fontWeight: "bold" }}>
+                                  Key Lost ?
+                                </Typography>
+                              </Grid>
+                              <Grid size={6}>
+                                <Button
+                                  // fullWidth
+                                  size="small"
+                                  variant="contained"
+                                  color="warning"
+                                  onClick={() =>
+                                    handleAssignNewKey(
+                                      isSelectedRoom.bookingDto
+                                        .bookingRefNumber,
+                                      isSelectedRoom.id
+                                    )
+                                  }
+                                >
+                                  Assign New Key
+                                </Button>
+                              </Grid>
+                            </Grid>
+                          </Grid>
+                        </Grid>
+                      </Box>
+                    )}
 
                   {/* ROOM OPERATIONS */}
                   {Boolean(
@@ -7885,6 +7996,7 @@ const Dashboard = () => {
     selectedRoomStatus: null,
   });
   console.log("roomFilters : ", roomFilters);
+  const [assignNewKey, assignNewKeyRes] = useAllocateNewKeyToCustomerMutation();
   const [saveCustomerCheckIn, saveCustomerCheckInRes] =
     useSaveCustomerCheckInMutation();
   const [cancelReservation, cancelReservtionRes] =
@@ -9254,6 +9366,43 @@ const Dashboard = () => {
     ]
   );
 
+  const handleAssignNewKey = useCallback(
+    (bookingRefNumber, roomId) => {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "Assign new key to Customer!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          assignNewKey({
+            bookingRefNumber: bookingRefNumber,
+            roomId: roomId,
+          })
+            .unwrap()
+            .then((res) => {
+              setSnack({
+                open: true,
+                severity: "success",
+                message: res.message,
+              });
+            })
+            .catch((err) => {
+              setSnack({
+                open: true,
+                severity: "error",
+                message: err.data?.message || err.data,
+              });
+            });
+        }
+      });
+    },
+    [assignNewKey]
+  );
+
   const handleSubmitBookingForGuestByFrontDesk = useCallback(() => {
     if (!Boolean(customFormDrawerData?.firstName)) {
       setSnack({
@@ -9677,6 +9826,7 @@ const Dashboard = () => {
                       handleOpenShowcaseModalForLaundry={
                         handleOpenShowcaseModalForLaundry
                       }
+                      handleAssignNewKey={handleAssignNewKey}
                     />
                   </Grid>
                 )}
@@ -9735,6 +9885,7 @@ const Dashboard = () => {
           isAllPaymentMethodsFetching ||
           bookingByFrontDeskStaffRes?.isLoading ||
           isPendingBookingRequestCountsDataLoading ||
+          assignNewKeyRes.isLoading ||
           false
         }
       />
