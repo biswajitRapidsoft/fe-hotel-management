@@ -563,6 +563,7 @@ const HotelDetailsDialog = ({
                     <TableCell>Floor</TableCell>
                     <TableCell>Room number</TableCell>
                     <TableCell>Room Type</TableCell>
+                    <TableCell>No. of Keys</TableCell>
                     <TableCell>Status</TableCell>
                   </TableRow>
                 </TableHead>
@@ -584,6 +585,7 @@ const HotelDetailsDialog = ({
                           )}
                           <TableCell>{room.roomNo}</TableCell>
                           <TableCell>{room.roomType.type}</TableCell>
+                          <TableCell>{room.noOfKeys}</TableCell>
                           <TableCell>
                             <Switch
                               checked={room.isActive}
