@@ -1380,7 +1380,8 @@ function FloorFormComponent({
               disabled={
                 !(
                   Boolean(formData?.roomNumber?.trim()) &&
-                  Boolean(formData?.selectedRoomType)
+                  Boolean(formData?.selectedRoomType) &&
+                  Boolean(formData?.noOfKeys)
                 )
               }
               onClick={handleAddRoomForCurrentFloor}

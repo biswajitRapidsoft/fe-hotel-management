@@ -59,7 +59,7 @@ const ConfigurePrice = () => {
   const [configuredPriceListData, setConfiguredPriceListData] = React.useState(
     []
   );
-
+  console.log("configuredPriceListData", configuredPriceListData);
   const handleCloseDialog = React.useCallback(() => {
     setConfigureDetailsDialog(null);
   }, []);
@@ -211,7 +211,9 @@ const ConfigurePrice = () => {
             startDate: startDate,
             endDate: endDate,
             price: parseFloat(item.priceConfigurationDataDto.price),
-            typeConfigurationPriceId: item.typeConfigurationPriceId || null,
+            // typeConfigurationPriceId: item.typeConfigurationPriceId || null,
+            typeConfigurationPriceId:
+              item.priceConfigurationDataDto?.id || null,
           };
         });
 

@@ -102,7 +102,7 @@ const BanquetList = () => {
   );
 
   const handleChange = React.useCallback((e) => {
-    if (["perPlatePrice"].includes(e.target.name)) {
+    if (["perPlatePrice", "Capacity"].includes(e.target.name)) {
       setFormData((prevData) => ({
         ...prevData,
         [e.target.name]: e.target.value.replace(/\D/g, ""),
@@ -116,11 +116,8 @@ const BanquetList = () => {
   }, []);
 
   const isFormValid = React.useCallback(() => {
-    const { banquetType, perPlatePrice, Capacity, description } = formData;
-    return Boolean(
-      banquetType && perPlatePrice && Capacity
-      //  && description
-    );
+    const { banquetType, perPlatePrice, Capacity } = formData;
+    return Boolean(banquetType && perPlatePrice && Capacity.trim());
   }, [formData]);
 
   React.useEffect(() => {

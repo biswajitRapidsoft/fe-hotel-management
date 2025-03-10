@@ -189,6 +189,7 @@ const hotelApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
+      invalidatesTags: ["getAllConfiguredPricesTableData"],
     }),
     getAllConfiguredPricesTableData: build.query({
       query: (payload) => ({

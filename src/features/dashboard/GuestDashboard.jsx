@@ -681,7 +681,7 @@ const GuestDashboard = () => {
                                     </Typography>
                                     <Typography>
                                       {booking?.hotel?.name || "N/A"}
-                                      {booking?.hotel?.contactNos[0]}
+                                      {/* {booking?.hotel?.contactNos[0]} */}
                                     </Typography>
                                   </Box>
 
@@ -2896,7 +2896,6 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                   </Grid>
                 )}
 
-                {/* <></> */}
                 {Boolean(userDetails?.data?.noOfRewardsPointsAvailable) &&
                   Boolean(calculateNumberOfDays) && (
                     <Grid size={12}>
@@ -3952,14 +3951,14 @@ const CancelRoomDialog = ({
     severity: "",
   });
 
-  const advanceAmount = selectedBooking?.advanceAmount || 0;
-  const cancellationFeePercentage =
-    selectedBooking?.cancellationFeePercentage || 0;
+  // const advanceAmount = selectedBooking?.advanceAmount || 0;
+  // const cancellationFeePercentage =
+  //   selectedBooking?.cancellationFeePercentage || 0;
 
-  const cancellationAmount = (advanceAmount * cancellationFeePercentage) / 100;
-  const finalAmount = advanceAmount - cancellationAmount;
+  // const cancellationAmount = (advanceAmount * cancellationFeePercentage) / 100;
+  // const finalAmount = advanceAmount - cancellationAmount;
 
-  console.log("Final Amount after cancellation:", advanceAmount);
+  // console.log("Final Amount after cancellation:", advanceAmount);
 
   const handleDialogClose = () => {
     setRejectionReason("");

@@ -394,7 +394,7 @@ const GuestBookingHistoryDrawer = ({ open, setOpen, bookingDetails }) => {
                                 {(booking?.roomType?.advanceAmount *
                                   booking?.roomType
                                     ?.cancellationFeePercentage) /
-                                  100}
+                                  100}{" "}
                                 deducted
                               </Typography>
                             </>
