@@ -20,6 +20,7 @@ import {
   // Link,
   InputAdornment,
   Autocomplete,
+  Chip,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 
@@ -42,8 +43,10 @@ import {
   useGetFoodTypeQuery,
 } from "../../services/dashboard";
 import { useUploadFileMutation } from "../../services/hotel";
+import { useNavigate } from "react-router-dom";
 
 const FoodItemList = () => {
+  const navigate = useNavigate();
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
@@ -52,6 +55,7 @@ const FoodItemList = () => {
 
   const [formData, setFormData] = React.useState({
     diningType: "",
+    noOfTables: "",
   });
 
   const [itemsDialog, setItemsDialog] = React.useState(null);
@@ -62,12 +66,16 @@ const FoodItemList = () => {
     useCreateMasterDiningTypeMutation();
 
   const isFormValid = React.useCallback(() => {
-    return Boolean(formData.diningType.trim());
+    return Boolean(
+      formData.diningType.trim()
+      //  && formData.noOfTables
+    );
   }, [formData]);
 
   const handleResetForm = React.useCallback(() => {
     setFormData({
       diningType: "",
+      // noOfTables: "",
     });
   }, []);
 
@@ -77,6 +85,20 @@ const FoodItemList = () => {
       [e.target.name]: e.target.value,
     }));
   }, []);
+
+  // const handleChange = React.useCallback((e) => {
+  //   if (["noOfTables"].includes(e.target.name)) {
+  //     setFormData((prevData) => ({
+  //       ...prevData,
+  //       [e.target.name]: e.target.value.replace(/\D/g, ""),
+  //     }));
+  //   } else {
+  //     setFormData((prevData) => ({
+  //       ...prevData,
+  //       [e.target.name]: e.target.value,
+  //     }));
+  //   }
+  // }, []);
 
   const {
     data: diningTypeList = {
@@ -94,6 +116,7 @@ const FoodItemList = () => {
         type: formData.diningType,
         companyId: JSON.parse(sessionStorage.getItem("data")).companyId,
         hotelId: sessionStorage.getItem("hotelIdForFoodItem"),
+        // noOfTables: formData.noOfTables,
       })
         .unwrap()
         .then((res) => {
@@ -185,6 +208,27 @@ const FoodItemList = () => {
               variant="standard"
             />
           </Grid>
+          {/* <Grid size={3}>
+            <TextField
+              label={
+                <React.Fragment>
+                  No. of tables
+                  <Box
+                    component="span"
+                    sx={{
+                      color: (theme) => theme.palette.error.main,
+                    }}
+                  >
+                    *
+                  </Box>
+                </React.Fragment>
+              }
+              name="noOfTables"
+              value={formData.noOfTables}
+              onChange={handleChange}
+              variant="standard"
+            />
+          </Grid> */}
         </Grid>
         <Box
           sx={{
@@ -247,6 +291,7 @@ const FoodItemList = () => {
               >
                 <TableCell>Sl No.</TableCell>
                 <TableCell>Master Dining Type</TableCell>
+                <TableCell>No. of Tables</TableCell>
                 <TableCell>Details</TableCell>
               </TableRow>
             </TableHead>
@@ -265,6 +310,22 @@ const FoodItemList = () => {
                   >
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{item.type}</TableCell>
+                    {/* <TableCell>2</TableCell> */}
+                    <TableCell
+                      onClick={() => {
+                        navigate("/createTable");
+                      }}
+                    >
+                      <Chip
+                        // label={hotel?.noOfBanquets}
+                        label={2}
+                        clickable
+                        color="secondary"
+                        sx={{
+                          color: "#fff",
+                        }}
+                      />
+                    </TableCell>
                     <TableCell>
                       <IconButton
                         sx={{ display: "block" }}
