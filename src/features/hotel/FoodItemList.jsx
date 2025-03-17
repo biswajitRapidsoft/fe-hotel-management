@@ -269,12 +269,40 @@ const FoodItemList = () => {
             },
           ]}
         >
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: "bold", letterSpacing: 1 }}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between  ",
+              width: "100%",
+              alignItems: "center",
+            }}
           >
-            Dining Type List
-          </Typography>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", letterSpacing: 1 }}
+            >
+              Dining Type List
+            </Typography>
+
+            <Button
+              color="secondary"
+              variant="contained"
+              size="small"
+              sx={{
+                color: "#fff",
+                fontWeight: 600,
+                textTransform: "none",
+                fontSize: 18,
+                "&.Mui-disabled": {
+                  background: "#B2E5F6",
+                  color: "#FFFFFF",
+                },
+              }}
+              onClick={() => navigate("/createTable")}
+            >
+              Manage Tables
+            </Button>
+          </Box>
         </Toolbar>
         <TableContainer sx={{ maxHeight: 600 }}>
           <Table stickyHeader>
@@ -291,7 +319,7 @@ const FoodItemList = () => {
               >
                 <TableCell>Sl No.</TableCell>
                 <TableCell>Master Dining Type</TableCell>
-                <TableCell>No. of Tables</TableCell>
+                {/* <TableCell>No. of Tables</TableCell> */}
                 <TableCell>Details</TableCell>
               </TableRow>
             </TableHead>
@@ -310,22 +338,7 @@ const FoodItemList = () => {
                   >
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{item.type}</TableCell>
-                    {/* <TableCell>2</TableCell> */}
-                    <TableCell
-                      onClick={() => {
-                        navigate("/createTable");
-                      }}
-                    >
-                      <Chip
-                        // label={hotel?.noOfBanquets}
-                        label={2}
-                        clickable
-                        color="secondary"
-                        sx={{
-                          color: "#fff",
-                        }}
-                      />
-                    </TableCell>
+
                     <TableCell>
                       <IconButton
                         sx={{ display: "block" }}

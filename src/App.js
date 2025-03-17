@@ -130,6 +130,9 @@ const BarInvoiceInBookingHistory = React.lazy(() =>
 );
 
 const CreateTable = React.lazy(() => import("./features/hotel/CreateTable"));
+const WaiterDashboard = React.lazy(() =>
+  import("./features/restaurant/WaiterDashboard")
+);
 
 function App() {
   const location = useLocation();
@@ -215,6 +218,7 @@ function App() {
             <Route path="/spa" element={<Spa />} />
             <Route path="/HallList" element={<HallList />} />
             <Route path="/createTable" element={<CreateTable />} />
+            <Route path="/WaiterDashboard" element={<WaiterDashboard />} />
             <Route path="/BanquetList" element={<BanquetList />} />
             <Route path="/PromocodeList" element={<PromocodeList />} />
             <Route path="/parking-list" element={<ParkingList />} />

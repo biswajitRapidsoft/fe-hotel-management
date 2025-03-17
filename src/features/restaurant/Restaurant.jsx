@@ -18,14 +18,17 @@ import {
   Slide,
   Rating,
   DialogContent,
+  InputAdornment,
+  TextField,
 } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import StarIcon from "@mui/icons-material/Star";
 import LunchDiningIcon from "@mui/icons-material/LunchDining";
 import { MdOutlineRoomService } from "react-icons/md";
-
+import { CUSTOMER } from "../../helper/constants";
 import { TabContext, TabList } from "@mui/lab";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import {
@@ -315,18 +318,49 @@ const Restaurant = () => {
     severity: "",
   });
 
+  const [search, setSearch] = React.useState("");
+
+  // Added debouncedSearch state
+  const [debouncedSearch, setDebouncedSearch] = React.useState("");
+
+  // const isStayingGuest = sessionStorage.getItem("isStayingGuest");
+  const tableId = sessionStorage.getItem("tableId");
+  const orderTakenBy = sessionStorage.getItem("orderTakenBy");
+
+  React.useEffect(() => {
+    const timerId = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+
+    return () => {
+      clearTimeout(timerId);
+    };
+  }, [search]);
   const {
     data: menuList = {
       data: [],
     },
     isLoading,
-  } = useGetAllFoodQuery(sessionStorage.getItem("hotelId"));
+  } = useGetAllFoodQuery(
+    {
+      hotelId:
+        sessionStorage.getItem("hotelId") ||
+        JSON.parse(sessionStorage.getItem("data")).hotelId,
+      itemName: debouncedSearch,
+    },
+    {
+      refetchOnMountOrArgChange: true,
+    }
+  );
   const {
     data: orderHistory = {
       data: [],
     },
   } = useGetCustomerOrdeHistoryQuery(
-    sessionStorage.getItem("bookingRefNumber")
+    sessionStorage.getItem("bookingRefNumber"),
+    {
+      skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== CUSTOMER,
+    }
   );
 
   const {
@@ -512,12 +546,17 @@ const Restaurant = () => {
   const handlePlaceOrder = React.useCallback(() => {
     orderFood({
       bookingRefNo: sessionStorage.getItem("bookingRefNumber"),
-      hotelId: sessionStorage.getItem("hotelId"),
+      hotelId:
+        sessionStorage.getItem("hotelId") ||
+        JSON.parse(sessionStorage.getItem("data")).hotelId,
       dinningType: dineType,
       itemsList: cartItems.map((item) => ({
         itemId: item.id,
         noOfItems: item.quantity,
       })),
+      isStayingGuest: Boolean(tableId) ? false : true,
+      tableId: tableId,
+      orderTakenBy: { id: Number(orderTakenBy) },
       totalGstPrice: (calculateTotalAmountOfCartItems() * 0.18).toFixed(2),
       totalPrice: calculateTotalAmountOfCartItems(),
 
@@ -536,6 +575,7 @@ const Restaurant = () => {
       .unwrap()
       .then((res) => {
         setSnack({ open: true, message: res.message, severity: "success" });
+
         setCartItems([]);
         setSelectedRestaurantCoupon(null);
       })
@@ -584,21 +624,56 @@ const Restaurant = () => {
     <React.Fragment>
       <Box sx={{ display: "flex" }}>
         <Main open={Boolean(cartItems?.length)}>
-          <Button
-            variant="contained"
-            size="small"
-            color="secondary"
+          <Box
             sx={{
-              color: "white",
-              fontWeight: 600,
-              letterSpacing: 1,
-              display: "block",
-              ml: "auto",
+              display: "flex",
+              justifyContent: "flex-end",
+              // flexDirection: "row-reverse",
             }}
-            onClick={() => setIsOrderHistoryDrawer(true)}
           >
-            Order History
-          </Button>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 2,
+              }}
+            >
+              <TextField
+                label="Search Item Name"
+                variant="outlined"
+                sx={{ width: "230px", borderRadius: "8px" }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton>
+                        <SearchIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                size="small"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <Button
+                variant="contained"
+                size="small"
+                color="secondary"
+                sx={{
+                  color: "white",
+                  fontWeight: 600,
+                  letterSpacing: 1,
+                  display: "block",
+                  ml: "auto",
+                  p: 1,
+                }}
+                onClick={() => setIsOrderHistoryDrawer(true)}
+              >
+                Order History
+              </Button>
+            </Box>
+          </Box>
           <Box
             sx={{
               borderBottom: 1,

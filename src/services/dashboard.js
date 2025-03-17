@@ -390,6 +390,24 @@ const dashboardApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["getPendingBookingRequestCounts"],
     }),
+    getAllTables: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllTables,
+        method: "GET",
+        params: {
+          hotelId: payload?.hotelId,
+        },
+      }),
+      providesTags: ["getAllTables"],
+    }),
+    createTable: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.createTable,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllTables"],
+    }),
   }),
 
   overrideExisting: false,
@@ -435,4 +453,6 @@ export const {
   useGetAllMasterDiningTypeQuery,
   useAddFoodItemsMutation,
   useGetFoodTypeQuery,
+  useGetAllTablesQuery,
+  useCreateTableMutation,
 } = dashboardApi;

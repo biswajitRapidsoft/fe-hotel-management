@@ -8,7 +8,8 @@ const restaurantApi = apiSlice.injectEndpoints({
         url: config.apiName.getAllFood,
         method: "GET",
         params: {
-          hotelId: payload,
+          hotelId: payload.hotelId,
+          itemName: payload.itemName,
         },
       }),
     }),
@@ -69,6 +70,17 @@ const restaurantApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["getCustomerOrdeHistory"],
     }),
+    getAllTablesForWaiter: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllTablesForWaiter,
+        method: "GET",
+        params: {
+          hotelId: payload?.hotelId,
+          userId: payload?.userId,
+        },
+      }),
+      providesTags: ["getAllTablesForWaiter"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -82,4 +94,5 @@ export const {
   useGetFoodOrderListAdminQuery,
   useGetAllFoodOrderStatusQuery,
   useRateFoodMutation,
+  useGetAllTablesForWaiterQuery,
 } = restaurantApi;

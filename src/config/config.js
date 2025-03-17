@@ -1,10 +1,10 @@
 const config = Object.freeze({
-  // baseUrl: "http://192.168.12.37:9000/",
+  baseUrl: "http://192.168.12.37:9000/",
   // baseUrl: "http://192.168.12.43:9000/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
   // baseUrl: "http://crimarrstaging.nyggs.com/backend/",
   // baseUrl: "http://192.168.30.44:9000/",
-  baseUrl: "http://192.168.12.43:8080/be-hms/",
+  // baseUrl: "http://192.168.12.43:8080/be-hms/",
   // baseUrl: "https://hms.watsoo.com/backend/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/", // HO Staging
   // baseUrl: "http://192.168.12.3:9000/",
@@ -99,6 +99,10 @@ const config = Object.freeze({
     getFoodType: "api/get/restaurant/item/type",
     allocateNewKeyToCustomer: "api/issue/new/key/customer",
     getKeysData: "api/get/key/by-booking/number",
+    getAllTables: "api/get/all/restaurant/tables",
+    createTable: "api/create/restaurant/tables",
+    getAllTablesForWaiter: "api/get/restaurant/tables/for/waiter",
+
     //FRONTDESK BOOKING HISTORY
     roomBookingHistoryByHotelId: "api/booking/history",
     getAllBookingStatusType: "api/get/all/booking/status/type",
@@ -109,7 +113,6 @@ const config = Object.freeze({
     approveBookingCancelRequest: "api/approve/booking/cancel/request",
     cancelRoomBookingFromBookingHistory: "api/cancel/booking/by/hotel",
     exportBookingHistory: "api/export/booking/history/data",
-
     // HALL BOOKING DASHBOARD
     getAllHallBookings: "api/get/all/hall/bookings/data",
     getAllHallStatus: "api/get/all/hall/status",
