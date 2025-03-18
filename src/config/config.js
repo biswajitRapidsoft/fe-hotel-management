@@ -81,6 +81,9 @@ const config = Object.freeze({
     getAllConfiguredPricesTableData: "api/get/price-config/room/type",
     updateConfigurationStatus: "api/dynamic-price-configuration/update-status",
     rateSpa: "public/rate/spa/service",
+    deliverFoodByWaiter: "api/deliver/food/by/waiter",
+    getBookingDetailsByRoomNumber: "api/get/booking/details/by/room/id",
+    assosciateOrderWithRoom: "api/transfer/food/order/to/room/bill",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",
@@ -102,7 +105,7 @@ const config = Object.freeze({
     getAllTables: "api/get/all/restaurant/tables",
     createTable: "api/create/restaurant/tables",
     getAllTablesForWaiter: "api/get/restaurant/tables/for/waiter",
-
+    getAllTablesForCounterStaff: "api/get/restaurant/tables/for/counter/staff",
     //FRONTDESK BOOKING HISTORY
     roomBookingHistoryByHotelId: "api/booking/history",
     getAllBookingStatusType: "api/get/all/booking/status/type",

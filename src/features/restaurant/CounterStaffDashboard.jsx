@@ -2,79 +2,95 @@ import React from "react";
 import {
   Box,
   Button,
+  IconButton,
   DialogTitle,
   DialogContent,
   Typography,
   Grid2 as Grid,
-  // TextField,
   Table,
   TableContainer,
   TableHead,
   TableRow,
   TableCell,
   TableBody,
+  Checkbox,
+  FormGroup,
+  FormControlLabel,
+  TextField,
 } from "@mui/material";
-// import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { BootstrapDialog } from "../header/Header";
 import ChairIcon from "@mui/icons-material/Chair";
-import {
-  useGetAllTablesForWaiterQuery,
-  useDeliverFoodByWaiterMutation,
-} from "../../services/restaurant";
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
+
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
+import {
+  useGetAllTablesForCounterQuery,
+  useGetBookingDetailsFromRoomNumberMutation,
+  useAssosciateOrderWithRoomMutation,
+} from "../../services/restaurant";
 
-const WaiterDashboard = () => {
+const CounterStaffDashboard = () => {
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
     severity: "",
   });
-
-  const [deliverFood, deliverFoodRes] = useDeliverFoodByWaiterMutation();
-  const [orderDetailsDialog, setOrderDetailsDialog] = React.useState(null);
-  const handleCloseOrderDetailsDialog = React.useCallback(() => {
-    setOrderDetailsDialog(null);
-  }, []);
   const {
-    data: tableListForWaiter = {
-      data: [],
-    },
+    data: tableListForCounterStaff = { data: [] },
     isLoading,
     isFetching,
-  } = useGetAllTablesForWaiterQuery({
+  } = useGetAllTablesForCounterQuery({
     hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
     userId: JSON.parse(sessionStorage.getItem("data")).id,
   });
 
-  console.log("tableListForWaiter", tableListForWaiter);
+  const [bookingDetails, bookingDetailsRes] =
+    useGetBookingDetailsFromRoomNumberMutation();
 
+  const [assosciateWithRoom, assosciateWithRoomRes] =
+    useAssosciateOrderWithRoomMutation();
+
+  const [orderDetailsDialog, setOrderDetailsDialog] = React.useState(null);
+  const handleCloseOrderDetailsDialog = React.useCallback(() => {
+    setOrderDetailsDialog(null);
+  }, []);
   return (
     <>
       <Box>
-        <TableCardsForWaiter
-          tableListForWaiter={tableListForWaiter}
+        <TableCardsForCounterStaff
+          tableListForCounterStaff={tableListForCounterStaff}
           setOrderDetailsDialog={setOrderDetailsDialog}
         />
       </Box>
+
       <OrderDetailsDialog
         orderDetailsDialog={orderDetailsDialog}
         handleCloseOrderDetailsDialog={handleCloseOrderDetailsDialog}
-        deliverFood={deliverFood}
         setSnack={setSnack}
+        bookingDetails={bookingDetails}
+        bookingDetailsRes={bookingDetailsRes}
+        assosciateWithRoom={assosciateWithRoom}
       />
+
       <LoadingComponent
-        open={isLoading || isFetching || deliverFoodRes.isLoading}
+        open={
+          bookingDetailsRes.isLoading ||
+          assosciateWithRoomRes.isLoading ||
+          isLoading ||
+          isFetching
+        }
       />
+      <SnackAlert snack={snack} setSnack={setSnack} />
     </>
   );
 };
 
-const TableCardsForWaiter = ({ tableListForWaiter, setOrderDetailsDialog }) => {
-  const navigate = useNavigate();
-
+const TableCardsForCounterStaff = ({
+  tableListForCounterStaff,
+  setOrderDetailsDialog,
+}) => {
   const getChairDistribution = (capacity) => {
     if (capacity === 4) {
       return { top: 2, right: 0, bottom: 2, left: 0 };
@@ -102,33 +118,6 @@ const TableCardsForWaiter = ({ tableListForWaiter, setOrderDetailsDialog }) => {
       };
     }
   };
-
-  //   const calculateGridSize = (capacity) => {
-  //     const sizeMappings = {
-  //       1: { xs: 12, sm: 6, md: 4, lg: 3, xl: 2 },
-  //       2: { xs: 12, sm: 6, md: 4, lg: 3, xl: 2 },
-  //       3: { xs: 12, sm: 6, md: 4, lg: 3, xl: 2 },
-  //       4: { xs: 12, sm: 6, md: 4, lg: 3, xl: 2 },
-  //       5: { xs: 12, sm: 6, md: 4, lg: 3, xl: 2 },
-  //       6: { xs: 12, sm: 6, md: 4, lg: 3, xl: 2 },
-  //       7: { xs: 12, sm: 6, md: 4, lg: 3, xl: 2 },
-  //       8: { xs: 12, sm: 6, md: 3, lg: 2, xl: 2 },
-  //       9: { xs: 12, sm: 6, md: 3, lg: 2, xl: 2 },
-  //       10: { xs: 12, sm: 6, md: 3, lg: 2, xl: 2 },
-  //       11: { xs: 12, sm: 6, md: 3, lg: 2, xl: 2 },
-  //       12: { xs: 12, sm: 6, md: 3, lg: 2, xl: 2 },
-  //       13: { xs: 12, sm: 6, md: 3, lg: 2, xl: 1 },
-  //       14: { xs: 12, sm: 6, md: 3, lg: 2, xl: 1 },
-  //       15: { xs: 12, sm: 6, md: 3, lg: 2, xl: 1 },
-  //       16: { xs: 12, sm: 6, md: 3, lg: 2, xl: 1 },
-  //       17: { xs: 12, sm: 6, md: 3, lg: 2, xl: 1 },
-  //       18: { xs: 12, sm: 6, md: 3, lg: 2, xl: 1 },
-  //       19: { xs: 12, sm: 6, md: 3, lg: 2, xl: 1 },
-  //       20: { xs: 12, sm: 6, md: 3, lg: 2, xl: 1 },
-  //     };
-
-  //     return sizeMappings[capacity] || { xs: 12, sm: 6, md: 3, lg: 2, xl: 1 };
-  //   };
 
   const calculateGridSize = (capacity) => {
     const sizeMappings = {
@@ -178,17 +167,13 @@ const TableCardsForWaiter = ({ tableListForWaiter, setOrderDetailsDialog }) => {
       ));
   };
 
-  // const handleNavigateToFoodOrder = ()=>{
-
-  // }
   return (
     <>
       <Grid container spacing={2}>
-        {tableListForWaiter?.data?.map((item, index) => {
+        {tableListForCounterStaff?.data?.map((item, index) => {
           const noOfSeats = item?.noOfSeats;
           const distribution = getChairDistribution(noOfSeats);
           const gridSize = calculateGridSize(noOfSeats);
-
           return (
             <Grid size={gridSize} key={index}>
               <Box
@@ -211,8 +196,6 @@ const TableCardsForWaiter = ({ tableListForWaiter, setOrderDetailsDialog }) => {
                 >
                   {generateChairs(distribution.top, 0)}
                 </Box>
-
-                {/* Table */}
                 <Box
                   sx={{
                     boxShadow:
@@ -239,19 +222,8 @@ const TableCardsForWaiter = ({ tableListForWaiter, setOrderDetailsDialog }) => {
                     mt: 1,
                     mb: 1,
                   }}
-                  // onClick={() => handleNavigateToFoodOrder(item)}
                   onClick={() => {
-                    if (Boolean(item?.bookingRequestDto)) {
-                      setOrderDetailsDialog(item);
-                    } else {
-                      sessionStorage.setItem("tableId", item?.id);
-                      sessionStorage.setItem("isStayingGuest", false);
-                      sessionStorage.setItem(
-                        "orderTakenBy",
-                        JSON.parse(sessionStorage.getItem("data")).id
-                      );
-                      navigate("/resturant");
-                    }
+                    setOrderDetailsDialog(item);
                   }}
                 >
                   <Box
@@ -276,6 +248,7 @@ const TableCardsForWaiter = ({ tableListForWaiter, setOrderDetailsDialog }) => {
                     <Typography
                       sx={{
                         color: "#fff",
+                        // fontSize: "12px",
                         fontWeight: "bold",
                       }}
                     >
@@ -308,22 +281,26 @@ const TableCardsForWaiter = ({ tableListForWaiter, setOrderDetailsDialog }) => {
     </>
   );
 };
+export default CounterStaffDashboard;
 
 const OrderDetailsDialog = ({
   orderDetailsDialog,
   handleCloseOrderDetailsDialog,
-  deliverFood,
+  bookingDetails,
   setSnack,
+  bookingDetailsRes,
+  assosciateWithRoom,
 }) => {
-  const navigate = useNavigate();
-  console.log(
-    "orderDetailsDialog",
-    orderDetailsDialog?.bookingRequestDto?.orderId
-  );
+  const [formData, setFormData] = React.useState({
+    isAssosciateWithRoom: false,
+    roomNumber: "",
+  });
+  console.log("orderDetailsDialog", orderDetailsDialog);
 
-  const handleDeliverOrder = React.useCallback(() => {
-    deliverFood({
-      orderId: orderDetailsDialog?.bookingRequestDto?.orderId,
+  const handleGetBookingDetails = React.useCallback(() => {
+    bookingDetails({
+      hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
+      roomNo: formData.roomNumber,
     })
       .unwrap()
       .then((res) => {
@@ -332,7 +309,6 @@ const OrderDetailsDialog = ({
           message: res.message,
           severity: "success",
         });
-        handleCloseOrderDetailsDialog();
       })
       .catch((err) => {
         setSnack({
@@ -341,7 +317,51 @@ const OrderDetailsDialog = ({
           severity: "error",
         });
       });
-  }, [deliverFood, orderDetailsDialog?.bookingRequestDto?.orderId]);
+  }, [bookingDetails, formData]);
+
+  const handleAssosciateWithRoom = React.useCallback(() => {
+    assosciateWithRoom({
+      orderId: orderDetailsDialog?.bookingRequestDto?.orderId,
+      bookingRefNo: bookingDetailsRes?.data?.data?.bookingRefNumber,
+    })
+      .unwrap()
+      .then((res) => {
+        setSnack({
+          open: true,
+          message: res.message,
+          severity: "success",
+        });
+      })
+      .catch((err) => {
+        setSnack({
+          open: true,
+          message: err.data?.message || err.data,
+          severity: "error",
+        });
+      });
+  }, [assosciateWithRoom, orderDetailsDialog, bookingDetailsRes]);
+
+  const handleChange = React.useCallback((e) => {
+    if (["roomNumber"].includes(e.target.name)) {
+      setFormData((prevData) => ({
+        ...prevData,
+        [e.target.name]: e.target.value.replace(/\D/g, ""),
+      }));
+    } else if (e.target.type === "checkbox") {
+      if (e.target.name === "isAdvance") {
+        setFormData((prevData) => ({
+          ...prevData,
+          roomNumber: "",
+          [e.target.name]: e.target.checked,
+        }));
+      } else {
+        setFormData((prevData) => ({
+          ...prevData,
+          [e.target.name]: e.target.checked,
+        }));
+      }
+    }
+  });
   return (
     <>
       <BootstrapDialog
@@ -372,36 +392,6 @@ const OrderDetailsDialog = ({
             >
               Order Details
             </Typography>{" "}
-            <Button
-              color="secondary"
-              variant="contained"
-              size="small"
-              sx={{
-                color: "#fff",
-                fontWeight: 600,
-                textTransform: "none",
-                fontSize: 18,
-                "&.Mui-disabled": {
-                  background: "#B2E5F6",
-                  color: "#FFFFFF",
-                },
-              }}
-              onClick={() => {
-                sessionStorage.setItem("tableId", orderDetailsDialog?.id);
-                sessionStorage.setItem(
-                  "orderIdFromWaiter",
-                  orderDetailsDialog?.bookingRequestDto?.orderId
-                );
-                sessionStorage.setItem("isStayingGuest", false);
-                sessionStorage.setItem(
-                  "orderTakenBy",
-                  JSON.parse(sessionStorage.getItem("data")).id
-                );
-                navigate("/resturant");
-              }}
-            >
-              Place new Order
-            </Button>
           </Box>
         </DialogTitle>
         <DialogContent dividers>
@@ -453,31 +443,6 @@ const OrderDetailsDialog = ({
                 ₹ {orderDetailsDialog?.bookingRequestDto?.totalPrice}
               </Typography>
             </Box>
-            {Boolean(
-              orderDetailsDialog?.bookingRequestDto?.foodBookingStatus ===
-                "Ready_to_serve"
-            ) && (
-              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                <Button
-                  color="secondary"
-                  variant="contained"
-                  size="small"
-                  sx={{
-                    color: "#fff",
-                    fontWeight: 600,
-                    textTransform: "none",
-                    fontSize: 18,
-                    "&.Mui-disabled": {
-                      background: "#B2E5F6",
-                      color: "#FFFFFF",
-                    },
-                  }}
-                  onClick={handleDeliverOrder}
-                >
-                  Deliver Order
-                </Button>
-              </Box>
-            )}
 
             <Box sx={{ py: 2 }}>
               <TableContainer sx={{ maxHeight: 600 }}>
@@ -520,11 +485,133 @@ const OrderDetailsDialog = ({
                 </Table>
               </TableContainer>
             </Box>
+
+            <Box>
+              <Grid container>
+                <Grid size={4}>
+                  <FormGroup sx={{ mt: 1 }}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={formData.isAssosciateWithRoom}
+                          name="isAssosciateWithRoom"
+                          onChange={handleChange}
+                        />
+                      }
+                      label="Is Assosciate With Room"
+                    />
+                  </FormGroup>
+                </Grid>
+                {formData.isAssosciateWithRoom && (
+                  <Grid size={3}>
+                    <TextField
+                      label={
+                        <React.Fragment>
+                          Room Number
+                          <Box
+                            component="span"
+                            sx={{
+                              color: (theme) => theme.palette.error.main,
+                            }}
+                          >
+                            *
+                          </Box>
+                        </React.Fragment>
+                      }
+                      name="roomNumber"
+                      value={formData.roomNumber}
+                      onChange={handleChange}
+                      variant="standard"
+                    />
+                  </Grid>
+                )}
+                <Grid size={3}>
+                  {/* {
+            Boolean(
+              orderDetailsDialog?.bookingRequestDto?.foodBookingStatus ===
+                "Delivered"
+            ) && ( */}
+                  <Button
+                    color="secondary"
+                    variant="contained"
+                    size="small"
+                    sx={{
+                      color: "#fff",
+                      fontWeight: 600,
+                      textTransform: "none",
+                      fontSize: 18,
+                      "&.Mui-disabled": {
+                        background: "#B2E5F6",
+                        color: "#FFFFFF",
+                      },
+                    }}
+                    disabled={!Boolean(formData.roomNumber)}
+                    onClick={handleGetBookingDetails}
+                  >
+                    Check
+                  </Button>
+                  {/* )} */}
+                </Grid>
+              </Grid>
+            </Box>
+
+            <Box>
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <Typography>Name:</Typography>
+                <Typography>
+                  {bookingDetailsRes?.data?.data?.firstName}
+                </Typography>
+              </Box>
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <Typography>Booking Ref. Number:</Typography>
+                <Typography>
+                  {bookingDetailsRes?.data?.data?.bookingRefNumber}
+                </Typography>
+              </Box>
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <Typography>Phone Number:</Typography>
+                <Typography>
+                  {bookingDetailsRes?.data?.data?.phoneNumber}
+                </Typography>
+              </Box>
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <Typography>Booking Status:</Typography>
+                <Typography>
+                  {bookingDetailsRes?.data?.data?.bookingStatus}
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Button
+                color="secondary"
+                variant="contained"
+                size="small"
+                sx={{
+                  color: "#fff",
+                  fontWeight: 600,
+                  textTransform: "none",
+                  fontSize: 18,
+                  "&.Mui-disabled": {
+                    background: "#B2E5F6",
+                    color: "#FFFFFF",
+                  },
+                }}
+                // disabled={!Boolean(formData.roomNumber)}
+                onClick={handleAssosciateWithRoom}
+              >
+                Assosciate with Room
+              </Button>
+            </Box>
           </Box>
         </DialogContent>
       </BootstrapDialog>
     </>
   );
 };
-
-export default WaiterDashboard;

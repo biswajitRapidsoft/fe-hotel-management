@@ -301,6 +301,14 @@ const CreateTableDialog = ({
       });
       return;
     }
+    if (formData.capacity <= 0) {
+      setSnack({
+        open: true,
+        message: "A table of capacity less then or equal to 0 is not allowed",
+        severity: "warning",
+      });
+      return;
+    }
     if (formData.capacity) {
       const existingTables = tableList?.data || [];
       let highestTableNumber = 0;

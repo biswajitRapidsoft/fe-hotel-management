@@ -134,6 +134,10 @@ const WaiterDashboard = React.lazy(() =>
   import("./features/restaurant/WaiterDashboard")
 );
 
+const CounterStaffDashboard = React.lazy(() =>
+  import("./features/restaurant/CounterStaffDashboard")
+);
+
 function App() {
   const location = useLocation();
   // console.log("hello3", location);
@@ -219,6 +223,10 @@ function App() {
             <Route path="/HallList" element={<HallList />} />
             <Route path="/createTable" element={<CreateTable />} />
             <Route path="/WaiterDashboard" element={<WaiterDashboard />} />
+            <Route
+              path="/CounterStaffDashboard"
+              element={<CounterStaffDashboard />}
+            />
             <Route path="/BanquetList" element={<BanquetList />} />
             <Route path="/PromocodeList" element={<PromocodeList />} />
             <Route path="/parking-list" element={<ParkingList />} />

@@ -81,6 +81,40 @@ const restaurantApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["getAllTablesForWaiter"],
     }),
+    deliverFoodByWaiter: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.deliverFoodByWaiter,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllTablesForWaiter"],
+    }),
+    getAllTablesForCounter: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllTablesForCounterStaff,
+        method: "GET",
+        params: {
+          hotelId: payload?.hotelId,
+          userId: payload?.userId,
+        },
+      }),
+      providesTags: ["getAllTablesForCounter"],
+    }),
+    getBookingDetailsFromRoomNumber: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.getBookingDetailsByRoomNumber,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllTablesForCounter"],
+    }),
+    assosciateOrderWithRoom: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.assosciateOrderWithRoom,
+        method: "POST",
+        data: payload,
+      }),
+    }),
   }),
   overrideExisting: false,
 });
@@ -95,4 +129,8 @@ export const {
   useGetAllFoodOrderStatusQuery,
   useRateFoodMutation,
   useGetAllTablesForWaiterQuery,
+  useDeliverFoodByWaiterMutation,
+  useGetAllTablesForCounterQuery,
+  useGetBookingDetailsFromRoomNumberMutation,
+  useAssosciateOrderWithRoomMutation,
 } = restaurantApi;

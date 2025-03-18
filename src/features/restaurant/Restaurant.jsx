@@ -52,6 +52,7 @@ import { FaArrowAltCircleLeft } from "react-icons/fa";
 
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+import { useNavigate } from "react-router-dom";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -293,6 +294,7 @@ const getFilterdMenuList = (menuList, mealType, foodType) => {
 };
 
 const Restaurant = () => {
+  const navigate = useNavigate();
   const [isOrderHistoryDrawer, setIsOrderHistoryDrawer] = React.useState(false);
   const [selectedRestaurantCoupon, setSelectedRestaurantCoupon] =
     React.useState(null);
@@ -326,6 +328,7 @@ const Restaurant = () => {
   // const isStayingGuest = sessionStorage.getItem("isStayingGuest");
   const tableId = sessionStorage.getItem("tableId");
   const orderTakenBy = sessionStorage.getItem("orderTakenBy");
+  const orderIdFromWaiter = sessionStorage.getItem("orderIdFromWaiter");
 
   React.useEffect(() => {
     const timerId = setTimeout(() => {
@@ -341,6 +344,7 @@ const Restaurant = () => {
       data: [],
     },
     isLoading,
+    isFetching: isMenuListFetching,
   } = useGetAllFoodQuery(
     {
       hotelId:
@@ -557,6 +561,8 @@ const Restaurant = () => {
       isStayingGuest: Boolean(tableId) ? false : true,
       tableId: tableId,
       orderTakenBy: { id: Number(orderTakenBy) },
+      orderId: orderIdFromWaiter,
+      // orderIdFromWaiter: orderIdFromWaiter,
       totalGstPrice: (calculateTotalAmountOfCartItems() * 0.18).toFixed(2),
       totalPrice: calculateTotalAmountOfCartItems(),
 
@@ -575,7 +581,11 @@ const Restaurant = () => {
       .unwrap()
       .then((res) => {
         setSnack({ open: true, message: res.message, severity: "success" });
-
+        if (Boolean(tableId)) {
+          setTimeout(() => {
+            navigate(-1);
+          }, 500);
+        }
         setCartItems([]);
         setSelectedRestaurantCoupon(null);
       })
@@ -1139,7 +1149,8 @@ const Restaurant = () => {
         open={
           isLoading ||
           orderFoodRes.isLoading ||
-          isAllRestaurantPromocodeByHotelIdDataLoading
+          isAllRestaurantPromocodeByHotelIdDataLoading ||
+          isMenuListFetching
         }
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
