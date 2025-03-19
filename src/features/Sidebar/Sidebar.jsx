@@ -16,13 +16,19 @@ import { MdOutlineCleaningServices } from "react-icons/md";
 import DryCleaningIcon from "@mui/icons-material/DryCleaning";
 import { FaParking } from "react-icons/fa";
 import { MdHistory } from "react-icons/md";
-
+import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
+import ChecklistIcon from "@mui/icons-material/Checklist";
 // import GroupsIcon from "@mui/icons-material/Groups";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 // import AltRouteIcon from "@mui/icons-material/AltRoute";
 import KingBedIcon from "@mui/icons-material/KingBed";
 import RoofingIcon from "@mui/icons-material/Roofing";
-import { FRONTDESK, HOUSEKEEPER, GUARD } from "../../helper/constants";
+import {
+  FRONTDESK,
+  HOUSEKEEPER,
+  GUARD,
+  COUNTER_STAFF,
+} from "../../helper/constants";
 import SpaIcon from "@mui/icons-material/Spa";
 const drawerWidth = 300;
 
@@ -158,6 +164,22 @@ const sideBarMenuOptions = [
     menuIconAlt: "Activity Logo",
     menuTitle: "Parking History",
     visibility: [GUARD],
+  },
+  {
+    pathname: "/CounterStaffDashboard",
+    isLibraryIcon: true,
+    menuIcon: <RestaurantMenuIcon style={{ color: "#fff" }} />,
+    menuIconAlt: "Activity Logo",
+    menuTitle: "Dashboard",
+    visibility: [COUNTER_STAFF],
+  },
+  {
+    pathname: "/RoomDineIn",
+    isLibraryIcon: true,
+    menuIcon: <ChecklistIcon style={{ color: "#fff" }} />,
+    menuIconAlt: "Activity Logo",
+    menuTitle: "Room Dine-In  ",
+    visibility: [COUNTER_STAFF],
   },
 ];
 

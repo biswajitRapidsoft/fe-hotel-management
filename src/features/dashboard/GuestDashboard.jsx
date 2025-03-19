@@ -3160,7 +3160,7 @@ export const PaymentDialog = memo(function ({
   setDrawerOpen = () => {},
   handleAfterSuccessFunction = () => {},
 }) {
-  // console.log("amount", reservationPayload);
+  console.log("reservationPayload", reservationPayload);
   const [paymentMethod, setPaymentMethod] = React.useState("card");
   const [cardNumber, setCardNumber] = React.useState("");
   const [upiNumber, setUpiNumber] = React.useState("");
@@ -3207,6 +3207,7 @@ export const PaymentDialog = memo(function ({
 
   const handleSubmit = React.useCallback(
     async (e) => {
+      // debugger;
       e.preventDefault();
       const paymentDetail = paymentMethod === "card" ? cardNumber : upiNumber;
 

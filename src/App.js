@@ -138,6 +138,8 @@ const CounterStaffDashboard = React.lazy(() =>
   import("./features/restaurant/CounterStaffDashboard")
 );
 
+const RoomDineIn = React.lazy(() => import("./features/restaurant/RoomDineIn"));
+
 function App() {
   const location = useLocation();
   // console.log("hello3", location);
@@ -223,10 +225,7 @@ function App() {
             <Route path="/HallList" element={<HallList />} />
             <Route path="/createTable" element={<CreateTable />} />
             <Route path="/WaiterDashboard" element={<WaiterDashboard />} />
-            <Route
-              path="/CounterStaffDashboard"
-              element={<CounterStaffDashboard />}
-            />
+
             <Route path="/BanquetList" element={<BanquetList />} />
             <Route path="/PromocodeList" element={<PromocodeList />} />
             <Route path="/parking-list" element={<ParkingList />} />
@@ -259,15 +258,18 @@ function App() {
             <Route
               path="/frontdeskBookingHistory"
               element={<FrontdeskBookingHistory />}
+            />{" "}
+            <Route
+              path="/CounterStaffDashboard"
+              element={<CounterStaffDashboard />}
             />
+            <Route path="/RoomDineIn" element={<RoomDineIn />} />
             <Route path="/spa-admin" element={<SpaAdmin />} />
             <Route path="/hallBookings" element={<HallBookingDashboard />} />
-
             <Route
               path="/HouseKeepingHistory"
               element={<HouseKeepingHistory />}
             />
-
             <Route
               path="/housekeeper-dashboard"
               element={<HouseKeeperDashboard />}

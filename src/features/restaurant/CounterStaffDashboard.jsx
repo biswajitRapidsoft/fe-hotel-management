@@ -17,18 +17,24 @@ import {
   FormGroup,
   FormControlLabel,
   TextField,
+  Paper,
+  Autocomplete,
 } from "@mui/material";
+import ClearIcon from "@mui/icons-material/Clear";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+
 import { BootstrapDialog } from "../header/Header";
 import ChairIcon from "@mui/icons-material/Chair";
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 
-import { useNavigate } from "react-router-dom";
 import moment from "moment";
+import { PaymentDialog } from "../dashboard/GuestDashboard";
 import {
   useGetAllTablesForCounterQuery,
   useGetBookingDetailsFromRoomNumberMutation,
   useAssosciateOrderWithRoomMutation,
+  useCompleteFoodOrderMutation,
 } from "../../services/restaurant";
 
 const CounterStaffDashboard = () => {
@@ -37,6 +43,23 @@ const CounterStaffDashboard = () => {
     message: "",
     severity: "",
   });
+  const [openPaymentDialog, setOpenPaymentDialog] = React.useState(false);
+  const [makePartialPaymentPayload, setMakePartialPaymentPayload] =
+    React.useState(null);
+  const [orderDetailsDialog, setOrderDetailsDialog] = React.useState(null);
+
+  const handleOpenPaymentDialog = React.useCallback(() => {
+    const totalPrice = orderDetailsDialog?.bookingRequestDto?.totalPrice || 0;
+    const gstPrice = orderDetailsDialog?.bookingRequestDto?.gstPrice || 0;
+
+    const payload = {
+      paidAmount: totalPrice + gstPrice,
+      orderId: orderDetailsDialog?.bookingRequestDto?.orderId,
+    };
+
+    setMakePartialPaymentPayload(payload);
+    setOpenPaymentDialog(true);
+  }, [orderDetailsDialog]);
   const {
     data: tableListForCounterStaff = { data: [] },
     isLoading,
@@ -51,11 +74,11 @@ const CounterStaffDashboard = () => {
 
   const [assosciateWithRoom, assosciateWithRoomRes] =
     useAssosciateOrderWithRoomMutation();
-
-  const [orderDetailsDialog, setOrderDetailsDialog] = React.useState(null);
+  const [completeOrder, completeOrderRes] = useCompleteFoodOrderMutation();
   const handleCloseOrderDetailsDialog = React.useCallback(() => {
     setOrderDetailsDialog(null);
   }, []);
+
   return (
     <>
       <Box>
@@ -72,12 +95,25 @@ const CounterStaffDashboard = () => {
         bookingDetails={bookingDetails}
         bookingDetailsRes={bookingDetailsRes}
         assosciateWithRoom={assosciateWithRoom}
+        handleOpenPaymentDialog={handleOpenPaymentDialog}
+        completeOrder={completeOrder}
+      />
+      <PaymentDialog
+        openPaymentDialog={openPaymentDialog}
+        handlePaymentDialogClose={() => setOpenPaymentDialog(false)}
+        reservationPayload={makePartialPaymentPayload}
+        setSnack={setSnack}
+        reserveHotelRoom={completeOrder}
+        // handleAfterSuccessFunction={() => {
+        //   onClose();
+        // }}
       />
 
       <LoadingComponent
         open={
           bookingDetailsRes.isLoading ||
           assosciateWithRoomRes.isLoading ||
+          completeOrderRes.isLoading ||
           isLoading ||
           isFetching
         }
@@ -223,7 +259,9 @@ const TableCardsForCounterStaff = ({
                     mb: 1,
                   }}
                   onClick={() => {
-                    setOrderDetailsDialog(item);
+                    if (Boolean(item?.bookingRequestDto)) {
+                      setOrderDetailsDialog(item);
+                    }
                   }}
                 >
                   <Box
@@ -290,12 +328,23 @@ const OrderDetailsDialog = ({
   setSnack,
   bookingDetailsRes,
   assosciateWithRoom,
+  handleOpenPaymentDialog,
+  completeOrder,
 }) => {
+  console.log(
+    "orderDetailsDialog",
+    orderDetailsDialog?.bookingRequestDto.orderId
+  );
   const [formData, setFormData] = React.useState({
     isAssosciateWithRoom: false,
+    isProceedToPayment: false,
     roomNumber: "",
+    paymentType: null,
   });
-  console.log("orderDetailsDialog", orderDetailsDialog);
+  const paymentOptions = [
+    { id: 1, type: "Cash" },
+    { id: 2, type: "Online" },
+  ];
 
   const handleGetBookingDetails = React.useCallback(() => {
     bookingDetails({
@@ -341,27 +390,62 @@ const OrderDetailsDialog = ({
       });
   }, [assosciateWithRoom, orderDetailsDialog, bookingDetailsRes]);
 
-  const handleChange = React.useCallback((e) => {
-    if (["roomNumber"].includes(e.target.name)) {
+  const handleMakePaymentWithCash = React.useCallback(() => {
+    const totalPrice = orderDetailsDialog?.bookingRequestDto?.totalPrice || 0;
+    const gstPrice = orderDetailsDialog?.bookingRequestDto?.gstPrice || 0;
+
+    completeOrder({
+      orderId: orderDetailsDialog?.bookingRequestDto.orderId,
+      paidAmount: totalPrice + gstPrice,
+      paymentMethod: "Cash",
+    })
+      .unwrap()
+      .then((res) => {
+        setSnack({
+          open: true,
+          message: res.message,
+          severity: "success",
+        });
+        handleCloseOrderDetailsDialog();
+      })
+      .catch((err) => {
+        setSnack({
+          open: true,
+          message: err.data?.message || err.data,
+          severity: "error",
+        });
+      });
+  }, [completeOrder, orderDetailsDialog]);
+
+  const handleChange = React.useCallback((e, newValue, reason, details) => {
+    if (reason === "selectOption" || reason === "clear") {
       setFormData((prevData) => ({
         ...prevData,
-        [e.target.name]: e.target.value.replace(/\D/g, ""),
+        paymentType: newValue,
       }));
-    } else if (e.target.type === "checkbox") {
-      if (e.target.name === "isAdvance") {
-        setFormData((prevData) => ({
-          ...prevData,
-          roomNumber: "",
-          [e.target.name]: e.target.checked,
-        }));
-      } else {
-        setFormData((prevData) => ({
-          ...prevData,
-          [e.target.name]: e.target.checked,
-        }));
-      }
+      return;
     }
-  });
+
+    const { name, type, checked, value } = e.target;
+
+    setFormData((prevData) => {
+      if (name === "roomNumber") {
+        return {
+          ...prevData,
+          [name]: value.replace(/\D/g, ""),
+        };
+      } else if (type === "checkbox") {
+        return {
+          ...prevData,
+          isAssosciateWithRoom:
+            name === "isAssosciateWithRoom" ? checked : false,
+          isProceedToPayment: name === "isProceedToPayment" ? checked : false,
+        };
+      }
+      return prevData;
+    });
+  }, []);
+
   return (
     <>
       <BootstrapDialog
@@ -440,10 +524,11 @@ const OrderDetailsDialog = ({
                 Order Sub-total:
               </Typography>
               <Typography>
-                ₹ {orderDetailsDialog?.bookingRequestDto?.totalPrice}
+                ₹{" "}
+                {orderDetailsDialog?.bookingRequestDto?.totalPrice +
+                  orderDetailsDialog?.bookingRequestDto?.gstPrice}
               </Typography>
             </Box>
-
             <Box sx={{ py: 2 }}>
               <TableContainer sx={{ maxHeight: 600 }}>
                 <Table stickyHeader>
@@ -485,52 +570,56 @@ const OrderDetailsDialog = ({
                 </Table>
               </TableContainer>
             </Box>
-
             <Box>
-              <Grid container>
-                <Grid size={4}>
-                  <FormGroup sx={{ mt: 1 }}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={formData.isAssosciateWithRoom}
-                          name="isAssosciateWithRoom"
-                          onChange={handleChange}
-                        />
-                      }
-                      label="Is Assosciate With Room"
-                    />
-                  </FormGroup>
-                </Grid>
-                {formData.isAssosciateWithRoom && (
-                  <Grid size={3}>
-                    <TextField
-                      label={
-                        <React.Fragment>
-                          Room Number
-                          <Box
-                            component="span"
-                            sx={{
-                              color: (theme) => theme.palette.error.main,
-                            }}
-                          >
-                            *
-                          </Box>
-                        </React.Fragment>
-                      }
-                      name="roomNumber"
-                      value={formData.roomNumber}
-                      onChange={handleChange}
-                      variant="standard"
-                    />
-                  </Grid>
-                )}
-                <Grid size={3}>
-                  {/* {
-            Boolean(
-              orderDetailsDialog?.bookingRequestDto?.foodBookingStatus ===
-                "Delivered"
-            ) && ( */}
+              <Box sx={{ display: "flex" }}>
+                <FormGroup sx={{ mt: 1 }}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={formData.isAssosciateWithRoom}
+                        name="isAssosciateWithRoom"
+                        onChange={handleChange}
+                      />
+                    }
+                    label="Is Assosciate With Room"
+                  />
+                </FormGroup>
+                <FormGroup sx={{ mt: 1 }}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={formData.isProceedToPayment}
+                        name="isProceedToPayment"
+                        onChange={handleChange}
+                      />
+                    }
+                    label="Proceed to Payment"
+                  />
+                </FormGroup>
+              </Box>
+
+              {formData.isAssosciateWithRoom && (
+                <Box sx={{ display: "flex", gap: 2 }}>
+                  <TextField
+                    label={
+                      <React.Fragment>
+                        Room Number
+                        <Box
+                          component="span"
+                          sx={{
+                            color: (theme) => theme.palette.error.main,
+                          }}
+                        >
+                          *
+                        </Box>
+                      </React.Fragment>
+                    }
+                    name="roomNumber"
+                    value={formData.roomNumber}
+                    onChange={handleChange}
+                    variant="standard"
+                  />
+
                   <Button
                     color="secondary"
                     variant="contained"
@@ -545,70 +634,257 @@ const OrderDetailsDialog = ({
                         color: "#FFFFFF",
                       },
                     }}
-                    disabled={!Boolean(formData.roomNumber)}
                     onClick={handleGetBookingDetails}
                   >
                     Check
                   </Button>
-                  {/* )} */}
-                </Grid>
-              </Grid>
-            </Box>
+                </Box>
+              )}
 
-            <Box>
-              <Box sx={{ display: "flex", gap: 1 }}>
-                <Typography>Name:</Typography>
-                <Typography>
-                  {bookingDetailsRes?.data?.data?.firstName}
-                </Typography>
-              </Box>
-              <Box sx={{ display: "flex", gap: 1 }}>
-                <Typography>Booking Ref. Number:</Typography>
-                <Typography>
-                  {bookingDetailsRes?.data?.data?.bookingRefNumber}
-                </Typography>
-              </Box>
-              <Box sx={{ display: "flex", gap: 1 }}>
-                <Typography>Phone Number:</Typography>
-                <Typography>
-                  {bookingDetailsRes?.data?.data?.phoneNumber}
-                </Typography>
-              </Box>
-              <Box sx={{ display: "flex", gap: 1 }}>
-                <Typography>Booking Status:</Typography>
-                <Typography>
-                  {bookingDetailsRes?.data?.data?.bookingStatus}
-                </Typography>
-              </Box>
+              {Boolean(formData.isProceedToPayment) && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 2,
+                    justifyContent: "center",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      ".MuiTextField-root": {
+                        width: "100%",
+                        backgroundColor: "transparent",
+                        ".MuiInputBase-root": {
+                          color: "#B4B4B4",
+                          background: "rgba(255, 255, 255, 0.25)",
+                        },
+                      },
+                      ".MuiFormLabel-root": {
+                        color: (theme) => theme.palette.primary.main,
+                        fontWeight: 600,
+                        fontSize: 14,
+                      },
+                      ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+                        borderBottom: (theme) =>
+                          `1px solid ${theme.palette.primary.main}`,
+                      },
+                      ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+                        borderBottom: (theme) =>
+                          `1px solid ${theme.palette.primary.main}`,
+                      },
+                      "& .MuiOutlinedInput-root": {
+                        height: "35px",
+                        minHeight: "35px",
+                      },
+                      "& .MuiInputBase-input": {
+                        padding: "13px",
+                        height: "100%",
+                        boxSizing: "border-box",
+                        fontSize: "13px",
+                      },
+                    }}
+                  >
+                    <Autocomplete
+                      options={paymentOptions}
+                      fullWidth
+                      getOptionLabel={(option) => option.type || ""}
+                      clearOnEscape
+                      disablePortal
+                      value={formData.paymentType}
+                      onChange={handleChange}
+                      // inputValue={
+                      //   customFormDrawerData?.paymentMethodInputValue || ""
+                      // }
+                      // onInputChange={(e, newVal) =>
+                      //   handleChangeCustomFormDrawerDataOnChange(
+                      //     "paymentMethodInputValue",
+                      //     newVal
+                      //   )
+                      // }
+                      popupIcon={<KeyboardArrowDownIcon color="primary" />}
+                      sx={{
+                        ".MuiInputBase-root": {
+                          color: "#fff",
+                        },
+                        "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover":
+                          {
+                            backgroundColor: "#E9E5F1",
+                            color: "#280071",
+                            fontWeight: 600,
+                          },
+                        "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                          {
+                            backgroundColor: "#E9E5F1",
+                            color: "#280071",
+                            fontWeight: 600,
+                          },
+                      }}
+                      componentsProps={{
+                        popper: {
+                          sx: {
+                            "& .MuiAutocomplete-listbox": {
+                              maxHeight: "150px",
+                              overflow: "auto",
+                            },
+                            "& .MuiAutocomplete-option": {
+                              fontSize: "13px",
+                            },
+                          },
+                        },
+                      }}
+                      size="small"
+                      clearIcon={<ClearIcon color="primary" />}
+                      PaperComponent={(props) => (
+                        <Paper
+                          sx={{
+                            background: "#fff",
+                            color: "#B4B4B4",
+                            borderRadius: "10px",
+                          }}
+                          {...props}
+                        />
+                      )}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Payment Type"
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              borderRadius: 2,
+                              width: 200,
+                              height: 35,
+                            },
+                          }}
+                        />
+                      )}
+                    />
+                  </Box>
+                  <Button
+                    color="secondary"
+                    variant="contained"
+                    size="small"
+                    sx={{
+                      color: "#fff",
+                      fontWeight: 600,
+                      textTransform: "none",
+                      fontSize: 18,
+                      "&.Mui-disabled": {
+                        background: "#B2E5F6",
+                        color: "#FFFFFF",
+                      },
+                    }}
+                    disabled={!Boolean(formData.paymentType)}
+                    // onClick={handleOpenPaymentDialog}
+                    onClick={() => {
+                      if (formData.paymentType.type === "Cash") {
+                        handleMakePaymentWithCash();
+                      } else {
+                        handleOpenPaymentDialog();
+                      }
+                    }}
+                  >
+                    Proceed to Payment
+                  </Button>
+                </Box>
+              )}
             </Box>
-
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Button
-                color="secondary"
-                variant="contained"
-                size="small"
-                sx={{
-                  color: "#fff",
-                  fontWeight: 600,
-                  textTransform: "none",
-                  fontSize: 18,
-                  "&.Mui-disabled": {
-                    background: "#B2E5F6",
-                    color: "#FFFFFF",
-                  },
-                }}
-                // disabled={!Boolean(formData.roomNumber)}
-                onClick={handleAssosciateWithRoom}
-              >
-                Assosciate with Room
-              </Button>
-            </Box>
+            {Boolean(bookingDetailsRes.isSuccess) &&
+              Boolean(formData.isAssosciateWithRoom) && (
+                <Paper
+                  elevation={4}
+                  sx={{
+                    p: 2,
+                    mt: 1,
+                    // boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
+                  }}
+                >
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <Typography
+                      sx={{
+                        fontWeight: "bold",
+                        color: (theme) => theme.palette.primary.main,
+                      }}
+                    >
+                      Name:
+                    </Typography>
+                    <Typography>
+                      {bookingDetailsRes?.data?.data?.firstName}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <Typography
+                      sx={{
+                        fontWeight: "bold",
+                        color: (theme) => theme.palette.primary.main,
+                      }}
+                    >
+                      Booking Ref. Number:
+                    </Typography>
+                    <Typography>
+                      {bookingDetailsRes?.data?.data?.bookingRefNumber}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <Typography
+                      sx={{
+                        fontWeight: "bold",
+                        color: (theme) => theme.palette.primary.main,
+                      }}
+                    >
+                      Phone Number:
+                    </Typography>
+                    <Typography>
+                      {bookingDetailsRes?.data?.data?.phoneNumber}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <Typography
+                      sx={{
+                        fontWeight: "bold",
+                        color: (theme) => theme.palette.primary.main,
+                      }}
+                    >
+                      Booking Status:
+                    </Typography>
+                    <Typography>
+                      {bookingDetailsRes?.data?.data?.bookingStatus
+                        .split("_")
+                        .join(" ")}
+                    </Typography>
+                  </Box>
+                </Paper>
+              )}
+            {Boolean(formData.isAssosciateWithRoom) &&
+              Boolean(bookingDetailsRes.isSuccess) && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    mt: 2,
+                  }}
+                >
+                  <Button
+                    color="secondary"
+                    variant="contained"
+                    size="small"
+                    sx={{
+                      color: "#fff",
+                      fontWeight: 600,
+                      textTransform: "none",
+                      fontSize: 18,
+                      "&.Mui-disabled": {
+                        background: "#B2E5F6",
+                        color: "#FFFFFF",
+                      },
+                    }}
+                    // disabled={!Boolean(formData.roomNumber)}
+                    onClick={handleAssosciateWithRoom}
+                  >
+                    Assosciate with Room
+                  </Button>
+                </Box>
+              )}
           </Box>
         </DialogContent>
       </BootstrapDialog>

@@ -68,6 +68,7 @@ const WaiterDashboard = () => {
       <LoadingComponent
         open={isLoading || isFetching || deliverFoodRes.isLoading}
       />
+      <SnackAlert snack={snack} setSnack={setSnack} />
     </>
   );
 };
