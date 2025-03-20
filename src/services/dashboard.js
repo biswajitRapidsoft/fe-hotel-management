@@ -390,6 +390,25 @@ const dashboardApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["getPendingBookingRequestCounts"],
     }),
+    upgradeRoomRequest: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.upgradeRoomRequest,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["roomBookingHistoryByHotelId"],
+    }),
+    getRoomTypeUpgradePriceConfig: build.query({
+      query: (payload) => ({
+        url: config.apiName.getRoomTypeUpgradePriceConfig,
+        method: "GET",
+        params: {
+          masterRoomTypeId: payload.masterRoomTypeId,
+          companyId: payload.companyId,
+        },
+      }),
+      providesTags: ["getRoomTypeUpgradePriceConfig"],
+    }),
   }),
 
   overrideExisting: false,
@@ -435,4 +454,6 @@ export const {
   useGetAllMasterDiningTypeQuery,
   useAddFoodItemsMutation,
   useGetFoodTypeQuery,
+  useGetRoomTypeUpgradePriceConfigQuery,
+  useUpgradeRoomRequestMutation,
 } = dashboardApi;

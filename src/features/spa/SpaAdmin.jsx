@@ -610,7 +610,7 @@ const SpaAdmin = () => {
   );
 };
 
-export const PaymentDialog = memo(function ({
+export const PaymentDialogV2 = memo(function ({
   openPaymentDialog,
   handlePaymentDialogClose,
   amountToPay,

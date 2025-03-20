@@ -35,7 +35,7 @@ import SnackAlert from "../../components/Alert";
 import BookingHistoryDrawer from "./BookingHistoryDrawer";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import { PaymentDialog } from "./SpaAdmin";
+import { PaymentDialogV2 } from "./SpaAdmin";
 export const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -562,7 +562,7 @@ const Spa = () => {
         open={isBookingHistoryDrawer}
         handleClose={() => setIsBookingHistoryDrawer(false)}
       />
-      <PaymentDialog
+      <PaymentDialogV2
         openPaymentDialog={Boolean(openPaymentDialog)}
         amountToPay={openPaymentDialog}
         handlePaymentDialogClose={() => setOpenPaymentDialog(null)}

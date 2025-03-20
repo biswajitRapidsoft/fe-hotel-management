@@ -30,6 +30,7 @@ import { BootstrapDialog } from "../header/Header";
 import CloseIcon from "@mui/icons-material/Close";
 import { ADMIN } from "../../helper/constants";
 import SnackAlert from "../../components/Alert";
+import { useNavigate } from "react-router-dom";
 
 const CustomChips = ({ itemList }) => {
   const [showMore, setShowMore] = React.useState(false);
@@ -78,6 +79,7 @@ const CustomChips = ({ itemList }) => {
 };
 
 const RoomTypeTable = ({ setRoomToUpdate }) => {
+  const navigate = useNavigate();
   const {
     data: roomTypeList = {
       data: [],
@@ -170,6 +172,24 @@ const RoomTypeTable = ({ setRoomToUpdate }) => {
               />
               <Typography>Consumables</Typography>
             </Box>
+            <Button
+              color="secondary"
+              variant="contained"
+              size="small"
+              sx={{
+                color: "#fff",
+                fontWeight: 600,
+                textTransform: "none",
+                fontSize: 18,
+                "&.Mui-disabled": {
+                  background: "#B2E5F6",
+                  color: "#FFFFFF",
+                },
+              }}
+              onClick={() => navigate("/roomUpgradeConfiguration")}
+            >
+              Room Upgrage
+            </Button>
           </Box>
         </Toolbar>
         <TableContainer sx={{ maxHeight: 600 }}>

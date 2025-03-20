@@ -1757,7 +1757,9 @@ const CustomRow = memo(function ({
                       />
                     </Button>
                   </Tooltip>
-                  {row?.bookingStatus === "Pending_Confirmation" && (
+                  {["Pending_Confirmation", "Room_Upgrade_Request"].includes(
+                    row?.bookingStatus
+                  ) && (
                     <>
                       <Tooltip title={"Check Availability"} arrow>
                         <Button
