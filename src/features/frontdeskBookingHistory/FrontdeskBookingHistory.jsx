@@ -32,6 +32,7 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import { StyledCalendarIcon } from "../dashboard/Dashboard";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { saveAs } from "file-saver";
+import PublishedWithChangesIcon from "@mui/icons-material/PublishedWithChanges";
 
 import {
   useGetAllBookingStatusTypeQuery,
@@ -42,6 +43,7 @@ import {
   useApproveBookingCancelRequestMutation,
   useCancelRoomBookingFromBookingHistoryMutation,
   useExportBookingHistoryMutation,
+  useChangeRoomMutation,
 } from "../../services/frontdeskBookingHistory";
 // import moment from "moment";
 import moment from "moment-timezone";
@@ -1757,6 +1759,29 @@ const CustomRow = memo(function ({
                       />
                     </Button>
                   </Tooltip>
+                  {row?.bookingStatus === "Checked_In" && (
+                    <Tooltip title={"Change Room"} arrow>
+                      <Button
+                        variant="outlined"
+                        // color="success"
+                        sx={{ minWidth: "unset", width: "11px" }}
+                        // onClick={() =>
+                        //   handleChangeBookingConfirmationOnConfirm(
+                        //     "confirmBooking",
+                        //     row
+                        //   )
+                        // }
+
+                        onClick={() =>
+                          handleChangeSelectedBookingHistoryOnClick(row)
+                        }
+                      >
+                        <PublishedWithChangesIcon
+                          sx={{ fontSize: "14px", fontWeight: 600 }}
+                        />
+                      </Button>
+                    </Tooltip>
+                  )}
                   {["Pending_Confirmation", "Room_Upgrade_Request"].includes(
                     row?.bookingStatus
                   ) && (
@@ -2878,20 +2903,37 @@ const CustomBookingHistoryDrawer = memo(function ({
 
               <Grid size={12}>
                 <Box sx={{ width: "100%", marginY: "2px" }}>
-                  <Button
-                    variant="contained"
-                    color="success"
-                    disabled={!bookingConfirmationFormData?.roomDto?.id}
-                    sx={{ fontSize: "11px" }}
-                    onClick={() =>
-                      handleChangeBookingConfirmationOnClick(
-                        "confirmBooking",
-                        bookingConfirmationFormData
-                      )
-                    }
-                  >
-                    Confirm Booking
-                  </Button>
+                  {selectedBookingHistory?.bookingStatus === "Checked_In" ? (
+                    <Button
+                      variant="contained"
+                      color="success"
+                      disabled={!bookingConfirmationFormData?.roomDto?.id}
+                      sx={{ fontSize: "11px" }}
+                      onClick={() =>
+                        handleChangeBookingConfirmationOnClick(
+                          "confirmChangeRoom",
+                          bookingConfirmationFormData
+                        )
+                      }
+                    >
+                      Confirm Change Room
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="contained"
+                      color="success"
+                      disabled={!bookingConfirmationFormData?.roomDto?.id}
+                      sx={{ fontSize: "11px" }}
+                      onClick={() =>
+                        handleChangeBookingConfirmationOnClick(
+                          "confirmBooking",
+                          bookingConfirmationFormData
+                        )
+                      }
+                    >
+                      Confirm Booking
+                    </Button>
+                  )}
                 </Box>
               </Grid>
             </Grid>
@@ -2903,6 +2945,7 @@ const CustomBookingHistoryDrawer = memo(function ({
 });
 
 const FrontdeskBookingHistory = () => {
+  const [changeRoom, changeRoomRes] = useChangeRoomMutation();
   const initialBookingHistoryTableFilters = useMemo(
     () => ({
       fromDate: null,
@@ -3421,6 +3464,45 @@ const FrontdeskBookingHistory = () => {
               });
           }
         });
+      } else if (name === "confirmChangeRoom") {
+        Swal.fire({
+          title: "Confirm Change Room!",
+          text: "Are you Sure To Change Room For This Booking?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const payload = {
+              bookingRefNumber: bookingData?.bookingRefNumber || null,
+              roomDto: {
+                id: bookingData?.roomDto?.id || null,
+              },
+            };
+            changeRoom(payload)
+              .unwrap()
+              .then((res) => {
+                setSnack({
+                  open: true,
+                  message: res?.message || "Booking Confirmation Success",
+                  severity: "success",
+                });
+                handleOpenCustomBookingHistoryDrawer();
+              })
+              .catch((err) => {
+                setSnack({
+                  open: true,
+                  message:
+                    err?.data?.message ||
+                    err?.data ||
+                    "Booking Confirmation Failed",
+                  severity: "error",
+                });
+              });
+          }
+        });
       } else if (name === "cancelBooking") {
         Swal.fire({
           title: "Cancel Booking!",
@@ -3898,6 +3980,7 @@ const FrontdeskBookingHistory = () => {
           approveBookingCancelRequestRes.isLoading ||
           exportBookingHistoryRes.isLoading ||
           assignHouseKeepingRequestRes?.isLoading ||
+          changeRoomRes.isLoading ||
           false
         }
       />

@@ -84,6 +84,7 @@ const config = Object.freeze({
     saveRoomTypeUpgradePriceConfig: "api/hotel/room-type/upgrade/price/config",
     getRoomTypeUpgradePriceConfigAdmin:
       "api/get/upgrade/price-config/room/type",
+    changeRoom: "api/change/new/room",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",

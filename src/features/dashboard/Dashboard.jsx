@@ -9839,6 +9839,16 @@ const Dashboard = () => {
   );
 
   const handleSubmitRoomCheckIn = useCallback(() => {
+    const checkInDateTime = new Date(
+      new Date().toISOString().split("T")[0] +
+        ` ${isSelectedRoom.roomType.checkInTime}`
+    );
+    const currentDateTime = new Date();
+
+    const earlyCheckInHour =
+      (checkInDateTime - currentDateTime) / (1000 * 60 * 60) < 0
+        ? 0
+        : Math.ceil((checkInDateTime - currentDateTime) / (1000 * 60 * 60));
     if (!Boolean(customFormDrawerData?.noOfPeoples)) {
       setSnack({
         open: true,
@@ -9905,6 +9915,9 @@ const Dashboard = () => {
     }
 
     const payload = {
+      bookingAmount:
+        earlyCheckInHour &&
+        Math.ceil(isSelectedRoom.roomType.basePrice / 24) * earlyCheckInHour,
       bookingRefNumber: customFormDrawerData?.bookingRefNumber || "",
       noOfPeoples: !Boolean(customFormDrawerData?.noOfPeoples)
         ? 0
@@ -9973,6 +9986,7 @@ const Dashboard = () => {
     handleOpenCustomFormDrawer,
     handleChangeCustomFormDrawerData,
     handleRoomSelect,
+    isSelectedRoom,
   ]);
 
   const handleSubmitRoomBookingCanelation = useCallback(() => {
@@ -10247,6 +10261,16 @@ const Dashboard = () => {
   );
 
   const handleSubmitBookingForGuestByFrontDesk = useCallback(() => {
+    const checkInDateTime = new Date(
+      new Date().toISOString().split("T")[0] +
+        ` ${isSelectedRoom.roomType.checkInTime}`
+    );
+    const currentDateTime = new Date();
+
+    const earlyCheckInHour =
+      (checkInDateTime - currentDateTime) / (1000 * 60 * 60) < 0
+        ? 0
+        : Math.ceil((checkInDateTime - currentDateTime) / (1000 * 60 * 60));
     if (!Boolean(customFormDrawerData?.firstName)) {
       setSnack({
         open: true,
@@ -10477,7 +10501,11 @@ const Dashboard = () => {
         customFormDrawerData?.transactionReferenceNo?.trim() && {
           transactionReferenceNo: customFormDrawerData?.transactionReferenceNo,
         }),
-      bookingAmount: customFormDrawerData?.accumulatedRoomCharge,
+      bookingAmount:
+        customFormDrawerData.isBookingForToday && earlyCheckInHour
+          ? customFormDrawerData?.accumulatedRoomCharge +
+            Math.ceil(isSelectedRoom.roomType.basePrice / 24) * earlyCheckInHour
+          : customFormDrawerData?.accumulatedRoomCharge,
       remarks: customFormDrawerData?.remarks,
     };
 
@@ -10515,6 +10543,7 @@ const Dashboard = () => {
     bookingByFrontDeskStaff,
     handleOpenCustomFormDrawer,
     handleRoomSelect,
+    isSelectedRoom,
   ]);
 
   useEffect(() => {
