@@ -27,6 +27,9 @@ const GuestDashboard = React.lazy(() =>
 );
 const HotelList = React.lazy(() => import("./features/hotel/HotelList"));
 const RoomType = React.lazy(() => import("./features/roomType/RoomType"));
+const RoomUpgradeConfiguration = React.lazy(() =>
+  import("./features/roomType/RoomUpgradeConfiguration")
+);
 const ExtraItem = React.lazy(() => import("./features/extraItem/ExtraItem"));
 const EmployeeList = React.lazy(() => import("./features/employee/Employee"));
 const HouseKeeperDashboard = React.lazy(() =>
@@ -218,6 +221,10 @@ function App() {
             <Route path="/hotel-list" element={<HotelList />} />
             <Route path="/ConfigurePrice" element={<ConfigurePrice />} />
             <Route path="/room-type" element={<RoomType />} />
+            <Route
+              path="/roomUpgradeConfiguration"
+              element={<RoomUpgradeConfiguration />}
+            />
             <Route path="/extra-item" element={<ExtraItem />} />
             <Route path="/employee-list" element={<EmployeeList />} />
             <Route path="/spa-type" element={<SpaType />} />

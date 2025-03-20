@@ -9,7 +9,7 @@ const config = Object.freeze({
   // baseUrl: "http://192.168.30.44:8070/be-hms/", // HO Staging
   // baseUrl: "http://192.168.12.3:9000/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
-  // baseUrl: "http://192.168.12.3:9000/",
+  baseUrl: "http://192.168.12.3:9000/",
   apiName: {
     loginAsCustomer: "login/as/customer",
     loginAsStaff: "login",
@@ -88,6 +88,10 @@ const config = Object.freeze({
     getAllDineInRequestFromRoom: "api/get/all/table/not/assigned/orders",
     getAllWaiters: "api/get/all/waiters",
     assignTableToWaiter: "api/assign/table/to/restaurant/order",
+    saveRoomTypeUpgradePriceConfig: "api/hotel/room-type/upgrade/price/config",
+    getRoomTypeUpgradePriceConfigAdmin:
+      "api/get/upgrade/price-config/room/type",
+    changeRoom: "api/change/new/room",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",
@@ -110,6 +114,8 @@ const config = Object.freeze({
     createTable: "api/create/restaurant/tables",
     getAllTablesForWaiter: "api/get/restaurant/tables/for/waiter",
     getAllTablesForCounterStaff: "api/get/restaurant/tables/for/counter/staff",
+    upgradeRoomRequest: "api/upgrade/new/room",
+    getRoomTypeUpgradePriceConfig: "api/get/upgrade/price-config/room/type/id",
     //FRONTDESK BOOKING HISTORY
     roomBookingHistoryByHotelId: "api/booking/history",
     getAllBookingStatusType: "api/get/all/booking/status/type",

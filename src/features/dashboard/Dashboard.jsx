@@ -67,6 +67,8 @@ import {
   useSaveCustomerCheckInMutation,
   useAllocateNewKeyToCustomerMutation,
   useGetKeysDataQuery,
+  useGetRoomTypeUpgradePriceConfigQuery,
+  useUpgradeRoomRequestMutation,
 } from "../../services/dashboard";
 import { checkRoomStatusType } from "../../helper/helperFunctions";
 import moment from "moment";
@@ -83,6 +85,7 @@ import { useNavigate } from "react-router-dom";
 import InfoIcon from "@mui/icons-material/Info";
 import { PaymentDialog } from "./GuestDashboard";
 import { useCancelRoomBookingFromBookingHistoryMutation } from "../../services/frontdeskBookingHistory";
+import { PaymentDialogV2 } from "../spa/SpaAdmin";
 
 export const StyledCalendarIcon = styled(CalendarMonthIcon)({
   color: "#9380B8",
@@ -1421,6 +1424,7 @@ const DayCheckoutCard = memo(function ({
 });
 
 const RoomServiceCard = memo(function ({
+  setRoomUpgradeDrawer,
   handleOpenShowcaseModalForInventory,
   handleOpenShowcaseModalForFood,
   isSelectedRoom,
@@ -3397,6 +3401,28 @@ const RoomServiceCard = memo(function ({
             </Button>
           )}
 
+          {/* UPGRADE ROOM  */}
+          {isSelectedRoom?.bookingDto &&
+            selectedRoomStatusType?.key === RESERVED?.key && (
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => setRoomUpgradeDrawer(isSelectedRoom)}
+                sx={{
+                  backgroundImage:
+                    "linear-gradient(to right, #a4508b 0%, #5f0a87 100%)",
+                  color: "white",
+                  "&:hover": {
+                    backgroundImage:
+                      "linear-gradient(to right, #a4508b 10%, #5f0a87 90%)",
+                  },
+                }}
+                fullWidth
+              >
+                ROOM UPGRADE
+              </Button>
+            )}
+
           {/* RESERVED ROOM CASE */}
           {isSelectedRoom?.bookingDto &&
             selectedRoomStatusType?.key === RESERVED?.key && (
@@ -3797,6 +3823,795 @@ const RoomServiceCard = memo(function ({
         </Box>
       </Box>
     </>
+  );
+});
+
+const getNumberOfDays = (toDate, fromDate) => {
+  return (new Date(toDate) - new Date(fromDate)) / (24 * 3600 * 1000) + 1;
+};
+
+const RoomUpgradeDrawer = memo(function ({
+  open,
+  onClose,
+  isSelectedRoom,
+  setOpenPaymentDialogV2,
+  setApiPayload,
+  setAmountToPay,
+  handleUpgradeRoomRequest,
+}) {
+  const [selectedUpgrade, setSelectedUpgrade] = React.useState(null);
+  const {
+    data: roomTypePriceConfig = {
+      data: {
+        upgradeRoomTypePriceConfiguration: [],
+      },
+    },
+  } = useGetRoomTypeUpgradePriceConfigQuery(
+    {
+      companyId: JSON.parse(sessionStorage.getItem("data")).companyId,
+      masterRoomTypeId: isSelectedRoom?.roomType?.id || null,
+    },
+    { skip: !open }
+  );
+
+  console.log(isSelectedRoom, "isSelectedRoom");
+
+  React.useEffect(() => {
+    if (selectedUpgrade && isSelectedRoom) {
+      setApiPayload({
+        bookingRefNumber: isSelectedRoom.bookingDto.bookingRefNumber,
+        discountPrice:
+          selectedUpgrade.upgradeRoomTypeDto.basePrice -
+          (selectedUpgrade.upgradeRoomTypeDto.basePrice *
+            selectedUpgrade.percentageDiscount) /
+            100,
+        gstPrice:
+          (selectedUpgrade.upgradeRoomTypeDto.basePrice -
+            (selectedUpgrade.upgradeRoomTypeDto.basePrice *
+              selectedUpgrade.percentageDiscount) /
+              100) *
+          0.18,
+        bookingAmount:
+          isSelectedRoom.roomType.basePrice -
+          (selectedUpgrade.upgradeRoomTypeDto.basePrice -
+            (selectedUpgrade.upgradeRoomTypeDto.basePrice *
+              selectedUpgrade.percentageDiscount) /
+              100),
+        roomTypeId: selectedUpgrade.upgradeRoomTypeDto.id,
+      });
+      // setAmountToPay(
+      //   (selectedUpgrade.upgradeRoomTypeDto.advanceAmount || 0) -
+      //     (selectedUpgrade.upgradeRoomTypeDto.advanceAmount || 0) *
+      //       (selectedUpgrade.percentageDiscount / 100)
+      // );
+      setAmountToPay(
+        Boolean(selectedUpgrade?.upgradeRoomTypeDto?.isAdvanceRequired)
+          ? getNumberOfDays(
+              isSelectedRoom?.bookingDto?.toDate.split("-").reverse().join("-"),
+              isSelectedRoom?.bookingDto?.fromDate
+                .split("-")
+                .reverse()
+                .join("-")
+            ) *
+              (selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount -
+                selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount *
+                  (selectedUpgrade.percentageDiscount / 100)) -
+              isSelectedRoom?.bookingDto?.transactionDetails
+                ?.filter((item) => Boolean(item?.isCredit))
+                ?.reduce((sum, item) => sum + (item?.amount || 0), 0) <
+            0
+            ? 0
+            : getNumberOfDays(
+                isSelectedRoom?.bookingDto?.toDate
+                  .split("-")
+                  .reverse()
+                  .join("-"),
+                isSelectedRoom?.bookingDto?.fromDate
+                  .split("-")
+                  .reverse()
+                  .join("-")
+              ) *
+                (selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount -
+                  selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount *
+                    (selectedUpgrade.percentageDiscount / 100)) -
+              isSelectedRoom?.bookingDto?.transactionDetails
+                ?.filter((item) => Boolean(item?.isCredit))
+                ?.reduce((sum, item) => sum + (item?.amount || 0), 0)
+          : 0
+      );
+    }
+  }, [selectedUpgrade, isSelectedRoom]);
+
+  return (
+    <Drawer
+      anchor="right"
+      open={open}
+      onClose={() => {
+        onClose();
+        setSelectedUpgrade(null);
+      }}
+      sx={{ zIndex: 1300 }}
+      onTransitionExited={() => setSelectedUpgrade(null)}
+    >
+      <Box Box sx={{ width: 500, paddingBottom: "15px" }} role="presentation">
+        <Box
+          sx={{
+            px: 2,
+
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <Typography sx={{ fontWeight: 550, fontSize: "1.5em" }}>
+            Room Upgrade
+          </Typography>
+          <IconButton
+            onClick={() => {
+              onClose();
+              setSelectedUpgrade(null);
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </Box>
+        <Divider sx={{ mb: 1 }} />
+        <Box sx={{ px: 2 }}>
+          <Grid container size={12} spacing={1}>
+            <Grid size={12}>
+              <Grid container size={12}>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Booking Ref. No.
+                  </Typography>
+                </Grid>
+                <Grid size={8}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {isSelectedRoom?.bookingDto?.bookingRefNumber || ""}
+                    </Typography>
+                  </Typography>
+                </Grid>
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    From
+                  </Typography>
+                </Grid>
+                <Grid size={3}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {isSelectedRoom?.bookingDto?.fromDate || ""}
+                    </Typography>
+                  </Typography>
+                </Grid>
+
+                <Grid size={1}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    To
+                  </Typography>
+                </Grid>
+
+                <Grid size={3}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {isSelectedRoom?.bookingDto?.toDate || ""}
+                    </Typography>
+                  </Typography>
+                </Grid>
+                <Grid size={12}></Grid>
+                {/* STAYERS */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Stayers
+                  </Typography>
+                </Grid>
+                <Grid size={1}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {isSelectedRoom?.bookingDto?.noOfPeoples || 0}
+                    </Typography>
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid size={12}>
+              <Grid container>
+                <Grid size={12}>
+                  <Typography
+                    sx={{
+                      fontSize: "20px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Available Upgrades :
+                  </Typography>
+                </Grid>
+                <Grid size={12}>
+                  <TableContainer>
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow
+                          sx={{
+                            ".MuiTableCell-root": {
+                              fontWeight: "bold",
+                            },
+                          }}
+                        >
+                          <TableCell />
+                          <TableCell>Upgrade Room Type</TableCell>
+                          <TableCell>Discount Percentage</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {roomTypePriceConfig.data.upgradeRoomTypePriceConfiguration.map(
+                          (configData) => {
+                            return (
+                              <TableRow>
+                                <TableCell>
+                                  <Checkbox
+                                    size="small"
+                                    onClick={() =>
+                                      setSelectedUpgrade(configData)
+                                    }
+                                    checked={
+                                      selectedUpgrade?.id === configData.id
+                                    }
+                                  />
+                                </TableCell>
+                                <TableCell>
+                                  {configData.upgradeRoomTypeDto.type}
+                                </TableCell>
+                                <TableCell>
+                                  {configData.percentageDiscount}
+                                </TableCell>
+                              </TableRow>
+                            );
+                          }
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Grid>
+              </Grid>
+            </Grid>
+
+            {/* ROOM CHARGES */}
+            {Boolean(selectedUpgrade) && (
+              <Grid size={{ xs: 12 }}>
+                <Grid size={12}>
+                  <Typography
+                    sx={{
+                      fontSize: "20px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Room Charge Details :
+                  </Typography>
+                </Grid>
+                <Grid container size={12} rowSpacing={0.5}>
+                  <Grid size={5}>
+                    <Typography
+                      sx={{
+                        fontSize: "14px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                      }}
+                    >
+                      Room Base Price (per day)
+                    </Typography>
+                  </Grid>
+                  <Grid size={7}>
+                    <Typography
+                      sx={{
+                        fontSize: "14px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                      }}
+                    >
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontSize: "14px",
+                          // color: "#707070",
+                          fontWeight: 600,
+                          marginRight: "5px",
+                        }}
+                      >
+                        :
+                      </Typography>
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontSize: "14px",
+                          // color: "#707070",
+                          // fontWeight: 600,
+                        }}
+                      >
+                        {(selectedUpgrade?.upgradeRoomTypeDto?.basePrice || 0) -
+                          (selectedUpgrade?.upgradeRoomTypeDto?.basePrice ||
+                            0) *
+                            (selectedUpgrade?.percentageDiscount / 100)}
+                      </Typography>
+                    </Typography>
+                  </Grid>
+
+                  <Grid size={5}>
+                    <Typography
+                      sx={{
+                        fontSize: "14px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                      }}
+                    >
+                      Total Charge
+                    </Typography>
+                  </Grid>
+                  <Grid size={7}>
+                    <Typography
+                      sx={{
+                        fontSize: "14px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                      }}
+                    >
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontSize: "14px",
+                          // color: "#707070",
+                          fontWeight: 600,
+                          marginRight: "5px",
+                        }}
+                      >
+                        :
+                      </Typography>
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontSize: "14px",
+                          // color: "#707070",
+                          // fontWeight: 600,
+                        }}
+                      >
+                        {((selectedUpgrade?.upgradeRoomTypeDto?.basePrice ||
+                          0) -
+                          (selectedUpgrade?.upgradeRoomTypeDto?.basePrice ||
+                            0) *
+                            (selectedUpgrade?.percentageDiscount / 100)) *
+                          getNumberOfDays(
+                            isSelectedRoom?.bookingDto?.toDate
+                              .split("-")
+                              .reverse()
+                              .join("-"),
+                            isSelectedRoom?.bookingDto?.fromDate
+                              .split("-")
+                              .reverse()
+                              .join("-")
+                          )}{" "}
+                        {Boolean(
+                          getNumberOfDays(
+                            isSelectedRoom?.bookingDto?.toDate
+                              .split("-")
+                              .reverse()
+                              .join("-"),
+                            isSelectedRoom?.bookingDto?.fromDate
+                              .split("-")
+                              .reverse()
+                              .join("-")
+                          )
+                        ) &&
+                          `(${getNumberOfDays(
+                            isSelectedRoom?.bookingDto?.toDate
+                              .split("-")
+                              .reverse()
+                              .join("-"),
+                            isSelectedRoom?.bookingDto?.fromDate
+                              .split("-")
+                              .reverse()
+                              .join("-")
+                          )} day${
+                            Boolean(
+                              getNumberOfDays(
+                                isSelectedRoom?.bookingDto?.toDate
+                                  .split("-")
+                                  .reverse()
+                                  .join("-"),
+                                isSelectedRoom?.bookingDto?.fromDate
+                                  .split("-")
+                                  .reverse()
+                                  .join("-")
+                              ) > 1
+                            )
+                              ? "s"
+                              : ""
+                          } of stay)`}
+                      </Typography>
+                    </Typography>
+                  </Grid>
+                  <Grid size={5}>
+                    <Typography
+                      sx={{
+                        fontSize: "14px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                      }}
+                    >
+                      Advance Required
+                    </Typography>
+                  </Grid>
+                  <Grid size={7}>
+                    <Typography
+                      sx={{
+                        fontSize: "14px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                      }}
+                    >
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontSize: "14px",
+                          // color: "#707070",
+                          fontWeight: 600,
+                          marginRight: "5px",
+                        }}
+                      >
+                        :
+                      </Typography>
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontSize: "14px",
+                          // color: "#707070",
+                          // fontWeight: 600,
+                        }}
+                      >
+                        {(Boolean(
+                          selectedUpgrade?.upgradeRoomTypeDto?.isAdvanceRequired
+                        )
+                          ? getNumberOfDays(
+                              isSelectedRoom?.bookingDto?.toDate
+                                .split("-")
+                                .reverse()
+                                .join("-"),
+                              isSelectedRoom?.bookingDto?.fromDate
+                                .split("-")
+                                .reverse()
+                                .join("-")
+                            ) *
+                              (selectedUpgrade?.upgradeRoomTypeDto
+                                ?.advanceAmount -
+                                selectedUpgrade?.upgradeRoomTypeDto
+                                  ?.advanceAmount *
+                                  (selectedUpgrade.percentageDiscount / 100)) -
+                              isSelectedRoom?.bookingDto?.transactionDetails
+                                ?.filter((item) => Boolean(item?.isCredit))
+                                ?.reduce(
+                                  (sum, item) => sum + (item?.amount || 0),
+                                  0
+                                ) <
+                            0
+                            ? 0
+                            : getNumberOfDays(
+                                isSelectedRoom?.bookingDto?.toDate
+                                  .split("-")
+                                  .reverse()
+                                  .join("-"),
+                                isSelectedRoom?.bookingDto?.fromDate
+                                  .split("-")
+                                  .reverse()
+                                  .join("-")
+                              ) *
+                                (selectedUpgrade?.upgradeRoomTypeDto
+                                  ?.advanceAmount -
+                                  selectedUpgrade?.upgradeRoomTypeDto
+                                    ?.advanceAmount *
+                                    (selectedUpgrade.percentageDiscount /
+                                      100)) -
+                              isSelectedRoom?.bookingDto?.transactionDetails
+                                ?.filter((item) => Boolean(item?.isCredit))
+                                ?.reduce(
+                                  (sum, item) => sum + (item?.amount || 0),
+                                  0
+                                )
+                          : 0) || "(No advance is required.)"}
+                      </Typography>
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </Grid>
+            )}
+            {/* PAYMENTS */}
+            <Grid size={12}>
+              <Grid container size={12}>
+                {/* STAYERS */}
+                <Grid size={12}>
+                  <Typography
+                    sx={{
+                      fontSize: "20px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Payment Details :
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "14px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Advance Paid
+                  </Typography>
+                </Grid>
+
+                <Grid size={8}>
+                  <Typography
+                    sx={{
+                      fontSize: "14px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "14px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "14px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {isSelectedRoom?.bookingDto?.transactionDetails
+                        ?.filter((item) => Boolean(item?.isCredit))
+                        ?.reduce((sum, item) => sum + (item?.amount || 0), 0)}
+                    </Typography>
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+          {Boolean(selectedUpgrade) && (
+            <Button
+              variant="contained"
+              sx={{
+                backgroundImage:
+                  "linear-gradient(to right, #a4508b 0%, #5f0a87 100%)",
+                color: "white",
+                "&:hover": {
+                  backgroundImage:
+                    "linear-gradient(to right, #a4508b 10%, #5f0a87 90%)",
+                },
+              }}
+              onClick={() => {
+                if (
+                  Boolean(
+                    selectedUpgrade?.upgradeRoomTypeDto?.isAdvanceRequired
+                  )
+                    ? getNumberOfDays(
+                        isSelectedRoom?.bookingDto?.toDate
+                          .split("-")
+                          .reverse()
+                          .join("-"),
+                        isSelectedRoom?.bookingDto?.fromDate
+                          .split("-")
+                          .reverse()
+                          .join("-")
+                      ) *
+                        (selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount -
+                          selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount *
+                            (selectedUpgrade.percentageDiscount / 100)) -
+                        isSelectedRoom?.bookingDto?.transactionDetails
+                          ?.filter((item) => Boolean(item?.isCredit))
+                          ?.reduce(
+                            (sum, item) => sum + (item?.amount || 0),
+                            0
+                          ) <
+                      0
+                      ? 0
+                      : getNumberOfDays(
+                          isSelectedRoom?.bookingDto?.toDate
+                            .split("-")
+                            .reverse()
+                            .join("-"),
+                          isSelectedRoom?.bookingDto?.fromDate
+                            .split("-")
+                            .reverse()
+                            .join("-")
+                        ) *
+                          (selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount -
+                            selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount *
+                              (selectedUpgrade.percentageDiscount / 100)) -
+                        isSelectedRoom?.bookingDto?.transactionDetails
+                          ?.filter((item) => Boolean(item?.isCredit))
+                          ?.reduce((sum, item) => sum + (item?.amount || 0), 0)
+                    : 0
+                ) {
+                  setOpenPaymentDialogV2(true);
+                } else {
+                  handleUpgradeRoomRequest();
+                }
+              }}
+            >
+              {(
+                Boolean(selectedUpgrade?.upgradeRoomTypeDto?.isAdvanceRequired)
+                  ? getNumberOfDays(
+                      isSelectedRoom?.bookingDto?.toDate
+                        .split("-")
+                        .reverse()
+                        .join("-"),
+                      isSelectedRoom?.bookingDto?.fromDate
+                        .split("-")
+                        .reverse()
+                        .join("-")
+                    ) *
+                      (selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount -
+                        selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount *
+                          (selectedUpgrade.percentageDiscount / 100)) -
+                      isSelectedRoom?.bookingDto?.transactionDetails
+                        ?.filter((item) => Boolean(item?.isCredit))
+                        ?.reduce((sum, item) => sum + (item?.amount || 0), 0) <
+                    0
+                    ? 0
+                    : getNumberOfDays(
+                        isSelectedRoom?.bookingDto?.toDate
+                          .split("-")
+                          .reverse()
+                          .join("-"),
+                        isSelectedRoom?.bookingDto?.fromDate
+                          .split("-")
+                          .reverse()
+                          .join("-")
+                      ) *
+                        (selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount -
+                          selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount *
+                            (selectedUpgrade.percentageDiscount / 100)) -
+                      isSelectedRoom?.bookingDto?.transactionDetails
+                        ?.filter((item) => Boolean(item?.isCredit))
+                        ?.reduce((sum, item) => sum + (item?.amount || 0), 0)
+                  : 0
+              )
+                ? "PAY AND UPGRADE NOW"
+                : "UPGRADE NOW"}
+            </Button>
+          )}
+        </Box>
+      </Box>
+    </Drawer>
   );
 });
 
@@ -7984,6 +8799,13 @@ const ShowcaseDialog = memo(function ({
 });
 
 const Dashboard = () => {
+  const [amountToPay, setAmountToPay] = React.useState(0);
+  const [roomUpgradeDrawer, setRoomUpgradeDrawer] = React.useState(null);
+  const [openPaymentDialogV2, setOpenPaymentDialogV2] = React.useState(false);
+  const [apiPayload, setApiPayload] = React.useState({});
+  const [upgradeRoomRequest, upgradeRoomRequestRes] =
+    useUpgradeRoomRequestMutation();
+  console.log(roomUpgradeDrawer, "roomUpgradeDrawerrrr");
   const [roomFilters, setRoomFilters] = React.useState({
     roomStatus: null,
     searchKey: "",
@@ -8398,6 +9220,27 @@ const Dashboard = () => {
       return selectedRoom;
     });
   }, []);
+
+  const handleUpgradeRoomRequest = useCallback(() => {
+    upgradeRoomRequest(apiPayload)
+      .unwrap()
+      .then((res) => {
+        setSnack({
+          open: true,
+          message: res.message,
+          severity: "success",
+        });
+        setOpenPaymentDialogV2(false);
+        setRoomUpgradeDrawer(null);
+      })
+      .catch((err) => {
+        setSnack({
+          open: true,
+          message: err.data?.message || err.data,
+          severity: "error",
+        });
+      });
+  }, [apiPayload]);
 
   const handleChangeRoomFilters = useCallback((name, value) => {
     console.log("handleChangeRoomFilters value : ", value);
@@ -8996,6 +9839,16 @@ const Dashboard = () => {
   );
 
   const handleSubmitRoomCheckIn = useCallback(() => {
+    const checkInDateTime = new Date(
+      new Date().toISOString().split("T")[0] +
+        ` ${isSelectedRoom.roomType.checkInTime}`
+    );
+    const currentDateTime = new Date();
+
+    const earlyCheckInHour =
+      (checkInDateTime - currentDateTime) / (1000 * 60 * 60) < 0
+        ? 0
+        : Math.ceil((checkInDateTime - currentDateTime) / (1000 * 60 * 60));
     if (!Boolean(customFormDrawerData?.noOfPeoples)) {
       setSnack({
         open: true,
@@ -9062,6 +9915,9 @@ const Dashboard = () => {
     }
 
     const payload = {
+      bookingAmount:
+        earlyCheckInHour &&
+        Math.ceil(isSelectedRoom.roomType.basePrice / 24) * earlyCheckInHour,
       bookingRefNumber: customFormDrawerData?.bookingRefNumber || "",
       noOfPeoples: !Boolean(customFormDrawerData?.noOfPeoples)
         ? 0
@@ -9130,6 +9986,7 @@ const Dashboard = () => {
     handleOpenCustomFormDrawer,
     handleChangeCustomFormDrawerData,
     handleRoomSelect,
+    isSelectedRoom,
   ]);
 
   const handleSubmitRoomBookingCanelation = useCallback(() => {
@@ -9404,6 +10261,16 @@ const Dashboard = () => {
   );
 
   const handleSubmitBookingForGuestByFrontDesk = useCallback(() => {
+    const checkInDateTime = new Date(
+      new Date().toISOString().split("T")[0] +
+        ` ${isSelectedRoom.roomType.checkInTime}`
+    );
+    const currentDateTime = new Date();
+
+    const earlyCheckInHour =
+      (checkInDateTime - currentDateTime) / (1000 * 60 * 60) < 0
+        ? 0
+        : Math.ceil((checkInDateTime - currentDateTime) / (1000 * 60 * 60));
     if (!Boolean(customFormDrawerData?.firstName)) {
       setSnack({
         open: true,
@@ -9634,7 +10501,11 @@ const Dashboard = () => {
         customFormDrawerData?.transactionReferenceNo?.trim() && {
           transactionReferenceNo: customFormDrawerData?.transactionReferenceNo,
         }),
-      bookingAmount: customFormDrawerData?.accumulatedRoomCharge,
+      bookingAmount:
+        customFormDrawerData.isBookingForToday && earlyCheckInHour
+          ? customFormDrawerData?.accumulatedRoomCharge +
+            Math.ceil(isSelectedRoom.roomType.basePrice / 24) * earlyCheckInHour
+          : customFormDrawerData?.accumulatedRoomCharge,
       remarks: customFormDrawerData?.remarks,
     };
 
@@ -9672,6 +10543,7 @@ const Dashboard = () => {
     bookingByFrontDeskStaff,
     handleOpenCustomFormDrawer,
     handleRoomSelect,
+    isSelectedRoom,
   ]);
 
   useEffect(() => {
@@ -9810,6 +10682,7 @@ const Dashboard = () => {
                 {isSelectedRoom && (
                   <Grid size={12}>
                     <RoomServiceCard
+                      setRoomUpgradeDrawer={setRoomUpgradeDrawer}
                       handleOpenShowcaseModalForInventory={
                         handleOpenShowcaseModalForInventory
                       }
@@ -9871,6 +10744,16 @@ const Dashboard = () => {
           handleSubmitBookingForGuestByFrontDesk
         }
       />
+      <RoomUpgradeDrawer
+        open={Boolean(roomUpgradeDrawer)}
+        onClose={() => setRoomUpgradeDrawer(null)}
+        isSelectedRoom={roomUpgradeDrawer}
+        setOpenPaymentDialogV2={setOpenPaymentDialogV2}
+        setApiPayload={setApiPayload}
+        setAmountToPay={setAmountToPay}
+        handleUpgradeRoomRequest={handleUpgradeRoomRequest}
+        handleReset={() => {}}
+      />
       <LoadingComponent
         open={
           isApiRoomDataFetching ||
@@ -9886,6 +10769,7 @@ const Dashboard = () => {
           bookingByFrontDeskStaffRes?.isLoading ||
           isPendingBookingRequestCountsDataLoading ||
           assignNewKeyRes.isLoading ||
+          upgradeRoomRequestRes.isLoading ||
           false
         }
       />
@@ -9905,6 +10789,18 @@ const Dashboard = () => {
             paymentDialogMutationType
           )?.afterMutationSuccessFunction
         }
+      />
+      <PaymentDialogV2
+        openPaymentDialog={openPaymentDialogV2}
+        amountToPay={amountToPay}
+        handlePaymentDialogClose={() => setOpenPaymentDialogV2(false)}
+        setSnack={setSnack}
+        fetchApi={upgradeRoomRequest}
+        apiPayload={apiPayload}
+        handleReset={() => {
+          setOpenPaymentDialogV2(false);
+          setRoomUpgradeDrawer(null);
+        }}
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </>

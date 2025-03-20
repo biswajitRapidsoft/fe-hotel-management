@@ -17,6 +17,9 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 
 import SnackAlert from "../../components/Alert";
@@ -27,6 +30,7 @@ import {
 } from "../../services/dashboard";
 
 import LoadingComponent from "../../components/LoadingComponent";
+import moment from "moment";
 
 const SuperAdminDashboard = () => {
   const navigate = useNavigate();
@@ -37,6 +41,8 @@ const SuperAdminDashboard = () => {
     isLoading,
   } = useGetAllCompanyQuery();
   const [companyName, setCompanyName] = React.useState("");
+  const [checkInTime, setCheckInTime] = React.useState(null);
+  const [checkOutTime, setCheckOutTime] = React.useState(null);
   const [saveCompany, saveCompanyRes] = useSaveCompanyMutation();
 
   const [snack, setSnack] = React.useState({
@@ -50,6 +56,8 @@ const SuperAdminDashboard = () => {
       e.preventDefault();
       saveCompany({
         name: companyName,
+        checkInTime: moment(checkInTime.$d).format("hh:mm A"),
+        checkOutTime: moment(checkOutTime.$d).format("hh:mm A"),
       })
         .unwrap()
         .then((res) => {
@@ -59,6 +67,8 @@ const SuperAdminDashboard = () => {
             severity: "success",
           });
           setCompanyName("");
+          setCheckInTime(null);
+          setCheckOutTime(null);
         })
         .catch((err) => {
           setSnack({
@@ -68,7 +78,7 @@ const SuperAdminDashboard = () => {
           });
         });
     },
-    [companyName, saveCompany]
+    [companyName, saveCompany, checkInTime, checkOutTime]
   );
 
   const handleChangeCompanyStatus = React.useCallback(
@@ -167,6 +177,30 @@ const SuperAdminDashboard = () => {
                 variant="standard"
               />
             </Grid>
+            <Grid size={3}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <TimePicker
+                  label="Check-In Time"
+                  slotProps={{
+                    textField: { variant: "standard", readOnly: true },
+                  }}
+                  value={checkInTime}
+                  onChange={(newVal) => setCheckInTime(newVal)}
+                />
+              </LocalizationProvider>
+            </Grid>
+            <Grid size={3}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <TimePicker
+                  label="Check-Out Time"
+                  slotProps={{
+                    textField: { variant: "standard", readOnly: true },
+                  }}
+                  value={checkOutTime}
+                  onChange={(newVal) => setCheckOutTime(newVal)}
+                />
+              </LocalizationProvider>
+            </Grid>
           </Grid>
 
           <Box
@@ -192,7 +226,9 @@ const SuperAdminDashboard = () => {
                 },
               }}
               type="submit"
-              disabled={!Boolean(companyName.trim())}
+              disabled={
+                !Boolean(companyName.trim() && checkInTime && checkOutTime)
+              }
             >
               Add Company
             </Button>
@@ -235,6 +271,7 @@ const SuperAdminDashboard = () => {
                 >
                   <TableCell>Sl No.</TableCell>
                   <TableCell>Name</TableCell>
+                  <TableCell>Check-In / Check-Out</TableCell>
                   <TableCell>Action</TableCell>
                 </TableRow>
               </TableHead>
@@ -259,6 +296,34 @@ const SuperAdminDashboard = () => {
                         >
                           {company.name}
                         </Link>
+                      </TableCell>
+                      <TableCell>
+                        <Grid container>
+                          <Grid size={12}>
+                            <Grid container>
+                              <Grid size={4}>
+                                <Typography sx={{ fontWeight: "bold" }}>
+                                  Check-In:{" "}
+                                </Typography>
+                              </Grid>
+                              <Grid size={8}>
+                                <Typography>{company.checkInTime}</Typography>
+                              </Grid>
+                            </Grid>
+                          </Grid>
+                          <Grid size={12}>
+                            <Grid container>
+                              <Grid size={4}>
+                                <Typography sx={{ fontWeight: "bold" }}>
+                                  Check-Out:{" "}
+                                </Typography>
+                              </Grid>
+                              <Grid size={8}>
+                                <Typography>{company.checkOutTime}</Typography>
+                              </Grid>
+                            </Grid>
+                          </Grid>
+                        </Grid>
                       </TableCell>
                       <TableCell>
                         <Switch
