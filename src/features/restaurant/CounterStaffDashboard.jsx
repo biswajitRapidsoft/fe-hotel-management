@@ -19,9 +19,13 @@ import {
   TextField,
   Paper,
   Autocomplete,
+  Tooltip,
 } from "@mui/material";
+import { jsPDF } from "jspdf";
+
 import ClearIcon from "@mui/icons-material/Clear";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import ReceiptIcon from "@mui/icons-material/Receipt";
 
 import { BootstrapDialog } from "../header/Header";
 import ChairIcon from "@mui/icons-material/Chair";
@@ -64,10 +68,15 @@ const CounterStaffDashboard = () => {
     data: tableListForCounterStaff = { data: [] },
     isLoading,
     isFetching,
-  } = useGetAllTablesForCounterQuery({
-    hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
-    userId: JSON.parse(sessionStorage.getItem("data")).id,
-  });
+  } = useGetAllTablesForCounterQuery(
+    {
+      hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
+      userId: JSON.parse(sessionStorage.getItem("data")).id,
+    },
+    {
+      pollingInterval: 10000,
+    }
+  );
 
   const [bookingDetails, bookingDetailsRes] =
     useGetBookingDetailsFromRoomNumberMutation();
@@ -82,6 +91,77 @@ const CounterStaffDashboard = () => {
   return (
     <>
       <Box>
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-end",
+              gap: 1,
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 12,
+                  height: 12,
+                  borderRadius: "50%",
+                  backgroundColor: "#EE82EE",
+                }}
+              />
+              <Typography variant="body2" color="textPrimary">
+                Ready to serve
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 12,
+                  height: 12,
+                  borderRadius: "50%",
+                  backgroundColor: "#007FFF",
+                }}
+              />
+              <Typography variant="body2" color="textPrimary">
+                Recieved By Waiter
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 12,
+                  height: 12,
+                  borderRadius: "50%",
+                  backgroundColor: "#00CED1",
+                }}
+              />
+              <Typography variant="body2" color="textPrimary">
+                Delivered
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
         <TableCardsForCounterStaff
           tableListForCounterStaff={tableListForCounterStaff}
           setOrderDetailsDialog={setOrderDetailsDialog}
@@ -114,8 +194,8 @@ const CounterStaffDashboard = () => {
           bookingDetailsRes.isLoading ||
           assosciateWithRoomRes.isLoading ||
           completeOrderRes.isLoading ||
-          isLoading ||
-          isFetching
+          isLoading
+          // isFetching
         }
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
@@ -250,6 +330,12 @@ const TableCardsForCounterStaff = ({
                         "Ready_to_serve"
                     )
                       ? "#EE82EE"
+                      : item?.bookingRequestDto?.foodBookingStatus ===
+                        "Received_by_Waiter"
+                      ? "#007FFF"
+                      : item?.bookingRequestDto?.foodBookingStatus ===
+                        "Delivered"
+                      ? "#00CED1"
                       : Boolean(item?.bookingRequestDto)
                       ? "#FFAC1C"
                       : "#17B169",
@@ -331,10 +417,7 @@ const OrderDetailsDialog = ({
   handleOpenPaymentDialog,
   completeOrder,
 }) => {
-  console.log(
-    "orderDetailsDialog",
-    orderDetailsDialog?.bookingRequestDto.orderId
-  );
+  console.log("orderDetailsDialog", orderDetailsDialog);
   const [formData, setFormData] = React.useState({
     isAssosciateWithRoom: false,
     isProceedToPayment: false,
@@ -445,6 +528,73 @@ const OrderDetailsDialog = ({
       return prevData;
     });
   }, []);
+  const handleDownloadInvoice = React.useCallback((orderDetailsDialog) => {
+    // console.log("order", order);
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("Restaurant Invoice", 20, 20);
+    doc.setFontSize(12);
+    doc.text(orderDetailsDialog.bookingRequestDto.address, 20, 30);
+
+    doc.setFontSize(12);
+    doc.text(
+      `Customer Name: ${orderDetailsDialog.bookingRequestDto.firstName} ${
+        orderDetailsDialog.bookingRequestDto.middleName || ""
+      } ${orderDetailsDialog.bookingRequestDto.lastName || ""}`,
+      20,
+      50
+    );
+    doc.text(
+      `Order Status: ${orderDetailsDialog.bookingRequestDto.foodBookingStatus.replace(
+        "_",
+        " "
+      )}`,
+      20,
+      55
+    );
+    doc.text(
+      `Invoice Date: ${moment(
+        orderDetailsDialog.bookingRequestDto.bookedOn
+      ).format("DD/MM/YYYY hh:mma")}`,
+      20,
+      60
+    );
+    doc.text(
+      `Invoice Number: ${orderDetailsDialog.bookingRequestDto.orderId}`,
+      20,
+      65
+    );
+
+    const tableTop = 80;
+    doc.text("Items", 20, tableTop);
+    doc.text("Quantity", 120, tableTop);
+    doc.text("Price", 180, tableTop);
+
+    let yPosition = tableTop + 10;
+    orderDetailsDialog?.bookingRequestDto?.trailData?.forEach((item) => {
+      doc.text(item.itemName, 20, yPosition);
+      doc.text(item.noOfItems.toString(), 120, yPosition);
+      doc.text(item.price.toString(), 180, yPosition);
+      yPosition += 10;
+    });
+
+    const total = orderDetailsDialog.bookingRequestDto.totalPrice;
+    doc.text("Subtotal:", 140, yPosition);
+    doc.text(`Rs. ${total.toFixed(2)}`, 180, yPosition);
+    yPosition += 10;
+
+    const gst = total * 0.18;
+    doc.text("GST (18%):", 140, yPosition);
+    doc.text(`Rs. ${gst.toFixed(2)}`, 180, yPosition);
+    yPosition += 10;
+
+    const grandTotal = total + gst;
+    doc.text("Total Amount:", 140, yPosition);
+    doc.text(`Rs. ${grandTotal.toFixed(2)}`, 180, yPosition);
+    yPosition += 10;
+
+    doc.save("restaurant_invoice.pdf");
+  }, []);
 
   return (
     <>
@@ -480,54 +630,74 @@ const OrderDetailsDialog = ({
         </DialogTitle>
         <DialogContent dividers>
           <Box>
-            <Box sx={{ display: "flex", gap: 1 }}>
-              <Typography
-                sx={{
-                  fontWeight: "bold",
-                }}
-              >
-                Order Id:
-              </Typography>
-              <Typography>
-                {orderDetailsDialog?.bookingRequestDto?.orderId}
-              </Typography>
-            </Box>
-            <Box sx={{ display: "flex", gap: 1 }}>
-              <Typography sx={{ fontWeight: "bold" }}>Order Date:</Typography>
-              <Typography>
-                {moment(orderDetailsDialog?.bookingRequestDto?.bookedOn).format(
-                  "DD/MM/YYYY hh:mma"
-                )}
-              </Typography>
-            </Box>
-            <Box sx={{ display: "flex", gap: 1 }}>
-              <Typography sx={{ fontWeight: "bold", color: "secondary" }}>
-                Order Status:
-              </Typography>
-              <Typography>
-                {orderDetailsDialog?.bookingRequestDto?.foodBookingStatus
-                  .split("_")
-                  .join(" ")}
-              </Typography>
-            </Box>
-            <Box
-              sx={{
-                display: "flex",
-                gap: 1,
-              }}
-            >
-              <Typography
-                sx={{
-                  fontWeight: "bold",
-                }}
-              >
-                Order Sub-total:
-              </Typography>
-              <Typography>
-                ₹{" "}
-                {orderDetailsDialog?.bookingRequestDto?.totalPrice +
-                  orderDetailsDialog?.bookingRequestDto?.gstPrice}
-              </Typography>
+            <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+              <Box>
+                <Box sx={{ display: "flex", gap: 1 }}>
+                  <Typography
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Order Id:
+                  </Typography>
+                  <Typography>
+                    {orderDetailsDialog?.bookingRequestDto?.orderId}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: "flex", gap: 1 }}>
+                  <Typography sx={{ fontWeight: "bold" }}>
+                    Order Date:
+                  </Typography>
+                  <Typography>
+                    {moment(
+                      orderDetailsDialog?.bookingRequestDto?.bookedOn
+                    ).format("DD/MM/YYYY hh:mma")}
+                  </Typography>
+                </Box>
+                <Box sx={{ display: "flex", gap: 1 }}>
+                  <Typography sx={{ fontWeight: "bold", color: "secondary" }}>
+                    Order Status:
+                  </Typography>
+                  <Typography>
+                    {orderDetailsDialog?.bookingRequestDto?.foodBookingStatus
+                      .split("_")
+                      .join(" ")}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 1,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Order Sub-total:
+                  </Typography>
+                  <Typography>
+                    ₹{" "}
+                    {orderDetailsDialog?.bookingRequestDto?.totalPrice +
+                      orderDetailsDialog?.bookingRequestDto?.gstPrice}
+                  </Typography>
+                </Box>
+              </Box>
+              {Boolean(
+                orderDetailsDialog?.bookingRequestDto?.foodBookingStatus ===
+                  "Delivered"
+              ) && (
+                <Box>
+                  <Tooltip title="Download Invoice" arrow>
+                    <IconButton
+                      onClick={() => handleDownloadInvoice(orderDetailsDialog)}
+                    >
+                      <ReceiptIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              )}
             </Box>
             <Box sx={{ py: 2 }}>
               <TableContainer sx={{ maxHeight: 600 }}>

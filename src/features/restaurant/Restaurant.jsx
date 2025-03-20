@@ -553,7 +553,8 @@ const Restaurant = () => {
       hotelId:
         sessionStorage.getItem("hotelId") ||
         JSON.parse(sessionStorage.getItem("data")).hotelId,
-      dinningType: dineType,
+      // dinningType: dineType,
+      dinningType: Boolean(tableId) ? "Dine_In" : dineType,
       itemsList: cartItems.map((item) => ({
         itemId: item.id,
         noOfItems: item.quantity,
@@ -1031,6 +1032,7 @@ const Restaurant = () => {
               display: "flex",
               flexDirection: "column",
               p: 2,
+              width: "100%",
             }}
           >
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
@@ -1100,24 +1102,28 @@ const Restaurant = () => {
                 })?.discountedPrice.toFixed(2)}`}
               </Typography>
             </Box>
-            <FormGroup row>
-              {dineTypes.data.map((option) => {
-                return (
-                  <FormControlLabel
-                    key={option}
-                    control={
-                      <Checkbox
-                        checked={dineType === option}
-                        onChange={handleChangeRadioForDineType}
-                        size="small"
-                        value={option}
-                      />
-                    }
-                    label={option.replace("_", " ")}
-                  />
-                );
-              })}
-            </FormGroup>
+
+            {!Boolean(tableId) && (
+              <FormGroup row>
+                {dineTypes.data.map((option) => {
+                  return (
+                    <FormControlLabel
+                      key={option}
+                      control={
+                        <Checkbox
+                          checked={dineType === option}
+                          onChange={handleChangeRadioForDineType}
+                          size="small"
+                          value={option}
+                        />
+                      }
+                      label={option.replace("_", " ")}
+                    />
+                  );
+                })}
+              </FormGroup>
+            )}
+
             <Button
               color="secondary"
               variant="contained"
@@ -1132,7 +1138,11 @@ const Restaurant = () => {
                 },
               }}
               type="submit"
-              disabled={!Boolean(cartItems?.length && dineType)}
+              // disabled={!Boolean(cartItems?.length && dineType)}
+              disabled={
+                !Boolean(cartItems?.length) ||
+                (!Boolean(tableId) && !Boolean(dineType))
+              }
               onClick={handlePlaceOrder}
             >
               Place Order
@@ -1237,20 +1247,23 @@ const CustomFoodCard = React.memo(function ({ foodItem, handleAddItemToCart }) {
           </Box>
         </Box>
         <Grid container sx={{ borderRadius: "10px" }}>
-          <Grid size={12}>
-            <Box
-              component="img"
-              src={foodItem?.imageList[0] || ""}
-              alt="Food Image"
-              sx={{
-                width: "100%",
-                height: 200,
-                borderRadius: "10px",
-                cursor: "pointer",
-              }}
-              onClick={() => handleFoodDetails(foodItem)}
-            />
-          </Grid>
+          {Boolean(foodItem?.imageList) && (
+            <Grid size={12}>
+              <Box
+                component="img"
+                src={foodItem?.imageList[0] || ""}
+                alt="Food Image"
+                sx={{
+                  width: "100%",
+                  height: 200,
+                  borderRadius: "10px",
+                  cursor: "pointer",
+                }}
+                onClick={() => handleFoodDetails(foodItem)}
+              />
+            </Grid>
+          )}
+
           <Grid size={12}>
             <Box
               sx={{

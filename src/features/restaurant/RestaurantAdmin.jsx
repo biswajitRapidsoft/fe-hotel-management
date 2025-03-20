@@ -189,6 +189,8 @@ function FormDialog({
   order,
   setSnack,
 }) {
+  console.log("order", order?.bookingDetails?.dinningType);
+  // Room_Delivery,Take_Away
   const [remark, setRemark] = React.useState("");
   const [selectedStatus, setSelectedStatus] = React.useState(null);
   const [selectedStatusInputVal, setSelectedStatusInputVal] =
@@ -301,9 +303,16 @@ function FormDialog({
           <Grid container rowSpacing={2}>
             <Grid size={12}>
               <Autocomplete
-                // options={statusList}
-                options={statusList.filter((status) => status !== "Cancelled")}
-                // options={filteredStatusList}
+                // options={statusList.filter((status) => status !== "Cancelled")}
+                options={statusList.filter(
+                  (status) =>
+                    !(
+                      ["Room_Delivery", "Take_Away"].includes(
+                        order?.bookingDetails?.dinningType
+                      ) &&
+                      (status === "Cancelled" || status === "Ready_to_serve")
+                    )
+                )}
                 getOptionLabel={(option) => option.replace("_", " ")}
                 value={selectedStatus}
                 onChange={(e, newVal) => setSelectedStatus(newVal)}

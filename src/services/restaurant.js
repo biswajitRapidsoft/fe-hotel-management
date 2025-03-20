@@ -149,8 +149,11 @@ const restaurantApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
+      invalidatesTags: [
+        "getAllDineInRequestFromRoom",
+        "getAllTablesForCounter",
+      ],
     }),
-    invalidatesTags: ["getAllDineInRequestFromRoom"],
   }),
   overrideExisting: false,
 });

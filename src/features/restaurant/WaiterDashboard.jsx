@@ -25,7 +25,7 @@ import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
-
+import { RECEIVED_BY_WAITER } from "../../helper/constants";
 const WaiterDashboard = () => {
   const [snack, setSnack] = React.useState({
     open: false,
@@ -44,16 +44,112 @@ const WaiterDashboard = () => {
     },
     isLoading,
     isFetching,
-  } = useGetAllTablesForWaiterQuery({
-    hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
-    userId: JSON.parse(sessionStorage.getItem("data")).id,
-  });
+  } = useGetAllTablesForWaiterQuery(
+    {
+      hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
+      userId: JSON.parse(sessionStorage.getItem("data")).id,
+    },
+    {
+      pollingInterval: 10000,
+    }
+  );
 
   console.log("tableListForWaiter", tableListForWaiter);
 
   return (
     <>
       <Box>
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-end",
+              gap: 1,
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 12,
+                  height: 12,
+                  borderRadius: "50%",
+                  backgroundColor: "#EE82EE",
+                }}
+              />
+              <Typography variant="body2" color="textPrimary">
+                Ready to serve
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 12,
+                  height: 12,
+                  borderRadius: "50%",
+                  backgroundColor: "#007FFF",
+                }}
+              />
+              <Typography variant="body2" color="textPrimary">
+                Recieved By Waiter
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 12,
+                  height: 12,
+                  borderRadius: "50%",
+                  backgroundColor: "#00CED1",
+                }}
+              />
+              <Typography variant="body2" color="textPrimary">
+                Delivered
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 12,
+                  height: 12,
+                  borderRadius: "50%",
+                  backgroundColor: "#FFAC1C",
+                }}
+              />
+              <Typography variant="body2" color="textPrimary">
+                To be taken
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
         <TableCardsForWaiter
           tableListForWaiter={tableListForWaiter}
           setOrderDetailsDialog={setOrderDetailsDialog}
@@ -65,9 +161,7 @@ const WaiterDashboard = () => {
         deliverFood={deliverFood}
         setSnack={setSnack}
       />
-      <LoadingComponent
-        open={isLoading || isFetching || deliverFoodRes.isLoading}
-      />
+      <LoadingComponent open={isLoading || deliverFoodRes.isLoading} />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </>
   );
@@ -232,9 +326,23 @@ const TableCardsForWaiter = ({ tableListForWaiter, setOrderDetailsDialog }) => {
                         "Ready_to_serve"
                     )
                       ? "#EE82EE"
+                      : item?.bookingRequestDto?.foodBookingStatus ===
+                        "Received_by_Waiter"
+                      ? "#007FFF"
+                      : item?.bookingRequestDto?.foodBookingStatus ===
+                        "Delivered"
+                      ? "#00CED1"
                       : Boolean(item?.bookingRequestDto)
                       ? "#FFAC1C"
                       : "#17B169",
+                    // backgroundColor: Boolean(
+                    //   item?.bookingRequestDto?.foodBookingStatus ===
+                    //     "Ready_to_serve"
+                    // )
+                    //   ? "#EE82EE"
+                    //   : Boolean(item?.bookingRequestDto)
+                    //   ? "#FFAC1C"
+                    //   : "#17B169",
                     opacity: 0.7,
                     cursor: "pointer",
                     mt: 1,
@@ -373,36 +481,41 @@ const OrderDetailsDialog = ({
             >
               Order Details
             </Typography>{" "}
-            <Button
-              color="secondary"
-              variant="contained"
-              size="small"
-              sx={{
-                color: "#fff",
-                fontWeight: 600,
-                textTransform: "none",
-                fontSize: 18,
-                "&.Mui-disabled": {
-                  background: "#B2E5F6",
-                  color: "#FFFFFF",
-                },
-              }}
-              onClick={() => {
-                sessionStorage.setItem("tableId", orderDetailsDialog?.id);
-                sessionStorage.setItem(
-                  "orderIdFromWaiter",
-                  orderDetailsDialog?.bookingRequestDto?.orderId
-                );
-                sessionStorage.setItem("isStayingGuest", false);
-                sessionStorage.setItem(
-                  "orderTakenBy",
-                  JSON.parse(sessionStorage.getItem("data")).id
-                );
-                navigate("/resturant");
-              }}
-            >
-              Place new Order
-            </Button>
+            {Boolean(
+              orderDetailsDialog?.bookingRequestDto?.foodBookingStatus ===
+                "Delivered"
+            ) && (
+              <Button
+                color="secondary"
+                variant="contained"
+                size="small"
+                sx={{
+                  color: "#fff",
+                  fontWeight: 600,
+                  textTransform: "none",
+                  fontSize: 18,
+                  "&.Mui-disabled": {
+                    background: "#B2E5F6",
+                    color: "#FFFFFF",
+                  },
+                }}
+                onClick={() => {
+                  sessionStorage.setItem("tableId", orderDetailsDialog?.id);
+                  sessionStorage.setItem(
+                    "orderIdFromWaiter",
+                    orderDetailsDialog?.bookingRequestDto?.orderId
+                  );
+                  sessionStorage.setItem("isStayingGuest", false);
+                  sessionStorage.setItem(
+                    "orderTakenBy",
+                    JSON.parse(sessionStorage.getItem("data")).id
+                  );
+                  navigate("/resturant");
+                }}
+              >
+                Place new Order
+              </Button>
+            )}
           </Box>
         </DialogTitle>
         <DialogContent dividers>

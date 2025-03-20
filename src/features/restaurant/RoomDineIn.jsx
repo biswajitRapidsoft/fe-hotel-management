@@ -37,8 +37,8 @@ import moment from "moment";
 import {
   CANCELLED,
   DELIVERED,
-  KITCHENSTAFF,
-  ORDER_PLACED,
+  // KITCHENSTAFF,
+  // ORDER_PLACED,
   REJECTED,
 } from "../../helper/constants";
 const RoomDineIn = () => {
@@ -183,24 +183,12 @@ const Row = ({ item, index, setUpdateStatusDialog }) => {
         <TableCell>
           <Typography
             sx={{
-              color: (theme) =>
-                item.bookingDetails.foodBookingStatus === ORDER_PLACED
-                  ? theme.palette.warning.main
-                  : [REJECTED, CANCELLED].includes(
-                      item.bookingDetails.foodBookingStatus
-                    )
-                  ? theme.palette.error.main
-                  : item.bookingDetails.foodBookingStatus === DELIVERED
-                  ? theme.palette.success.main
-                  : theme.palette.warning.main,
+              color: (theme) => theme.palette.warning.main,
               fontWeight: 600,
               letterSpacing: 1,
             }}
           >
-            {
-              item?.bookingDetails?.foodBookingStatus
-              // .replace("_", " ")
-            }
+            CREATED
           </Typography>
         </TableCell>{" "}
         <TableCell>
@@ -432,7 +420,12 @@ function FormDialog({
                 options={tableListForCounterStaff?.data.filter((item) =>
                   Boolean(item.isActive)
                 )}
-                getOptionLabel={(option) => option?.tableNo?.toString() || ""}
+                // getOptionLabel={(option) => option?.tableNo?.toString() || ""}
+                getOptionLabel={(option) =>
+                  option?.tableNo
+                    ? `${option.tableNo} (Capacity: ${option.noOfSeats})`
+                    : ""
+                }
                 value={selectedTable}
                 onChange={(e, newVal) => setSelectedTable(newVal)}
                 inputValue={selectedTableInputVal}

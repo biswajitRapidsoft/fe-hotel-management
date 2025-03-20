@@ -22,6 +22,7 @@ export const FOOD_PREPARING = "Food_Preparing";
 export const DELIVERED = "Delivered";
 export const CANCELLED = "Cancelled";
 export const REJECTED = "Rejected";
+export const RECEIVED_BY_WAITER = "Received_by_Waiter";
 
 // ROLES
 export const SUPER_ADMIN = "Super_Admin";
