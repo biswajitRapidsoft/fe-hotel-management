@@ -7,6 +7,15 @@ import LoadingComponent from "./components/LoadingComponent";
 import ParkingList from "./features/parking/ParkingList";
 
 // const Login = React.lazy(() => import("./features/login/Login"));
+
+const SuperAdminDashboard = React.lazy(() =>
+  import("./features/dashboard/SuperAdminDashboard")
+);
+
+const SuperAdminEmployeeList = React.lazy(() =>
+  import("./features/dashboard/SuperAdminEmployeeList")
+);
+
 const Dashboard = React.lazy(() => import("./features/dashboard/Dashboard"));
 const Layout = React.lazy(() => import("./routes/Layout"));
 const SuperLayout = React.lazy(() => import("./routes/SuperLayout"));
@@ -18,6 +27,9 @@ const GuestDashboard = React.lazy(() =>
 );
 const HotelList = React.lazy(() => import("./features/hotel/HotelList"));
 const RoomType = React.lazy(() => import("./features/roomType/RoomType"));
+const RoomUpgradeConfiguration = React.lazy(() =>
+  import("./features/roomType/RoomUpgradeConfiguration")
+);
 const ExtraItem = React.lazy(() => import("./features/extraItem/ExtraItem"));
 const EmployeeList = React.lazy(() => import("./features/employee/Employee"));
 const HouseKeeperDashboard = React.lazy(() =>
@@ -94,9 +106,49 @@ const InventoryManagement = React.lazy(() =>
   import("./features/inventory/InventoryManagement")
 );
 
+const HotelBillInvoiceInHistory = React.lazy(() =>
+  import("./features/HotelBillInvoiceInHistory/HotelBillInvoiceInHistory")
+);
+
+const BarItemList = React.lazy(() => import("./features/hotel/BarItemList"));
+const StockManagement = React.lazy(() =>
+  import("./features/stockManagement/StockManagement")
+);
+const BarStockManagement = React.lazy(() =>
+  import("./features/stockManagement/BarStockManagement")
+);
+
+const ConfigurePrice = React.lazy(() =>
+  import("./features/hotel/ConfigurePrice")
+);
+
+const FoodInvoiceInBookingHistory = React.lazy(() =>
+  import("./features/foodInvoice/FoodInvoiceInBookingHistory")
+);
+const SpaInvoiceInBookingHistory = React.lazy(() =>
+  import("./features/spa/SpaInvoiceInBookingHistory")
+);
+const BarInvoiceInBookingHistory = React.lazy(() =>
+  import("./features/BarInvoice/BarInvoiceInBookingHistory")
+);
+
+const CreateTable = React.lazy(() => import("./features/hotel/CreateTable"));
+const WaiterDashboard = React.lazy(() =>
+  import("./features/restaurant/WaiterDashboard")
+);
+
+const CounterStaffDashboard = React.lazy(() =>
+  import("./features/restaurant/CounterStaffDashboard")
+);
+
+const RoomDineIn = React.lazy(() => import("./features/restaurant/RoomDineIn"));
+
 function App() {
   const location = useLocation();
   // console.log("hello3", location);
+  document.title = sessionStorage.getItem("data")
+    ? JSON.parse(sessionStorage.getItem("data")).roleType.replace(/_/g, " ")
+    : document.title;
 
   React.useEffect(() => {
     // console.log("hello", location);
@@ -124,12 +176,20 @@ function App() {
             element={<HotelBillInvoice key="hotel-bill" />}
           />
           <Route
+            path="/HotelBillInvoiceInHistory/:bookingRefNo"
+            element={<HotelBillInvoiceInHistory key="hotel-bill-history" />}
+          />
+          <Route
             path="/parkingBillInvoice/:bookingRefNo"
             element={<ParkingBillInvoice key="park-bill" />}
           />
           <Route
             path="/foodBillInvoice/:bookingRefNo"
             element={<FoodInvoice key="food-bill" />}
+          />
+          <Route
+            path="/foodBillInvoiceInBookingHistory/:bookingRefNo"
+            element={<FoodInvoiceInBookingHistory key="food-billHistory" />}
           />
           <Route
             path="/BarInvoice/:bookingRefNo"
@@ -140,15 +200,39 @@ function App() {
             path="/SpaInvoiceForFrontesk/:bookingRefNo"
             element={<SpaInvoiceForFrontesk />}
           />
+          <Route
+            path="/SpaInvoiceInBookingHistory/:bookingRefNo"
+            element={<SpaInvoiceInBookingHistory />}
+          />
+          <Route
+            path="/BarInvoiceInBookingHistory/:bookingRefNo"
+            element={<BarInvoiceInBookingHistory />}
+          />
           <Route element={<SuperLayout />}>
+            <Route
+              path="/super-admin-dashboard"
+              element={<SuperAdminDashboard />}
+            />
+            <Route
+              path="/employee-list/:companyId"
+              element={<SuperAdminEmployeeList />}
+            />
             <Route path="/admin-dashboard" element={<AdminDashboard />} />
             <Route path="/hotel-list" element={<HotelList />} />
+            <Route path="/ConfigurePrice" element={<ConfigurePrice />} />
             <Route path="/room-type" element={<RoomType />} />
+            <Route
+              path="/roomUpgradeConfiguration"
+              element={<RoomUpgradeConfiguration />}
+            />
             <Route path="/extra-item" element={<ExtraItem />} />
             <Route path="/employee-list" element={<EmployeeList />} />
             <Route path="/spa-type" element={<SpaType />} />
             <Route path="/spa" element={<Spa />} />
             <Route path="/HallList" element={<HallList />} />
+            <Route path="/createTable" element={<CreateTable />} />
+            <Route path="/WaiterDashboard" element={<WaiterDashboard />} />
+
             <Route path="/BanquetList" element={<BanquetList />} />
             <Route path="/PromocodeList" element={<PromocodeList />} />
             <Route path="/parking-list" element={<ParkingList />} />
@@ -162,12 +246,17 @@ function App() {
               path="/inventoryManagement"
               element={<InventoryManagement />}
             />
+            <Route path="/StockManagement" element={<StockManagement />} />
+            <Route
+              path="/BarStockManagement"
+              element={<BarStockManagement />}
+            />
             <Route
               path="/LaundryHistoryForGuest"
               element={<LaundryHistoryForGuest />}
             />
             <Route path="/FoodItemList" element={<FoodItemList />} />
-
+            <Route path="/barItemList" element={<BarItemList />} />
             {/* LaundryHistoryForGuest */}
           </Route>
 
@@ -176,15 +265,18 @@ function App() {
             <Route
               path="/frontdeskBookingHistory"
               element={<FrontdeskBookingHistory />}
+            />{" "}
+            <Route
+              path="/CounterStaffDashboard"
+              element={<CounterStaffDashboard />}
             />
+            <Route path="/RoomDineIn" element={<RoomDineIn />} />
             <Route path="/spa-admin" element={<SpaAdmin />} />
             <Route path="/hallBookings" element={<HallBookingDashboard />} />
-
             <Route
               path="/HouseKeepingHistory"
               element={<HouseKeepingHistory />}
             />
-
             <Route
               path="/housekeeper-dashboard"
               element={<HouseKeeperDashboard />}

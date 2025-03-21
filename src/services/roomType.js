@@ -27,6 +27,32 @@ const roomTypeApi = apiSlice.injectEndpoints({
         method: "GET",
       }),
     }),
+    updateRoomTypeStatus: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.updateRoomTypeStatus,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllRoomTypesByCompany"],
+    }),
+    saveRoomTypeUpgradePriceConfig: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.saveRoomTypeUpgradePriceConfig,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getRoomTypeUpgradePriceConfigAdmin"],
+    }),
+    getRoomTypeUpgradePriceConfigAdmin: build.query({
+      query: (payload) => ({
+        url: config.apiName.getRoomTypeUpgradePriceConfigAdmin,
+        method: "GET",
+        params: {
+          companyId: payload,
+        },
+      }),
+      providesTags: ["getRoomTypeUpgradePriceConfigAdmin"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -35,4 +61,7 @@ export const {
   useGetAllRoomTypesByCompanyQuery,
   useAddRoomTypeMutation,
   useGetPerRewardPointValueQuery,
+  useUpdateRoomTypeStatusMutation,
+  useSaveRoomTypeUpgradePriceConfigMutation,
+  useGetRoomTypeUpgradePriceConfigAdminQuery,
 } = roomTypeApi;

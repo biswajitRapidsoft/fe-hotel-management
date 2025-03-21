@@ -18,9 +18,10 @@ import { useGetHotelListByCompanyQuery } from "../../services/hotel";
 
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ClearIcon from "@mui/icons-material/Clear";
-import { ADMIN } from "../../helper/constants";
+import { ADMIN, SUPER_ADMIN } from "../../helper/constants";
 
 const Employee = () => {
+  const [employeeToUpdate, setEmployeeToUpdate] = React.useState(null);
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
@@ -36,7 +37,6 @@ const Employee = () => {
     { skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== ADMIN }
   );
 
-  console.log("roleList", roleList?.data);
   const {
     data: hotelList = {
       data: [],
@@ -55,7 +55,6 @@ const Employee = () => {
     selectedHotelInputVal: "",
     phoneNo: "",
   });
-
   // const handleChange = React.useCallback((e) => {
   //   setFormData((prevData) => ({
   //     ...prevData,
@@ -97,12 +96,14 @@ const Employee = () => {
     (event) => {
       event.preventDefault();
       saveUser({
+        id: employeeToUpdate ? employeeToUpdate.id : null,
         userName: formData.name,
         role: formData.selectedRole,
         email: formData.email,
         hotelId: formData.selectedHotel.id,
         companyId: JSON.parse(sessionStorage.getItem("data")).companyId,
         phoneNo: formData.phoneNo,
+        isActive: employeeToUpdate ? employeeToUpdate.isActive : true,
       })
         .unwrap()
         .then((res) => {
@@ -112,6 +113,7 @@ const Employee = () => {
             message: res.message,
           });
           handleResetForm();
+          setEmployeeToUpdate(null);
         })
         .catch((err) => {
           setSnack({
@@ -121,18 +123,40 @@ const Employee = () => {
           });
         });
     },
-    [formData, handleResetForm, saveUser]
+    [formData, handleResetForm, saveUser, employeeToUpdate]
   );
 
   const isFormValid = React.useCallback(() => {
     return Boolean(
-      formData.name.trim() &&
-        formData.email.trim() &&
-        formData.phoneNo.trim() &&
+      formData?.name?.trim() &&
+        formData?.email?.trim() &&
+        formData?.phoneNo?.trim() &&
         formData.selectedRole &&
         formData.selectedHotel
     );
   }, [formData]);
+
+  React.useEffect(() => {
+    if (employeeToUpdate) {
+      const hotelToSet =
+        hotelList.data.find(
+          (hotel) => hotel.id === employeeToUpdate.hotelDto.id
+        ) || null;
+      const roleToSet = roleList.data.find(
+        (role) => role === employeeToUpdate.role
+      );
+      setFormData((prevData) => ({
+        ...prevData,
+        name: employeeToUpdate.name,
+        email: employeeToUpdate.email,
+        selectedRole: roleToSet || null,
+        selectedRoleInputVal: roleToSet || null,
+        selectedHotel: hotelToSet || null,
+        selectedHotelInputVal: hotelToSet.name || "",
+        phoneNo: employeeToUpdate.phoneNumber,
+      }));
+    }
+  }, [employeeToUpdate, hotelList.data, roleList.data]);
 
   return (
     <Container>
@@ -251,7 +275,7 @@ const Employee = () => {
           </Grid>
           <Grid size={3}>
             <Autocomplete
-              options={roleList.data}
+              options={roleList.data.filter((item) => item !== SUPER_ADMIN)}
               // options={roleList.data.filter((item) => item !== "Customer")}
               value={formData.selectedRole}
               onChange={(e, newVal) =>
@@ -409,11 +433,17 @@ const Employee = () => {
             type="submit"
             disabled={!isFormValid()}
           >
-            Add User
+            {Boolean(employeeToUpdate) ? "Update User" : "Add User"}
           </Button>
         </Box>
       </Box>
-      <EmployeeListTable roleList={roleList.data} hotelList={hotelList.data} />
+      <EmployeeListTable
+        roleList={roleList.data}
+        hotelList={hotelList.data}
+        setEmployeeToUpdate={setEmployeeToUpdate}
+        saveUser={saveUser}
+        setSnack={setSnack}
+      />
       <LoadingComponent open={saveUserRes.isLoading} />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </Container>

@@ -1,5 +1,4 @@
 import React from "react";
-
 import {
   Paper,
   Table,
@@ -10,7 +9,6 @@ import {
   TableRow,
   Toolbar,
   Typography,
-  Collapse,
   Box,
   IconButton,
   Button,
@@ -22,28 +20,143 @@ import {
   Autocomplete,
   Grid2 as Grid,
   Rating,
+  Collapse,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ClearIcon from "@mui/icons-material/Clear";
-import {
-  useGetFoodOrderListAdminQuery,
-  useGetAllFoodOrderStatusQuery,
-  useUpdateFoodOrderStatusMutation,
-} from "../../services/restaurant";
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 import {
+  useGetAllDineInRequestFromRoomQuery,
+  useGetAllTablesForCounterQuery,
+  useGetAllWaitersQuery,
+  useAssignTableToWaiterMutation,
+} from "../../services/restaurant";
+import moment from "moment";
+import {
   CANCELLED,
   DELIVERED,
-  KITCHENSTAFF,
-  ORDER_PLACED,
+  // KITCHENSTAFF,
+  // ORDER_PLACED,
   REJECTED,
 } from "../../helper/constants";
+const RoomDineIn = () => {
+  const [snack, setSnack] = React.useState({
+    open: false,
+    message: "",
+    severity: "",
+  });
+  const [updateStatusDialog, setUpdateStatusDialog] = React.useState();
+  const [assignTableToWaiter, assignTableToWaiterRes] =
+    useAssignTableToWaiterMutation();
 
-const Row = ({ order, index, setUpdateStatusDialog }) => {
+  const {
+    data: roomDineInTableList = { data: [] },
+    isLoading: isroomDineInTableListLoading,
+    isFetching: isRoomDineInTableListFetching,
+  } = useGetAllDineInRequestFromRoomQuery({
+    hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
+    date: moment().format("YYYY-MM-DD"),
+  });
+
+  const {
+    data: tableListForCounterStaff = { data: [] },
+    isLoading: istableListForCounterStaffLoading,
+  } = useGetAllTablesForCounterQuery({
+    hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
+    userId: JSON.parse(sessionStorage.getItem("data")).id,
+  });
+
+  const { data: waiterList = { data: [] } } = useGetAllWaitersQuery({
+    hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
+  });
+
+  return (
+    <React.Fragment>
+      <Paper>
+        <Toolbar
+          sx={[
+            {
+              pl: { sm: 2 },
+              pr: { xs: 1, sm: 1 },
+            },
+          ]}
+        >
+          {" "}
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: "bold", letterSpacing: 1 }}
+          >
+            Room Dine-In List
+          </Typography>
+        </Toolbar>
+        <TableContainer>
+          <Table>
+            <TableHead>
+              <TableRow
+                sx={{
+                  ".MuiTableCell-root": {
+                    fontWeight: "bold",
+                    letterSpacing: 1,
+                    backgroundColor: "#3F3C87",
+                    color: "#fff",
+                    fontSize: 18,
+                  },
+                }}
+              >
+                <TableCell>SL No.</TableCell>
+                <TableCell>Order ID</TableCell>
+                {/* <TableCell>Bookig Ref. No</TableCell> */}
+                <TableCell>Guest</TableCell>
+                <TableCell>Phone no.</TableCell>
+                <TableCell>Dine Type</TableCell>
+                <TableCell>Room No.(Floor)</TableCell>
+                <TableCell>Order Status</TableCell>
+                <TableCell />
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {roomDineInTableList?.data?.map((item, index) => {
+                return (
+                  <Row
+                    key={item.id}
+                    item={item}
+                    index={index}
+                    setUpdateStatusDialog={setUpdateStatusDialog}
+                  />
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+      <FormDialog
+        open={Boolean(updateStatusDialog)}
+        handleClose={() => setUpdateStatusDialog(null)}
+        order={updateStatusDialog}
+        setSnack={setSnack}
+        tableListForCounterStaff={tableListForCounterStaff}
+        waiterList={waiterList}
+        assignTableToWaiter={assignTableToWaiter}
+      />
+
+      <LoadingComponent
+        open={
+          // isLoading ||
+          isroomDineInTableListLoading ||
+          isRoomDineInTableListFetching ||
+          istableListForCounterStaffLoading ||
+          assignTableToWaiterRes.isLoading
+        }
+      />
+      <SnackAlert snack={snack} setSnack={setSnack} />
+    </React.Fragment>
+  );
+};
+
+const Row = ({ item, index, setUpdateStatusDialog }) => {
   const [open, setOpen] = React.useState(false);
-
   return (
     <React.Fragment>
       <TableRow
@@ -56,41 +169,28 @@ const Row = ({ order, index, setUpdateStatusDialog }) => {
         }}
       >
         <TableCell>{index + 1}</TableCell>
-        <TableCell>{order.bookingDetails.orderId}</TableCell>
-        {/* <TableCell>{order.bookingDetails.bookingRefNo}</TableCell> */}
-        <TableCell sx={{ minWidth: 150 }}>{`${order.bookingDetails.firstName} ${
-          order.bookingDetails.middleName || ""
-        } ${order.bookingDetails.lastName || ""}`}</TableCell>
-        <TableCell>{order.bookingDetails.phoneNo}</TableCell>
+        <TableCell>{item?.orderId}</TableCell>
+        <TableCell sx={{ minWidth: 150 }}>{`${item.firstName} ${
+          item.middleName || ""
+        } ${item.lastName || ""}`}</TableCell>
+        <TableCell>{item.phoneNo}</TableCell>
+        <TableCell>{item.dinningType.replace("_", " ")}</TableCell>
         <TableCell>
-          {order.bookingDetails.dinningType.replace("_", " ")}
-        </TableCell>
-        <TableCell>
-          {order.bookingDto
-            ? `${order?.bookingDto?.roomDto?.roomNo}(${order?.bookingDto?.roomDto?.floorNo})`
+          {item?.bookingDetails
+            ? `${item?.bookingDetails?.roomDto?.roomNo}(${item?.bookingDetails?.roomDto?.floorNo})`
             : "--"}
         </TableCell>
-        <TableCell>{order?.bookingDetails?.bookingCancelReason}</TableCell>
         <TableCell>
           <Typography
             sx={{
-              color: (theme) =>
-                order.bookingDetails.foodBookingStatus === ORDER_PLACED
-                  ? theme.palette.warning.main
-                  : [REJECTED, CANCELLED].includes(
-                      order.bookingDetails.foodBookingStatus
-                    )
-                  ? theme.palette.error.main
-                  : order.bookingDetails.foodBookingStatus === DELIVERED
-                  ? theme.palette.success.main
-                  : theme.palette.warning.main,
+              color: (theme) => theme.palette.warning.main,
               fontWeight: 600,
               letterSpacing: 1,
             }}
           >
-            {order.bookingDetails.foodBookingStatus.replace("_", " ")}
+            CREATED
           </Typography>
-        </TableCell>
+        </TableCell>{" "}
         <TableCell>
           <IconButton size="small" onClick={() => setOpen(!open)}>
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
@@ -101,17 +201,17 @@ const Row = ({ order, index, setUpdateStatusDialog }) => {
         <TableCell sx={{ p: 0 }} colSpan={8}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ p: 2, backgroundColor: "#f4f4f4" }}>
-              {order.bookingDetails.isRated && (
+              {item.bookingDetails.isRated && (
                 <Box sx={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <Box>
                     <Typography component="legend">Rating</Typography>
                     <Rating
                       size="large"
-                      value={order.bookingDetails.ratingPoints}
+                      value={item.bookingDetails.ratingPoints}
                       disabled
                     />
                   </Box>
-                  <Typography>{order.bookingDetails.ratingMessage}</Typography>
+                  <Typography>{item.bookingDetails.ratingMessage}</Typography>
                 </Box>
               )}
               <Table size="small">
@@ -131,7 +231,7 @@ const Row = ({ order, index, setUpdateStatusDialog }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {order.itemsList.map((orderItem, orderItemIndex) => {
+                  {item?.trailData?.map((orderItem, orderItemIndex) => {
                     return (
                       <TableRow
                         sx={{
@@ -141,7 +241,7 @@ const Row = ({ order, index, setUpdateStatusDialog }) => {
                           },
                           "& > *": { borderBottom: "unset" },
                         }}
-                        key={`${order.id}-${orderItem.itemName}`}
+                        key={`${item.id}-${orderItem.itemName}`}
                       >
                         <TableCell>{orderItemIndex + 1}</TableCell>
                         <TableCell>{orderItem.itemName}</TableCell>
@@ -152,7 +252,7 @@ const Row = ({ order, index, setUpdateStatusDialog }) => {
                 </TableBody>
               </Table>
               {![DELIVERED, CANCELLED, REJECTED].includes(
-                order.bookingDetails.foodBookingStatus
+                item.bookingDetails.foodBookingStatus
               ) && (
                 <Button
                   sx={{
@@ -168,7 +268,7 @@ const Row = ({ order, index, setUpdateStatusDialog }) => {
                   }}
                   variant="outlined"
                   color="secondary"
-                  onClick={() => setUpdateStatusDialog(order)}
+                  onClick={() => setUpdateStatusDialog(item)}
                 >
                   Update Status
                 </Button>
@@ -184,24 +284,30 @@ const Row = ({ order, index, setUpdateStatusDialog }) => {
 function FormDialog({
   open,
   handleClose,
-  statusList,
-  updateStatus,
+  tableListForCounterStaff,
+  waiterList,
   order,
   setSnack,
+  assignTableToWaiter,
 }) {
-  console.log("order", order?.bookingDetails?.dinningType);
-  // Room_Delivery,Take_Away
+  console.log("order", order);
   const [remark, setRemark] = React.useState("");
-  const [selectedStatus, setSelectedStatus] = React.useState(null);
-  const [selectedStatusInputVal, setSelectedStatusInputVal] =
+  const [selectedTable, setSelectedTable] = React.useState(null);
+  const [selectedWaiter, setSelectedWaiter] = React.useState(null);
+  const [selectedTableInputVal, setSelectedTableInputVal] = React.useState("");
+  const [selectedWaiterInputVal, setSelectedWaiterInputVal] =
     React.useState("");
+  console.log("selectedWaiter", selectedWaiter);
+
   const handleSubmitDialogForm = React.useCallback(
     (e) => {
       e.preventDefault();
-      updateStatus({
-        orderId: order.bookingDetails.orderId,
-        bookingStatus: selectedStatus,
-        descriptions: remark,
+      assignTableToWaiter({
+        orderId: order?.orderId,
+        tableId: selectedTable?.id,
+        orderTakenBy: {
+          id: selectedWaiter?.id,
+        },
       })
         .unwrap()
         .then((res) => {
@@ -220,7 +326,15 @@ function FormDialog({
           });
         });
     },
-    [updateStatus, selectedStatus, remark, order, setSnack, handleClose]
+    [
+      selectedTable,
+      remark,
+      order,
+      setSnack,
+      handleClose,
+      assignTableToWaiter,
+      selectedWaiter,
+    ]
   );
 
   const isStatusDisabled = React.useCallback(
@@ -235,8 +349,8 @@ function FormDialog({
   );
   React.useEffect(() => {
     setRemark("");
-    setSelectedStatus(order?.bookingDetails?.foodBookingStatus || null);
-    setSelectedStatusInputVal(order?.bookingDetails?.foodBookingStatus || "");
+    setSelectedTable(order?.bookingDetails?.foodBookingStatus || null);
+    setSelectedTableInputVal(order?.bookingDetails?.foodBookingStatus || "");
   }, [open, order]);
 
   return (
@@ -303,21 +417,21 @@ function FormDialog({
           <Grid container rowSpacing={2}>
             <Grid size={12}>
               <Autocomplete
-                // options={statusList.filter((status) => status !== "Cancelled")}
-                options={statusList.filter(
-                  (status) =>
-                    !(
-                      ["Room_Delivery", "Take_Away"].includes(
-                        order?.bookingDetails?.dinningType
-                      ) &&
-                      (status === "Cancelled" || status === "Ready_to_serve")
-                    )
+                options={tableListForCounterStaff?.data.filter((item) =>
+                  Boolean(item.isActive)
                 )}
-                getOptionLabel={(option) => option.replace("_", " ")}
-                value={selectedStatus}
-                onChange={(e, newVal) => setSelectedStatus(newVal)}
-                inputValue={selectedStatusInputVal}
-                onInputChange={(e, newVal) => setSelectedStatusInputVal(newVal)}
+                // getOptionLabel={(option) => option?.tableNo?.toString() || ""}
+                getOptionLabel={(option) =>
+                  option?.tableNo
+                    ? `${option.tableNo} (Capacity: ${option.noOfSeats})`
+                    : ""
+                }
+                value={selectedTable}
+                onChange={(e, newVal) => setSelectedTable(newVal)}
+                inputValue={selectedTableInputVal}
+                onInputChange={(e, newVal) =>
+                  setSelectedTableInputVal(newVal || "")
+                }
                 clearOnEscape
                 popupIcon={<KeyboardArrowDownIcon color="primary" />}
                 sx={{
@@ -326,12 +440,6 @@ function FormDialog({
                     color: "#280071",
                     fontWeight: 600,
                   },
-                  "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
-                    {
-                      backgroundColor: "#E9E5F1",
-                      color: "#280071",
-                      fontWeight: 600,
-                    },
                 }}
                 clearIcon={<ClearIcon color="primary" />}
                 getOptionDisabled={isStatusDisabled}
@@ -349,8 +457,8 @@ function FormDialog({
                   <TextField
                     {...params}
                     label={
-                      <React.Fragment>
-                        Select Status{" "}
+                      <>
+                        Select Table
                         <Box
                           component="span"
                           sx={{
@@ -359,7 +467,7 @@ function FormDialog({
                         >
                           *
                         </Box>
-                      </React.Fragment>
+                      </>
                     }
                     variant="standard"
                   />
@@ -367,27 +475,53 @@ function FormDialog({
               />
             </Grid>
             <Grid size={12}>
-              <TextField
-                autoFocus
-                margin="dense"
-                name="remark"
-                label={
-                  <React.Fragment>
-                    Remark{" "}
-                    <Box
-                      component="span"
-                      sx={{
-                        color: (theme) => theme.palette.secondary.main,
-                      }}
-                    >
-                      *
-                    </Box>
-                  </React.Fragment>
-                }
-                fullWidth
-                variant="standard"
-                value={remark}
-                onChange={(e) => setRemark(e.target.value)}
+              <Autocomplete
+                options={waiterList?.data || []}
+                getOptionLabel={(option) => option.name}
+                value={selectedWaiter}
+                onChange={(e, newVal) => setSelectedWaiter(newVal)}
+                inputValue={selectedWaiterInputVal}
+                onInputChange={(e, newVal) => setSelectedWaiterInputVal(newVal)}
+                clearOnEscape
+                popupIcon={<KeyboardArrowDownIcon color="primary" />}
+                sx={{
+                  "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover": {
+                    backgroundColor: "#E9E5F1",
+                    color: "#280071",
+                    fontWeight: 600,
+                  },
+                }}
+                clearIcon={<ClearIcon color="primary" />}
+                // getOptionDisabled={isStatusDisabled}
+                PaperComponent={(props) => (
+                  <Paper
+                    sx={{
+                      background: "#fff",
+                      color: "#B4B4B4",
+                      borderRadius: "10px",
+                    }}
+                    {...props}
+                  />
+                )}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={
+                      <>
+                        Select Waiter
+                        <Box
+                          component="span"
+                          sx={{
+                            color: (theme) => theme.palette.secondary.main,
+                          }}
+                        >
+                          *
+                        </Box>
+                      </>
+                    }
+                    variant="standard"
+                  />
+                )}
               />
             </Grid>
           </Grid>
@@ -411,7 +545,7 @@ function FormDialog({
               },
             }}
             size="small"
-            disabled={!Boolean(remark.trim() && selectedStatus)}
+            disabled={!Boolean(selectedWaiter && selectedTable)}
             type="submit"
           >
             Update Status
@@ -422,102 +556,4 @@ function FormDialog({
   );
 }
 
-const RestaurantAdmin = () => {
-  const [snack, setSnack] = React.useState({
-    open: false,
-    message: "",
-    severity: "",
-  });
-  const [updateStatus, updateStatusRes] = useUpdateFoodOrderStatusMutation();
-  const [updateStatusDialog, setUpdateStatusDialog] = React.useState();
-  const {
-    data: orderList = {
-      data: [],
-    },
-    isLoading,
-  } = useGetFoodOrderListAdminQuery(
-    JSON.parse(sessionStorage.getItem("data")).hotelId,
-    {
-      skip:
-        JSON.parse(sessionStorage.getItem("data"))?.roleType !== KITCHENSTAFF,
-    }
-  );
-  const {
-    data: statusList = {
-      data: [],
-    },
-  } = useGetAllFoodOrderStatusQuery();
-  return (
-    <React.Fragment>
-      <Paper>
-        <Toolbar
-          sx={[
-            {
-              pl: { sm: 2 },
-              pr: { xs: 1, sm: 1 },
-            },
-          ]}
-        >
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: "bold", letterSpacing: 1 }}
-          >
-            Food Order List
-          </Typography>
-        </Toolbar>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow
-                sx={{
-                  ".MuiTableCell-root": {
-                    fontWeight: "bold",
-                    letterSpacing: 1,
-                    backgroundColor: "#3F3C87",
-                    color: "#fff",
-                    fontSize: 18,
-                  },
-                }}
-              >
-                <TableCell>SL No.</TableCell>
-                <TableCell>Order ID</TableCell>
-                {/* <TableCell>Bookig Ref. No</TableCell> */}
-                <TableCell>Guest</TableCell>
-                <TableCell>Phone no.</TableCell>
-                <TableCell>Dine Type</TableCell>
-                <TableCell>Room No.(Floor)</TableCell>
-                <TableCell>Remarks</TableCell>
-                <TableCell>Order Status</TableCell>
-                <TableCell />
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {orderList.data.map((order, index) => {
-                return (
-                  <Row
-                    key={order.id}
-                    order={order}
-                    index={index}
-                    setUpdateStatusDialog={setUpdateStatusDialog}
-                  />
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
-      <FormDialog
-        open={Boolean(updateStatusDialog)}
-        handleClose={() => setUpdateStatusDialog(null)}
-        statusList={statusList.data}
-        updateStatus={updateStatus}
-        order={updateStatusDialog}
-        setSnack={setSnack}
-      />
-      <LoadingComponent open={isLoading || updateStatusRes.isLoading} />
-      <SnackAlert snack={snack} setSnack={setSnack} />
-    </React.Fragment>
-  );
-};
-
-export default RestaurantAdmin;
+export default RoomDineIn;

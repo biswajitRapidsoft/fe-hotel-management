@@ -65,6 +65,10 @@ import {
   useRoomCleanRequestMutation,
   useRoomtypeByHotelIdQuery,
   useSaveCustomerCheckInMutation,
+  useAllocateNewKeyToCustomerMutation,
+  useGetKeysDataQuery,
+  useGetRoomTypeUpgradePriceConfigQuery,
+  useUpgradeRoomRequestMutation,
 } from "../../services/dashboard";
 import { checkRoomStatusType } from "../../helper/helperFunctions";
 import moment from "moment";
@@ -81,6 +85,7 @@ import { useNavigate } from "react-router-dom";
 import InfoIcon from "@mui/icons-material/Info";
 import { PaymentDialog } from "./GuestDashboard";
 import { useCancelRoomBookingFromBookingHistoryMutation } from "../../services/frontdeskBookingHistory";
+import { PaymentDialogV2 } from "../spa/SpaAdmin";
 
 export const StyledCalendarIcon = styled(CalendarMonthIcon)({
   color: "#9380B8",
@@ -498,7 +503,7 @@ const CustomRoomFilters = memo(function ({
     >
       <Grid container size={12} columnSpacing={0.5} rowSpacing={1}>
         {/* <Grid size={{ xs: 3, lg: 2.2, xl: 1.7 }}> */}
-        <Grid>
+        {/* <Grid>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               disablePast
@@ -541,7 +546,7 @@ const CustomRoomFilters = memo(function ({
               format="DD/MM/YYYY"
             />
           </LocalizationProvider>
-        </Grid>
+        </Grid> */}
         <Grid>
           <Box
             sx={{
@@ -945,7 +950,7 @@ const CustomFloorAccordion = memo(function ({
   console.log("floor row Data : ", floorData);
   return (
     <>
-      <Box sx={{ width: "100" }}>
+      <Box sx={{ width: "100", backgroundColor: "yellow" }}>
         <Accordion
           defaultExpanded
           sx={{
@@ -1066,16 +1071,13 @@ const CustomFloorAccordion = memo(function ({
                             ?.includes(roomFilters?.searchKey?.toLowerCase())
                         : true;
 
-                      const matchesDate = roomFilters?.toDate
-                        ? new Date(room?.availableDate) <=
-                          new Date(roomFilters?.toDate)
-                        : true;
+                      // const matchesDate = roomFilters?.toDate
+                      //   ? new Date(room?.availableDate) <=
+                      //     new Date(roomFilters?.toDate)
+                      //   : true;
 
                       return (
-                        matchesRoomStatus &&
-                        matchesRoomType &&
-                        matchesSearchKey &&
-                        matchesDate
+                        matchesRoomStatus && matchesRoomType && matchesSearchKey
                       );
                     })
                     ?.map((roomDetailsItem, index) => {
@@ -1422,6 +1424,7 @@ const DayCheckoutCard = memo(function ({
 });
 
 const RoomServiceCard = memo(function ({
+  setRoomUpgradeDrawer,
   handleOpenShowcaseModalForInventory,
   handleOpenShowcaseModalForFood,
   isSelectedRoom,
@@ -1430,8 +1433,16 @@ const RoomServiceCard = memo(function ({
   handleRequestRoomCheckout,
   handleRoomCleanRequest,
   handleOpenShowcaseModalForLaundry,
+  handleAssignNewKey,
 }) {
   const navigate = useNavigate();
+  const {
+    data: keysData = {
+      data: [],
+    },
+  } = useGetKeysDataQuery(isSelectedRoom?.bookingDto?.bookingRefNumber, {
+    skip: !Boolean(isSelectedRoom?.bookingDto?.bookingRefNumber),
+  });
   const [customerGstNumber, setCustomerGstNumber] = React.useState("");
   console.log("customerGstNumber", customerGstNumber);
   console.log("RoomServiceCard isSelectedRoom : ", isSelectedRoom);
@@ -1562,7 +1573,8 @@ const RoomServiceCard = memo(function ({
         window.open(`/hotelBillInvoice/${bookingRefNumber}`, "_blank");
       }
     },
-    [customerGstNumber]
+    // [customerGstNumber]
+    []
   );
   const handleViewHotelGstBillInvoice = useCallback(
     (roomData) => {
@@ -1674,565 +1686,480 @@ const RoomServiceCard = memo(function ({
           }}
         >
           {/* OCCUPIED ROOM CASE */}
-          {selectedRoomStatusType?.key === OCCUPIED?.key && (
-            <>
-              <Box sx={{ width: "100%", pl: 1 }}>
-                {/* GUEST DETAILS */}
-                <Box sx={{ width: "100%" }}>
-                  <Grid container size={12}>
-                    <Grid size={12}>
-                      <Typography
-                        sx={{
-                          fontSize: "16.5px",
-                          // color: "#707070",
-                          fontWeight: 600,
-                          width: "100%",
-                          borderBottom: "2px solid #ccc",
-                          marginBottom: "5px",
-                        }}
-                      >
-                        Guest Details :
-                      </Typography>
-                    </Grid>
-                    <Grid size={9}>
-                      <Grid container size={12}>
-                        {/* NAME */}
-                        <Grid size={5}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            Name
-                          </Typography>
-                        </Grid>
-                        <Grid size={7}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
+          {isSelectedRoom?.bookingDto &&
+            selectedRoomStatusType?.key === OCCUPIED?.key && (
+              <>
+                <Box sx={{ width: "100%", pl: 1 }}>
+                  {/* GUEST DETAILS */}
+                  <Box sx={{ width: "100%" }}>
+                    <Grid container size={12}>
+                      <Grid size={12}>
+                        <Typography
+                          sx={{
+                            fontSize: "16.5px",
+                            // color: "#707070",
+                            fontWeight: 600,
+                            width: "100%",
+                            borderBottom: "2px solid #ccc",
+                            marginBottom: "5px",
+                          }}
+                        >
+                          Guest Details :
+                        </Typography>
+                      </Grid>
+                      <Grid size={9}>
+                        <Grid container size={12}>
+                          {/* NAME */}
+                          <Grid size={5}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
-                                marginRight: "5px",
                               }}
                             >
-                              :
+                              Name
                             </Typography>
+                          </Grid>
+                          <Grid size={7}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
-                                // fontWeight: 600,
+                                fontWeight: 600,
                               }}
                             >
-                              {Boolean(isSelectedRoom?.bookingDto?.firstName) &&
-                                `${isSelectedRoom?.bookingDto?.firstName}`}
-                              {Boolean(
-                                isSelectedRoom?.bookingDto?.middleName
-                              ) && ` ${isSelectedRoom?.bookingDto?.middleName}`}
-                              {Boolean(isSelectedRoom?.bookingDto?.lastName) &&
-                                ` ${isSelectedRoom?.bookingDto?.lastName}`}{" "}
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                  marginRight: "5px",
+                                }}
+                              >
+                                :
+                              </Typography>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  // fontWeight: 600,
+                                }}
+                              >
+                                {Boolean(
+                                  isSelectedRoom?.bookingDto?.firstName
+                                ) && `${isSelectedRoom?.bookingDto?.firstName}`}
+                                {Boolean(
+                                  isSelectedRoom?.bookingDto?.middleName
+                                ) &&
+                                  ` ${isSelectedRoom?.bookingDto?.middleName}`}
+                                {Boolean(
+                                  isSelectedRoom?.bookingDto?.lastName
+                                ) &&
+                                  ` ${isSelectedRoom?.bookingDto?.lastName}`}{" "}
+                              </Typography>
                             </Typography>
-                          </Typography>
-                        </Grid>
+                          </Grid>
 
-                        {/* ROOM TYPE */}
-                        <Grid size={5}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            Room Type
-                          </Typography>
-                        </Grid>
-                        <Grid size={7}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
+                          {/* ROOM TYPE */}
+                          <Grid size={5}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
-                                marginRight: "5px",
                               }}
                             >
-                              :
+                              Room Type
                             </Typography>
+                          </Grid>
+                          <Grid size={7}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
-                                // fontWeight: 600,
+                                fontWeight: 600,
                               }}
                             >
-                              {isSelectedRoom?.roomType?.type
-                                ?.replace(/_/g, " ")
-                                ?.replace(/([a-z])([A-Z])/g, "$1 $2")
-                                ?.replace(/\b\w/g, (char) =>
-                                  char.toUpperCase()
-                                ) || ""}
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                  marginRight: "5px",
+                                }}
+                              >
+                                :
+                              </Typography>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  // fontWeight: 600,
+                                }}
+                              >
+                                {isSelectedRoom?.roomType?.type
+                                  ?.replace(/_/g, " ")
+                                  ?.replace(/([a-z])([A-Z])/g, "$1 $2")
+                                  ?.replace(/\b\w/g, (char) =>
+                                    char.toUpperCase()
+                                  ) || ""}
+                              </Typography>
                             </Typography>
-                          </Typography>
-                        </Grid>
+                          </Grid>
 
-                        {/* CAPACITY */}
-                        <Grid size={5}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            Capacity
-                          </Typography>
-                        </Grid>
-                        <Grid size={7}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
+                          {/* CAPACITY */}
+                          <Grid size={5}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
-                                marginRight: "5px",
                               }}
                             >
-                              :
+                              Capacity
                             </Typography>
+                          </Grid>
+                          <Grid size={7}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
-                                // fontWeight: 600,
+                                fontWeight: 600,
                               }}
                             >
-                              {isSelectedRoom?.roomType?.capacity || ""}
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                  marginRight: "5px",
+                                }}
+                              >
+                                :
+                              </Typography>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  // fontWeight: 600,
+                                }}
+                              >
+                                {isSelectedRoom?.roomType?.capacity || ""}
+                              </Typography>
                             </Typography>
-                          </Typography>
-                        </Grid>
+                          </Grid>
 
-                        {/* Phone Number */}
-                        <Grid size={5}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            Phone Number
-                          </Typography>
-                        </Grid>
-                        <Grid size={7}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
+                          {/* Phone Number */}
+                          <Grid size={5}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
-                                marginRight: "5px",
                               }}
                             >
-                              :
+                              Phone Number
                             </Typography>
+                          </Grid>
+                          <Grid size={7}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
-                                // fontWeight: 600,
+                                fontWeight: 600,
                               }}
                             >
-                              {isSelectedRoom?.bookingDto?.phoneNumber || ""}
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                  marginRight: "5px",
+                                }}
+                              >
+                                :
+                              </Typography>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  // fontWeight: 600,
+                                }}
+                              >
+                                {isSelectedRoom?.bookingDto?.phoneNumber || ""}
+                              </Typography>
                             </Typography>
-                          </Typography>
-                        </Grid>
+                          </Grid>
 
-                        {/* BOOKING DATE */}
-                        <Grid size={5}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            Booking Date
-                          </Typography>
-                        </Grid>
-                        <Grid size={7}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
+                          {/* BOOKING DATE */}
+                          <Grid size={5}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
-                                marginRight: "5px",
                               }}
                             >
-                              :
+                              Booking Date
                             </Typography>
+                          </Grid>
+                          <Grid size={7}>
                             <Typography
-                              component="span"
-                              sx={{
-                                fontSize: "15.5px",
-                                // color: "#707070",
-                                // fontWeight: 600,
-                              }}
-                            >
-                              {isSelectedRoom?.bookingDto?.bookedOn &&
-                                moment(
-                                  isSelectedRoom?.bookingDto?.bookedOn
-                                ).format("DD-MM-YYYY hh:mm A")}
-                            </Typography>
-                          </Typography>
-                        </Grid>
-                        {/* FROM DATE */}
-                        <Grid size={5}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            From
-                          </Typography>
-                        </Grid>
-                        <Grid size={7}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
-                                marginRight: "5px",
                               }}
                             >
-                              :
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                  marginRight: "5px",
+                                }}
+                              >
+                                :
+                              </Typography>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  // fontWeight: 600,
+                                }}
+                              >
+                                {isSelectedRoom?.bookingDto?.bookedOn &&
+                                  moment(
+                                    isSelectedRoom?.bookingDto?.bookedOn
+                                  ).format("DD-MM-YYYY hh:mm A")}
+                              </Typography>
                             </Typography>
+                          </Grid>
+                          {/* FROM DATE */}
+                          <Grid size={5}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
-                                // fontWeight: 600,
+                                fontWeight: 600,
                               }}
                             >
-                              {isSelectedRoom?.bookingDto?.fromDate || "NA"}
+                              From
                             </Typography>
-                          </Typography>
-                        </Grid>
+                          </Grid>
+                          <Grid size={7}>
+                            <Typography
+                              sx={{
+                                fontSize: "15.5px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                              }}
+                            >
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                  marginRight: "5px",
+                                }}
+                              >
+                                :
+                              </Typography>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  // fontWeight: 600,
+                                }}
+                              >
+                                {isSelectedRoom?.bookingDto?.fromDate || "NA"}
+                              </Typography>
+                            </Typography>
+                          </Grid>
 
-                        {/* TO DATE */}
-                        <Grid size={5}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            To
-                          </Typography>
-                        </Grid>
-                        <Grid size={7}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
+                          {/* TO DATE */}
+                          <Grid size={5}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
-                                marginRight: "5px",
                               }}
                             >
-                              :
+                              To
                             </Typography>
+                          </Grid>
+                          <Grid size={7}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
-                                // fontWeight: 600,
+                                fontWeight: 600,
                               }}
                             >
-                              {isSelectedRoom?.bookingDto?.toDate || "NA"}
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                  marginRight: "5px",
+                                }}
+                              >
+                                :
+                              </Typography>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  // fontWeight: 600,
+                                }}
+                              >
+                                {isSelectedRoom?.bookingDto?.toDate || "NA"}
+                              </Typography>
                             </Typography>
-                          </Typography>
-                        </Grid>
+                          </Grid>
 
-                        {/* CHECK-IN DATE */}
-                        <Grid size={5}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            Check-In Date
-                          </Typography>
-                        </Grid>
-                        <Grid size={7}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
+                          {/* CHECK-IN DATE */}
+                          <Grid size={5}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
-                                marginRight: "5px",
                               }}
                             >
-                              :
+                              Check-In Date
                             </Typography>
+                          </Grid>
+                          <Grid size={7}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
-                                // fontWeight: 600,
+                                fontWeight: 600,
                               }}
                             >
-                              {(isSelectedRoom?.bookingDto?.checkInDate &&
-                                moment(
-                                  convertDateFormat(
-                                    isSelectedRoom?.bookingDto?.checkInDate
-                                  ) + " utc"
-                                ).format("DD/MM/YYYY hh:mma")) ||
-                                "NA"}
-                              {/* {isSelectedRoom?.bookingDto?.checkInDate} */}
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                  marginRight: "5px",
+                                }}
+                              >
+                                :
+                              </Typography>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  // fontWeight: 600,
+                                }}
+                              >
+                                {(isSelectedRoom?.bookingDto?.checkInDate &&
+                                  moment(
+                                    convertDateFormat(
+                                      isSelectedRoom?.bookingDto?.checkInDate
+                                    ) + " utc"
+                                  ).format("DD/MM/YYYY hh:mma")) ||
+                                  "NA"}
+                                {/* {isSelectedRoom?.bookingDto?.checkInDate} */}
+                              </Typography>
                             </Typography>
-                          </Typography>
-                        </Grid>
+                          </Grid>
 
-                        {/* CHECK-OUT DATE */}
-                        <Grid size={5}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            Check-Out Date
-                          </Typography>
-                        </Grid>
-                        <Grid size={7}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
+                          {/* CHECK-OUT DATE */}
+                          <Grid size={5}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
-                                marginRight: "5px",
                               }}
                             >
-                              :
+                              Check-Out Date
                             </Typography>
+                          </Grid>
+                          <Grid size={7}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
-                                // fontWeight: 600,
+                                fontWeight: 600,
                               }}
                             >
-                              {/* {isSelectedRoom?.bookingDto?.checkOutDate || "NA"} */}
-                              {/* {(isSelectedRoom?.bookingDto?.checkOutDate &&
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                  marginRight: "5px",
+                                }}
+                              >
+                                :
+                              </Typography>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  // fontWeight: 600,
+                                }}
+                              >
+                                {/* {isSelectedRoom?.bookingDto?.checkOutDate || "NA"} */}
+                                {/* {(isSelectedRoom?.bookingDto?.checkOutDate &&
                                 moment(
                                   isSelectedRoom?.bookingDto?.checkOutDate +
                                     " utc"
                                 ).format("DD/MM/YYYY hh:mma")) ||
                                 "NA"} */}
-                              {(isSelectedRoom?.bookingDto?.checkOutDate &&
-                                moment(
-                                  convertDateFormat(
-                                    isSelectedRoom?.bookingDto?.checkOutDate
-                                  ) + " utc"
-                                ).format("DD/MM/YYYY hh:mma")) ||
-                                "NA"}
-                            </Typography>
-                          </Typography>
-                        </Grid>
-
-                        {/* Occupancy */}
-                        <Grid size={5}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            Occupancy
-                          </Typography>
-                        </Grid>
-                        <Grid size={7}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            <Typography
-                              component="span"
-                              sx={{
-                                fontSize: "15.5px",
-                                // color: "#707070",
-                                fontWeight: 600,
-                                marginRight: "5px",
-                              }}
-                            >
-                              :
-                            </Typography>
-                            <Typography
-                              component="span"
-                              sx={{
-                                fontSize: "15.5px",
-                                // color: "#707070",
-                                // fontWeight: 600,
-                              }}
-                            >
-                              {isSelectedRoom?.bookingDto?.noOfPeoples || "0"}
-                            </Typography>
-                          </Typography>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                    <Grid size={3}>
-                      <img
-                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXp3DxP80ArpRzsB0XWBG9Ow5GeuefbLrUHw&s"
-                        alt="person"
-                        style={{
-                          width: "70px",
-                          height: "70px",
-                          borderRadius: "50%",
-                          objectFit: "cover",
-                        }}
-                      />
-                    </Grid>
-                  </Grid>
-                </Box>
-
-                {/* ROOM OPERATIONS */}
-                {Boolean(
-                  Boolean(
-                    isSelectedRoom?.bookingDto?.isCheckoutProceed === false
-                  ) &&
-                    Boolean(
-                      isSelectedRoom?.bookingDto?.isCheckedByKeepingStaff ===
-                        null
-                    )
-                ) && (
-                  <Box sx={{ width: "100%", mt: 1 }}>
-                    <Grid container size={12}>
-                      <Grid size={12}>
-                        <Typography
-                          sx={{
-                            fontSize: "16.5px",
-                            // color: "#707070",
-                            fontWeight: 600,
-                            width: "100%",
-                            borderBottom: "2px solid #ccc",
-                            marginBottom: "5px",
-                          }}
-                        >
-                          Room Operations :
-                        </Typography>
-                      </Grid>
-
-                      <Grid size={12}>
-                        <Grid container size={12}>
-                          {/* Services */}
-                          <Grid size={3.8}>
-                            <Typography
-                              sx={{
-                                fontSize: "15.5px",
-                                // color: "#707070",
-                                fontWeight: 600,
-                              }}
-                            >
-                              Services
+                                {(isSelectedRoom?.bookingDto?.checkOutDate &&
+                                  moment(
+                                    convertDateFormat(
+                                      isSelectedRoom?.bookingDto?.checkOutDate
+                                    ) + " utc"
+                                  ).format("DD/MM/YYYY hh:mma")) ||
+                                  "NA"}
+                              </Typography>
                             </Typography>
                           </Grid>
-                          <Grid size={8.2}>
-                            <Box
+
+                          {/* Occupancy */}
+                          <Grid size={5}>
+                            <Typography
                               sx={{
-                                width: "100%",
-                                display: "flex",
-                                flexWrap: "wrap",
-                                gap: 1,
+                                fontSize: "15.5px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                              }}
+                            >
+                              Occupancy
+                            </Typography>
+                          </Grid>
+                          <Grid size={7}>
+                            <Typography
+                              sx={{
+                                fontSize: "15.5px",
+                                // color: "#707070",
+                                fontWeight: 600,
                               }}
                             >
                               <Typography
@@ -2246,754 +2173,951 @@ const RoomServiceCard = memo(function ({
                               >
                                 :
                               </Typography>
-                              <Tooltip title={"Request Room Cleaning"} arrow>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  // fontWeight: 600,
+                                }}
+                              >
+                                {isSelectedRoom?.bookingDto?.noOfPeoples || "0"}
+                              </Typography>
+                            </Typography>
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                      <Grid size={3}>
+                        <img
+                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXp3DxP80ArpRzsB0XWBG9Ow5GeuefbLrUHw&s"
+                          alt="person"
+                          style={{
+                            width: "70px",
+                            height: "70px",
+                            borderRadius: "50%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Box>
+
+                  {/* KEY ALLOCATION */}
+                  {!Boolean(
+                    Boolean(
+                      isSelectedRoom?.bookingDto?.isCheckoutProceed === false
+                    ) &&
+                      Boolean(
+                        isSelectedRoom?.bookingDto?.isCheckedByKeepingStaff ===
+                          true
+                      )
+                  ) &&
+                    Boolean(keysData.data) && (
+                      <Box sx={{ width: "100%", mt: 1 }}>
+                        <Grid container>
+                          <Grid size={12}>
+                            <Typography
+                              sx={{
+                                fontSize: "16.5px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                                width: "100%",
+                                borderBottom: "2px solid #ccc",
+                                marginBottom: "5px",
+                              }}
+                            >
+                              Key Allocation
+                            </Typography>
+                          </Grid>
+                          <Grid size={12}>
+                            <Grid container>
+                              <Grid size={6}>
+                                <Typography
+                                  sx={{ fontWeight: "bold" }}
+                                  color="success"
+                                >
+                                  Key Allocated
+                                </Typography>
+                              </Grid>
+                              <Grid size={6}>
+                                <Typography
+                                  sx={{ fontWeight: "bold" }}
+                                  color="success"
+                                >
+                                  {keysData.data.reduce((prev, curr) => {
+                                    return prev + (curr.isKeyLost ? 0 : 1);
+                                  }, 0)}
+                                </Typography>
+                              </Grid>
+                            </Grid>
+                          </Grid>
+                          <Grid size={12}>
+                            <Grid container>
+                              <Grid size={6}>
+                                <Typography
+                                  sx={{ fontWeight: "bold" }}
+                                  color="error"
+                                >
+                                  Key Lost
+                                </Typography>
+                              </Grid>
+                              <Grid size={6}>
+                                <Typography
+                                  sx={{ fontWeight: "bold" }}
+                                  color="error"
+                                >
+                                  {keysData.data.reduce((prev, curr) => {
+                                    return prev + (curr.isKeyLost ? 1 : 0);
+                                  }, 0)}
+                                </Typography>
+                              </Grid>
+                            </Grid>
+                          </Grid>
+                          <Grid size={12}>
+                            <Grid container>
+                              <Grid size={6}>
+                                <Typography sx={{ fontWeight: "bold" }}>
+                                  Key Lost ?
+                                </Typography>
+                              </Grid>
+                              <Grid size={6}>
                                 <Button
+                                  // fullWidth
+                                  size="small"
                                   variant="contained"
-                                  sx={{ minWidth: "unset", width: "15px" }}
+                                  color="warning"
                                   onClick={() =>
-                                    handleRoomCleanRequestOnClick(
-                                      isSelectedRoom?.id
+                                    handleAssignNewKey(
+                                      isSelectedRoom.bookingDto
+                                        .bookingRefNumber,
+                                      isSelectedRoom.id
                                     )
                                   }
-                                  disabled={Boolean(
-                                    isSelectedRoom?.isRoomCleaningRequested
+                                >
+                                  Assign New Key
+                                </Button>
+                              </Grid>
+                            </Grid>
+                          </Grid>
+                        </Grid>
+                      </Box>
+                    )}
+
+                  {/* ROOM OPERATIONS */}
+                  {Boolean(
+                    Boolean(
+                      isSelectedRoom?.bookingDto?.isCheckoutProceed === false
+                    ) &&
+                      Boolean(
+                        isSelectedRoom?.bookingDto?.isCheckedByKeepingStaff ===
+                          null
+                      )
+                  ) && (
+                    <Box sx={{ width: "100%", mt: 1 }}>
+                      <Grid container size={12}>
+                        <Grid size={12}>
+                          <Typography
+                            sx={{
+                              fontSize: "16.5px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                              width: "100%",
+                              borderBottom: "2px solid #ccc",
+                              marginBottom: "5px",
+                            }}
+                          >
+                            Room Operations :
+                          </Typography>
+                        </Grid>
+
+                        <Grid size={12}>
+                          <Grid container size={12}>
+                            {/* Services */}
+                            <Grid size={3.8}>
+                              <Typography
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                }}
+                              >
+                                Services
+                              </Typography>
+                            </Grid>
+                            <Grid size={8.2}>
+                              <Box
+                                sx={{
+                                  width: "100%",
+                                  display: "flex",
+                                  flexWrap: "wrap",
+                                  gap: 1,
+                                }}
+                              >
+                                <Typography
+                                  component="span"
+                                  sx={{
+                                    fontSize: "15.5px",
+                                    // color: "#707070",
+                                    fontWeight: 600,
+                                    marginRight: "5px",
+                                  }}
+                                >
+                                  :
+                                </Typography>
+                                <Tooltip title={"Request Room Cleaning"} arrow>
+                                  <Button
+                                    variant="contained"
+                                    sx={{ minWidth: "unset", width: "15px" }}
+                                    onClick={() =>
+                                      handleRoomCleanRequestOnClick(
+                                        isSelectedRoom?.id
+                                      )
+                                    }
+                                    disabled={Boolean(
+                                      isSelectedRoom?.isRoomCleaningRequested
+                                    )}
+                                    // disabled={true}
+                                  >
+                                    <CleaningServicesIcon
+                                      sx={{ fontSize: "17px" }}
+                                    />
+                                  </Button>
+                                </Tooltip>
+                                <Tooltip title={"Order Food"} arrow>
+                                  <Button
+                                    variant="contained"
+                                    sx={{ minWidth: "unset", width: "15px" }}
+                                    onClick={() => {
+                                      sessionStorage.setItem(
+                                        "bookingRefNumber",
+                                        isSelectedRoom?.bookingDto
+                                          ?.bookingRefNumber
+                                      );
+                                      sessionStorage.setItem(
+                                        "hotelId",
+                                        isSelectedRoom?.bookingDto?.hotel?.id
+                                      );
+                                      navigate("/resturant");
+                                    }}
+                                  >
+                                    <RestaurantIcon sx={{ fontSize: "17px" }} />
+                                  </Button>
+                                </Tooltip>
+                                <Tooltip title={"Order Beverages"} arrow>
+                                  <Button
+                                    variant="contained"
+                                    sx={{ minWidth: "unset", width: "15px" }}
+                                    onClick={() => {
+                                      sessionStorage.setItem(
+                                        "bookingRefNumber",
+                                        isSelectedRoom?.bookingDto
+                                          ?.bookingRefNumber
+                                      );
+                                      sessionStorage.setItem(
+                                        "hotelId",
+                                        isSelectedRoom?.bookingDto?.hotel?.id
+                                      );
+                                      navigate("/bar");
+                                    }}
+                                  >
+                                    <LiquorIcon sx={{ fontSize: "17px" }} />
+                                  </Button>
+                                </Tooltip>
+                              </Box>
+                            </Grid>
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                    </Box>
+                  )}
+
+                  {/* FOOD DETAILS */}
+                  {Boolean(uniqueFoodItems?.length) && (
+                    <Box sx={{ width: "100%", mt: 1 }}>
+                      <Grid container size={12}>
+                        <Grid size={12}>
+                          <Typography
+                            sx={{
+                              fontSize: "16.5px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                              width: "100%",
+                              borderBottom: "2px solid #ccc",
+                              marginBottom: "5px",
+                            }}
+                          >
+                            Food Details :
+                          </Typography>
+                        </Grid>
+
+                        <Grid size={12}>
+                          <Grid container size={12}>
+                            {/* Used Items */}
+                            <Grid size={3.8}>
+                              <Typography
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                }}
+                              >
+                                Ordered Foods
+                              </Typography>
+                            </Grid>
+                            <Grid size={8.2}>
+                              <Typography
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                }}
+                              >
+                                <Typography
+                                  component="span"
+                                  sx={{
+                                    fontSize: "15.5px",
+                                    // color: "#707070",
+                                    fontWeight: 600,
+                                    marginRight: "5px",
+                                  }}
+                                >
+                                  :
+                                </Typography>
+                                <Typography
+                                  component="span"
+                                  sx={{
+                                    fontSize: "15.5px",
+                                    // color: "#707070",
+                                    // fontWeight: 600,
+                                  }}
+                                >
+                                  {uniqueFoodItems.map((item, index) => (
+                                    <React.Fragment key={`food-item-${index}`}>
+                                      <span>{item}</span>
+                                      {index !== uniqueFoodItems.length - 1 && (
+                                        <span>, </span>
+                                      )}
+                                    </React.Fragment>
+                                  ))}
+                                  {uniqueFoodItems.length > 0 && (
+                                    <>
+                                      <span> &nbsp;</span>
+                                      <span
+                                        style={{
+                                          cursor: "pointer",
+                                          position: "relative",
+                                        }}
+                                        onClick={() =>
+                                          handleOpenShowcaseModalForFoodOnClick(
+                                            isSelectedRoom?.bookingDto
+                                              ?.foodDataList
+                                          )
+                                        }
+                                      >
+                                        <InfoIcon
+                                          sx={{
+                                            fontSize: 16,
+                                            position: "absolute",
+                                            top: 1,
+                                          }}
+                                        />
+                                      </span>
+                                    </>
                                   )}
-                                  // disabled={true}
-                                >
-                                  <CleaningServicesIcon
-                                    sx={{ fontSize: "17px" }}
-                                  />
-                                </Button>
-                              </Tooltip>
-                              <Tooltip title={"Order Food"} arrow>
-                                <Button
-                                  variant="contained"
-                                  sx={{ minWidth: "unset", width: "15px" }}
-                                  onClick={() => {
-                                    sessionStorage.setItem(
-                                      "bookingRefNumber",
-                                      isSelectedRoom?.bookingDto
-                                        ?.bookingRefNumber
-                                    );
-                                    sessionStorage.setItem(
-                                      "hotelId",
-                                      isSelectedRoom?.bookingDto?.hotel?.id
-                                    );
-                                    navigate("/resturant");
+                                </Typography>
+                              </Typography>
+                            </Grid>
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                    </Box>
+                  )}
+
+                  {/* LAUNDRY DETAILS */}
+                  {Boolean(uniqueLaundryItems?.length) && (
+                    <Box
+                      sx={{
+                        width: "100%",
+                        mt: 1,
+                        // , backgroundColor: "red"
+                      }}
+                    >
+                      <Grid container size={12}>
+                        <Grid size={12}>
+                          <Typography
+                            sx={{
+                              fontSize: "16.5px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                              width: "100%",
+                              borderBottom: "2px solid #ccc",
+                              marginBottom: "5px",
+                            }}
+                          >
+                            LaundryDetails :
+                          </Typography>
+                        </Grid>
+
+                        <Grid size={12}>
+                          <Grid container size={12}>
+                            {/* Used Items */}
+                            <Grid size={3.8}>
+                              <Typography
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                }}
+                              >
+                                Items
+                              </Typography>
+                            </Grid>
+                            <Grid size={8.2}>
+                              <Typography
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                }}
+                              >
+                                <Typography
+                                  component="span"
+                                  sx={{
+                                    fontSize: "15.5px",
+                                    // color: "#707070",
+                                    fontWeight: 600,
+                                    marginRight: "5px",
                                   }}
                                 >
-                                  <RestaurantIcon sx={{ fontSize: "17px" }} />
-                                </Button>
-                              </Tooltip>
-                              <Tooltip title={"Order Beverages"} arrow>
-                                <Button
-                                  variant="contained"
-                                  sx={{ minWidth: "unset", width: "15px" }}
-                                  onClick={() => {
-                                    sessionStorage.setItem(
-                                      "bookingRefNumber",
-                                      isSelectedRoom?.bookingDto
-                                        ?.bookingRefNumber
-                                    );
-                                    sessionStorage.setItem(
-                                      "hotelId",
-                                      isSelectedRoom?.bookingDto?.hotel?.id
-                                    );
-                                    navigate("/bar");
+                                  :
+                                </Typography>
+                                <Typography
+                                  component="span"
+                                  sx={{
+                                    fontSize: "15.5px",
+                                    // color: "#707070",
+                                    // fontWeight: 600,
                                   }}
                                 >
-                                  <LiquorIcon sx={{ fontSize: "17px" }} />
-                                </Button>
-                              </Tooltip>
-                            </Box>
+                                  {uniqueLaundryItems.map((item, index) => (
+                                    <React.Fragment key={`food-item-${index}`}>
+                                      <span>{item}</span>
+                                      {index !==
+                                        uniqueLaundryItems.length - 1 && (
+                                        <span>, </span>
+                                      )}
+                                    </React.Fragment>
+                                  ))}
+                                  {uniqueLaundryItems.length > 0 && (
+                                    <>
+                                      <span> &nbsp;</span>
+                                      <span
+                                        style={{
+                                          cursor: "pointer",
+                                          position: "relative",
+                                        }}
+                                        onClick={() =>
+                                          handleOpenShowcaseModalForLaundryOnClick(
+                                            isSelectedRoom?.bookingDto
+                                              ?.laundryDataList
+                                          )
+                                        }
+                                      >
+                                        <InfoIcon
+                                          sx={{
+                                            fontSize: 16,
+                                            position: "absolute",
+                                            top: 1,
+                                          }}
+                                        />
+                                      </span>
+                                    </>
+                                  )}
+                                </Typography>
+                              </Typography>
+                            </Grid>
                           </Grid>
                         </Grid>
                       </Grid>
-                    </Grid>
-                  </Box>
-                )}
+                    </Box>
+                  )}
 
-                {/* FOOD DETAILS */}
-                {Boolean(uniqueFoodItems?.length) && (
-                  <Box sx={{ width: "100%", mt: 1 }}>
-                    <Grid container size={12}>
-                      <Grid size={12}>
-                        <Typography
-                          sx={{
-                            fontSize: "16.5px",
-                            // color: "#707070",
-                            fontWeight: 600,
-                            width: "100%",
-                            borderBottom: "2px solid #ccc",
-                            marginBottom: "5px",
-                          }}
-                        >
-                          Food Details :
-                        </Typography>
-                      </Grid>
+                  {/* EXTRA ITEMS DETAILS */}
+                  {Boolean(uniqueInventoryItems?.length) && (
+                    <Box sx={{ width: "100%", mt: 1 }}>
+                      <Grid container size={12}>
+                        <Grid size={12}>
+                          <Typography
+                            sx={{
+                              fontSize: "16.5px",
+                              // color: "#707070",
+                              fontWeight: 600,
+                              width: "100%",
+                              borderBottom: "2px solid #ccc",
+                              marginBottom: "5px",
+                            }}
+                          >
+                            Inventory Details :
+                          </Typography>
+                        </Grid>
 
-                      <Grid size={12}>
-                        <Grid container size={12}>
-                          {/* Used Items */}
-                          <Grid size={3.8}>
-                            <Typography
-                              sx={{
-                                fontSize: "15.5px",
-                                // color: "#707070",
-                                fontWeight: 600,
-                              }}
-                            >
-                              Ordered Foods
-                            </Typography>
-                          </Grid>
-                          <Grid size={8.2}>
-                            <Typography
-                              sx={{
-                                fontSize: "15.5px",
-                                // color: "#707070",
-                                fontWeight: 600,
-                              }}
-                            >
+                        <Grid size={12}>
+                          <Grid container size={12}>
+                            {/* Used Items */}
+                            <Grid size={3.8}>
                               <Typography
-                                component="span"
                                 sx={{
                                   fontSize: "15.5px",
                                   // color: "#707070",
                                   fontWeight: 600,
-                                  marginRight: "5px",
                                 }}
                               >
-                                :
+                                Extra Items
                               </Typography>
+                            </Grid>
+                            <Grid size={8.2}>
                               <Typography
-                                component="span"
-                                sx={{
-                                  fontSize: "15.5px",
-                                  // color: "#707070",
-                                  // fontWeight: 600,
-                                }}
-                              >
-                                {uniqueFoodItems.map((item, index) => (
-                                  <React.Fragment key={`food-item-${index}`}>
-                                    <span>{item}</span>
-                                    {index !== uniqueFoodItems.length - 1 && (
-                                      <span>, </span>
-                                    )}
-                                  </React.Fragment>
-                                ))}
-                                {uniqueFoodItems.length > 0 && (
-                                  <>
-                                    <span> &nbsp;</span>
-                                    <span
-                                      style={{
-                                        cursor: "pointer",
-                                        position: "relative",
-                                      }}
-                                      onClick={() =>
-                                        handleOpenShowcaseModalForFoodOnClick(
-                                          isSelectedRoom?.bookingDto
-                                            ?.foodDataList
-                                        )
-                                      }
-                                    >
-                                      <InfoIcon
-                                        sx={{
-                                          fontSize: 16,
-                                          position: "absolute",
-                                          top: 1,
-                                        }}
-                                      />
-                                    </span>
-                                  </>
-                                )}
-                              </Typography>
-                            </Typography>
-                          </Grid>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                  </Box>
-                )}
-
-                {/* LAUNDRY DETAILS */}
-                {Boolean(uniqueLaundryItems?.length) && (
-                  <Box
-                    sx={{
-                      width: "100%",
-                      mt: 1,
-                      // , backgroundColor: "red"
-                    }}
-                  >
-                    <Grid container size={12}>
-                      <Grid size={12}>
-                        <Typography
-                          sx={{
-                            fontSize: "16.5px",
-                            // color: "#707070",
-                            fontWeight: 600,
-                            width: "100%",
-                            borderBottom: "2px solid #ccc",
-                            marginBottom: "5px",
-                          }}
-                        >
-                          LaundryDetails :
-                        </Typography>
-                      </Grid>
-
-                      <Grid size={12}>
-                        <Grid container size={12}>
-                          {/* Used Items */}
-                          <Grid size={3.8}>
-                            <Typography
-                              sx={{
-                                fontSize: "15.5px",
-                                // color: "#707070",
-                                fontWeight: 600,
-                              }}
-                            >
-                              Items
-                            </Typography>
-                          </Grid>
-                          <Grid size={8.2}>
-                            <Typography
-                              sx={{
-                                fontSize: "15.5px",
-                                // color: "#707070",
-                                fontWeight: 600,
-                              }}
-                            >
-                              <Typography
-                                component="span"
                                 sx={{
                                   fontSize: "15.5px",
                                   // color: "#707070",
                                   fontWeight: 600,
-                                  marginRight: "5px",
                                 }}
                               >
-                                :
-                              </Typography>
-                              <Typography
-                                component="span"
-                                sx={{
-                                  fontSize: "15.5px",
-                                  // color: "#707070",
-                                  // fontWeight: 600,
-                                }}
-                              >
-                                {uniqueLaundryItems.map((item, index) => (
-                                  <React.Fragment key={`food-item-${index}`}>
-                                    <span>{item}</span>
-                                    {index !==
-                                      uniqueLaundryItems.length - 1 && (
-                                      <span>, </span>
-                                    )}
-                                  </React.Fragment>
-                                ))}
-                                {uniqueLaundryItems.length > 0 && (
-                                  <>
-                                    <span> &nbsp;</span>
-                                    <span
-                                      style={{
-                                        cursor: "pointer",
-                                        position: "relative",
-                                      }}
-                                      onClick={() =>
-                                        handleOpenShowcaseModalForLaundryOnClick(
-                                          isSelectedRoom?.bookingDto
-                                            ?.laundryDataList
-                                        )
-                                      }
-                                    >
-                                      <InfoIcon
-                                        sx={{
-                                          fontSize: 16,
-                                          position: "absolute",
-                                          top: 1,
+                                <Typography
+                                  component="span"
+                                  sx={{
+                                    fontSize: "15.5px",
+                                    // color: "#707070",
+                                    fontWeight: 600,
+                                    marginRight: "5px",
+                                  }}
+                                >
+                                  :
+                                </Typography>
+                                <Typography
+                                  component="span"
+                                  sx={{
+                                    fontSize: "15.5px",
+                                    // color: "#707070",
+                                    // fontWeight: 600,
+                                  }}
+                                >
+                                  {uniqueInventoryItems.map((item, index) => (
+                                    <React.Fragment key={`food-item-${index}`}>
+                                      <span>{item}</span>
+                                      {index !==
+                                        uniqueInventoryItems.length - 1 && (
+                                        <span>, </span>
+                                      )}
+                                    </React.Fragment>
+                                  ))}
+                                  {uniqueInventoryItems.length > 0 && (
+                                    <>
+                                      <span> &nbsp;</span>
+                                      <span
+                                        style={{
+                                          cursor: "pointer",
+                                          position: "relative",
                                         }}
-                                      />
-                                    </span>
-                                  </>
-                                )}
+                                        onClick={() =>
+                                          handleOpenShowcaseModalForInventoryOnClick(
+                                            isSelectedRoom?.bookingDto
+                                              ?.extraItemsList
+                                          )
+                                        }
+                                      >
+                                        <InfoIcon
+                                          sx={{
+                                            fontSize: 16,
+                                            position: "absolute",
+                                            top: 1,
+                                          }}
+                                        />
+                                      </span>
+                                    </>
+                                  )}
+                                </Typography>
                               </Typography>
-                            </Typography>
+                            </Grid>
                           </Grid>
                         </Grid>
                       </Grid>
-                    </Grid>
-                  </Box>
-                )}
-
-                {/* EXTRA ITEMS DETAILS */}
-                {Boolean(uniqueInventoryItems?.length) && (
-                  <Box sx={{ width: "100%", mt: 1 }}>
-                    <Grid container size={12}>
-                      <Grid size={12}>
-                        <Typography
-                          sx={{
-                            fontSize: "16.5px",
-                            // color: "#707070",
-                            fontWeight: 600,
-                            width: "100%",
-                            borderBottom: "2px solid #ccc",
-                            marginBottom: "5px",
-                          }}
-                        >
-                          Inventory Details :
-                        </Typography>
-                      </Grid>
-
-                      <Grid size={12}>
-                        <Grid container size={12}>
-                          {/* Used Items */}
-                          <Grid size={3.8}>
-                            <Typography
-                              sx={{
-                                fontSize: "15.5px",
-                                // color: "#707070",
-                                fontWeight: 600,
-                              }}
-                            >
-                              Extra Items
-                            </Typography>
-                          </Grid>
-                          <Grid size={8.2}>
-                            <Typography
-                              sx={{
-                                fontSize: "15.5px",
-                                // color: "#707070",
-                                fontWeight: 600,
-                              }}
-                            >
-                              <Typography
-                                component="span"
-                                sx={{
-                                  fontSize: "15.5px",
-                                  // color: "#707070",
-                                  fontWeight: 600,
-                                  marginRight: "5px",
-                                }}
-                              >
-                                :
-                              </Typography>
-                              <Typography
-                                component="span"
-                                sx={{
-                                  fontSize: "15.5px",
-                                  // color: "#707070",
-                                  // fontWeight: 600,
-                                }}
-                              >
-                                {uniqueInventoryItems.map((item, index) => (
-                                  <React.Fragment key={`food-item-${index}`}>
-                                    <span>{item}</span>
-                                    {index !==
-                                      uniqueInventoryItems.length - 1 && (
-                                      <span>, </span>
-                                    )}
-                                  </React.Fragment>
-                                ))}
-                                {uniqueInventoryItems.length > 0 && (
-                                  <>
-                                    <span> &nbsp;</span>
-                                    <span
-                                      style={{
-                                        cursor: "pointer",
-                                        position: "relative",
-                                      }}
-                                      onClick={() =>
-                                        handleOpenShowcaseModalForInventoryOnClick(
-                                          isSelectedRoom?.bookingDto
-                                            ?.extraItemsList
-                                        )
-                                      }
-                                    >
-                                      <InfoIcon
-                                        sx={{
-                                          fontSize: 16,
-                                          position: "absolute",
-                                          top: 1,
-                                        }}
-                                      />
-                                    </span>
-                                  </>
-                                )}
-                              </Typography>
-                            </Typography>
-                          </Grid>
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                  </Box>
-                )}
-              </Box>
-            </>
-          )}
+                    </Box>
+                  )}
+                </Box>
+              </>
+            )}
 
           {/* RESERVED ROOM CASE */}
-          {selectedRoomStatusType?.key === RESERVED?.key && (
-            <>
-              <Box sx={{ width: "100%", pl: 1 }}>
-                {/* GUEST DETAILS */}
-                <Box sx={{ width: "100%" }}>
-                  <Grid container size={12}>
-                    <Grid size={12}>
-                      <Typography
-                        sx={{
-                          fontSize: "16.5px",
-                          // color: "#707070",
-                          fontWeight: 600,
-                          width: "100%",
-                          borderBottom: "2px solid #ccc",
-                          marginBottom: "5px",
-                        }}
-                      >
-                        Guest Details :
-                      </Typography>
-                    </Grid>
-                    <Grid size={9}>
-                      <Grid container size={12}>
-                        {/* NAME */}
-                        <Grid size={5}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            Name
-                          </Typography>
-                        </Grid>
-                        <Grid size={7}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
+          {isSelectedRoom?.bookingDto &&
+            selectedRoomStatusType?.key === RESERVED?.key && (
+              <>
+                <Box sx={{ width: "100%", pl: 1 }}>
+                  {/* GUEST DETAILS */}
+                  <Box sx={{ width: "100%" }}>
+                    <Grid container size={12}>
+                      <Grid size={12}>
+                        <Typography
+                          sx={{
+                            fontSize: "16.5px",
+                            // color: "#707070",
+                            fontWeight: 600,
+                            width: "100%",
+                            borderBottom: "2px solid #ccc",
+                            marginBottom: "5px",
+                          }}
+                        >
+                          Guest Details :
+                        </Typography>
+                      </Grid>
+                      <Grid size={9}>
+                        <Grid container size={12}>
+                          {/* NAME */}
+                          <Grid size={5}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
-                                marginRight: "5px",
                               }}
                             >
-                              :
+                              Name
                             </Typography>
+                          </Grid>
+                          <Grid size={7}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
-                                // fontWeight: 600,
+                                fontWeight: 600,
                               }}
                             >
-                              {Boolean(isSelectedRoom?.bookingDto?.firstName) &&
-                                `${isSelectedRoom?.bookingDto?.firstName}`}
-                              {Boolean(
-                                isSelectedRoom?.bookingDto?.middleName
-                              ) && ` ${isSelectedRoom?.bookingDto?.middleName}`}
-                              {Boolean(isSelectedRoom?.bookingDto?.lastName) &&
-                                ` ${isSelectedRoom?.bookingDto?.lastName}`}{" "}
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                  marginRight: "5px",
+                                }}
+                              >
+                                :
+                              </Typography>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  // fontWeight: 600,
+                                }}
+                              >
+                                {Boolean(
+                                  isSelectedRoom?.bookingDto?.firstName
+                                ) && `${isSelectedRoom?.bookingDto?.firstName}`}
+                                {Boolean(
+                                  isSelectedRoom?.bookingDto?.middleName
+                                ) &&
+                                  ` ${isSelectedRoom?.bookingDto?.middleName}`}
+                                {Boolean(
+                                  isSelectedRoom?.bookingDto?.lastName
+                                ) &&
+                                  ` ${isSelectedRoom?.bookingDto?.lastName}`}{" "}
+                              </Typography>
                             </Typography>
-                          </Typography>
-                        </Grid>
+                          </Grid>
 
-                        {/* ROOM TYPE */}
-                        <Grid size={5}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            Room Type
-                          </Typography>
-                        </Grid>
-                        <Grid size={7}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
+                          {/* ROOM TYPE */}
+                          <Grid size={5}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
-                                marginRight: "5px",
                               }}
                             >
-                              :
+                              Room Type
                             </Typography>
+                          </Grid>
+                          <Grid size={7}>
                             <Typography
-                              component="span"
-                              sx={{
-                                fontSize: "15.5px",
-                                // color: "#707070",
-                                // fontWeight: 600,
-                              }}
-                            >
-                              {isSelectedRoom?.roomType?.type
-                                ?.replace(/_/g, " ")
-                                ?.replace(/([a-z])([A-Z])/g, "$1 $2")
-                                ?.replace(/\b\w/g, (char) =>
-                                  char.toUpperCase()
-                                ) || ""}
-                            </Typography>
-                          </Typography>
-                        </Grid>
-                        {/* CAPACITY */}
-                        <Grid size={5}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            Capacity
-                          </Typography>
-                        </Grid>
-                        <Grid size={7}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
-                                marginRight: "5px",
                               }}
                             >
-                              :
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                  marginRight: "5px",
+                                }}
+                              >
+                                :
+                              </Typography>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  // fontWeight: 600,
+                                }}
+                              >
+                                {isSelectedRoom?.roomType?.type
+                                  ?.replace(/_/g, " ")
+                                  ?.replace(/([a-z])([A-Z])/g, "$1 $2")
+                                  ?.replace(/\b\w/g, (char) =>
+                                    char.toUpperCase()
+                                  ) || ""}
+                              </Typography>
                             </Typography>
+                          </Grid>
+                          {/* CAPACITY */}
+                          <Grid size={5}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
-                                // fontWeight: 600,
+                                fontWeight: 600,
                               }}
                             >
-                              {isSelectedRoom?.roomType?.capacity || ""}
+                              Capacity
                             </Typography>
-                          </Typography>
-                        </Grid>
+                          </Grid>
+                          <Grid size={7}>
+                            <Typography
+                              sx={{
+                                fontSize: "15.5px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                              }}
+                            >
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                  marginRight: "5px",
+                                }}
+                              >
+                                :
+                              </Typography>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  // fontWeight: 600,
+                                }}
+                              >
+                                {isSelectedRoom?.roomType?.capacity || ""}
+                              </Typography>
+                            </Typography>
+                          </Grid>
 
-                        {/* BOOKING DATE */}
-                        <Grid size={5}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            Booking Date
-                          </Typography>
-                        </Grid>
-                        <Grid size={7}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
+                          {/* BOOKING DATE */}
+                          <Grid size={5}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
-                                marginRight: "5px",
                               }}
                             >
-                              :
+                              Booking Date
                             </Typography>
+                          </Grid>
+                          <Grid size={7}>
                             <Typography
-                              component="span"
-                              sx={{
-                                fontSize: "15.5px",
-                                // color: "#707070",
-                                // fontWeight: 600,
-                              }}
-                            >
-                              {isSelectedRoom?.bookingDto?.bookedOn &&
-                                moment(
-                                  isSelectedRoom?.bookingDto?.bookedOn
-                                ).format("DD-MM-YYYY hh:mm A")}
-                            </Typography>
-                          </Typography>
-                        </Grid>
-                        {/* FROM DATE */}
-                        <Grid size={5}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            From
-                          </Typography>
-                        </Grid>
-                        <Grid size={7}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
-                                marginRight: "5px",
                               }}
                             >
-                              :
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                  marginRight: "5px",
+                                }}
+                              >
+                                :
+                              </Typography>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  // fontWeight: 600,
+                                }}
+                              >
+                                {isSelectedRoom?.bookingDto?.bookedOn &&
+                                  moment(
+                                    isSelectedRoom?.bookingDto?.bookedOn
+                                  ).format("DD-MM-YYYY hh:mm A")}
+                              </Typography>
                             </Typography>
+                          </Grid>
+                          {/* FROM DATE */}
+                          <Grid size={5}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
-                                // fontWeight: 600,
+                                fontWeight: 600,
                               }}
                             >
-                              {isSelectedRoom?.bookingDto?.fromDate || "NA"}
+                              From
                             </Typography>
-                          </Typography>
-                        </Grid>
+                          </Grid>
+                          <Grid size={7}>
+                            <Typography
+                              sx={{
+                                fontSize: "15.5px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                              }}
+                            >
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                  marginRight: "5px",
+                                }}
+                              >
+                                :
+                              </Typography>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  // fontWeight: 600,
+                                }}
+                              >
+                                {isSelectedRoom?.bookingDto?.fromDate || "NA"}
+                              </Typography>
+                            </Typography>
+                          </Grid>
 
-                        {/* TO DATE */}
-                        <Grid size={5}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            To
-                          </Typography>
-                        </Grid>
-                        <Grid size={7}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
+                          {/* TO DATE */}
+                          <Grid size={5}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
-                                marginRight: "5px",
                               }}
                             >
-                              :
+                              To
                             </Typography>
+                          </Grid>
+                          <Grid size={7}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
-                                // fontWeight: 600,
+                                fontWeight: 600,
                               }}
                             >
-                              {isSelectedRoom?.bookingDto?.toDate || "NA"}
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                  marginRight: "5px",
+                                }}
+                              >
+                                :
+                              </Typography>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  // fontWeight: 600,
+                                }}
+                              >
+                                {isSelectedRoom?.bookingDto?.toDate || "NA"}
+                              </Typography>
                             </Typography>
-                          </Typography>
-                        </Grid>
+                          </Grid>
 
-                        {/* STAYERS */}
-                        <Grid size={5}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
-                            Stayers
-                          </Typography>
-                        </Grid>
-                        <Grid size={7}>
-                          <Typography
-                            sx={{
-                              fontSize: "15.5px",
-                              // color: "#707070",
-                              fontWeight: 600,
-                            }}
-                          >
+                          {/* STAYERS */}
+                          <Grid size={5}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
                                 fontWeight: 600,
-                                marginRight: "5px",
                               }}
                             >
-                              :
+                              Stayers
                             </Typography>
+                          </Grid>
+                          <Grid size={7}>
                             <Typography
-                              component="span"
                               sx={{
                                 fontSize: "15.5px",
                                 // color: "#707070",
-                                // fontWeight: 600,
+                                fontWeight: 600,
                               }}
                             >
-                              {isSelectedRoom?.bookingDto?.noOfPeoples || "0"}
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                  marginRight: "5px",
+                                }}
+                              >
+                                :
+                              </Typography>
+                              <Typography
+                                component="span"
+                                sx={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  // fontWeight: 600,
+                                }}
+                              >
+                                {isSelectedRoom?.bookingDto?.noOfPeoples || "0"}
+                              </Typography>
                             </Typography>
-                          </Typography>
+                          </Grid>
                         </Grid>
                       </Grid>
+                      <Grid size={3}>
+                        <img
+                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXp3DxP80ArpRzsB0XWBG9Ow5GeuefbLrUHw&s"
+                          alt="person"
+                          style={{
+                            width: "70px",
+                            height: "70px",
+                            borderRadius: "50%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      </Grid>
                     </Grid>
-                    <Grid size={3}>
-                      <img
-                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXp3DxP80ArpRzsB0XWBG9Ow5GeuefbLrUHw&s"
-                        alt="person"
-                        style={{
-                          width: "70px",
-                          height: "70px",
-                          borderRadius: "50%",
-                          objectFit: "cover",
-                        }}
-                      />
-                    </Grid>
-                  </Grid>
+                  </Box>
                 </Box>
-              </Box>
-            </>
-          )}
+              </>
+            )}
 
           {/* AVAILABLE ROOM CASE */}
-          {selectedRoomStatusType?.key === AVAILABLE?.key && (
+          {/* {selectedRoomStatusType?.key === AVAILABLE?.key && ( */}
+          {isSelectedRoom.bookingDto === null && (
             <>
               <Box sx={{ width: "100%", pl: 1 }}>
                 {/* ROOM DETAILS */}
@@ -3221,7 +3345,11 @@ const RoomServiceCard = memo(function ({
                                 // fontWeight: 600,
                               }}
                             >
-                              {checkRoomStatusType(isSelectedRoom)?.key}
+                              {isSelectedRoom.bookingDto === null &&
+                              checkRoomStatusType(isSelectedRoom)?.key ===
+                                OCCUPIED.key
+                                ? AVAILABLE.key
+                                : checkRoomStatusType(isSelectedRoom)?.key}
                             </Typography>
                           </Typography>
                         </Grid>
@@ -3240,16 +3368,20 @@ const RoomServiceCard = memo(function ({
             display: "flex",
 
             justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "column-reverse",
             width: "100%",
             // bgcolor: "red",
             bottom: 0,
-            gap: 2,
+            gap: 1,
             mt: 1,
           }}
         >
           {/* AVAILABLE ROOM CASE */}
-          {selectedRoomStatusType?.key === AVAILABLE?.key && (
+          {/* {selectedRoomStatusType?.key === AVAILABLE?.key && ( */}
+          {true && (
             <Button
+              fullWidth
               variant="contained"
               size="small"
               onClick={() =>
@@ -3269,51 +3401,80 @@ const RoomServiceCard = memo(function ({
             </Button>
           )}
 
+          {/* UPGRADE ROOM  */}
+          {isSelectedRoom?.bookingDto &&
+            selectedRoomStatusType?.key === RESERVED?.key && (
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => setRoomUpgradeDrawer(isSelectedRoom)}
+                sx={{
+                  backgroundImage:
+                    "linear-gradient(to right, #a4508b 0%, #5f0a87 100%)",
+                  color: "white",
+                  "&:hover": {
+                    backgroundImage:
+                      "linear-gradient(to right, #a4508b 10%, #5f0a87 90%)",
+                  },
+                }}
+                fullWidth
+              >
+                ROOM UPGRADE
+              </Button>
+            )}
+
           {/* RESERVED ROOM CASE */}
-          {selectedRoomStatusType?.key === RESERVED?.key && (
-            <>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={() =>
-                  handleOpenCustomFormDrawerOnClick(true, "Check-In", "checkIn")
-                }
-                sx={{
-                  backgroundImage:
-                    "linear-gradient(to right, #2ba409, #4fb009, #6dbc0b, #88c810, #a3d417)", // Multi-tone gradient
-                  color: "white",
-                  "&:hover": {
+          {isSelectedRoom?.bookingDto &&
+            selectedRoomStatusType?.key === RESERVED?.key && (
+              <>
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={() =>
+                    handleOpenCustomFormDrawerOnClick(
+                      true,
+                      "Check-In",
+                      "checkIn"
+                    )
+                  }
+                  sx={{
                     backgroundImage:
-                      "linear-gradient(to right, #2ba409, #4fb009, #6dbc0b, #88c810, #a3d417)", // Same gradient for hover
-                  },
-                }}
-              >
-                CHECK-IN
-              </Button>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={() =>
-                  handleOpenCustomFormDrawerOnClick(
-                    true,
-                    "Cancel Booking",
-                    "cancelBooking"
-                  )
-                }
-                sx={{
-                  backgroundImage:
-                    "linear-gradient(to right, #ff416c 0%, #ff4b2b 100%)",
-                  color: "white",
-                  "&:hover": {
+                      "linear-gradient(to right, #2ba409, #4fb009, #6dbc0b, #88c810, #a3d417)", // Multi-tone gradient
+                    color: "white",
+                    "&:hover": {
+                      backgroundImage:
+                        "linear-gradient(to right, #2ba409, #4fb009, #6dbc0b, #88c810, #a3d417)", // Same gradient for hover
+                    },
+                  }}
+                  fullWidth
+                >
+                  CHECK-IN
+                </Button>
+                <Button
+                  fullWidth
+                  variant="contained"
+                  size="small"
+                  onClick={() =>
+                    handleOpenCustomFormDrawerOnClick(
+                      true,
+                      "Cancel Booking",
+                      "cancelBooking"
+                    )
+                  }
+                  sx={{
                     backgroundImage:
-                      "linear-gradient(to right, #ff416c 10%, #ff4b2b 90%)",
-                  },
-                }}
-              >
-                CANCEL BOOKING
-              </Button>
-            </>
-          )}
+                      "linear-gradient(to right, #ff416c 0%, #ff4b2b 100%)",
+                    color: "white",
+                    "&:hover": {
+                      backgroundImage:
+                        "linear-gradient(to right, #ff416c 10%, #ff4b2b 90%)",
+                    },
+                  }}
+                >
+                  CANCEL BOOKING
+                </Button>
+              </>
+            )}
 
           <Box
             sx={{
@@ -3550,6 +3711,7 @@ const RoomServiceCard = memo(function ({
                     onClick={() => {
                       handleViewHotelGstBillInvoice(isSelectedRoom);
                     }}
+                    fullWidth
                   >
                     View GST Invoice
                   </Button>
@@ -3560,6 +3722,7 @@ const RoomServiceCard = memo(function ({
             {selectedRoomStatusType?.key === OCCUPIED?.key && (
               <Box sx={{ width: "100%" }}>
                 <Button
+                  fullWidth
                   variant="contained"
                   size="small"
                   color="error"
@@ -3663,6 +3826,795 @@ const RoomServiceCard = memo(function ({
   );
 });
 
+const getNumberOfDays = (toDate, fromDate) => {
+  return (new Date(toDate) - new Date(fromDate)) / (24 * 3600 * 1000) + 1;
+};
+
+const RoomUpgradeDrawer = memo(function ({
+  open,
+  onClose,
+  isSelectedRoom,
+  setOpenPaymentDialogV2,
+  setApiPayload,
+  setAmountToPay,
+  handleUpgradeRoomRequest,
+}) {
+  const [selectedUpgrade, setSelectedUpgrade] = React.useState(null);
+  const {
+    data: roomTypePriceConfig = {
+      data: {
+        upgradeRoomTypePriceConfiguration: [],
+      },
+    },
+  } = useGetRoomTypeUpgradePriceConfigQuery(
+    {
+      companyId: JSON.parse(sessionStorage.getItem("data")).companyId,
+      masterRoomTypeId: isSelectedRoom?.roomType?.id || null,
+    },
+    { skip: !open }
+  );
+
+  console.log(isSelectedRoom, "isSelectedRoom");
+
+  React.useEffect(() => {
+    if (selectedUpgrade && isSelectedRoom) {
+      setApiPayload({
+        bookingRefNumber: isSelectedRoom.bookingDto.bookingRefNumber,
+        discountPrice:
+          selectedUpgrade.upgradeRoomTypeDto.basePrice -
+          (selectedUpgrade.upgradeRoomTypeDto.basePrice *
+            selectedUpgrade.percentageDiscount) /
+            100,
+        gstPrice:
+          (selectedUpgrade.upgradeRoomTypeDto.basePrice -
+            (selectedUpgrade.upgradeRoomTypeDto.basePrice *
+              selectedUpgrade.percentageDiscount) /
+              100) *
+          0.18,
+        bookingAmount:
+          isSelectedRoom.roomType.basePrice -
+          (selectedUpgrade.upgradeRoomTypeDto.basePrice -
+            (selectedUpgrade.upgradeRoomTypeDto.basePrice *
+              selectedUpgrade.percentageDiscount) /
+              100),
+        roomTypeId: selectedUpgrade.upgradeRoomTypeDto.id,
+      });
+      // setAmountToPay(
+      //   (selectedUpgrade.upgradeRoomTypeDto.advanceAmount || 0) -
+      //     (selectedUpgrade.upgradeRoomTypeDto.advanceAmount || 0) *
+      //       (selectedUpgrade.percentageDiscount / 100)
+      // );
+      setAmountToPay(
+        Boolean(selectedUpgrade?.upgradeRoomTypeDto?.isAdvanceRequired)
+          ? getNumberOfDays(
+              isSelectedRoom?.bookingDto?.toDate.split("-").reverse().join("-"),
+              isSelectedRoom?.bookingDto?.fromDate
+                .split("-")
+                .reverse()
+                .join("-")
+            ) *
+              (selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount -
+                selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount *
+                  (selectedUpgrade.percentageDiscount / 100)) -
+              isSelectedRoom?.bookingDto?.transactionDetails
+                ?.filter((item) => Boolean(item?.isCredit))
+                ?.reduce((sum, item) => sum + (item?.amount || 0), 0) <
+            0
+            ? 0
+            : getNumberOfDays(
+                isSelectedRoom?.bookingDto?.toDate
+                  .split("-")
+                  .reverse()
+                  .join("-"),
+                isSelectedRoom?.bookingDto?.fromDate
+                  .split("-")
+                  .reverse()
+                  .join("-")
+              ) *
+                (selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount -
+                  selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount *
+                    (selectedUpgrade.percentageDiscount / 100)) -
+              isSelectedRoom?.bookingDto?.transactionDetails
+                ?.filter((item) => Boolean(item?.isCredit))
+                ?.reduce((sum, item) => sum + (item?.amount || 0), 0)
+          : 0
+      );
+    }
+  }, [selectedUpgrade, isSelectedRoom]);
+
+  return (
+    <Drawer
+      anchor="right"
+      open={open}
+      onClose={() => {
+        onClose();
+        setSelectedUpgrade(null);
+      }}
+      sx={{ zIndex: 1300 }}
+      onTransitionExited={() => setSelectedUpgrade(null)}
+    >
+      <Box Box sx={{ width: 500, paddingBottom: "15px" }} role="presentation">
+        <Box
+          sx={{
+            px: 2,
+
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <Typography sx={{ fontWeight: 550, fontSize: "1.5em" }}>
+            Room Upgrade
+          </Typography>
+          <IconButton
+            onClick={() => {
+              onClose();
+              setSelectedUpgrade(null);
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </Box>
+        <Divider sx={{ mb: 1 }} />
+        <Box sx={{ px: 2 }}>
+          <Grid container size={12} spacing={1}>
+            <Grid size={12}>
+              <Grid container size={12}>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Booking Ref. No.
+                  </Typography>
+                </Grid>
+                <Grid size={8}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {isSelectedRoom?.bookingDto?.bookingRefNumber || ""}
+                    </Typography>
+                  </Typography>
+                </Grid>
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    From
+                  </Typography>
+                </Grid>
+                <Grid size={3}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {isSelectedRoom?.bookingDto?.fromDate || ""}
+                    </Typography>
+                  </Typography>
+                </Grid>
+
+                <Grid size={1}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    To
+                  </Typography>
+                </Grid>
+
+                <Grid size={3}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {isSelectedRoom?.bookingDto?.toDate || ""}
+                    </Typography>
+                  </Typography>
+                </Grid>
+                <Grid size={12}></Grid>
+                {/* STAYERS */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Stayers
+                  </Typography>
+                </Grid>
+                <Grid size={1}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {isSelectedRoom?.bookingDto?.noOfPeoples || 0}
+                    </Typography>
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid size={12}>
+              <Grid container>
+                <Grid size={12}>
+                  <Typography
+                    sx={{
+                      fontSize: "20px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Available Upgrades :
+                  </Typography>
+                </Grid>
+                <Grid size={12}>
+                  <TableContainer>
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow
+                          sx={{
+                            ".MuiTableCell-root": {
+                              fontWeight: "bold",
+                            },
+                          }}
+                        >
+                          <TableCell />
+                          <TableCell>Upgrade Room Type</TableCell>
+                          <TableCell>Discount Percentage</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {roomTypePriceConfig.data.upgradeRoomTypePriceConfiguration.map(
+                          (configData) => {
+                            return (
+                              <TableRow>
+                                <TableCell>
+                                  <Checkbox
+                                    size="small"
+                                    onClick={() =>
+                                      setSelectedUpgrade(configData)
+                                    }
+                                    checked={
+                                      selectedUpgrade?.id === configData.id
+                                    }
+                                  />
+                                </TableCell>
+                                <TableCell>
+                                  {configData.upgradeRoomTypeDto.type}
+                                </TableCell>
+                                <TableCell>
+                                  {configData.percentageDiscount}
+                                </TableCell>
+                              </TableRow>
+                            );
+                          }
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Grid>
+              </Grid>
+            </Grid>
+
+            {/* ROOM CHARGES */}
+            {Boolean(selectedUpgrade) && (
+              <Grid size={{ xs: 12 }}>
+                <Grid size={12}>
+                  <Typography
+                    sx={{
+                      fontSize: "20px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Room Charge Details :
+                  </Typography>
+                </Grid>
+                <Grid container size={12} rowSpacing={0.5}>
+                  <Grid size={5}>
+                    <Typography
+                      sx={{
+                        fontSize: "14px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                      }}
+                    >
+                      Room Base Price (per day)
+                    </Typography>
+                  </Grid>
+                  <Grid size={7}>
+                    <Typography
+                      sx={{
+                        fontSize: "14px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                      }}
+                    >
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontSize: "14px",
+                          // color: "#707070",
+                          fontWeight: 600,
+                          marginRight: "5px",
+                        }}
+                      >
+                        :
+                      </Typography>
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontSize: "14px",
+                          // color: "#707070",
+                          // fontWeight: 600,
+                        }}
+                      >
+                        {(selectedUpgrade?.upgradeRoomTypeDto?.basePrice || 0) -
+                          (selectedUpgrade?.upgradeRoomTypeDto?.basePrice ||
+                            0) *
+                            (selectedUpgrade?.percentageDiscount / 100)}
+                      </Typography>
+                    </Typography>
+                  </Grid>
+
+                  <Grid size={5}>
+                    <Typography
+                      sx={{
+                        fontSize: "14px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                      }}
+                    >
+                      Total Charge
+                    </Typography>
+                  </Grid>
+                  <Grid size={7}>
+                    <Typography
+                      sx={{
+                        fontSize: "14px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                      }}
+                    >
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontSize: "14px",
+                          // color: "#707070",
+                          fontWeight: 600,
+                          marginRight: "5px",
+                        }}
+                      >
+                        :
+                      </Typography>
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontSize: "14px",
+                          // color: "#707070",
+                          // fontWeight: 600,
+                        }}
+                      >
+                        {((selectedUpgrade?.upgradeRoomTypeDto?.basePrice ||
+                          0) -
+                          (selectedUpgrade?.upgradeRoomTypeDto?.basePrice ||
+                            0) *
+                            (selectedUpgrade?.percentageDiscount / 100)) *
+                          getNumberOfDays(
+                            isSelectedRoom?.bookingDto?.toDate
+                              .split("-")
+                              .reverse()
+                              .join("-"),
+                            isSelectedRoom?.bookingDto?.fromDate
+                              .split("-")
+                              .reverse()
+                              .join("-")
+                          )}{" "}
+                        {Boolean(
+                          getNumberOfDays(
+                            isSelectedRoom?.bookingDto?.toDate
+                              .split("-")
+                              .reverse()
+                              .join("-"),
+                            isSelectedRoom?.bookingDto?.fromDate
+                              .split("-")
+                              .reverse()
+                              .join("-")
+                          )
+                        ) &&
+                          `(${getNumberOfDays(
+                            isSelectedRoom?.bookingDto?.toDate
+                              .split("-")
+                              .reverse()
+                              .join("-"),
+                            isSelectedRoom?.bookingDto?.fromDate
+                              .split("-")
+                              .reverse()
+                              .join("-")
+                          )} day${
+                            Boolean(
+                              getNumberOfDays(
+                                isSelectedRoom?.bookingDto?.toDate
+                                  .split("-")
+                                  .reverse()
+                                  .join("-"),
+                                isSelectedRoom?.bookingDto?.fromDate
+                                  .split("-")
+                                  .reverse()
+                                  .join("-")
+                              ) > 1
+                            )
+                              ? "s"
+                              : ""
+                          } of stay)`}
+                      </Typography>
+                    </Typography>
+                  </Grid>
+                  <Grid size={5}>
+                    <Typography
+                      sx={{
+                        fontSize: "14px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                      }}
+                    >
+                      Advance Required
+                    </Typography>
+                  </Grid>
+                  <Grid size={7}>
+                    <Typography
+                      sx={{
+                        fontSize: "14px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                      }}
+                    >
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontSize: "14px",
+                          // color: "#707070",
+                          fontWeight: 600,
+                          marginRight: "5px",
+                        }}
+                      >
+                        :
+                      </Typography>
+                      <Typography
+                        component="span"
+                        sx={{
+                          fontSize: "14px",
+                          // color: "#707070",
+                          // fontWeight: 600,
+                        }}
+                      >
+                        {(Boolean(
+                          selectedUpgrade?.upgradeRoomTypeDto?.isAdvanceRequired
+                        )
+                          ? getNumberOfDays(
+                              isSelectedRoom?.bookingDto?.toDate
+                                .split("-")
+                                .reverse()
+                                .join("-"),
+                              isSelectedRoom?.bookingDto?.fromDate
+                                .split("-")
+                                .reverse()
+                                .join("-")
+                            ) *
+                              (selectedUpgrade?.upgradeRoomTypeDto
+                                ?.advanceAmount -
+                                selectedUpgrade?.upgradeRoomTypeDto
+                                  ?.advanceAmount *
+                                  (selectedUpgrade.percentageDiscount / 100)) -
+                              isSelectedRoom?.bookingDto?.transactionDetails
+                                ?.filter((item) => Boolean(item?.isCredit))
+                                ?.reduce(
+                                  (sum, item) => sum + (item?.amount || 0),
+                                  0
+                                ) <
+                            0
+                            ? 0
+                            : getNumberOfDays(
+                                isSelectedRoom?.bookingDto?.toDate
+                                  .split("-")
+                                  .reverse()
+                                  .join("-"),
+                                isSelectedRoom?.bookingDto?.fromDate
+                                  .split("-")
+                                  .reverse()
+                                  .join("-")
+                              ) *
+                                (selectedUpgrade?.upgradeRoomTypeDto
+                                  ?.advanceAmount -
+                                  selectedUpgrade?.upgradeRoomTypeDto
+                                    ?.advanceAmount *
+                                    (selectedUpgrade.percentageDiscount /
+                                      100)) -
+                              isSelectedRoom?.bookingDto?.transactionDetails
+                                ?.filter((item) => Boolean(item?.isCredit))
+                                ?.reduce(
+                                  (sum, item) => sum + (item?.amount || 0),
+                                  0
+                                )
+                          : 0) || "(No advance is required.)"}
+                      </Typography>
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </Grid>
+            )}
+            {/* PAYMENTS */}
+            <Grid size={12}>
+              <Grid container size={12}>
+                {/* STAYERS */}
+                <Grid size={12}>
+                  <Typography
+                    sx={{
+                      fontSize: "20px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Payment Details :
+                  </Typography>
+                </Grid>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "14px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Advance Paid
+                  </Typography>
+                </Grid>
+
+                <Grid size={8}>
+                  <Typography
+                    sx={{
+                      fontSize: "14px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "14px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "14px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {isSelectedRoom?.bookingDto?.transactionDetails
+                        ?.filter((item) => Boolean(item?.isCredit))
+                        ?.reduce((sum, item) => sum + (item?.amount || 0), 0)}
+                    </Typography>
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+          {Boolean(selectedUpgrade) && (
+            <Button
+              variant="contained"
+              sx={{
+                backgroundImage:
+                  "linear-gradient(to right, #a4508b 0%, #5f0a87 100%)",
+                color: "white",
+                "&:hover": {
+                  backgroundImage:
+                    "linear-gradient(to right, #a4508b 10%, #5f0a87 90%)",
+                },
+              }}
+              onClick={() => {
+                if (
+                  Boolean(
+                    selectedUpgrade?.upgradeRoomTypeDto?.isAdvanceRequired
+                  )
+                    ? getNumberOfDays(
+                        isSelectedRoom?.bookingDto?.toDate
+                          .split("-")
+                          .reverse()
+                          .join("-"),
+                        isSelectedRoom?.bookingDto?.fromDate
+                          .split("-")
+                          .reverse()
+                          .join("-")
+                      ) *
+                        (selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount -
+                          selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount *
+                            (selectedUpgrade.percentageDiscount / 100)) -
+                        isSelectedRoom?.bookingDto?.transactionDetails
+                          ?.filter((item) => Boolean(item?.isCredit))
+                          ?.reduce(
+                            (sum, item) => sum + (item?.amount || 0),
+                            0
+                          ) <
+                      0
+                      ? 0
+                      : getNumberOfDays(
+                          isSelectedRoom?.bookingDto?.toDate
+                            .split("-")
+                            .reverse()
+                            .join("-"),
+                          isSelectedRoom?.bookingDto?.fromDate
+                            .split("-")
+                            .reverse()
+                            .join("-")
+                        ) *
+                          (selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount -
+                            selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount *
+                              (selectedUpgrade.percentageDiscount / 100)) -
+                        isSelectedRoom?.bookingDto?.transactionDetails
+                          ?.filter((item) => Boolean(item?.isCredit))
+                          ?.reduce((sum, item) => sum + (item?.amount || 0), 0)
+                    : 0
+                ) {
+                  setOpenPaymentDialogV2(true);
+                } else {
+                  handleUpgradeRoomRequest();
+                }
+              }}
+            >
+              {(
+                Boolean(selectedUpgrade?.upgradeRoomTypeDto?.isAdvanceRequired)
+                  ? getNumberOfDays(
+                      isSelectedRoom?.bookingDto?.toDate
+                        .split("-")
+                        .reverse()
+                        .join("-"),
+                      isSelectedRoom?.bookingDto?.fromDate
+                        .split("-")
+                        .reverse()
+                        .join("-")
+                    ) *
+                      (selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount -
+                        selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount *
+                          (selectedUpgrade.percentageDiscount / 100)) -
+                      isSelectedRoom?.bookingDto?.transactionDetails
+                        ?.filter((item) => Boolean(item?.isCredit))
+                        ?.reduce((sum, item) => sum + (item?.amount || 0), 0) <
+                    0
+                    ? 0
+                    : getNumberOfDays(
+                        isSelectedRoom?.bookingDto?.toDate
+                          .split("-")
+                          .reverse()
+                          .join("-"),
+                        isSelectedRoom?.bookingDto?.fromDate
+                          .split("-")
+                          .reverse()
+                          .join("-")
+                      ) *
+                        (selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount -
+                          selectedUpgrade?.upgradeRoomTypeDto?.advanceAmount *
+                            (selectedUpgrade.percentageDiscount / 100)) -
+                      isSelectedRoom?.bookingDto?.transactionDetails
+                        ?.filter((item) => Boolean(item?.isCredit))
+                        ?.reduce((sum, item) => sum + (item?.amount || 0), 0)
+                  : 0
+              )
+                ? "PAY AND UPGRADE NOW"
+                : "UPGRADE NOW"}
+            </Button>
+          )}
+        </Box>
+      </Box>
+    </Drawer>
+  );
+});
+
 const CustomFormDrawer = memo(function ({
   customDrawerOpen,
   title,
@@ -3677,7 +4629,8 @@ const CustomFormDrawer = memo(function ({
   handleSubmitRoomBookingCanelation,
   handleSubmitBookingForGuestByFrontDesk,
 }) {
-  console.log("CustomFormDrawer customDrawerOpen : ", customDrawerOpen, type);
+  // console.log("CustomFormDrawer customDrawerOpen : ", customDrawerOpen, type);
+  console.log("customFormDrawerData", customFormDrawerData);
 
   // const numberOfDaysOfStay = useMemo(() => {
   //   if (customFormDrawerData?.checkOutDate) {
@@ -7846,10 +8799,18 @@ const ShowcaseDialog = memo(function ({
 });
 
 const Dashboard = () => {
+  const [amountToPay, setAmountToPay] = React.useState(0);
+  const [roomUpgradeDrawer, setRoomUpgradeDrawer] = React.useState(null);
+  const [openPaymentDialogV2, setOpenPaymentDialogV2] = React.useState(false);
+  const [apiPayload, setApiPayload] = React.useState({});
+  const [upgradeRoomRequest, upgradeRoomRequestRes] =
+    useUpgradeRoomRequestMutation();
+  console.log(roomUpgradeDrawer, "roomUpgradeDrawerrrr");
   const [roomFilters, setRoomFilters] = React.useState({
     roomStatus: null,
     searchKey: "",
-    toDate: null,
+    // toDate: null,
+    toDate: dayjs(new Date()),
     floor: null,
     floorInputVal: "",
     roomType: null,
@@ -7857,6 +8818,7 @@ const Dashboard = () => {
     selectedRoomStatus: null,
   });
   console.log("roomFilters : ", roomFilters);
+  const [assignNewKey, assignNewKeyRes] = useAllocateNewKeyToCustomerMutation();
   const [saveCustomerCheckIn, saveCustomerCheckInRes] =
     useSaveCustomerCheckInMutation();
   const [cancelReservation, cancelReservtionRes] =
@@ -7899,9 +8861,9 @@ const Dashboard = () => {
   } = useGetAllRoomListByHotelIdQuery(
     {
       hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId,
-      dateFilterKey:
-        roomFilters?.toDate &&
-        moment(roomFilters.toDate.$d).format("DD-MM-YYYY"),
+      fromDate: roomFilters?.toDate
+        ? moment(roomFilters.toDate.$d).format("DD-MM-YYYY")
+        : null,
     },
     {
       refetchOnMountOrArgChange: true,
@@ -8220,14 +9182,65 @@ const Dashboard = () => {
     []
   );
 
+  // const handleRoomSelect = useCallback((selectedRoom) => {
+  //   console.log("selectedRoom in room select", selectedRoom);
+  //   setIsSelectedRoom((prevState) => {
+  //     if (!selectedRoom || prevState?.id === selectedRoom?.id) {
+  //       return null;
+  //     }
+  //     return {
+  //       ...selectedRoom,
+  //       bookingDto:
+  //         selectedRoom.bookingList.find((item) => item.fromDate === ite) || null,
+  //     };
+  //     // return selectedRoom;
+  //   });
+  // }, []);
   const handleRoomSelect = useCallback((selectedRoom) => {
+    console.log("selectedRoom in room select", selectedRoom);
+
     setIsSelectedRoom((prevState) => {
       if (!selectedRoom || prevState?.id === selectedRoom?.id) {
         return null;
       }
+
+      const today = dayjs().format("DD-MM-YYYY");
+      console.log("today", today);
+
+      // return {
+      //   ...selectedRoom,
+      //   // bookingDto:
+      //   //   selectedRoom.bookingList?.find(
+      //   //     (booking) =>
+      //   //       // booking.bookingStatus === "Booked" &&
+      //   //       booking.fromDate === today
+      //   //   ) || null,
+      //   bookingDto: selectedRoom.bookingList?.find(booking=> booking.bookingStatus === "" ? )
+      // };
       return selectedRoom;
     });
   }, []);
+
+  const handleUpgradeRoomRequest = useCallback(() => {
+    upgradeRoomRequest(apiPayload)
+      .unwrap()
+      .then((res) => {
+        setSnack({
+          open: true,
+          message: res.message,
+          severity: "success",
+        });
+        setOpenPaymentDialogV2(false);
+        setRoomUpgradeDrawer(null);
+      })
+      .catch((err) => {
+        setSnack({
+          open: true,
+          message: err.data?.message || err.data,
+          severity: "error",
+        });
+      });
+  }, [apiPayload]);
 
   const handleChangeRoomFilters = useCallback((name, value) => {
     console.log("handleChangeRoomFilters value : ", value);
@@ -8622,7 +9635,10 @@ const Dashboard = () => {
               roomDto: inputValue,
               isAdvanceRequired:
                 inputValue?.roomType?.isAdvanceRequired || false,
-              roomBasePrice: inputValue?.roomType?.basePrice || 0,
+              // roomBasePrice: inputValue?.roomType?.basePrice || 0,
+              roomBasePrice: Boolean(inputValue?.roomType?.configurationPrice)
+                ? inputValue?.roomType?.configurationPrice
+                : inputValue?.roomType?.basePrice,
               advanceAmount: inputValue?.roomType?.advanceAmount || 0,
             }));
           }
@@ -8705,6 +9721,15 @@ const Dashboard = () => {
             item?.bookingDto?.bookingRefNumber ===
               checkOutRoomData?.bookingRefNumber
         ) || null;
+
+      // const foundCheckoutRoom =
+      //   flatMappedRoomData?.find(
+      //     (item) =>
+      //       item.bookingList &&
+      //       item?.bookingList
+      //         ?.map((booking) => booking.bookingRefNumber)
+      //         .includes(checkOutRoomData?.bookingRefNumber)
+      //   ) || null;
 
       console.log("foundCheckoutRoom : ", foundCheckoutRoom);
       handleRoomSelect(foundCheckoutRoom);
@@ -8814,6 +9839,16 @@ const Dashboard = () => {
   );
 
   const handleSubmitRoomCheckIn = useCallback(() => {
+    const checkInDateTime = new Date(
+      new Date().toISOString().split("T")[0] +
+        ` ${isSelectedRoom.roomType.checkInTime}`
+    );
+    const currentDateTime = new Date();
+
+    const earlyCheckInHour =
+      (checkInDateTime - currentDateTime) / (1000 * 60 * 60) < 0
+        ? 0
+        : Math.ceil((checkInDateTime - currentDateTime) / (1000 * 60 * 60));
     if (!Boolean(customFormDrawerData?.noOfPeoples)) {
       setSnack({
         open: true,
@@ -8880,6 +9915,9 @@ const Dashboard = () => {
     }
 
     const payload = {
+      bookingAmount:
+        earlyCheckInHour &&
+        Math.ceil(isSelectedRoom.roomType.basePrice / 24) * earlyCheckInHour,
       bookingRefNumber: customFormDrawerData?.bookingRefNumber || "",
       noOfPeoples: !Boolean(customFormDrawerData?.noOfPeoples)
         ? 0
@@ -8948,6 +9986,7 @@ const Dashboard = () => {
     handleOpenCustomFormDrawer,
     handleChangeCustomFormDrawerData,
     handleRoomSelect,
+    isSelectedRoom,
   ]);
 
   const handleSubmitRoomBookingCanelation = useCallback(() => {
@@ -9184,7 +10223,54 @@ const Dashboard = () => {
     ]
   );
 
+  const handleAssignNewKey = useCallback(
+    (bookingRefNumber, roomId) => {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "Assign new key to Customer!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          assignNewKey({
+            bookingRefNumber: bookingRefNumber,
+            roomId: roomId,
+          })
+            .unwrap()
+            .then((res) => {
+              setSnack({
+                open: true,
+                severity: "success",
+                message: res.message,
+              });
+            })
+            .catch((err) => {
+              setSnack({
+                open: true,
+                severity: "error",
+                message: err.data?.message || err.data,
+              });
+            });
+        }
+      });
+    },
+    [assignNewKey]
+  );
+
   const handleSubmitBookingForGuestByFrontDesk = useCallback(() => {
+    const checkInDateTime = new Date(
+      new Date().toISOString().split("T")[0] +
+        ` ${isSelectedRoom.roomType.checkInTime}`
+    );
+    const currentDateTime = new Date();
+
+    const earlyCheckInHour =
+      (checkInDateTime - currentDateTime) / (1000 * 60 * 60) < 0
+        ? 0
+        : Math.ceil((checkInDateTime - currentDateTime) / (1000 * 60 * 60));
     if (!Boolean(customFormDrawerData?.firstName)) {
       setSnack({
         open: true,
@@ -9415,7 +10501,11 @@ const Dashboard = () => {
         customFormDrawerData?.transactionReferenceNo?.trim() && {
           transactionReferenceNo: customFormDrawerData?.transactionReferenceNo,
         }),
-      bookingAmount: customFormDrawerData?.accumulatedRoomCharge,
+      bookingAmount:
+        customFormDrawerData.isBookingForToday && earlyCheckInHour
+          ? customFormDrawerData?.accumulatedRoomCharge +
+            Math.ceil(isSelectedRoom.roomType.basePrice / 24) * earlyCheckInHour
+          : customFormDrawerData?.accumulatedRoomCharge,
       remarks: customFormDrawerData?.remarks,
     };
 
@@ -9453,6 +10543,7 @@ const Dashboard = () => {
     bookingByFrontDeskStaff,
     handleOpenCustomFormDrawer,
     handleRoomSelect,
+    isSelectedRoom,
   ]);
 
   useEffect(() => {
@@ -9591,6 +10682,7 @@ const Dashboard = () => {
                 {isSelectedRoom && (
                   <Grid size={12}>
                     <RoomServiceCard
+                      setRoomUpgradeDrawer={setRoomUpgradeDrawer}
                       handleOpenShowcaseModalForInventory={
                         handleOpenShowcaseModalForInventory
                       }
@@ -9607,6 +10699,7 @@ const Dashboard = () => {
                       handleOpenShowcaseModalForLaundry={
                         handleOpenShowcaseModalForLaundry
                       }
+                      handleAssignNewKey={handleAssignNewKey}
                     />
                   </Grid>
                 )}
@@ -9651,6 +10744,16 @@ const Dashboard = () => {
           handleSubmitBookingForGuestByFrontDesk
         }
       />
+      <RoomUpgradeDrawer
+        open={Boolean(roomUpgradeDrawer)}
+        onClose={() => setRoomUpgradeDrawer(null)}
+        isSelectedRoom={roomUpgradeDrawer}
+        setOpenPaymentDialogV2={setOpenPaymentDialogV2}
+        setApiPayload={setApiPayload}
+        setAmountToPay={setAmountToPay}
+        handleUpgradeRoomRequest={handleUpgradeRoomRequest}
+        handleReset={() => {}}
+      />
       <LoadingComponent
         open={
           isApiRoomDataFetching ||
@@ -9665,6 +10768,8 @@ const Dashboard = () => {
           isAllPaymentMethodsFetching ||
           bookingByFrontDeskStaffRes?.isLoading ||
           isPendingBookingRequestCountsDataLoading ||
+          assignNewKeyRes.isLoading ||
+          upgradeRoomRequestRes.isLoading ||
           false
         }
       />
@@ -9684,6 +10789,18 @@ const Dashboard = () => {
             paymentDialogMutationType
           )?.afterMutationSuccessFunction
         }
+      />
+      <PaymentDialogV2
+        openPaymentDialog={openPaymentDialogV2}
+        amountToPay={amountToPay}
+        handlePaymentDialogClose={() => setOpenPaymentDialogV2(false)}
+        setSnack={setSnack}
+        fetchApi={upgradeRoomRequest}
+        apiPayload={apiPayload}
+        handleReset={() => {
+          setOpenPaymentDialogV2(false);
+          setRoomUpgradeDrawer(null);
+        }}
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </>

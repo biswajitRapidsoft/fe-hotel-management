@@ -22,6 +22,7 @@ import {
   DialogActions,
   Grid2 as Grid,
   Chip,
+  Button,
 } from "@mui/material";
 import { BootstrapDialog } from "../header/Header";
 
@@ -38,7 +39,7 @@ import { ADMIN } from "../../helper/constants";
 import SnackAlert from "../../components/Alert";
 
 const tableHeader = [
-  { label: "Sl No." },
+  { label: "Sl." },
   { label: "Hotel Name" },
   // { label: "State" },
   // { label: "City" },
@@ -50,14 +51,16 @@ const tableHeader = [
   // { label: "Phone No." },
   { label: "Halls" },
   { label: "Banquets" },
-  { label: "Spa Types" },
+  { label: "Spa" },
   { label: "Parkings" },
   { label: "PromoCode" },
-  { label: "Restaurant Items" },
+  { label: "Restaurant" },
+  { label: "Bar" },
   { label: "Action" },
 ];
 
 const HotelListTable = ({ setHotelToUpdate }) => {
+  const navigate = useNavigate();
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
@@ -107,12 +110,39 @@ const HotelListTable = ({ setHotelToUpdate }) => {
             },
           ]}
         >
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: "bold", letterSpacing: 1 }}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between  ",
+              width: "100%",
+              alignItems: "center",
+            }}
           >
-            Hotel List
-          </Typography>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", letterSpacing: 1 }}
+            >
+              Hotel List
+            </Typography>
+            <Button
+              color="secondary"
+              variant="contained"
+              size="small"
+              sx={{
+                color: "#fff",
+                fontWeight: 600,
+                textTransform: "none",
+                fontSize: 18,
+                "&.Mui-disabled": {
+                  background: "#B2E5F6",
+                  color: "#FFFFFF",
+                },
+              }}
+              onClick={() => navigate("/ConfigurePrice")}
+            >
+              Configure Price
+            </Button>
+          </Box>
         </Toolbar>
         <TableContainer sx={{ maxHeight: 600 }}>
           <Table stickyHeader>
@@ -293,12 +323,27 @@ function Row({ hotel, sequence, setHotelToUpdate, handleChangeStatus }) {
             }}
           />
         </TableCell>
+        <TableCell
+          onClick={() => {
+            sessionStorage.setItem("hotelIdForBarItem", hotel?.id);
+
+            navigate("/barItemList");
+          }}
+        >
+          <Chip
+            label={hotel?.noOfBarMenu}
+            clickable
+            color="secondary"
+            sx={{
+              color: "#fff",
+            }}
+          />
+        </TableCell>
         <TableCell>
           <Box
             sx={{
               display: "flex",
               alignItems: "center",
-              gap: 1,
             }}
           >
             <IconButton onClick={() => setHotelToUpdate(hotel)}>
@@ -518,6 +563,7 @@ const HotelDetailsDialog = ({
                     <TableCell>Floor</TableCell>
                     <TableCell>Room number</TableCell>
                     <TableCell>Room Type</TableCell>
+                    <TableCell>No. of Keys</TableCell>
                     <TableCell>Status</TableCell>
                   </TableRow>
                 </TableHead>
@@ -539,6 +585,7 @@ const HotelDetailsDialog = ({
                           )}
                           <TableCell>{room.roomNo}</TableCell>
                           <TableCell>{room.roomType.type}</TableCell>
+                          <TableCell>{room.noOfKeys}</TableCell>
                           <TableCell>
                             <Switch
                               checked={room.isActive}

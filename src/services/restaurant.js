@@ -8,7 +8,8 @@ const restaurantApi = apiSlice.injectEndpoints({
         url: config.apiName.getAllFood,
         method: "GET",
         params: {
-          hotelId: payload,
+          hotelId: payload.hotelId,
+          itemName: payload.itemName,
         },
       }),
     }),
@@ -69,6 +70,90 @@ const restaurantApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["getCustomerOrdeHistory"],
     }),
+    getAllTablesForWaiter: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllTablesForWaiter,
+        method: "GET",
+        params: {
+          hotelId: payload?.hotelId,
+          userId: payload?.userId,
+        },
+      }),
+      providesTags: ["getAllTablesForWaiter"],
+    }),
+    deliverFoodByWaiter: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.deliverFoodByWaiter,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllTablesForWaiter"],
+    }),
+    getAllTablesForCounter: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllTablesForCounterStaff,
+        method: "GET",
+        params: {
+          hotelId: payload?.hotelId,
+          userId: payload?.userId,
+        },
+      }),
+      providesTags: ["getAllTablesForCounter"],
+    }),
+    getBookingDetailsFromRoomNumber: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.getBookingDetailsByRoomNumber,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllTablesForCounter"],
+    }),
+    assosciateOrderWithRoom: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.assosciateOrderWithRoom,
+        method: "POST",
+        data: payload,
+      }),
+    }),
+    completeFoodOrder: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.completeFoodOrder,
+        method: "POST",
+        data: payload,
+      }),
+    }),
+    getAllDineInRequestFromRoom: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllDineInRequestFromRoom,
+        method: "GET",
+        params: {
+          hotelId: payload.hotelId,
+          date: payload.date,
+        },
+      }),
+      providesTags: ["getAllDineInRequestFromRoom"],
+    }),
+    getAllWaiters: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllWaiters,
+        method: "GET",
+        params: {
+          hotelId: payload.hotelId,
+        },
+      }),
+      providesTags: ["hotelId"],
+    }),
+    assignTableToWaiter: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.assignTableToWaiter,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: [
+        "getAllDineInRequestFromRoom",
+        "getAllTablesForCounter",
+      ],
+    }),
   }),
   overrideExisting: false,
 });
@@ -82,4 +167,13 @@ export const {
   useGetFoodOrderListAdminQuery,
   useGetAllFoodOrderStatusQuery,
   useRateFoodMutation,
+  useGetAllTablesForWaiterQuery,
+  useDeliverFoodByWaiterMutation,
+  useGetAllTablesForCounterQuery,
+  useGetBookingDetailsFromRoomNumberMutation,
+  useAssosciateOrderWithRoomMutation,
+  useCompleteFoodOrderMutation,
+  useGetAllDineInRequestFromRoomQuery,
+  useGetAllWaitersQuery,
+  useAssignTableToWaiterMutation,
 } = restaurantApi;

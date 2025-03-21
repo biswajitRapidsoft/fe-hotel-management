@@ -14,6 +14,8 @@ import {
   DialogActions,
   Tooltip,
   IconButton,
+  Rating,
+  Grid2 as Grid,
 } from "@mui/material";
 // import { jsPDF } from "jspdf";
 // import moment from "moment";
@@ -23,6 +25,7 @@ import { DrawerHeader } from "../restaurant/Restaurant";
 import {
   useGetSpaBookingHistoryGuestQuery,
   useCancelBookingForSpaMutation,
+  useRateSpaMutation,
 } from "../../services/spa";
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
@@ -38,6 +41,8 @@ const drawerWidth = 550;
 
 const BookingHistoryDrawer = ({ open, handleClose }) => {
   const [cancelBookingDialog, setCancelBookingDialog] = React.useState(null);
+  const [reviewDialog, setReviewDialog] = React.useState(null);
+  const [rateSpa, rateSpaRes] = useRateSpaMutation();
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
@@ -233,6 +238,27 @@ const BookingHistoryDrawer = ({ open, handleClose }) => {
                     Cancel Booking
                   </Button>
                 )}
+                {booking?.status === DONE_SPA && !Boolean(booking?.isRated) && (
+                  <Button
+                    variant="contained"
+                    sx={{
+                      backgroundImage:
+                        "linear-gradient(to right, #ff512f 0%, #dd2476 100%)",
+                      color: "white",
+                      "&:hover": {
+                        backgroundImage:
+                          "linear-gradient(to right, #ff512f 10%, #dd2476 90%)",
+                      },
+                      textTransform: "none",
+                    }}
+                    onClick={() => setReviewDialog(booking)}
+                  >
+                    Please Rate Us
+                  </Button>
+                )}
+                {booking?.status === DONE_SPA && Boolean(booking?.isRated) && (
+                  <Rating value={booking?.ratingPoints} disabled size="large" />
+                )}
               </Box>
             </Paper>
           );
@@ -245,8 +271,17 @@ const BookingHistoryDrawer = ({ open, handleClose }) => {
         bookObj={cancelBookingDialog}
         setSnack={setSnack}
       />
+      <ReviewDialog
+        open={Boolean(reviewDialog)}
+        handleClose={() => setReviewDialog(null)}
+        setSnack={setSnack}
+        rateSpa={rateSpa}
+        orderObj={reviewDialog}
+      />
       <SnackAlert snack={snack} setSnack={setSnack} />
-      <LoadingComponent open={cancelBookingRes.isLoading} />
+      <LoadingComponent
+        open={cancelBookingRes.isLoading || rateSpaRes.isLoading}
+      />
     </Drawer>
   );
 };
@@ -334,4 +369,106 @@ function FormDialog({ open, handleClose, cancelBooking, bookObj, setSnack }) {
   );
 }
 
+function ReviewDialog({ open, handleClose, rateSpa, setSnack, orderObj }) {
+  const [rating, setRating] = React.useState(0);
+  const [review, setReview] = React.useState("");
+
+  console.log("orderObj", orderObj);
+  const handleSubmitReview = React.useCallback(
+    (event) => {
+      event.preventDefault();
+      rateSpa({
+        id: orderObj.id,
+        bookingRefNumber: orderObj.hotelBookingReferenceNumber,
+        ratingPoints: rating,
+        ratingMessage: review,
+      })
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            severity: "success",
+          });
+          setRating(0);
+          setReview("");
+          handleClose();
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data,
+            severity: "error",
+          });
+        });
+    },
+    [rateSpa, setSnack, rating, review, handleClose, orderObj]
+  );
+
+  return (
+    <React.Fragment>
+      <Dialog
+        maxWidth="sm"
+        fullWidth
+        open={open}
+        onClose={handleClose}
+        PaperProps={{
+          component: "form",
+          onSubmit: handleSubmitReview,
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 600, fontSize: 24 }}>
+          Review Your Stay
+        </DialogTitle>
+        <DialogContent>
+          <Grid container>
+            <Grid size={12}>
+              <Typography component="legend">Rating</Typography>
+              <Rating
+                value={rating}
+                onChange={(e, newVal) => setRating(newVal)}
+                size="large"
+              />
+            </Grid>
+            <Grid size={12}>
+              <TextField
+                autoFocus
+                margin="dense"
+                name="review"
+                label="Review Message"
+                fullWidth
+                variant="standard"
+                value={review}
+                onChange={(e) => setReview(e.target.value)}
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            color="secondary"
+            variant="contained"
+            sx={{
+              color: "#fff",
+              display: "block",
+              mx: "auto",
+              letterSpacing: 1,
+              fontWeight: 600,
+              textTransform: "none",
+              fontSize: 18,
+              "&.Mui-disabled": {
+                background: "#B2E5F6",
+                color: "#FFFFFF",
+              },
+            }}
+            disabled={!Boolean(rating)}
+            type="submit"
+          >
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </React.Fragment>
+  );
+}
 export default BookingHistoryDrawer;

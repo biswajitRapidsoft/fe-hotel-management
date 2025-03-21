@@ -191,23 +191,42 @@ const ManagerDashboard = () => {
           >
             {JSON.parse(sessionStorage.getItem("data")).hotelName}
           </Typography>
-          <Button
-            color="secondary"
-            variant="contained"
-            sx={{
-              color: "#fff",
-              fontWeight: 600,
-              textTransform: "none",
-              fontSize: 18,
-              "&.Mui-disabled": {
-                background: "#B2E5F6",
-                color: "#FFFFFF",
-              },
-            }}
-            onClick={() => navigate("/inventoryManagement")}
-          >
-            Inventory Management
-          </Button>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <Button
+              color="secondary"
+              variant="contained"
+              sx={{
+                color: "#fff",
+                fontWeight: 600,
+                textTransform: "none",
+                fontSize: 18,
+                "&.Mui-disabled": {
+                  background: "#B2E5F6",
+                  color: "#FFFFFF",
+                },
+              }}
+              onClick={() => navigate("/inventoryManagement")}
+            >
+              Inventory Management
+            </Button>
+            <Button
+              color="secondary"
+              variant="contained"
+              sx={{
+                color: "#fff",
+                fontWeight: 600,
+                textTransform: "none",
+                fontSize: 18,
+                "&.Mui-disabled": {
+                  background: "#B2E5F6",
+                  color: "#FFFFFF",
+                },
+              }}
+              onClick={() => navigate("/StockManagement")}
+            >
+              Stock Management
+            </Button>
+          </Box>
         </Box>
         <Grid container size={12} spacing={2}>
           <Grid size={{ xs: 3 }}>

@@ -2578,6 +2578,27 @@ const CustomHallBookingDrawer = memo(function ({
                         </Typography>
                       </Box>
                     </Grid>
+                    <Grid size={{ xs: 6 }}></Grid>
+                    <Grid size={{ xs: 6 }}>
+                      <Box
+                        sx={{
+                          width: "100%",
+                          height: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          paddingY: "7px",
+                          paddingX: "7px",
+                          borderRadius: "5px",
+                          bgcolor: "#FBCEB1	",
+                          color: "#CC5500	",
+                        }}
+                      >
+                        <Typography sx={{ fontSize: "13px", fontWeight: 550 }}>
+                          Total Capacity:
+                          {hallBookingFormData?.banquetDetails?.capacity || "0"}
+                        </Typography>
+                      </Box>
+                    </Grid>
                   </Grid>
                 </Grid>
               ) : (
@@ -3040,6 +3061,7 @@ const HallBookingDashboard = () => {
       totalHallDurationPrice: 0,
       subtotalAdvanceAmount: 0,
       isBanquetRequired: false,
+      banquetCapacity: 0,
     }),
     []
   );
@@ -3612,6 +3634,7 @@ const HallBookingDashboard = () => {
               subtotalAdvanceAmount,
               noOfPlates: 0,
               totalBanquetPlatePrice: 0,
+              // banquetCapacity,
             };
           });
         } else {

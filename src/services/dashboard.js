@@ -3,7 +3,23 @@ import config from "../config/config";
 
 const dashboardApi = apiSlice.injectEndpoints({
   endpoints: (build) => ({
-    // SUPER ADMIN DASHBOARD
+    // SUPER ADMIN
+    saveCompany: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.saveCompany,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllCompany"],
+    }),
+    getAllCompany: build.query({
+      query: () => ({
+        url: config.apiName.getAllCompany,
+        method: "GET",
+      }),
+      providesTags: ["getAllCompany"],
+    }),
+    // ADMIN DASHBOARD
     getMasterDataList: build.query({
       query: (payload) => ({
         url: config.apiName.getMasterDataList,
@@ -67,6 +83,10 @@ const dashboardApi = apiSlice.injectEndpoints({
           hotelId: payload.hotelId,
           roomTypeId: payload.roomTypeId,
           priceRange: payload.priceRange,
+          fromDate: payload.fromDate,
+          toDate: payload.toDate,
+          cityId: payload.cityId,
+          stateId: payload.stateId,
         },
       }),
     }),
@@ -234,13 +254,34 @@ const dashboardApi = apiSlice.injectEndpoints({
     }),
 
     // FRONT-DESK DASHBOARD
+
+    getKeysData: build.query({
+      query: (payload) => ({
+        url: config.apiName.getKeysData,
+        method: "GET",
+        params: {
+          bookingRefNumber: payload,
+        },
+      }),
+      providesTags: ["getKeysData"],
+    }),
+
+    allocateNewKeyToCustomer: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.allocateNewKeyToCustomer,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getKeysData"],
+    }),
+
     getAllRoomListByHotelId: build.query({
       query: (payload) => ({
         url: config.apiName.getAllRoomListByHotelId,
         method: "GET",
         params: {
           hotelId: payload?.hotelId,
-          dateFilterKey: payload?.dateFilterKey,
+          fromDate: payload?.fromDate,
         },
       }),
       providesTags: ["getAllRoomListByHotelId"],
@@ -269,6 +310,7 @@ const dashboardApi = apiSlice.injectEndpoints({
         "getAllRoomListByHotelId",
         "getTodayCheckoutRoomsByHotelId",
         "roomBookingHistoryByHotelId",
+        "getKeysData",
       ],
     }),
     getTodayCheckoutRoomsByHotelId: build.query({
@@ -348,12 +390,53 @@ const dashboardApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["getPendingBookingRequestCounts"],
     }),
+    getAllTables: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllTables,
+        method: "GET",
+        params: {
+          hotelId: payload?.hotelId,
+        },
+      }),
+      providesTags: ["getAllTables"],
+    }),
+    createTable: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.createTable,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllTables"],
+    }),
+    upgradeRoomRequest: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.upgradeRoomRequest,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["roomBookingHistoryByHotelId"],
+    }),
+    getRoomTypeUpgradePriceConfig: build.query({
+      query: (payload) => ({
+        url: config.apiName.getRoomTypeUpgradePriceConfig,
+        method: "GET",
+        params: {
+          masterRoomTypeId: payload.masterRoomTypeId,
+          companyId: payload.companyId,
+        },
+      }),
+      providesTags: ["getRoomTypeUpgradePriceConfig"],
+    }),
   }),
 
   overrideExisting: false,
 });
 
 export const {
+  useGetKeysDataQuery,
+  useAllocateNewKeyToCustomerMutation,
+  useSaveCompanyMutation,
+  useGetAllCompanyQuery,
   useGetMasterDataListQuery,
   useGetAllRoomListByHotelIdQuery,
   useGetAllHotelsQuery,
@@ -389,4 +472,8 @@ export const {
   useGetAllMasterDiningTypeQuery,
   useAddFoodItemsMutation,
   useGetFoodTypeQuery,
+  useGetAllTablesQuery,
+  useCreateTableMutation,
+  useGetRoomTypeUpgradePriceConfigQuery,
+  useUpgradeRoomRequestMutation,
 } = dashboardApi;

@@ -1,17 +1,17 @@
-import React, { useMemo } from "react";
-// import LoadingComponent from "../../components/LoadingComponent";
-// import SnackAlert from "../../components/Alert";
+import React, { memo, useCallback, useMemo, useState } from "react";
+import LoadingComponent from "../../components/LoadingComponent";
+import SnackAlert from "../../components/Alert";
 import {
   Box,
-  // Button,
+  Button,
   Divider,
-  // Paper,
-  // Table,
-  // TableBody,
-  // TableCell,
-  // TableContainer,
-  // TableHead,
-  // TableRow,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
@@ -19,38 +19,92 @@ import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import moment from "moment";
 
-// const getCellValue = (obj, key, fallback = "") => {
-//   if (!key) return undefined;
-//   return key
-//     .split(".")
-//     .reduce(
-//       (acc, part) => (acc && acc[part] !== undefined ? acc[part] : fallback),
-//       obj
-//     );
-// };
-
-const ParkingInvoice = () => {
+const getCellValue = (obj, key, fallback = "") => {
+  if (!key) return undefined;
+  return key
+    .split(".")
+    .reduce(
+      (acc, part) => (acc && acc[part] !== undefined ? acc[part] : fallback),
+      obj
+    );
+};
+const FoodInvoiceInBookingHistory = () => {
   const { bookingRefNo } = useParams("bookingRefNo");
-  // const [isPrinting, setIsPrinting] = useState(false);
-  // console.log("isPrinting", isPrinting);
+  const [isPrinting, setIsPrinting] = useState(false);
+  const [snack, setSnack] = useState({
+    open: false,
+    message: "",
+    severity: "",
+  });
   const invoiceData = useMemo(() => {
     const sessionedEventData = sessionStorage.getItem(
-      `parkingBillInvoice-${bookingRefNo}`
+      `foodBillInvoiceInBookingHistory-${bookingRefNo}`
     );
     return sessionedEventData ? JSON.parse(sessionedEventData) : null;
   }, [bookingRefNo]);
 
-  console.log("invoiceDataparking", invoiceData);
-
-  // const handlePrint = useCallback(() => {
-  //   setIsPrinting(true);
-  //   setTimeout(() => {
-  //     window.print();
-  //     setIsPrinting(false);
-  //   }, 0);
-  // }, []);
-
+  console.log("invoiceData", invoiceData);
+  const foodListTableHeaders = useMemo(
+    () => [
+      { label: "Sl. No.", key: "sno" },
+      { label: "Item", key: "itemName" },
+      { label: "Quantity", key: "totalQuantity" },
+    ],
+    []
+  );
+  const handlePrint = useCallback(() => {
+    setIsPrinting(true);
+    setTimeout(() => {
+      window.print();
+      setIsPrinting(false);
+    }, 0);
+  }, []);
   const hotelLogo = JSON.parse(sessionStorage.getItem("data")).hotelLogoUrl;
+
+  const uniqueFoodItems = useMemo(() => {
+    const foodList = Boolean(invoiceData?.foodDataList?.length)
+      ? invoiceData?.foodDataList
+      : [];
+    const foodItemsMap = {};
+
+    foodList?.forEach((order) => {
+      order.itemsList.forEach((item) => {
+        if (item.itemName) {
+          // Ensure the item has a valid name
+          if (foodItemsMap[item.itemName]) {
+            foodItemsMap[item.itemName] += item.noOfItems || 0;
+          } else {
+            foodItemsMap[item.itemName] = item.noOfItems || 0;
+          }
+        }
+      });
+    });
+
+    return Object.keys(foodItemsMap).map((itemName) => ({
+      itemName,
+      totalQuantity: foodItemsMap[itemName],
+    }));
+  }, [invoiceData?.foodDataList]);
+
+  const subTotalFoodExpense = useMemo(() => {
+    const sum =
+      invoiceData?.foodDataList?.reduce(
+        (sum, item) => sum + (item?.bookingDetails?.totalPrice || 0),
+        0
+      ) || 0;
+    return sum.toFixed(2);
+  }, [invoiceData]);
+
+  // const gstIncludedPrice
+
+  const totalFoodExpense = useMemo(() => {
+    const sum =
+      invoiceData?.foodDataList?.reduce(
+        (sum, item) => sum + (item?.totalPrice + 0.18 * item?.totalPrice),
+        0
+      ) || 0;
+    return sum.toFixed(2);
+  }, [invoiceData]);
 
   return (
     <>
@@ -98,7 +152,7 @@ const ParkingInvoice = () => {
                       textAlign: "right",
                     }}
                   >
-                    {invoiceData?.bookingDto?.hotel?.name}
+                    {invoiceData?.hotel?.name}
                   </Typography>
                   <Typography
                     sx={{
@@ -107,9 +161,9 @@ const ParkingInvoice = () => {
                       textAlign: "right",
                     }}
                   >
-                    {invoiceData?.bookingDto?.hotel?.address}
+                    {invoiceData?.hotel?.address}
                     {", "}
-                    {invoiceData?.bookingDto?.hotel?.state?.name}{" "}
+                    {invoiceData?.hotel?.state?.name}{" "}
                   </Typography>
                   <Typography
                     sx={{
@@ -119,7 +173,7 @@ const ParkingInvoice = () => {
                     }}
                   >
                     {" "}
-                    {invoiceData?.bookingDto?.hotel?.gstIn}
+                    {invoiceData?.hotel?.gstIn}
                   </Typography>
                   <Typography
                     sx={{
@@ -129,7 +183,7 @@ const ParkingInvoice = () => {
                     }}
                   >
                     {" "}
-                    {invoiceData?.bookingDto?.hotel?.email}
+                    {invoiceData?.hotel?.email}
                   </Typography>
                   <Typography
                     sx={{
@@ -138,8 +192,8 @@ const ParkingInvoice = () => {
                       textAlign: "right",
                     }}
                   >
-                    {invoiceData?.bookingDto?.hotel?.contactNos?.length &&
-                      invoiceData?.bookingDto?.hotel?.contactNos?.join(", ")}
+                    {invoiceData?.hotel?.contactNos?.length &&
+                      invoiceData?.hotel?.contactNos?.join(", ")}
                   </Typography>
                 </Box>
               </Box>
@@ -194,12 +248,12 @@ const ParkingInvoice = () => {
                         // fontWeight: 600,
                       }}
                     >
-                      {Boolean(invoiceData?.bookingDto?.firstName) &&
-                        `${invoiceData?.bookingDto?.firstName}`}
-                      {Boolean(invoiceData?.bookingDto?.middleName) &&
-                        ` ${invoiceData?.bookingDto?.middleName}`}
-                      {Boolean(invoiceData?.bookingDto?.lastName) &&
-                        ` ${invoiceData?.bookingDto?.lastName}`}{" "}
+                      {Boolean(invoiceData?.firstName) &&
+                        `${invoiceData?.firstName}`}
+                      {Boolean(invoiceData?.middleName) &&
+                        ` ${invoiceData?.middleName}`}
+                      {Boolean(invoiceData?.lastName) &&
+                        ` ${invoiceData?.lastName}`}{" "}
                     </Typography>
                   </Typography>
                 </Grid>
@@ -288,7 +342,7 @@ const ParkingInvoice = () => {
                         // fontWeight: 600,
                       }}
                     >
-                      {invoiceData?.bookingDto?.address}
+                      {invoiceData?.address}
                     </Typography>
                   </Typography>
                 </Grid>
@@ -331,7 +385,7 @@ const ParkingInvoice = () => {
                         // fontWeight: 600,
                       }}
                     >
-                      {invoiceData?.bookingDto?.bookingRefNumber}
+                      {invoiceData?.bookingRefNumber}
                     </Typography>
                   </Typography>
                 </Grid>
@@ -375,7 +429,7 @@ const ParkingInvoice = () => {
                         // fontWeight: 600,
                       }}
                     >
-                      {invoiceData?.bookingDto?.email || "NA"}
+                      {invoiceData?.email || "NA"}
                     </Typography>
                   </Typography>
                 </Grid>
@@ -419,7 +473,7 @@ const ParkingInvoice = () => {
                       }}
                     >
                       {/* {invoiceData?.bookingDto?.bookedOn || "NA"} */}
-                      {moment(invoiceData?.bookingDto?.bookedOn).format(
+                      {moment(invoiceData?.bookedOn).format(
                         "DD-MM-YYYY hh:mm A"
                       )}
                     </Typography>
@@ -465,7 +519,7 @@ const ParkingInvoice = () => {
                         // fontWeight: 600,
                       }}
                     >
-                      {invoiceData?.bookingDto?.phoneNumber}
+                      {invoiceData?.phoneNumber}
                     </Typography>
                   </Typography>
                 </Grid>
@@ -599,7 +653,7 @@ const ParkingInvoice = () => {
                         // fontWeight: 600,
                       }}
                     >
-                      {invoiceData?.bookingDto?.bookingMapData?.length}
+                      {invoiceData?.bookingMapData?.length}
                     </Typography>
                   </Typography>
                 </Grid>
@@ -732,7 +786,7 @@ const ParkingInvoice = () => {
                         // fontWeight: 600,
                       }}
                     >
-                      {invoiceData?.bookingDto?.checkInDate || "NA"}
+                      {invoiceData?.checkInDate || "NA"}
                     </Typography>
                   </Typography>
                 </Grid>
@@ -817,7 +871,7 @@ const ParkingInvoice = () => {
                         // fontWeight: 600,
                       }}
                     >
-                      {invoiceData?.bookingDto?.checkOutDate || "NA"}
+                      {invoiceData?.checkOutDate || "NA"}
                     </Typography>
                   </Typography>
                 </Grid>
@@ -884,13 +938,496 @@ const ParkingInvoice = () => {
                   gridAutoFlow: "dense",
                   width: "100%",
                 }}
-              ></Grid>
+              >
+                {Boolean(invoiceData?.foodDataList?.length) && (
+                  <Grid size={12}>
+                    {Boolean(invoiceData?.foodDataList?.length) && (
+                      <Box
+                        sx={{
+                          width: "100%",
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            fontSize: "18px",
+                            fontWeight: 600,
+                            width: "100%",
+                            borderBottom: "2px solid #ccc",
+                            marginBottom: "5px",
+                          }}
+                        >
+                          Food Details :
+                        </Typography>
+                        <CustomFoodListTableContainerForInvoice
+                          foodListTableHeaders={foodListTableHeaders}
+                          foodListTableData={invoiceData?.foodDataList}
+                          isForCheckOut={true}
+                          uniqueFoodItems={uniqueFoodItems}
+                        />
+                      </Box>
+                    )}
+                  </Grid>
+                )}
+              </Grid>
+
+              <Divider
+                sx={{
+                  borderBottomWidth: 2,
+                  backgroundColor: "black",
+                  my: 0.5,
+                }}
+              />
+
+              <Grid container size={12} columnSpacing={2}>
+                <Grid size={12}>
+                  <Box
+                    sx={{
+                      width: "99.7%",
+                      margin: "auto",
+                    }}
+                  >
+                    <Grid container size={12}>
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderTop: "1.7px solid black",
+                            borderLeft: "1.7px solid black",
+                            bgcolor: "white",
+                            paddingLeft: "5px",
+                          }}
+                        >
+                          <Typography sx={{ fontWeight: 550 }}>
+                            Food Charges
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderTop: "1.7px solid black",
+                            borderRight: "1.7px solid black",
+                            bgcolor: "white",
+                          }}
+                        >
+                          <Typography
+                            sx={{ textAlign: "right", fontWeight: 550 }}
+                          >
+                            {subTotalFoodExpense}
+                          </Typography>
+                        </Box>
+                      </Grid>
+
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderTop: "1.7px solid black",
+                            borderLeft: "1.7px solid black",
+                            bgcolor: "white",
+                            paddingLeft: "5px",
+                          }}
+                        >
+                          <Typography sx={{ fontWeight: 550 }}>
+                            GST Charges{" "}
+                            <span
+                              style={{
+                                color: "gray",
+                                fontStyle: "italic",
+                                fontSize: "0.9rem",
+                              }}
+                            >
+                              (18%)
+                            </span>
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderTop: "1.7px solid black",
+                            borderRight: "1.7px solid black",
+                            bgcolor: "white",
+                          }}
+                        >
+                          <Typography
+                            sx={{ textAlign: "right", fontWeight: 550 }}
+                          >
+                            {subTotalFoodExpense * 0.18}
+                          </Typography>
+                        </Box>
+                      </Grid>
+
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderTop: "1.7px solid black",
+                            borderLeft: "1.7px solid black",
+                            bgcolor: "white",
+                            paddingLeft: "5px",
+                          }}
+                        >
+                          <Typography sx={{ fontWeight: 550 }}>
+                            Sub Total
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderTop: "1.7px solid black",
+                            borderRight: "1.7px solid black",
+                            bgcolor: "white",
+                          }}
+                        >
+                          <Typography
+                            sx={{ textAlign: "right", fontWeight: 550 }}
+                          >
+                            {totalFoodExpense}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                    </Grid>
+                  </Box>
+                </Grid>
+
+                <Grid size={12}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      width: "100%",
+                      justifyContent: "space-between",
+                      gap: 3,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: "300px",
+                        height: "70px",
+                        marginTop: "7px",
+                      }}
+                    >
+                      <Typography>Remarks:</Typography>
+                      <Box
+                        sx={{
+                          minHeight: "calc(100% - 25px)",
+                          border: "2px solid black",
+                          borderRadius: "5px",
+                          bgcolor: "white",
+                        }}
+                      />
+                    </Box>
+
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexGrow: 1,
+                        justifyContent: "flex-end",
+                        columnGap: 1.5,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          height: "125px",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            minHeight: "45px",
+                            border: "2px solid black",
+                            borderRadius: "5px",
+                            bgcolor: "white",
+                            width: "170px",
+                          }}
+                        />
+                        <Typography sx={{ fontSize: "14px" }}>
+                          Staff Signature
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          height: "125px",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            minHeight: "45px",
+                            border: "2px solid black",
+                            borderRadius: "5px",
+                            bgcolor: "white",
+                            width: "170px",
+                          }}
+                        />
+                        <Typography sx={{ fontSize: "14px" }}>
+                          Guest Signature
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Box>
+                </Grid>
+              </Grid>
             </Grid>
           </Grid>
         </Box>
+
+        {!isPrinting && (
+          <Box
+            sx={{
+              width: "100%",
+              // position: "fixed",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              bottom: 15,
+              zIndex: 100,
+              // backgroundColor: "yellow",
+            }}
+          >
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => handlePrint()}
+              sx={{
+                backgroundImage:
+                  "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
+                color: "white",
+                "&:hover": {
+                  backgroundImage:
+                    "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
+                },
+                // ml: 60,
+              }}
+            >
+              PRINT NOW
+            </Button>
+          </Box>
+        )}
       </Box>
     </>
   );
 };
 
-export default ParkingInvoice;
+const CustomFoodListTableContainerForInvoice = memo(function ({
+  foodListTableHeaders,
+  foodListTableData,
+  uniqueFoodItems,
+}) {
+  console.log(
+    "CustomFoodListTableContainerForInvoice foodListTableData : ",
+    foodListTableData
+  );
+  return (
+    <React.Fragment>
+      <TableContainer
+        component={Paper}
+        sx={{
+          overflow: "auto",
+          // maxHeight: { xs: isForCheckOut ? "220px" : "310px" },
+          // xl: "calc(100vh - 280px)",
+          "&::-webkit-scrollbar": {
+            // height: "14px",
+          },
+          "&::-webkit-scrollbar-track": {
+            backgroundColor: "#ffffff00",
+            width: "none",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#280071",
+            borderRadius: "4px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: "#3b0b92",
+          },
+        }}
+      >
+        <Table aria-label="simple table" stickyHeader size="small">
+          <TableHead>
+            <TableRow>
+              {foodListTableHeaders?.map((item, index) => {
+                return (
+                  <TableCell
+                    key={`room-table-head-${index}`}
+                    align="center"
+                    sx={{
+                      backgroundColor: "#dbd8ff",
+                      fontWeight: "bold",
+                      // paddingY: "10px",
+                      fontSize: "13px",
+                    }}
+                  >
+                    {item?.label}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {Boolean(uniqueFoodItems?.length > 0) ? (
+              uniqueFoodItems?.map((row, index) => (
+                <CustomParentCollapseTableRowForInvoice
+                  foodListTableHeaders={foodListTableHeaders}
+                  rowSerialNumber={index + 1}
+                  key={row.id}
+                  row={row}
+                />
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  align="center"
+                  colSpan={
+                    Boolean(foodListTableHeaders?.length)
+                      ? foodListTableHeaders?.length
+                      : 1
+                  }
+                >
+                  No data available
+                </TableCell>
+              </TableRow>
+            )}
+            <TableRow>
+              <TableCell
+                colSpan={1}
+                style={{
+                  position: "sticky",
+                  bottom: 0,
+                  zIndex: 1,
+                  background: "white",
+                  minHeight: "100%",
+                  borderTop: "1px solid #ccc",
+                }}
+              >
+                <Typography
+                  sx={{
+                    width: "100%",
+                    textAlign: "center",
+                    fontSize: "16px",
+                    fontWeight: 600,
+                    // borderTop: "1px solid #ccc",
+                    minHeight: "24.9px",
+                  }}
+                >
+                  {" "}
+                </Typography>
+              </TableCell>
+              <TableCell
+                style={{
+                  position: "sticky",
+                  bottom: 0,
+                  zIndex: 1,
+                  background: "white",
+                  borderTop: "1px solid #ccc",
+                }}
+                colSpan={1}
+              >
+                <Typography
+                  sx={{
+                    width: "100%",
+                    textAlign: "center",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    // borderTop: "1px solid #ccc",
+                  }}
+                >
+                  Total
+                </Typography>
+              </TableCell>
+              <TableCell
+                style={{
+                  position: "sticky",
+                  bottom: 0,
+                  zIndex: 1,
+                  background: "white",
+                  borderTop: "1px solid #ccc",
+                }}
+                colSpan={1}
+              >
+                <Typography
+                  sx={{
+                    width: "100%",
+                    textAlign: "center",
+                    fontSize: "13px",
+                    // borderTop: "1px solid #ccc",
+                  }}
+                >
+                  {foodListTableData?.reduce(
+                    (sum, item) =>
+                      sum + (item?.bookingDetails?.totalPrice || 0),
+                    0
+                  )}
+                </Typography>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </React.Fragment>
+  );
+});
+
+const CustomParentCollapseTableRowForInvoice = memo(function ({
+  foodListTableHeaders,
+  rowSerialNumber,
+  key,
+  row,
+}) {
+  return (
+    <TableRow
+      hover
+      key={row?.id}
+      sx={{
+        cursor: "pointer",
+        height: 35,
+        backgroundColor: "inherit",
+        "&:hover": {
+          backgroundColor: "inherit",
+        },
+      }}
+    >
+      {foodListTableHeaders?.map((subitem, subIndex) => {
+        return (
+          <TableCell key={`table-body-cell=${subIndex}`} align="center">
+            <Typography sx={{ fontSize: "12px" }}>
+              {subitem?.key === "sno" ? (
+                <Typography sx={{ fontSize: "12px" }}>
+                  {rowSerialNumber}
+                </Typography>
+              ) : (
+                // </Box>
+                <Typography sx={{ fontSize: "12px", wordWrap: "break-word" }}>
+                  {getCellValue(row, subitem?.key)}
+                </Typography>
+              )}
+            </Typography>
+          </TableCell>
+        );
+      })}
+    </TableRow>
+  );
+});
+
+export default FoodInvoiceInBookingHistory;

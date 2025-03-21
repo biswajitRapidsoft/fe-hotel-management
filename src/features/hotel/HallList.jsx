@@ -14,8 +14,10 @@ import {
   Grid2 as Grid,
   TextField,
   Button,
+  Switch,
+  IconButton,
 } from "@mui/material";
-
+import EditIcon from "@mui/icons-material/Edit";
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 
@@ -29,6 +31,8 @@ const HallList = () => {
     pricePerDay: "",
   });
 
+  const [hallToUpdate, setHallToUpdate] = React.useState(null);
+  console.log("hallToUpdate", hallToUpdate);
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
@@ -46,7 +50,6 @@ const HallList = () => {
       !Boolean(sessionStorage.getItem("hotelIdForHall")) ||
       JSON.parse(sessionStorage.getItem("data"))?.roleType !== "Admin",
   });
-  console.log("hallListData", hallListData);
   const handleResetForm = React.useCallback(() => {
     setFormData({
       hallName: "",
@@ -70,6 +73,8 @@ const HallList = () => {
         capacity: formData.capacity,
         pricePerHour: formData.pricePerHour,
         pricePerDay: formData.pricePerDay,
+        id: Boolean(hallToUpdate) ? hallToUpdate?.id : "",
+        isActive: Boolean(hallToUpdate) ? hallToUpdate.isActive : true,
       };
       addHall(payload)
         .unwrap()
@@ -107,6 +112,51 @@ const HallList = () => {
     return Boolean(hallName && capacity && pricePerHour && pricePerDay);
   }, [formData]);
 
+  React.useEffect(() => {
+    if (Boolean(hallToUpdate)) {
+      setFormData({
+        hallName: hallToUpdate?.hallName,
+        capacity: hallToUpdate?.capacity,
+        pricePerHour: hallToUpdate?.pricePerHour,
+        pricePerDay: hallToUpdate?.pricePerDay,
+      });
+    }
+  }, [hallToUpdate]);
+  const handleChangeStatus = React.useCallback(
+    (e, item) => {
+      const payload = {
+        hotel: {
+          id: Boolean(sessionStorage.getItem("hotelIdForHall"))
+            ? sessionStorage.getItem("hotelIdForHall")
+            : "",
+        },
+        hallName: item.hallName,
+        capacity: item.capacity,
+        pricePerHour: item.pricePerHour,
+        pricePerDay: item.pricePerDay,
+        id: item?.id,
+        isActive: e.target.checked,
+      };
+
+      addHall(payload)
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            severity: "success",
+          });
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data,
+            severity: "error",
+          });
+        });
+    },
+    [addHall]
+  );
   return (
     <Container>
       <Box
@@ -269,7 +319,7 @@ const HallList = () => {
             type="submit"
             disabled={!isFormValid()}
           >
-            Add Hall
+            {Boolean(hallToUpdate) ? "Update Hall" : "Add Hall"}
           </Button>
         </Box>
       </Box>
@@ -308,6 +358,7 @@ const HallList = () => {
                 <TableCell>Capacity</TableCell>
                 <TableCell>Price per hour</TableCell>
                 <TableCell>Price per day</TableCell>
+                <TableCell>Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -327,6 +378,16 @@ const HallList = () => {
                     <TableCell>{item?.capacity}</TableCell>
                     <TableCell>{item?.pricePerHour}</TableCell>
                     <TableCell>{item?.pricePerDay}</TableCell>
+                    <TableCell>
+                      <Switch
+                        color="success"
+                        checked={item?.isActive}
+                        onChange={(e) => handleChangeStatus(e, item)}
+                      />
+                      <IconButton onClick={() => setHallToUpdate(item)}>
+                        <EditIcon />
+                      </IconButton>
+                    </TableCell>
                   </TableRow>
                 );
               })}

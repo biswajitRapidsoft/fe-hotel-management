@@ -22,9 +22,10 @@ export const FOOD_PREPARING = "Food_Preparing";
 export const DELIVERED = "Delivered";
 export const CANCELLED = "Cancelled";
 export const REJECTED = "Rejected";
+export const RECEIVED_BY_WAITER = "Received_by_Waiter";
 
 // ROLES
-export const SUPER_ADMIN = "SUPER_ADMIN";
+export const SUPER_ADMIN = "Super_Admin";
 export const ADMIN = "Admin";
 export const CUSTOMER = "Customer";
 export const FRONTDESK = "Front_Desk_Staff";
@@ -33,6 +34,8 @@ export const KITCHENSTAFF = "Kitchen_Staff";
 export const GUARD = "Guard";
 export const BARSTAFF = "Bar_Staff";
 export const MANAGER = "Manager";
+export const WAITER = "Waiter";
+export const COUNTER_STAFF = "Counter_Staff";
 //ROOM STATUSES
 export const AVAILABLE = { id: 1, key: "Available" };
 export const RESERVED = { id: 2, key: "Reserved" };

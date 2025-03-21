@@ -28,9 +28,11 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import ClearIcon from "@mui/icons-material/Clear";
+import DescriptionIcon from "@mui/icons-material/Description";
 import { StyledCalendarIcon } from "../dashboard/Dashboard";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { saveAs } from "file-saver";
+import PublishedWithChangesIcon from "@mui/icons-material/PublishedWithChanges";
 
 import {
   useGetAllBookingStatusTypeQuery,
@@ -41,6 +43,7 @@ import {
   useApproveBookingCancelRequestMutation,
   useCancelRoomBookingFromBookingHistoryMutation,
   useExportBookingHistoryMutation,
+  useChangeRoomMutation,
 } from "../../services/frontdeskBookingHistory";
 // import moment from "moment";
 import moment from "moment-timezone";
@@ -75,127 +78,185 @@ dayjs.extend(customParseFormat);
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
 
+// const filterBookingRooms = (
+//   bookingRoomsTableData,
+//   bookingConfirmationFormData
+// ) => {
+//   console.log(bookingConfirmationFormData, "formDataaaaa");
+//   // console.log(
+//   //   "filterBookingRooms bookingRoomsTableData; ",
+//   //   bookingRoomsTableData
+//   // );
+//   if (!bookingConfirmationFormData?.from || !bookingConfirmationFormData?.to) {
+//     // return bookingRoomsTableData;
+//     return [];
+//   }
+
+//   const startDate = dayjs(bookingConfirmationFormData.from).startOf("day");
+//   const endDate = dayjs(bookingConfirmationFormData.to).startOf("day");
+
+//   console.log("filterBookingRooms startDate; ", startDate);
+
+//   return bookingRoomsTableData.filter((item) => {
+//     if (!item?.bookingList || item.bookingList.length === 0) {
+//       return true;
+//     }
+
+//     const relevantBookings = item.bookingList.filter(
+//       (booking) =>
+//         booking.bookingStatus === "Booked" ||
+//         booking.bookingStatus === "Checked_In"
+//     );
+//     // console.log("filterBookingRooms relevantBookings; ", relevantBookings);
+
+//     if (relevantBookings.length === 0) {
+//       return false;
+//     }
+
+//     // :moment(booking.checkInDate).format("DD/MM/YYYY").utc(),
+
+//     const bookingDates = relevantBookings.map((booking) => ({
+//       startDate: dayjs(
+//         booking.bookingStatus === "Booked"
+//           ? booking.fromDate
+//           : // : booking.checkInDate,
+//             moment(booking.checkInDateInUtc).tz("Asia/Kolkata"),
+//         "DD-MM-YYYY"
+//       ).startOf("day"),
+//       endDate: dayjs(
+//         booking.bookingStatus === "Booked"
+//           ? booking.toDate
+//           : // : booking.checkOutDate,
+//             moment(booking.checkOutDateInUtc).tz("Asia/Kolkata"),
+
+//         "DD-MM-YYYY"
+//       ).startOf("day"),
+//     }));
+
+//     // console.log("filterBookingRooms bookingDates; ", bookingDates);
+
+//     bookingDates.sort((a, b) => a.endDate.diff(b.endDate));
+
+//     console.log("filterBookingRooms bookingDates; ", bookingDates);
+
+//     const isStartDateBeforeOrEqualAnyEndDate = bookingDates.some((date) =>
+//       startDate.isBefore(date.endDate)
+//     );
+
+//     const isStartDateAfterAllEndDates = bookingDates.every((date) =>
+//       startDate.isAfter(date.endDate)
+//     );
+//     // const isStartDateAfterAllEndDates = startDate.isAfter(
+//     //   bookingDates[bookingDates.length - 1].endDate
+//     // );
+
+//     // console.log(
+//     //   "filterBookingRooms isStartDateBeforeOrEqualAnyEndDate & ; ",
+//     //   isStartDateBeforeOrEqualAnyEndDate,
+//     //   isStartDateAfterAllEndDates
+//     // );
+
+//     if (isStartDateAfterAllEndDates) {
+//       return true;
+//     }
+
+//     if (isStartDateBeforeOrEqualAnyEndDate) {
+//       const closestEndDateBooking = bookingDates.find((date) =>
+//         startDate.isBefore(date.endDate)
+//       );
+
+//       // console.log(
+//       //   "filterBookingRooms closestEndDateBooking ; ",
+//       //   closestEndDateBooking
+//       // );
+
+//       if (closestEndDateBooking) {
+//         const nextBookingStartDate = bookingDates
+//           .filter((date) =>
+//             date.startDate.isAfter(closestEndDateBooking.endDate)
+//           )
+//           .sort((a, b) => a.startDate.diff(b.startDate))[0]?.startDate;
+
+//         // console.log(
+//         //   "filterBookingRooms nextBookingStartDate ; ",
+//         //   nextBookingStartDate
+//         // );
+//         if (nextBookingStartDate && nextBookingStartDate.isAfter(endDate)) {
+//           return true;
+//         }
+
+//         const compatibleStartDate = bookingDates.find((date) =>
+//           endDate.isBefore(date.startDate)
+//         );
+
+//         // console.log(
+//         //   "filterBookingRooms compatibleStartDate ; ",
+//         //   compatibleStartDate,
+//         //   !!compatibleStartDate
+//         // );
+
+//         return !!compatibleStartDate;
+//       }
+//     }
+
+//     return false;
+//   });
+// };
+
 const filterBookingRooms = (
   bookingRoomsTableData,
   bookingConfirmationFormData
 ) => {
-  // console.log(
-  //   "filterBookingRooms bookingRoomsTableData; ",
-  //   bookingRoomsTableData
-  // );
-  if (!bookingConfirmationFormData?.from || !bookingConfirmationFormData?.to) {
-    // return bookingRoomsTableData;
-    return [];
-  }
+  // return bookingRoomsTableData.filter((bookingData) => {
+  //   return (
+  //     bookingData.bookingList?.every(
+  //       (booking) =>
+  //         (new Date(
+  //           booking.fromDate?.split("-").reverse().join("-")
+  //         ).getTime() <
+  //           new Date(bookingConfirmationFormData.from?.$d).getTime() &&
+  //           new Date(
+  //             booking.toDate?.split("-").reverse().join("-") + "T00:00:00"
+  //           ).getTime() <
+  //             new Date(bookingConfirmationFormData.to?.$d).getTime()) ||
+  //         (new Date(
+  //           booking.fromDate?.split("-").reverse().join("-")
+  //         ).getTime() >
+  //           new Date(bookingConfirmationFormData.from?.$d).getTime() &&
+  //           new Date(
+  //             booking.toDate?.split("-").reverse().join("-") + "T00:00:00"
+  //           ).getTime() >
+  //             new Date(bookingConfirmationFormData.to?.$d).getTime())
+  //     ) ||
+  //     bookingData.bookingList === null ||
+  //     bookingData.bookingList.length === 0
+  //   );
+  // });
 
-  const startDate = dayjs(bookingConfirmationFormData.from).startOf("day");
-  const endDate = dayjs(bookingConfirmationFormData.to).startOf("day");
-
-  console.log("filterBookingRooms startDate; ", startDate);
-
-  return bookingRoomsTableData.filter((item) => {
-    if (!item?.bookingList || item.bookingList.length === 0) {
-      return true;
-    }
-
-    const relevantBookings = item.bookingList.filter(
-      (booking) =>
-        booking.bookingStatus === "Booked" ||
-        booking.bookingStatus === "Checked_In"
+  return bookingRoomsTableData.filter((bookingData) => {
+    return (
+      bookingData.bookingList?.every(
+        (booking) =>
+          (new Date(
+            booking.fromDate?.split("-").reverse().join("-")
+          ).getTime() <
+            new Date(bookingConfirmationFormData.from?.$d).getTime() &&
+            new Date(
+              booking.toDate?.split("-").reverse().join("-") + "T00:00:00"
+            ).getTime() <
+              new Date(bookingConfirmationFormData.from?.$d).getTime()) ||
+          (new Date(
+            booking.fromDate?.split("-").reverse().join("-")
+          ).getTime() >
+            new Date(bookingConfirmationFormData.to?.$d).getTime() &&
+            new Date(
+              booking.toDate?.split("-").reverse().join("-") + "T00:00:00"
+            ).getTime() >
+              new Date(bookingConfirmationFormData.to?.$d).getTime())
+      ) ||
+      bookingData.bookingList === null ||
+      bookingData.bookingList.length === 0
     );
-    // console.log("filterBookingRooms relevantBookings; ", relevantBookings);
-
-    if (relevantBookings.length === 0) {
-      return false;
-    }
-
-    // :moment(booking.checkInDate).format("DD/MM/YYYY").utc(),
-
-    const bookingDates = relevantBookings.map((booking) => ({
-      startDate: dayjs(
-        booking.bookingStatus === "Booked"
-          ? booking.fromDate
-          : // : booking.checkInDate,
-            moment(booking.checkInDateInUtc).tz("Asia/Kolkata"),
-        "DD-MM-YYYY"
-      ).startOf("day"),
-      endDate: dayjs(
-        booking.bookingStatus === "Booked"
-          ? booking.toDate
-          : // : booking.checkOutDate,
-            moment(booking.checkOutDateInUtc).tz("Asia/Kolkata"),
-
-        "DD-MM-YYYY"
-      ).startOf("day"),
-    }));
-
-    // console.log("filterBookingRooms bookingDates; ", bookingDates);
-
-    bookingDates.sort((a, b) => a.endDate.diff(b.endDate));
-
-    console.log("filterBookingRooms bookingDates; ", bookingDates);
-
-    const isStartDateBeforeOrEqualAnyEndDate = bookingDates.some((date) =>
-      startDate.isBefore(date.endDate)
-    );
-
-    const isStartDateAfterAllEndDates = bookingDates.every((date) =>
-      startDate.isAfter(date.endDate)
-    );
-    // const isStartDateAfterAllEndDates = startDate.isAfter(
-    //   bookingDates[bookingDates.length - 1].endDate
-    // );
-
-    // console.log(
-    //   "filterBookingRooms isStartDateBeforeOrEqualAnyEndDate & ; ",
-    //   isStartDateBeforeOrEqualAnyEndDate,
-    //   isStartDateAfterAllEndDates
-    // );
-
-    if (isStartDateAfterAllEndDates) {
-      return true;
-    }
-
-    if (isStartDateBeforeOrEqualAnyEndDate) {
-      const closestEndDateBooking = bookingDates.find((date) =>
-        startDate.isBefore(date.endDate)
-      );
-
-      // console.log(
-      //   "filterBookingRooms closestEndDateBooking ; ",
-      //   closestEndDateBooking
-      // );
-
-      if (closestEndDateBooking) {
-        const nextBookingStartDate = bookingDates
-          .filter((date) =>
-            date.startDate.isAfter(closestEndDateBooking.endDate)
-          )
-          .sort((a, b) => a.startDate.diff(b.startDate))[0]?.startDate;
-
-        // console.log(
-        //   "filterBookingRooms nextBookingStartDate ; ",
-        //   nextBookingStartDate
-        // );
-        if (nextBookingStartDate && nextBookingStartDate.isAfter(endDate)) {
-          return true;
-        }
-
-        const compatibleStartDate = bookingDates.find((date) =>
-          endDate.isBefore(date.startDate)
-        );
-
-        // console.log(
-        //   "filterBookingRooms compatibleStartDate ; ",
-        //   compatibleStartDate,
-        //   !!compatibleStartDate
-        // );
-
-        return !!compatibleStartDate;
-      }
-    }
-
-    return false;
   });
 };
 
@@ -1563,6 +1624,8 @@ const CustomRow = memo(function ({
   handleApproveBookingCancelRequest,
   handleOpenShowcaseBookingDialogForDetails,
 }) {
+  const [viewHotelInvoiceDialog, setViewHotelInvoiceDialog] =
+    React.useState(null);
   const handleChangeBookingConfirmationOnConfirm = useCallback(
     (name, rowDate) => {
       handleChangeBookingConfirmation(name, rowDate);
@@ -1593,95 +1656,111 @@ const CustomRow = memo(function ({
     },
     [handleOpenShowcaseBookingDialogForDetails]
   );
+
+  const handleViewHotelBillInvoiceInHistory = useCallback((row) => {
+    // const bookingRefNumber = row?.bookingRefNumber;
+    // if (bookingRefNumber) {
+    //   sessionStorage.setItem(
+    //     `hotelBillInvoiceInHistory-${bookingRefNumber}`,
+    //     JSON.stringify(row)
+    //   );
+    //   window.open(`/hotelBillInvoiceInHistory/${bookingRefNumber}`, "_blank");
+    // }
+    setViewHotelInvoiceDialog(row);
+  }, []);
+
+  const handleCloseViewInvoiceDialog = React.useCallback(() => {
+    setViewHotelInvoiceDialog(null);
+  }, []);
   return (
-    <TableRow
-      hover
-      key={row?.id}
-      sx={{
-        // cursor: "pointer",
-        height: 45,
-        backgroundColor: "inherit",
-        "&:hover": {
+    <>
+      <TableRow
+        hover
+        key={row?.id}
+        sx={{
+          // cursor: "pointer",
+          height: 45,
           backgroundColor: "inherit",
-        },
-      }}
-    >
-      {tableHeaders?.map((subitem, subIndex) => {
-        return (
-          <TableCell key={`table-body-cell=${subIndex}`} align="center">
-            {subitem?.key === "sno" ? (
-              <Typography sx={{ fontSize: "13px" }}>
-                {rowSerialNumber}
-              </Typography>
-            ) : subitem?.key === "guestName" ? (
-              <Typography sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
-                {[row?.firstName, row?.middleName, row?.lastName]
-                  .filter(Boolean)
-                  .join(" ")}
-              </Typography>
-            ) : subitem?.key === "bookedOn" ? (
-              <Typography sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
-                {row?.bookedOn &&
-                  moment(row?.bookedOn).format("DD-MM-YYYY hh:mm A")}
-              </Typography>
-            ) : subitem?.key === "bookingStatus" ? (
-              <Box
-                sx={{
-                  color: getBookingStatusColor(row?.bookingStatus)?.color,
-                  backgroundColor: getBookingStatusColor(row?.bookingStatus)
-                    ?.bgcolor,
-                  fontWeight: 600,
-                  border: `0.5px solid ${
-                    getBookingStatusColor(row?.bookingStatus)?.color
-                  }`,
-                  py: 0.7,
-                  px: "5px",
-                  textAlign: "center",
-                  // width: "178px",
-                  width: "auto",
-                  borderRadius: 2,
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {row?.bookingStatus?.replace(/_/g, " ")}
-              </Box>
-            ) : // </Typography>
-            subitem?.key === "bookingAction" ? (
-              <Box
-                sx={{
-                  display: "flex",
-                  gap: 1,
-                  width: "100%",
-                  justifyContent: "flex-start",
-                }}
-              >
-                <Tooltip title={"View Details"} arrow>
-                  <Button
-                    variant="outlined"
-                    sx={{
-                      minWidth: "unset",
-                      width: "auto",
-                      paddingY: "4.8px",
-                      paddingX: "8px",
-                      color: "#0cb2e7",
-                      borderColor: "#0cb2e7",
-                      "&:hover": {
-                        borderColor: "#0a8db7",
-                        backgroundColor: "#ddf7ff",
-                      },
-                    }}
-                    onClick={() =>
-                      handleOpenShowcaseBookingDialogForDetailsOnClick(row)
-                    }
-                  >
-                    <IoMdInformationCircleOutline
-                      style={{ fontSize: "14px", fontWeight: 600 }}
-                    />
-                  </Button>
-                </Tooltip>
-                {row?.bookingStatus === "Pending_Confirmation" && (
-                  <>
-                    <Tooltip title={"Check Availability"} arrow>
+          "&:hover": {
+            backgroundColor: "inherit",
+          },
+        }}
+      >
+        {tableHeaders?.map((subitem, subIndex) => {
+          return (
+            <TableCell key={`table-body-cell=${subIndex}`} align="center">
+              {subitem?.key === "sno" ? (
+                <Typography sx={{ fontSize: "13px" }}>
+                  {rowSerialNumber}
+                </Typography>
+              ) : subitem?.key === "guestName" ? (
+                <Typography sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
+                  {[row?.firstName, row?.middleName, row?.lastName]
+                    .filter(Boolean)
+                    .join(" ")}
+                </Typography>
+              ) : subitem?.key === "bookedOn" ? (
+                <Typography sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
+                  {row?.bookedOn &&
+                    moment(row?.bookedOn).format("DD-MM-YYYY hh:mm A")}
+                </Typography>
+              ) : subitem?.key === "bookingStatus" ? (
+                <Box
+                  sx={{
+                    color: getBookingStatusColor(row?.bookingStatus)?.color,
+                    backgroundColor: getBookingStatusColor(row?.bookingStatus)
+                      ?.bgcolor,
+                    fontWeight: 600,
+                    border: `0.5px solid ${
+                      getBookingStatusColor(row?.bookingStatus)?.color
+                    }`,
+                    py: 0.7,
+                    px: "5px",
+                    textAlign: "center",
+                    // width: "178px",
+                    width: "auto",
+                    borderRadius: 2,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {row?.bookingStatus?.replace(/_/g, " ")}
+                </Box>
+              ) : // </Typography>
+              subitem?.key === "bookingAction" ? (
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 1,
+                    width: "100%",
+                    justifyContent: "flex-start",
+                  }}
+                >
+                  <Tooltip title={"View Details"} arrow>
+                    <Button
+                      variant="outlined"
+                      sx={{
+                        minWidth: "unset",
+                        width: "auto",
+                        paddingY: "4.8px",
+                        paddingX: "8px",
+                        color: "#0cb2e7",
+                        borderColor: "#0cb2e7",
+                        "&:hover": {
+                          borderColor: "#0a8db7",
+                          backgroundColor: "#ddf7ff",
+                        },
+                      }}
+                      onClick={() =>
+                        handleOpenShowcaseBookingDialogForDetailsOnClick(row)
+                      }
+                    >
+                      <IoMdInformationCircleOutline
+                        style={{ fontSize: "14px", fontWeight: 600 }}
+                      />
+                    </Button>
+                  </Tooltip>
+                  {row?.bookingStatus === "Checked_In" && (
+                    <Tooltip title={"Change Room"} arrow>
                       <Button
                         variant="outlined"
                         // color="success"
@@ -1697,63 +1776,121 @@ const CustomRow = memo(function ({
                           handleChangeSelectedBookingHistoryOnClick(row)
                         }
                       >
-                        <EventAvailableIcon
+                        <PublishedWithChangesIcon
                           sx={{ fontSize: "14px", fontWeight: 600 }}
                         />
                       </Button>
                     </Tooltip>
+                  )}
+                  {["Pending_Confirmation", "Room_Upgrade_Request"].includes(
+                    row?.bookingStatus
+                  ) && (
+                    <>
+                      <Tooltip title={"Check Availability"} arrow>
+                        <Button
+                          variant="outlined"
+                          // color="success"
+                          sx={{ minWidth: "unset", width: "11px" }}
+                          // onClick={() =>
+                          //   handleChangeBookingConfirmationOnConfirm(
+                          //     "confirmBooking",
+                          //     row
+                          //   )
+                          // }
 
-                    <Tooltip title={"Cancel Booking"} arrow>
+                          onClick={() =>
+                            handleChangeSelectedBookingHistoryOnClick(row)
+                          }
+                        >
+                          <EventAvailableIcon
+                            sx={{ fontSize: "14px", fontWeight: 600 }}
+                          />
+                        </Button>
+                      </Tooltip>
+
+                      <Tooltip title={"Cancel Booking"} arrow>
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          sx={{ minWidth: "unset", width: "11px" }}
+                          onClick={() =>
+                            handleChangeBookingConfirmationOnConfirm(
+                              "cancelBooking",
+                              row
+                            )
+                          }
+                        >
+                          <CloseIcon
+                            sx={{ fontSize: "14px", fontWeight: 600 }}
+                          />
+                        </Button>
+                      </Tooltip>
+                    </>
+                  )}
+                  {row?.bookingStatus === "Booking_Cancellation_Requested" && (
+                    <Button
+                      variant="outlined"
+                      sx={{
+                        minWidth: "unset",
+                        width: "auto",
+                        paddingY: "4.8px",
+                        paddingX: "8px",
+                        color: "#FF5722",
+                        borderColor: "#FF5722",
+                        "&:hover": {
+                          borderColor: "#E64A19",
+                          backgroundColor: "rgba(255, 87, 34, 0.1)",
+                        },
+                      }}
+                      onClick={() =>
+                        handleApproveBookingCancelRequestOnClick(row)
+                      }
+                    >
+                      <RiRefund2Line
+                        style={{ fontSize: "14px", fontWeight: 600 }}
+                      />
+                    </Button>
+                  )}
+
+                  {row?.bookingStatus === "Checked_Out" && (
+                    <Tooltip title={"View Invoice"} arrow>
                       <Button
                         variant="outlined"
-                        color="error"
-                        sx={{ minWidth: "unset", width: "11px" }}
-                        onClick={() =>
-                          handleChangeBookingConfirmationOnConfirm(
-                            "cancelBooking",
-                            row
-                          )
-                        }
+                        sx={{
+                          minWidth: "unset",
+                          width: "auto",
+                          paddingY: "4.8px",
+                          paddingX: "8px",
+                          color: "#0cb2e7",
+                          borderColor: "#0cb2e7",
+                          "&:hover": {
+                            borderColor: "#0a8db7",
+                            backgroundColor: "#ddf7ff",
+                          },
+                        }}
+                        onClick={() => handleViewHotelBillInvoiceInHistory(row)}
                       >
-                        <CloseIcon sx={{ fontSize: "14px", fontWeight: 600 }} />
+                        <DescriptionIcon
+                          style={{ fontSize: "14px", fontWeight: 600 }}
+                        />
                       </Button>
                     </Tooltip>
-                  </>
-                )}
-                {row?.bookingStatus === "Booking_Cancellation_Requested" && (
-                  <Button
-                    variant="outlined"
-                    sx={{
-                      minWidth: "unset",
-                      width: "auto",
-                      paddingY: "4.8px",
-                      paddingX: "8px",
-                      color: "#FF5722",
-                      borderColor: "#FF5722",
-                      "&:hover": {
-                        borderColor: "#E64A19",
-                        backgroundColor: "rgba(255, 87, 34, 0.1)",
-                      },
-                    }}
-                    onClick={() =>
-                      handleApproveBookingCancelRequestOnClick(row)
-                    }
-                  >
-                    <RiRefund2Line
-                      style={{ fontSize: "14px", fontWeight: 600 }}
-                    />
-                  </Button>
-                )}
-              </Box>
-            ) : (
-              <Typography sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
-                {getCellValue(row, subitem?.key)}
-              </Typography>
-            )}
-          </TableCell>
-        );
-      })}
-    </TableRow>
+                  )}
+                </Box>
+              ) : (
+                <Typography sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
+                  {getCellValue(row, subitem?.key)}
+                </Typography>
+              )}
+            </TableCell>
+          );
+        })}
+      </TableRow>
+      <ViewAllInvoiceDialogInBookingHistory
+        viewHotelInvoiceDialog={viewHotelInvoiceDialog}
+        handleClose={handleCloseViewInvoiceDialog}
+      />
+    </>
   );
 });
 
@@ -2766,20 +2903,37 @@ const CustomBookingHistoryDrawer = memo(function ({
 
               <Grid size={12}>
                 <Box sx={{ width: "100%", marginY: "2px" }}>
-                  <Button
-                    variant="contained"
-                    color="success"
-                    disabled={!bookingConfirmationFormData?.roomDto?.id}
-                    sx={{ fontSize: "11px" }}
-                    onClick={() =>
-                      handleChangeBookingConfirmationOnClick(
-                        "confirmBooking",
-                        bookingConfirmationFormData
-                      )
-                    }
-                  >
-                    Confirm Booking
-                  </Button>
+                  {selectedBookingHistory?.bookingStatus === "Checked_In" ? (
+                    <Button
+                      variant="contained"
+                      color="success"
+                      disabled={!bookingConfirmationFormData?.roomDto?.id}
+                      sx={{ fontSize: "11px" }}
+                      onClick={() =>
+                        handleChangeBookingConfirmationOnClick(
+                          "confirmChangeRoom",
+                          bookingConfirmationFormData
+                        )
+                      }
+                    >
+                      Confirm Change Room
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="contained"
+                      color="success"
+                      disabled={!bookingConfirmationFormData?.roomDto?.id}
+                      sx={{ fontSize: "11px" }}
+                      onClick={() =>
+                        handleChangeBookingConfirmationOnClick(
+                          "confirmBooking",
+                          bookingConfirmationFormData
+                        )
+                      }
+                    >
+                      Confirm Booking
+                    </Button>
+                  )}
                 </Box>
               </Grid>
             </Grid>
@@ -2791,6 +2945,7 @@ const CustomBookingHistoryDrawer = memo(function ({
 });
 
 const FrontdeskBookingHistory = () => {
+  const [changeRoom, changeRoomRes] = useChangeRoomMutation();
   const initialBookingHistoryTableFilters = useMemo(
     () => ({
       fromDate: null,
@@ -3086,6 +3241,10 @@ const FrontdeskBookingHistory = () => {
     );
   }, [getRoomsByRoomTypeData?.data, bookingConfirmationFormData]);
 
+  // const filteredRooms = useMemo(() => {
+  //   return getRoomsByRoomTypeData?.data;
+  // }, [getRoomsByRoomTypeData?.data]);
+
   const [confirmBookingByFrontDesk, confirmBookingByFrontDeskRes] =
     useConFirmBookingMutation();
 
@@ -3284,6 +3443,45 @@ const FrontdeskBookingHistory = () => {
               },
             };
             confirmBookingByFrontDesk(payload)
+              .unwrap()
+              .then((res) => {
+                setSnack({
+                  open: true,
+                  message: res?.message || "Booking Confirmation Success",
+                  severity: "success",
+                });
+                handleOpenCustomBookingHistoryDrawer();
+              })
+              .catch((err) => {
+                setSnack({
+                  open: true,
+                  message:
+                    err?.data?.message ||
+                    err?.data ||
+                    "Booking Confirmation Failed",
+                  severity: "error",
+                });
+              });
+          }
+        });
+      } else if (name === "confirmChangeRoom") {
+        Swal.fire({
+          title: "Confirm Change Room!",
+          text: "Are you Sure To Change Room For This Booking?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const payload = {
+              bookingRefNumber: bookingData?.bookingRefNumber || null,
+              roomDto: {
+                id: bookingData?.roomDto?.id || null,
+              },
+            };
+            changeRoom(payload)
               .unwrap()
               .then((res) => {
                 setSnack({
@@ -3782,6 +3980,7 @@ const FrontdeskBookingHistory = () => {
           approveBookingCancelRequestRes.isLoading ||
           exportBookingHistoryRes.isLoading ||
           assignHouseKeepingRequestRes?.isLoading ||
+          changeRoomRes.isLoading ||
           false
         }
       />
@@ -3817,4 +4016,234 @@ const FrontdeskBookingHistory = () => {
   );
 };
 
+const ViewAllInvoiceDialogInBookingHistory = React.memo(function ({
+  viewHotelInvoiceDialog,
+  handleClose,
+}) {
+  const [selectedInvoice, setSelectedInvoice] = useState("Final Invoice");
+  // console.log("selectedInvoice", selectedInvoice);
+  const handleViewHotelBillInvoice = useCallback(
+    (viewHotelInvoiceDialog) => {
+      console.log("viewHotelInvoiceDialog", viewHotelInvoiceDialog);
+      const bookingRefNumber = viewHotelInvoiceDialog?.bookingRefNumber;
+      console.log("bookingRefNumber", bookingRefNumber);
+      if (bookingRefNumber) {
+        sessionStorage.setItem(
+          `hotelBillInvoiceInHistory-${bookingRefNumber}`,
+          JSON.stringify(viewHotelInvoiceDialog)
+        );
+
+        window.open(`/hotelBillInvoiceInHistory/${bookingRefNumber}`, "_blank");
+      }
+    },
+    // [customerGstNumber]
+    []
+  );
+
+  const handleViewFoodBillInvoice = useCallback((roomData) => {
+    const bookingRefNumber = roomData?.bookingRefNumber;
+
+    if (bookingRefNumber) {
+      sessionStorage.setItem(
+        `foodBillInvoiceInBookingHistory-${bookingRefNumber}`,
+        JSON.stringify(roomData)
+      );
+
+      window.open(
+        `/foodBillInvoiceInBookingHistory/${bookingRefNumber}`,
+        "_blank"
+      );
+    }
+  }, []);
+
+  const handleViewBarBillInvoice = useCallback((roomData) => {
+    const bookingRefNumber = roomData?.bookingRefNumber;
+
+    if (bookingRefNumber) {
+      sessionStorage.setItem(
+        `barBillInvoiceInBookingHistory-${bookingRefNumber}`,
+        JSON.stringify(roomData)
+      );
+
+      window.open(`/BarInvoiceInBookingHistory/${bookingRefNumber}`, "_blank");
+    }
+  }, []);
+  const handleViewSpaBillInvoice = useCallback((roomData) => {
+    const bookingRefNumber = roomData?.bookingRefNumber;
+
+    if (bookingRefNumber) {
+      sessionStorage.setItem(
+        `SpaInvoiceInBookingHistory-${bookingRefNumber}`,
+        JSON.stringify(roomData)
+      );
+
+      window.open(`/SpaInvoiceInBookingHistory/${bookingRefNumber}`, "_blank");
+    }
+  }, []);
+  return (
+    <React.Fragment>
+      <BootstrapDialog
+        open={Boolean(viewHotelInvoiceDialog)}
+        onClose={handleClose}
+        aria-labelledby="password-change-dialog-title"
+        maxWidth="sm"
+        fullWidth
+        sx={{
+          ".MuiDialogTitle-root": {
+            px: 5,
+            py: 3,
+          },
+        }}
+        PaperProps={{
+          sx: { borderRadius: 4 },
+        }}
+      >
+        <DialogTitle id="view-image-dialog-title" sx={{ fontSize: 24 }}>
+          View Invoice
+        </DialogTitle>
+        <IconButton
+          aria-label="close"
+          onClick={handleClose}
+          sx={{
+            position: "absolute",
+            right: 30,
+            top: 16,
+            color: "#280071",
+          }}
+        >
+          <CloseIcon sx={{ fontSize: 30 }} />
+        </IconButton>
+        <DialogContent>
+          <Box sx={{ width: "100%", display: "flex", gap: 1, mb: 2 }}>
+            <Box
+              sx={{
+                ".MuiTextField-root": {
+                  width: "100%",
+                  backgroundColor: "transparent",
+                  ".MuiInputBase-root": {
+                    color: "#B4B4B4",
+                    background: "rgba(255, 255, 255, 0.25)",
+                  },
+                },
+                ".MuiFormLabel-root": {
+                  color: (theme) => theme.palette.primary.main,
+                  fontWeight: 600,
+                  fontSize: 14,
+                },
+                ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+                  borderBottom: (theme) =>
+                    `1px solid ${theme.palette.primary.main}`,
+                },
+                ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+                  borderBottom: (theme) =>
+                    `1px solid ${theme.palette.primary.main}`,
+                },
+                "& .MuiOutlinedInput-root": {
+                  height: "35px",
+                  minHeight: "35px",
+                },
+                "& .MuiInputBase-input": {
+                  padding: "13px",
+                  height: "100%",
+                  boxSizing: "border-box",
+                  fontSize: "13px",
+                },
+              }}
+            >
+              <Autocomplete
+                options={[
+                  "Food Invoice",
+                  "Final Invoice",
+                  "Bar Invoice",
+                  "Spa Invoice",
+                ]}
+                fullWidth
+                value={selectedInvoice}
+                onChange={(e, newValue) => setSelectedInvoice(newValue)}
+                getOptionLabel={(option) => option || ""}
+                clearOnEscape
+                // disablePortal
+                popupIcon={<KeyboardArrowDownIcon color="primary" />}
+                sx={{
+                  // width: 200,
+                  ".MuiInputBase-root": {
+                    color: "#fff",
+                  },
+                  "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover": {
+                    backgroundColor: "#E9E5F1",
+                    color: "#280071",
+                    fontWeight: 600,
+                  },
+                  "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                    {
+                      backgroundColor: "#E9E5F1",
+                      color: "#280071",
+                      fontWeight: 600,
+                    },
+                }}
+                componentsProps={{
+                  popper: {
+                    sx: {
+                      "& .MuiAutocomplete-listbox": {
+                        maxHeight: "150px",
+                        overflow: "auto",
+                      },
+                      "& .MuiAutocomplete-option": {
+                        fontSize: "13px",
+                      },
+                    },
+                  },
+                }}
+                size="small"
+                clearIcon={<ClearIcon color="primary" />}
+                PaperComponent={(props) => (
+                  <Paper
+                    sx={{
+                      background: "#fff",
+                      color: "#B4B4B4",
+                      borderRadius: "10px",
+                    }}
+                    {...props}
+                  />
+                )}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Select Invoice"
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: 2,
+                        width: 200,
+                        height: 35,
+                      },
+                    }}
+                  />
+                )}
+              />
+            </Box>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => {
+                if (selectedInvoice === "Final Invoice") {
+                  handleViewHotelBillInvoice(viewHotelInvoiceDialog);
+                } else if (selectedInvoice === "Food Invoice") {
+                  handleViewFoodBillInvoice(viewHotelInvoiceDialog);
+                } else if (selectedInvoice === "Bar Invoice") {
+                  handleViewBarBillInvoice(viewHotelInvoiceDialog);
+                } else if (selectedInvoice === "Spa Invoice") {
+                  handleViewSpaBillInvoice(viewHotelInvoiceDialog);
+                } else {
+                  alert("Please select an option to view the bill.");
+                }
+              }}
+            >
+              View
+            </Button>
+          </Box>
+        </DialogContent>
+      </BootstrapDialog>
+    </React.Fragment>
+  );
+});
 export default FrontdeskBookingHistory;

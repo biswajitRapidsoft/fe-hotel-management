@@ -1,15 +1,15 @@
 const config = Object.freeze({
-  // baseUrl: "http://192.168.12.37:9000/",
+  baseUrl: "http://192.168.12.37:9000/",
   // baseUrl: "http://192.168.12.43:9000/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
   // baseUrl: "http://crimarrstaging.nyggs.com/backend/",
   // baseUrl: "http://192.168.30.44:9000/",
   // baseUrl: "http://192.168.12.43:8080/be-hms/",
-  baseUrl: "https://hms.watsoo.com/backend/",
+  // baseUrl: "https://hms.watsoo.com/backend/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/", // HO Staging
   // baseUrl: "http://192.168.12.3:9000/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
-  // baseUrl: "http://192.168.12.3:9000/",
+  baseUrl: "http://192.168.12.3:9000/",
   apiName: {
     loginAsCustomer: "login/as/customer",
     loginAsStaff: "login",
@@ -69,6 +69,29 @@ const config = Object.freeze({
     updateParking: "api/update/parking/area",
     getParkingDataForAdmin: "api/get/all/parkings/list/for/admin",
     parkingSlotStatusChange: "api/parking/slot/status/change",
+    updateRoomTypeStatus: "api/update/status/room/type",
+    addBarMasterDiningType: "api/save/barmenu/categories",
+    getBarItemTypeByCompanyId: "api/get/bar/menu",
+    getBarSubmenuTypeByMenuId: "api/get-sub/menu/id",
+    saveBarItem: "api/save/bar/items",
+    saveCompany: "api/save/company",
+    getAllCompany: "api/get/all/company",
+    getAllConfiguredPrices: "api/get/hotel/room-type/price-config",
+    updateConfiguredPrices: "api/hotel/room-type/price-config/save",
+    getAllConfiguredPricesTableData: "api/get/price-config/room/type",
+    updateConfigurationStatus: "api/dynamic-price-configuration/update-status",
+    rateSpa: "public/rate/spa/service",
+    deliverFoodByWaiter: "api/deliver/food/by/waiter",
+    getBookingDetailsByRoomNumber: "api/get/booking/details/by/room/id",
+    assosciateOrderWithRoom: "api/transfer/food/order/to/room/bill",
+    completeFoodOrder: "api/complete/food/order/by/counter-staff",
+    getAllDineInRequestFromRoom: "api/get/all/table/not/assigned/orders",
+    getAllWaiters: "api/get/all/waiters",
+    assignTableToWaiter: "api/assign/table/to/restaurant/order",
+    saveRoomTypeUpgradePriceConfig: "api/hotel/room-type/upgrade/price/config",
+    getRoomTypeUpgradePriceConfigAdmin:
+      "api/get/upgrade/price-config/room/type",
+    changeRoom: "api/change/new/room",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",
@@ -85,7 +108,14 @@ const config = Object.freeze({
     getAllMasterDiningType: "api/get/all/master/dinning/type",
     addFoodItems: "api/create/new/restaurant/item",
     getFoodType: "api/get/restaurant/item/type",
-
+    allocateNewKeyToCustomer: "api/issue/new/key/customer",
+    getKeysData: "api/get/key/by-booking/number",
+    getAllTables: "api/get/all/restaurant/tables",
+    createTable: "api/create/restaurant/tables",
+    getAllTablesForWaiter: "api/get/restaurant/tables/for/waiter",
+    getAllTablesForCounterStaff: "api/get/restaurant/tables/for/counter/staff",
+    upgradeRoomRequest: "api/upgrade/new/room",
+    getRoomTypeUpgradePriceConfig: "api/get/upgrade/price-config/room/type/id",
     //FRONTDESK BOOKING HISTORY
     roomBookingHistoryByHotelId: "api/booking/history",
     getAllBookingStatusType: "api/get/all/booking/status/type",
@@ -96,7 +126,6 @@ const config = Object.freeze({
     approveBookingCancelRequest: "api/approve/booking/cancel/request",
     cancelRoomBookingFromBookingHistory: "api/cancel/booking/by/hotel",
     exportBookingHistory: "api/export/booking/history/data",
-
     // HALL BOOKING DASHBOARD
     getAllHallBookings: "api/get/all/hall/bookings/data",
     getAllHallStatus: "api/get/all/hall/status",
@@ -153,6 +182,8 @@ const config = Object.freeze({
     getAllInventoryItemsByHotelId: "api/get/inventory/items/stock/list",
     updateInventoryStock: "api/update/stock",
     getInventoryUpdateTrail: "api/get/inventory/item/trail/list",
+    getBarItemsStock: "api/get/items/bar/hotel/id",
+    updateBarItemsStock: "api/update/bar/items/stock",
   },
 });
 

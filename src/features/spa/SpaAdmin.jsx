@@ -23,6 +23,7 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
+  Rating,
 } from "@mui/material";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -54,6 +55,7 @@ import {
 } from "../../helper/constants";
 
 const Row = ({ booking, index, setUpdateStatusDialog }) => {
+  console.log("booking", booking);
   const [showFullText, setShowFullText] = React.useState(false);
   const handleToggle = () => setShowFullText((prev) => !prev);
   const truncatedText =
@@ -110,6 +112,13 @@ const Row = ({ booking, index, setUpdateStatusDialog }) => {
               {booking?.remarks}
             </Typography>
           )}
+        </TableCell>
+        <TableCell>
+          <Rating
+            value={booking?.ratingPoints}
+            disabled
+            // sx={{ color: "#0f0f0f", fontSize: "1.1rem" }}
+          />
         </TableCell>
         <TableCell
           sx={{
@@ -555,6 +564,7 @@ const SpaAdmin = () => {
                 <TableCell>Slot</TableCell>
                 <TableCell>Room No.</TableCell>
                 <TableCell>Base Price</TableCell>
+                <TableCell>Rating</TableCell>
                 <TableCell>Remarks</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell>Action</TableCell>
@@ -600,7 +610,7 @@ const SpaAdmin = () => {
   );
 };
 
-export const PaymentDialog = memo(function ({
+export const PaymentDialogV2 = memo(function ({
   openPaymentDialog,
   handlePaymentDialogClose,
   amountToPay,

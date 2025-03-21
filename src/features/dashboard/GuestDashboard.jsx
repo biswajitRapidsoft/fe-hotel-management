@@ -9,7 +9,8 @@ import roomServices from "../../img/roomservices.png";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
-// import Confetti from "react-confetti";
+import PhoneIcon from "@mui/icons-material/Phone";
+
 import Swal from "sweetalert2";
 import SportsGymnasticsIcon from "@mui/icons-material/SportsGymnastics";
 import WeekendIcon from "@mui/icons-material/Weekend";
@@ -30,6 +31,9 @@ import CleaningServicesIcon from "@mui/icons-material/CleaningServices";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import DryCleaningIcon from "@mui/icons-material/DryCleaning";
 import SpaIcon from "@mui/icons-material/Spa";
+// import moment from "moment";
+import CallIcon from "@mui/icons-material/Call";
+import InfoIcon from "@mui/icons-material/Info";
 
 // import { getStatusColour } from "./GuestBookingHistoryDrawer";
 import {
@@ -68,6 +72,12 @@ import {
   useMakePartialPaymentMutation,
   useAddRatingMutation,
 } from "../../services/dashboard";
+
+import {
+  useGetCityListQuery,
+  useGetStateListQuery,
+} from "../../services/hotel";
+
 import TextField from "@mui/material/TextField";
 import { CUSTOMER } from "../../helper/constants";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -87,9 +97,24 @@ import {
 } from "@mui/lab";
 // import moment from "moment";
 import { useNavigate } from "react-router-dom";
+import { StyledCalendarIcon } from "../../features/dashboard/Dashboard";
+import { styled } from "@mui/material/styles";
+import { tooltipClasses } from "@mui/material/Tooltip";
 
 export const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
+});
+
+const CustomTooltip = styled(({ className, ...props }) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))({
+  [`& .${tooltipClasses.tooltip}`]: {
+    maxWidth: 500,
+    backgroundColor: "#71797E	",
+  },
+  [`& .${tooltipClasses.arrow}`]: {
+    color: "#71797E",
+  },
 });
 
 const GuestDashboard = () => {
@@ -98,6 +123,7 @@ const GuestDashboard = () => {
     React.useState(false);
   const [selectedBookingRefNumber, setSelectedBookingRefNumber] =
     React.useState(null);
+  const [selectedBooking, setSelectedBooking] = React.useState(null);
 
   const [cancelBookingOpen, setCancelBookingOpen] = React.useState(false);
   const [reviewDialog, setReviewDialog] = React.useState(null);
@@ -124,7 +150,15 @@ const GuestDashboard = () => {
     hotel: null,
     roomType: null,
     priceRange: null,
+    fromDate: null,
+    toDate: null,
+    selectedState: null,
+    selectStateInputVal: "",
+    selectedCity: null,
+    selectedCityInputVal: "",
   });
+
+  // console.log("filters", filters);
 
   const [makePartialPaymentPayload, setMakePartialPaymentPayload] =
     React.useState(null);
@@ -151,7 +185,7 @@ const GuestDashboard = () => {
   };
 
   const handleMakePayment = React.useCallback((booking) => {
-    console.log("bookinggg", booking);
+    // console.log("bookinggg", booking);
     const totalDebit = booking?.transactionDetails
       ?.filter((item) => !item.isCredit)
       ?.reduce((sum, item) => sum + item.amount, 0);
@@ -162,7 +196,7 @@ const GuestDashboard = () => {
 
     const difference = totalDebit - totalCredit;
 
-    console.log("difference", difference);
+    // console.log("difference", difference);
     if (Boolean(difference <= 0)) {
       Swal.fire({
         position: "center",
@@ -181,16 +215,35 @@ const GuestDashboard = () => {
       setOpenPaymentDialog(true);
     }
   }, []);
+
   const {
     data: hotelList = {
       data: [],
     },
     isLoading,
+    isSuccess: isGetHotelListSuccess,
+    isError: isGetHotelListError,
+    error: hotelListError,
+    isFetching: isHotelListFetching,
   } = useGetAllHotelsQuery(
     {
       hotelId: filters?.hotel?.id,
       roomTypeId: filters?.roomType?.id,
       priceRange: filters?.priceRange?.type,
+      cityId: filters?.selectedCity?.id,
+
+      stateId: filters?.selectedState?.id,
+
+      ...(filters.fromDate &&
+        filters.toDate && {
+          fromDate: filters.fromDate.format("DD-MM-YYYY"),
+          toDate: filters.toDate.format("DD-MM-YYYY"),
+        }),
+      ...(!filters.fromDate &&
+        !filters.toDate && {
+          fromDate: dayjs().format("DD-MM-YYYY"),
+          toDate: dayjs().add(3, "day").format("DD-MM-YYYY"),
+        }),
     },
     {
       refetchOnMountOrArgChange: true,
@@ -200,6 +253,36 @@ const GuestDashboard = () => {
         !Boolean(JSON.parse(sessionStorage.getItem("data"))?.phoneNo),
     }
   );
+  React.useEffect(() => {
+    if (isGetHotelListSuccess && hotelList?.data) {
+      setSnack({
+        open: true,
+        message: hotelList?.message || "Hotels fetched successfully",
+        severity: "success",
+      });
+    }
+    if (isGetHotelListError) {
+      setSnack({
+        open: true,
+        message: hotelListError?.data?.message || "Failed to fetch hotels",
+        severity: "error",
+      });
+    }
+  }, [isGetHotelListSuccess, isGetHotelListError, hotelList, hotelListError]);
+
+  const {
+    data: stateList = {
+      data: [],
+    },
+  } = useGetStateListQuery({});
+
+  const {
+    data: cityList = {
+      data: [],
+    },
+  } = useGetCityListQuery(filters?.selectedState?.id, {
+    skip: !Boolean(filters.selectedState),
+  });
 
   const {
     data: filterList = {
@@ -218,6 +301,7 @@ const GuestDashboard = () => {
       skip: !JSON.parse(sessionStorage.getItem("data"))?.roleType === CUSTOMER,
     }
   );
+
   const {
     data: userDetails = {
       data: [],
@@ -230,9 +314,10 @@ const GuestDashboard = () => {
     }
   );
 
-  const handleCancelClick = (bookingRefNumber) => {
-    setSelectedBookingRefNumber(bookingRefNumber);
+  const handleCancelClick = (booking) => {
+    setSelectedBookingRefNumber(booking?.bookingRefNumber);
     setCancelBookingOpen(true);
+    setSelectedBooking(booking);
   };
 
   // api call for room cleaning
@@ -317,6 +402,7 @@ const GuestDashboard = () => {
     }
   };
 
+  console.log("bookingDetails", bookingDetails?.data);
   return (
     <>
       <Box
@@ -339,6 +425,8 @@ const GuestDashboard = () => {
               filterOptions={filterList?.data}
               setFilters={setFilters}
               filters={filters}
+              stateList={stateList}
+              cityList={cityList}
             />
           </Box>
           <Box sx={{ display: "flex", gap: 1 }}>
@@ -593,6 +681,7 @@ const GuestDashboard = () => {
                                     </Typography>
                                     <Typography>
                                       {booking?.hotel?.name || "N/A"}
+                                      {/* {booking?.hotel?.contactNos[0]} */}
                                     </Typography>
                                   </Box>
 
@@ -659,8 +748,11 @@ const GuestDashboard = () => {
                                       }}
                                     >
                                       <Box sx={{ display: "flex", gap: 1 }}>
-                                        {booking?.bookingStatus ===
-                                          "Pending_Confirmation" && (
+                                        {Boolean(
+                                          booking?.bookingStatus ===
+                                            "Pending_Confirmation" ||
+                                            booking?.bookingStatus === "Booked"
+                                        ) && (
                                           <Button
                                             variant="contained"
                                             sx={{
@@ -674,13 +766,30 @@ const GuestDashboard = () => {
                                               textTransform: "none",
                                             }}
                                             onClick={() => {
-                                              handleCancelClick(
-                                                booking?.bookingRefNumber
-                                              );
+                                              handleCancelClick(booking);
                                               // handleBookingCancel(booking.bookingRefNumber);
                                             }}
                                           >
                                             Cancel
+                                          </Button>
+                                        )}
+                                        {booking?.bookingStatus ===
+                                          "Pending_Confirmation" && (
+                                          <Button
+                                            variant="contained"
+                                            sx={{
+                                              backgroundColor: "#17B169",
+                                              color: "#fff",
+                                              textTransform: "none",
+                                            }}
+                                            onClick={() => {
+                                              // const phoneNumber = "+1234567890";
+                                              const phoneNumber =
+                                                booking?.hotel?.contactNos[0];
+                                              window.location.href = `tel:${phoneNumber}`;
+                                            }}
+                                          >
+                                            <CallIcon />
                                           </Button>
                                         )}
 
@@ -1128,6 +1237,7 @@ const GuestDashboard = () => {
 
       <CancelRoomDialog
         open={cancelBookingOpen}
+        selectedBooking={selectedBooking}
         onClose={() => setCancelBookingOpen(false)}
         selectedBookingRefNumber={selectedBookingRefNumber}
       />
@@ -1159,7 +1269,8 @@ const GuestDashboard = () => {
           roomCleanRequestRes.isLoading ||
           makePartialPaymentRes.isLoading ||
           requestRoomCheckoutRes.isLoading ||
-          rateStayRes.isLoading
+          rateStayRes.isLoading ||
+          isHotelListFetching
         }
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
@@ -1172,7 +1283,7 @@ function ReviewDialog({ open, handleClose, rateStay, setSnack, orderObj }) {
   const [rating, setRating] = React.useState(0);
   const [review, setReview] = React.useState("");
 
-  console.log("orderObj", orderObj);
+  // console.log("orderObj", orderObj);
   const handleSubmitReview = React.useCallback(
     (event) => {
       event.preventDefault();
@@ -1275,6 +1386,8 @@ const CustomRoomFilters = memo(function ({
   filterOptions,
   setFilters,
   filters,
+  stateList,
+  cityList,
 }) {
   return (
     <>
@@ -1599,6 +1712,316 @@ const CustomRoomFilters = memo(function ({
               )}
             />
           </Box>
+          <Box
+            sx={{
+              ".MuiTextField-root": {
+                width: "100%",
+                backgroundColor: "transparent",
+                ".MuiInputBase-root": {
+                  color: "#B4B4B4",
+                  background: "rgba(255, 255, 255, 0.25)",
+                },
+              },
+              ".MuiFormLabel-root": {
+                color: (theme) => theme.palette.primary.main,
+                fontWeight: 600,
+                fontSize: 14,
+              },
+              ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+                borderBottom: (theme) =>
+                  `1px solid ${theme.palette.primary.main}`,
+              },
+              ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+                borderBottom: (theme) =>
+                  `1px solid ${theme.palette.primary.main}`,
+              },
+              "& .MuiOutlinedInput-root": {
+                height: "35px",
+                minHeight: "35px",
+              },
+              "& .MuiInputBase-input": {
+                padding: "13px",
+                height: "100%",
+                boxSizing: "border-box",
+                fontSize: "13px",
+              },
+            }}
+          >
+            <Autocomplete
+              options={stateList?.data || []}
+              // disableClearable
+              fullWidth
+              value={filters.selectedState}
+              onChange={(e, newVal) =>
+                setFilters((prev) => ({ ...prev, selectedState: newVal }))
+              }
+              getOptionLabel={(option) => option.name || ""}
+              clearOnEscape
+              disablePortal
+              popupIcon={<KeyboardArrowDownIcon color="primary" />}
+              sx={{
+                // width: 200,
+                ".MuiInputBase-root": {
+                  color: "#fff",
+                },
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover": {
+                  backgroundColor: "#E9E5F1",
+                  color: "#280071",
+                  fontWeight: 600,
+                },
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                  {
+                    backgroundColor: "#E9E5F1",
+                    color: "#280071",
+                    fontWeight: 600,
+                  },
+              }}
+              componentsProps={{
+                popper: {
+                  sx: {
+                    "& .MuiAutocomplete-listbox": {
+                      maxHeight: "150px",
+                      overflow: "auto",
+                    },
+                    "& .MuiAutocomplete-option": {
+                      fontSize: "13px",
+                    },
+                  },
+                },
+              }}
+              size="small"
+              clearIcon={<ClearIcon color="primary" />}
+              PaperComponent={(props) => (
+                <Paper
+                  sx={{
+                    background: "#fff",
+                    color: "#B4B4B4",
+                    borderRadius: "10px",
+                  }}
+                  {...props}
+                />
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Select state"
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      width: 200,
+                      height: 35,
+                    },
+                  }}
+                />
+              )}
+            />
+          </Box>
+          <Box
+            sx={{
+              ".MuiTextField-root": {
+                width: "100%",
+                backgroundColor: "transparent",
+                ".MuiInputBase-root": {
+                  color: "#B4B4B4",
+                  background: "rgba(255, 255, 255, 0.25)",
+                },
+              },
+              ".MuiFormLabel-root": {
+                color: (theme) => theme.palette.primary.main,
+                fontWeight: 600,
+                fontSize: 14,
+              },
+              ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+                borderBottom: (theme) =>
+                  `1px solid ${theme.palette.primary.main}`,
+              },
+              ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+                borderBottom: (theme) =>
+                  `1px solid ${theme.palette.primary.main}`,
+              },
+              "& .MuiOutlinedInput-root": {
+                height: "35px",
+                minHeight: "35px",
+              },
+              "& .MuiInputBase-input": {
+                padding: "13px",
+                height: "100%",
+                boxSizing: "border-box",
+                fontSize: "13px",
+              },
+            }}
+          >
+            <Autocomplete
+              options={cityList?.data || []}
+              // disableClearable
+              fullWidth
+              value={filters.selectedCity}
+              onChange={(e, newVal) =>
+                setFilters((prev) => ({ ...prev, selectedCity: newVal }))
+              }
+              getOptionLabel={(option) => option.name || ""}
+              clearOnEscape
+              disablePortal
+              popupIcon={<KeyboardArrowDownIcon color="primary" />}
+              sx={{
+                // width: 200,
+                ".MuiInputBase-root": {
+                  color: "#fff",
+                },
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover": {
+                  backgroundColor: "#E9E5F1",
+                  color: "#280071",
+                  fontWeight: 600,
+                },
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                  {
+                    backgroundColor: "#E9E5F1",
+                    color: "#280071",
+                    fontWeight: 600,
+                  },
+              }}
+              componentsProps={{
+                popper: {
+                  sx: {
+                    "& .MuiAutocomplete-listbox": {
+                      maxHeight: "150px",
+                      overflow: "auto",
+                    },
+                    "& .MuiAutocomplete-option": {
+                      fontSize: "13px",
+                    },
+                  },
+                },
+              }}
+              size="small"
+              clearIcon={<ClearIcon color="primary" />}
+              PaperComponent={(props) => (
+                <Paper
+                  sx={{
+                    background: "#fff",
+                    color: "#B4B4B4",
+                    borderRadius: "10px",
+                  }}
+                  {...props}
+                />
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Select city"
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 2,
+                      width: 200,
+                      height: 35,
+                    },
+                  }}
+                />
+              )}
+            />
+          </Box>
+          <Box>
+            <Grid>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="From Date"
+                  disablePast
+                  value={filters?.fromDate}
+                  onChange={(newVal) =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      fromDate: newVal,
+                      toDate:
+                        prev.toDate && newVal && newVal.isAfter(prev.toDate)
+                          ? null
+                          : prev.toDate,
+                    }))
+                  }
+                  slotProps={{
+                    textField: {
+                      variant: "outlined",
+                      size: "small",
+                      // readOnly: true,
+                      clearable: true,
+                      onKeyDown: (e) => {
+                        e.preventDefault();
+                      },
+                      sx: {
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: 2,
+                          width: 200,
+                          height: 35,
+                          backgroundColor: "rgba(255, 255, 255, 0.25)",
+                          color: "#B4B4B4",
+                        },
+                        "& .MuiTextField-root": {
+                          width: "100%",
+                          backgroundColor: "transparent",
+                        },
+                        "& .MuiFormLabel-root": {
+                          color: (theme) => theme.palette.primary.main,
+                          fontWeight: 600,
+                          fontSize: 18,
+                        },
+                      },
+                    },
+                  }}
+                  slots={{
+                    openPickerIcon: StyledCalendarIcon,
+                  }}
+                  format="DD/MM/YYYY"
+                />
+              </LocalizationProvider>
+            </Grid>
+          </Box>
+          <Box>
+            <Grid>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="To Date"
+                  disablePast
+                  value={filters?.toDate}
+                  onChange={(newVal) =>
+                    setFilters((prev) => ({ ...prev, toDate: newVal }))
+                  }
+                  minDate={filters?.fromDate}
+                  slotProps={{
+                    textField: {
+                      variant: "outlined",
+                      size: "small",
+                      // readOnly: true,
+                      clearable: true,
+                      onKeyDown: (e) => {
+                        e.preventDefault();
+                      },
+                      sx: {
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: 2,
+                          width: 200,
+                          height: 35,
+                          backgroundColor: "rgba(255, 255, 255, 0.25)",
+                          color: "#B4B4B4",
+                        },
+                        "& .MuiTextField-root": {
+                          width: "100%",
+                          backgroundColor: "transparent",
+                        },
+                        "& .MuiFormLabel-root": {
+                          color: (theme) => theme.palette.primary.main,
+                          fontWeight: 600,
+                          fontSize: 18,
+                        },
+                      },
+                    },
+                  }}
+                  slots={{
+                    openPickerIcon: StyledCalendarIcon,
+                  }}
+                  format="DD/MM/YYYY"
+                />
+              </LocalizationProvider>
+            </Grid>
+          </Box>
 
           {/* <Box>
             <Button variant="contained">Submit</Button>
@@ -1609,12 +2032,12 @@ const CustomRoomFilters = memo(function ({
     </>
   );
 });
+
 const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
   const [isClaimPoints, setIsClaimPoints] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [openPaymentDialog, setOpenPaymentDialog] = React.useState(false);
   const [reservationPayload, setReservationPayload] = React.useState(null);
-
   const [openHotelDetailsDialog, setOpenHotelDetailsDialog] =
     React.useState(false);
   const [hotelDetailsData, setHotelDetailsData] = React.useState(null);
@@ -1790,10 +2213,20 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
       roomTypeId: hotelDetails?.id,
       hotelId: hotelDetails?.hotelDto?.id,
       paidAmount: formData.advancePayment,
-      bookingAmount: isClaimPoints
+      // bookingAmount: isClaimPoints
+      //   ? hotelDetails.basePrice * calculateNumberOfDays -
+      //       userDetails?.data?.rewardsPointPrice || 0
+      //   : calculateNumberOfDays * Number(hotelDetails?.basePrice),
+      bookingAmount: hotelDetails?.configurationPrice
+        ? isClaimPoints
+          ? hotelDetails.configurationPrice * calculateNumberOfDays -
+            (userDetails?.data?.rewardsPointPrice || 0)
+          : calculateNumberOfDays * Number(hotelDetails.configurationPrice)
+        : isClaimPoints
         ? hotelDetails.basePrice * calculateNumberOfDays -
-            userDetails?.data?.rewardsPointPrice || 0
+          (userDetails?.data?.rewardsPointPrice || 0)
         : calculateNumberOfDays * Number(hotelDetails?.basePrice),
+
       isRewardsPointsUsed: isClaimPoints,
       noOfRewardsPointsUsed: userDetails?.data?.noOfRewardsPointsAvailable,
       rewardsPointPrice: userDetails?.data?.rewardsPointPrice,
@@ -2077,13 +2510,70 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
           }}
         >
           <Box>
-            <Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               {/* <Rating value={hotelDetails?.averageRatingPoints} readOnly /> */}
-              <Rating
-                value={hotelDetails?.averageRatingPoints}
-                readOnly
-                precision={0.5}
-              />
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <Rating
+                  value={hotelDetails?.averageRatingPoints}
+                  readOnly
+                  precision={0.5}
+                />
+                <Typography>({hotelDetails?.reveiwedBy})</Typography>
+              </Box>
+              <CustomTooltip
+                arrow
+                title={
+                  <Box>
+                    <Box sx={{ display: "flex", flexDirection: "column" }}>
+                      {hotelDetails?.checkAvailableDates?.map((item, index) => {
+                        return (
+                          <Box sx={{ display: "flex", gap: 1.4 }}>
+                            <Typography
+                              sx={{ fontWeight: "bold", color: "#fff" }}
+                            >
+                              {item.date}:
+                            </Typography>
+                            <Typography
+                              sx={{
+                                fontWeight: "bold",
+                                //  color: "#17B169"
+                                color: Boolean(item.available === true)
+                                  ? "#17B169"
+                                  : "#AA0000",
+                              }}
+                            >
+                              {item.available === true
+                                ? "Available"
+                                : " Unavailable"}
+                            </Typography>
+                          </Box>
+                        );
+                      })}
+                    </Box>
+                  </Box>
+                }
+              >
+                <InfoIcon
+                  sx={{
+                    cursor: "pointer",
+                    color: hotelDetails?.checkAvailableDates?.every(
+                      (item) => item.available === false
+                    )
+                      ? "#AA0000"
+                      : hotelDetails?.checkAvailableDates?.some(
+                          (item) => item.available === false
+                        )
+                      ? "#D27D2D"
+                      : "#17B169",
+                  }}
+                />
+              </CustomTooltip>
             </Box>
 
             <Box
@@ -2125,9 +2615,53 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
               <Typography sx={{ color: "gray" }}>
                 {hotelDetails?.type}
               </Typography>
-              <Typography>
-                <strong>₹{hotelDetails?.basePrice}</strong> per night
-              </Typography>
+              <Box sx={{ display: "flex", gap: 1, flexDirection: "column" }}>
+                <Box sx={{ display: "flex", gap: 1 }}>
+                  <Box sx={{ display: "flex ", flexDirection: "column" }}>
+                    {hotelDetails?.configurationPrice && (
+                      <Typography sx={{ fontWeight: "bold" }}>
+                        ₹{hotelDetails?.configurationPrice}
+                      </Typography>
+                    )}
+
+                    <Typography
+                      sx={{
+                        textDecoration: Boolean(
+                          hotelDetails?.configurationPrice
+                        )
+                          ? "line-through"
+                          : "",
+                        color: Boolean(hotelDetails?.configurationPrice)
+                          ? "gray"
+                          : "black",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      ₹{hotelDetails?.basePrice}
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "flex-end",
+                    }}
+                  >
+                    <Typography>per night</Typography>
+                  </Box>
+                </Box>
+                {/* <Typography>18% gst applicable</Typography> */}
+              </Box>
+              {/* <Typography>
+                <span
+                  style={{
+                    fontWeight: "bold",
+                    textDecoration: "line-through",
+                  }}
+                >
+                  ₹{hotelDetails?.basePrice}
+                </span>
+                per night
+              </Typography> */}
             </Box>
             <Box sx={{ display: "flex", marginY: "auto" }}>
               <Button
@@ -2154,312 +2688,444 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
         onClose={toggleDrawer(false)}
         sx={{ zIndex: 1300 }}
       >
-        <Box sx={{ width: 500 }} role="presentation">
-          <Box
-            sx={{
-              p: 2,
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            <Typography sx={{ fontWeight: 550, fontSize: "1.5em" }}>
-              Booking Details
-              {/* ({hotelDetailsData?.hotelDto?.name}) */}
-            </Typography>
-            <IconButton onClick={toggleDrawer(false)}>
-              <CloseIcon />
-            </IconButton>
-          </Box>
-          <Divider />
-          <Box
-            component="form"
-            onSubmit={handleSubmitReserve}
-            sx={{ px: 2, py: 2 }}
-          >
-            <Grid container size={12} spacing={2}>
-              <Grid size={{ xs: 6 }}>
-                <TextField
-                  id="outlined-basic"
-                  name="firstName"
-                  label="First Name"
-                  variant="outlined"
-                  value={formData.firstName}
-                  onChange={handleChangeInput}
-                  inputProps={{ maxLength: 25 }}
-                  required
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField
-                  id="outlined-basic"
-                  name="middleName"
-                  label="Middle Name"
-                  variant="outlined"
-                  value={formData.middleName}
-                  onChange={handleChangeInput}
-                  inputProps={{ maxLength: 25 }}
-                  // required
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField
-                  id="outlined-basic"
-                  name="lastName"
-                  label="Last Name"
-                  variant="outlined"
-                  value={formData.lastName}
-                  onChange={handleChangeInput}
-                  inputProps={{ maxLength: 25 }}
-                  // required
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField
-                  id="outlined-basic"
-                  name="phoneNumber"
-                  label="Phone No."
-                  variant="outlined"
-                  value={formData.phoneNumber}
-                  onChange={handleChangeInput}
-                  required
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <TextField
-                  id="outlined-basic"
-                  name="email"
-                  label="Email"
-                  variant="outlined"
-                  value={formData.email}
-                  onChange={handleChangeInput}
-                  inputProps={{ maxLength: 50 }}
-                  required
-                />
-              </Grid>
-
-              <Grid size={{ xs: 6 }}>
-                <TextField
-                  id="outlined-basic"
-                  name="noOfPeoples"
-                  label="No. of people"
-                  variant="outlined"
-                  value={formData.noOfPeoples}
-                  onChange={handleChangeInput}
-                  required
-                  inputProps={{ maxLength: 2 }}
-                />
-              </Grid>
-              <Grid size={{ xs: 6 }}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="From Date"
-                    disablePast
-                    format="DD-MM-YYYY"
-                    value={formData.fromDate}
-                    onChange={handleDateChange("fromDate")}
-                    slotProps={{
-                      textField: {
-                        readOnly: true,
-                      },
-                    }}
-                  />
-                </LocalizationProvider>
-              </Grid>
-
-              <Grid size={{ xs: 6 }}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="To Date"
-                    format="DD-MM-YYYY"
-                    value={formData.toDate}
-                    onChange={handleDateChange("toDate")}
-                    minDate={
-                      formData.fromDate
-                        ? dayjs(formData.fromDate)
-                        : // .add(1, "day")
-                          undefined
-                    }
-                    slotProps={{
-                      textField: {
-                        readOnly: true,
-                      },
-                    }}
-                  />
-                </LocalizationProvider>
-              </Grid>
-              <Grid
-                size={{
-                  xs: hotelDetails?.isAdvanceRequired ? 6 : 12,
-                }}
-              >
-                <TextField
-                  id="outlined-basic"
-                  name="address"
-                  label="Address"
-                  variant="outlined"
-                  value={formData.address}
-                  onChange={handleChangeInput}
-                  fullWidth
-                  inputProps={{ maxLength: 50 }}
-                  required
-                />
-              </Grid>
-
-              {hotelDetails?.isAdvanceRequired && (
+        <Box
+          sx={{
+            width: 500,
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+          }}
+          role="presentation"
+        >
+          <Box>
+            <Box
+              sx={{
+                p: 2,
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
+              <Typography sx={{ fontWeight: 550, fontSize: "1.5em" }}>
+                Booking Details
+                {/* ({hotelDetailsData?.hotelDto?.name}) */}
+              </Typography>
+              <IconButton onClick={toggleDrawer(false)}>
+                <CloseIcon />
+              </IconButton>
+            </Box>
+            <Divider />
+            <Box
+              component="form"
+              onSubmit={handleSubmitReserve}
+              sx={{
+                px: 2,
+                py: 2,
+                // , backgroundColor: "yellow"
+              }}
+            >
+              <Grid container size={12} spacing={2}>
                 <Grid size={{ xs: 6 }}>
                   <TextField
                     id="outlined-basic"
-                    name="advancePayment"
-                    label="Advance Payment "
+                    name="firstName"
+                    label="First Name"
                     variant="outlined"
-                    value={formData.advancePayment}
+                    value={formData.firstName}
                     onChange={handleChangeInput}
-                    fullWidth
-                    helperText={
-                      hotelDetails?.isAdvanceRequired &&
-                      calculateNumberOfDays > 0
-                        ? Number(formData.advancePayment) <
-                          Number(hotelDetails.advanceAmount) *
-                            calculateNumberOfDays
-                          ? `Please pay ₹${
-                              hotelDetails.advanceAmount * calculateNumberOfDays
-                            } in advance`
-                          : Number(formData.advancePayment) >
-                            Number(hotelDetails.basePrice) *
-                              calculateNumberOfDays
-                          ? `Advance amount cannot exceed ₹${
-                              hotelDetails.basePrice * calculateNumberOfDays
-                            }`
-                          : ""
-                        : ""
-                    }
+                    inputProps={{ maxLength: 25 }}
+                    required
                   />
                 </Grid>
-              )}
+                <Grid size={{ xs: 6 }}>
+                  <TextField
+                    id="outlined-basic"
+                    name="middleName"
+                    label="Middle Name"
+                    variant="outlined"
+                    value={formData.middleName}
+                    onChange={handleChangeInput}
+                    inputProps={{ maxLength: 25 }}
+                    // required
+                  />
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <TextField
+                    id="outlined-basic"
+                    name="lastName"
+                    label="Last Name"
+                    variant="outlined"
+                    value={formData.lastName}
+                    onChange={handleChangeInput}
+                    inputProps={{ maxLength: 25 }}
+                    // required
+                  />
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <TextField
+                    id="outlined-basic"
+                    name="phoneNumber"
+                    label="Phone No."
+                    variant="outlined"
+                    value={formData.phoneNumber}
+                    onChange={handleChangeInput}
+                    required
+                  />
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <TextField
+                    id="outlined-basic"
+                    name="email"
+                    label="Email"
+                    variant="outlined"
+                    value={formData.email}
+                    onChange={handleChangeInput}
+                    inputProps={{ maxLength: 50 }}
+                    required
+                  />
+                </Grid>
 
-              {/* <></> */}
-              {Boolean(userDetails?.data?.noOfRewardsPointsAvailable) &&
-                Boolean(calculateNumberOfDays) && (
+                <Grid size={{ xs: 6 }}>
+                  <TextField
+                    id="outlined-basic"
+                    name="noOfPeoples"
+                    label="No. of people"
+                    variant="outlined"
+                    value={formData.noOfPeoples}
+                    onChange={handleChangeInput}
+                    required
+                    inputProps={{ maxLength: 2 }}
+                  />
+                </Grid>
+                <Grid size={{ xs: 6 }}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="From Date"
+                      disablePast
+                      format="DD-MM-YYYY"
+                      value={formData.fromDate}
+                      onChange={handleDateChange("fromDate")}
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        },
+                      }}
+                    />
+                  </LocalizationProvider>
+                </Grid>
+
+                <Grid size={{ xs: 6 }}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      label="To Date"
+                      format="DD-MM-YYYY"
+                      value={formData.toDate}
+                      onChange={handleDateChange("toDate")}
+                      minDate={
+                        formData.fromDate
+                          ? dayjs(formData.fromDate)
+                          : // .add(1, "day")
+                            undefined
+                      }
+                      slotProps={{
+                        textField: {
+                          readOnly: true,
+                        },
+                      }}
+                    />
+                  </LocalizationProvider>
+                </Grid>
+                <Grid
+                  size={{
+                    xs: hotelDetails?.isAdvanceRequired ? 6 : 12,
+                  }}
+                >
+                  <TextField
+                    id="outlined-basic"
+                    name="address"
+                    label="Address"
+                    variant="outlined"
+                    value={formData.address}
+                    onChange={handleChangeInput}
+                    fullWidth
+                    inputProps={{ maxLength: 50 }}
+                    required
+                  />
+                </Grid>
+
+                {hotelDetails?.isAdvanceRequired && (
+                  <Grid size={{ xs: 6 }}>
+                    <TextField
+                      id="outlined-basic"
+                      name="advancePayment"
+                      label="Advance Payment "
+                      variant="outlined"
+                      value={formData.advancePayment}
+                      onChange={handleChangeInput}
+                      fullWidth
+                      helperText={
+                        hotelDetails?.isAdvanceRequired &&
+                        calculateNumberOfDays > 0
+                          ? Number(formData.advancePayment) <
+                            Number(hotelDetails.advanceAmount) *
+                              calculateNumberOfDays
+                            ? `Please pay ₹${
+                                hotelDetails.advanceAmount *
+                                calculateNumberOfDays
+                              } in advance`
+                            : Number(formData.advancePayment) >
+                              Number(hotelDetails.basePrice) *
+                                calculateNumberOfDays
+                            ? `Advance amount cannot exceed ₹${
+                                hotelDetails.basePrice * calculateNumberOfDays
+                              }`
+                            : ""
+                          : ""
+                      }
+                    />
+                  </Grid>
+                )}
+                {hotelDetails?.isAdvanceRequired && (
                   <Grid size={12}>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "flex-start",
-                      }}
-                    >
-                      <Typography variant="h6">Total Price: </Typography>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          flexDirection: "column",
-                        }}
-                      >
-                        {isClaimPoints && (
-                          <Typography variant="h6">
-                            Rs.{" "}
-                            {(
-                              hotelDetails.basePrice * calculateNumberOfDays -
-                                userDetails?.data?.rewardsPointPrice || 0
-                            ).toFixed(2)}
-                          </Typography>
-                        )}
-                        <Typography
-                          variant={isClaimPoints ? "body2" : "h6"}
-                          sx={{
-                            textDecoration: isClaimPoints
-                              ? "line-through"
-                              : "none",
-                          }}
-                        >
-                          Rs.{" "}
-                          {(
-                            calculateNumberOfDays * hotelDetails.basePrice
-                          ).toFixed(2)}
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box>
-                      <FormGroup>
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              defaultChecked
-                              size="small"
-                              checked={isClaimPoints}
-                              onChange={(e) =>
-                                setIsClaimPoints(e.target.checked)
-                              }
-                            />
-                          }
-                          label="Claim Points"
-                        />
-                      </FormGroup>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Typography variant="body1">
-                        Available Points:{" "}
-                      </Typography>
-                      <Typography variant="body1">
-                        {`${
-                          userDetails?.data?.noOfRewardsPointsAvailable || 0
-                        } (Rs. ${(
-                          userDetails?.data?.rewardsPointPrice || 0
-                        ).toFixed(2)})`}
+                    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                      <span style={{ color: "red" }}>*</span>
+                      <Typography sx={{ color: "gray" }}>
+                        18% GST applicable
                       </Typography>
                     </Box>
                   </Grid>
                 )}
 
-              <Grid size={{ xs: 12 }}>
-                <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-                  {!Boolean(hotelDetails?.isAdvanceRequired) && (
-                    <Button
-                      variant="contained"
-                      sx={{
-                        backgroundImage:
-                          "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
-                        backgroundColor: "inherit",
-                        color: "white",
-                        "&:hover": {
-                          backgroundImage:
-                            "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
-                        },
-                      }}
-                      type="submit"
-                    >
-                      Reserve
-                    </Button>
+                {Boolean(userDetails?.data?.noOfRewardsPointsAvailable) &&
+                  Boolean(calculateNumberOfDays) && (
+                    <Grid size={12}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "flex-start",
+                        }}
+                      >
+                        <Typography variant="h6">Total Price: </Typography>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            flexDirection: "column",
+                          }}
+                        >
+                          {isClaimPoints && (
+                            <Typography variant="h6">
+                              Rs.{" "}
+                              {(
+                                hotelDetails.basePrice * calculateNumberOfDays -
+                                  userDetails?.data?.rewardsPointPrice || 0
+                              ).toFixed(2)}
+                            </Typography>
+                          )}
+
+                          <Typography
+                            variant={isClaimPoints ? "body2" : "h6"}
+                            sx={{
+                              textDecoration: isClaimPoints
+                                ? "line-through"
+                                : "none",
+                            }}
+                          >
+                            Rs.{" "}
+                            {(
+                              calculateNumberOfDays * hotelDetails.basePrice
+                            ).toFixed(2)}
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box>
+                        <FormGroup>
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                defaultChecked
+                                size="small"
+                                checked={isClaimPoints}
+                                onChange={(e) =>
+                                  setIsClaimPoints(e.target.checked)
+                                }
+                              />
+                            }
+                            label="Claim Points"
+                          />
+                        </FormGroup>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <Typography variant="body1">
+                          Available Points:{" "}
+                        </Typography>
+                        <Typography variant="body1">
+                          {`${
+                            userDetails?.data?.noOfRewardsPointsAvailable || 0
+                          } (Rs. ${(
+                            userDetails?.data?.rewardsPointPrice || 0
+                          ).toFixed(2)})`}
+                        </Typography>
+                      </Box>
+                    </Grid>
                   )}
-                  {Boolean(hotelDetails?.isAdvanceRequired) && (
-                    <Button
-                      variant="contained"
-                      sx={{
-                        backgroundImage:
-                          "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
-                        backgroundColor: "inherit",
-                        color: "white",
-                        "&:hover": {
+
+                <Grid size={{ xs: 12 }}>
+                  <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                    {!Boolean(hotelDetails?.isAdvanceRequired) && (
+                      <Button
+                        variant="contained"
+                        sx={{
                           backgroundImage:
-                            "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
-                        },
+                            "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
+                          backgroundColor: "inherit",
+                          color: "white",
+                          "&:hover": {
+                            backgroundImage:
+                              "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
+                          },
+                        }}
+                        type="submit"
+                      >
+                        Reserve
+                      </Button>
+                    )}
+                    {Boolean(hotelDetails?.isAdvanceRequired) && (
+                      <Button
+                        variant="contained"
+                        sx={{
+                          backgroundImage:
+                            "linear-gradient(to right, #0acffe 0%, #495aff 100%)",
+                          backgroundColor: "inherit",
+                          color: "white",
+                          "&:hover": {
+                            backgroundImage:
+                              "linear-gradient(to right, #0acffe 10%, #495aff 90%)",
+                          },
+                        }}
+                        onClick={validateAndOpenPaymentDialog}
+                      >
+                        Pay and Reserve
+                      </Button>
+                    )}
+                  </Box>
+                </Grid>
+                <Grid size={{ xs: 12 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: 2,
+                      backgroundColor: "#6CB4EE",
+                      p: 2,
+                      borderRadius: "0.5rem",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        backgroundColor: "#F0F8FF",
+                        borderRadius: "50%",
+                        p: 1,
                       }}
-                      onClick={validateAndOpenPaymentDialog}
                     >
-                      Pay and Reserve
-                    </Button>
-                  )}
-                </Box>
+                      <PhoneIcon sx={{ color: "#899499	" }} />
+                    </Box>
+                    <Box>
+                      <Typography sx={{ fontWeight: "bold" }}>
+                        Contact Us :
+                      </Typography>
+                      <Typography>
+                        {hotelDetails?.hotelDto?.contactNos[0]}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Grid>
+                {Boolean(hotelDetails?.priceConfigurationDto?.length > 0) && (
+                  <Grid size={{ xs: 12 }}>
+                    <Box
+                    // sx={{ maxHeight: "100px", overflow: "auto" }}
+                    >
+                      <Box
+                        sx={{
+                          backgroundColor: "#b7410e",
+                          backgroundImage:
+                            " linear-gradient(316deg, #b7410e 0%, #FF5349 74%)",
+                          p: 1.4,
+                          borderRadius: "0.4rem",
+                        }}
+                      >
+                        <Typography sx={{ color: "#fff", fontWeight: "bold" }}>
+                          Lower Prices on these dates
+                        </Typography>
+                      </Box>
+                      {hotelDetails?.priceConfigurationDto.map(
+                        (item, index) => {
+                          return (
+                            <Paper
+                              sx={{
+                                display: "flex",
+                                gap: 2,
+                                mt: 0.4,
+                                p: 1,
+                                // boxShadow: " rgba(149, 157, 165, 0.2) 0px 8px 24px",
+                                backgroundColor: "#D3D3D3	",
+                              }}
+                            >
+                              <Typography>
+                                {/* {moment(item?.startDate).format(
+                                  "DD/MM/YYYY hh:mma"
+                                ) -
+                                  moment(item?.endDate).format(
+                                    "DD/MM/YYYY hh:mma"
+                                  )} */}
+                                {dayjs(item?.startDate).format("DD-MM-YYYY")} -{" "}
+                                {dayjs(item?.endDate).format("DD-MM-YYYY")}
+                                {/* {item?.startDate}-{item?.endDate} */}
+                              </Typography>
+                              <Typography>₹ {item?.price}</Typography>
+                            </Paper>
+                          );
+                        }
+                      )}
+                    </Box>
+                  </Grid>
+                )}
               </Grid>
-            </Grid>
+            </Box>
           </Box>
+
+          <Grid size={{ xs: 12 }}>
+            <Box
+              sx={{
+                backgroundColor: "rgba(63, 81, 181, 0.1)",
+                padding: "10px",
+                borderRadius: "8px",
+                boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.1)",
+                bottom: 0,
+                mt: "auto",
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: "1.2rem",
+                  fontWeight: "bold",
+                  color: "primary.main",
+                  textAlign: "center",
+                }}
+              >
+                {Boolean(hotelDetails?.rewardsPoints)
+                  ? `You have a total of ${hotelDetails?.rewardsPoints} reward points`
+                  : "You don't have any reward points"}
+              </Typography>
+            </Box>
+          </Grid>
         </Box>
       </Drawer>
       <LoadingComponent open={reserveHotelRoomRes.isLoading} />
@@ -2494,7 +3160,7 @@ export const PaymentDialog = memo(function ({
   setDrawerOpen = () => {},
   handleAfterSuccessFunction = () => {},
 }) {
-  console.log("amount", reservationPayload);
+  console.log("reservationPayload", reservationPayload);
   const [paymentMethod, setPaymentMethod] = React.useState("card");
   const [cardNumber, setCardNumber] = React.useState("");
   const [upiNumber, setUpiNumber] = React.useState("");
@@ -2541,6 +3207,7 @@ export const PaymentDialog = memo(function ({
 
   const handleSubmit = React.useCallback(
     async (e) => {
+      // debugger;
       e.preventDefault();
       const paymentDetail = paymentMethod === "card" ? cardNumber : upiNumber;
 
@@ -2937,6 +3604,7 @@ const HotelDetailsDialog = memo(function ({
   hotelDetailsData,
   toggleDrawer,
 }) {
+  // console.log("hotelDetailsData", hotelDetailsData);
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const goToPrevious = () => {
     setCurrentIndex((prevIndex) =>
@@ -3227,6 +3895,7 @@ const HotelDetailsDialog = memo(function ({
                 >
                   Details :
                 </Typography>
+                <Typography>{hotelDetailsData?.description}</Typography>
               </Box>
 
               <Grid container>
@@ -3268,7 +3937,13 @@ const HotelDetailsDialog = memo(function ({
   );
 });
 
-const CancelRoomDialog = ({ open, onClose, selectedBookingRefNumber }) => {
+const CancelRoomDialog = ({
+  open,
+  onClose,
+  selectedBookingRefNumber,
+  selectedBooking,
+}) => {
+  console.log("selectedBooking", selectedBooking?.roomType?.advanceAmount);
   const [rejectionReason, setRejectionReason] = React.useState("");
   const [cancelBooking, cancelBookingRes] = useCancelHotelRoomMutation();
   const [snack, setSnack] = React.useState({
@@ -3276,6 +3951,15 @@ const CancelRoomDialog = ({ open, onClose, selectedBookingRefNumber }) => {
     message: "",
     severity: "",
   });
+
+  // const advanceAmount = selectedBooking?.advanceAmount || 0;
+  // const cancellationFeePercentage =
+  //   selectedBooking?.cancellationFeePercentage || 0;
+
+  // const cancellationAmount = (advanceAmount * cancellationFeePercentage) / 100;
+  // const finalAmount = advanceAmount - cancellationAmount;
+
+  // console.log("Final Amount after cancellation:", advanceAmount);
 
   const handleDialogClose = () => {
     setRejectionReason("");
@@ -3350,6 +4034,27 @@ const CancelRoomDialog = ({ open, onClose, selectedBookingRefNumber }) => {
               </Typography>
             </Box>
             <Box sx={{ margin: "auto" }}>
+              {Boolean(selectedBooking?.roomType?.isAdvanceRequired) &&
+                Boolean(selectedBooking?.roomType?.cancellationFeePercentage) &&
+                Boolean(selectedBooking?.bookingStatus === "Booked") && (
+                  <Typography
+                    sx={{
+                      fontWeight: "bold",
+                      color: "red",
+                      fontSize: "0.9rem",
+                    }}
+                  >
+                    <sup>*</sup>
+                    Cancellation fee of ₹{" "}
+                    {(selectedBooking?.roomType?.advanceAmount *
+                      selectedBooking?.roomType?.cancellationFeePercentage) /
+                      100}{" "}
+                    will be deducted
+                    {/* <sup>*</sup> Cancellation fee of ₹ {finalAmount} will be */}
+                    {/* deducted */}
+                  </Typography>
+                )}
+
               <Typography
                 sx={{
                   fontFamily: "'Times New Roman', Times, serif",

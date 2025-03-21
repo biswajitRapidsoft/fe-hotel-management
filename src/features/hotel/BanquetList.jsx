@@ -14,7 +14,10 @@ import {
   Grid2 as Grid,
   TextField,
   Button,
+  IconButton,
 } from "@mui/material";
+
+import EditIcon from "@mui/icons-material/Edit";
 
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
@@ -26,10 +29,15 @@ import {
 import { ADMIN } from "../../helper/constants";
 
 const BanquetList = () => {
+  const [banquetToUpdate, setBanquettoUpdate] = React.useState(null);
   const [formData, setFormData] = React.useState({
     banquetType: "",
     perPlatePrice: "",
+    Capacity: "",
+    description: "",
   });
+
+  console.log("formData", formData);
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
@@ -54,6 +62,8 @@ const BanquetList = () => {
     setFormData({
       banquetType: "",
       perPlatePrice: "",
+      Capacity: "",
+      description: "",
     });
   }, []);
 
@@ -62,19 +72,23 @@ const BanquetList = () => {
       e.preventDefault();
 
       const payload = {
+        id: banquetToUpdate?.id || null,
         hotel: {
           id: Boolean(sessionStorage.getItem("hotelIdForBanquet"))
             ? sessionStorage.getItem("hotelIdForBanquet")
             : "",
         },
         perPlatePrice: formData.perPlatePrice,
-        type: formData.banquetType,
+        capacity: formData.Capacity,
+        type: formData.banquetType.trim(),
+        description: formData.description,
       };
       addBanquet(payload)
         .unwrap()
         .then((res) => {
           setSnack({ open: true, message: res.message, severity: "success" });
           handleResetForm();
+          setBanquettoUpdate(null);
         })
         .catch((err) => {
           setSnack({
@@ -84,11 +98,11 @@ const BanquetList = () => {
           });
         });
     },
-    [formData, handleResetForm, addBanquet]
+    [formData, handleResetForm, addBanquet, banquetToUpdate]
   );
 
   const handleChange = React.useCallback((e) => {
-    if (["perPlatePrice"].includes(e.target.name)) {
+    if (["perPlatePrice", "Capacity"].includes(e.target.name)) {
       setFormData((prevData) => ({
         ...prevData,
         [e.target.name]: e.target.value.replace(/\D/g, ""),
@@ -102,9 +116,21 @@ const BanquetList = () => {
   }, []);
 
   const isFormValid = React.useCallback(() => {
-    const { banquetType, perPlatePrice } = formData;
-    return Boolean(banquetType && perPlatePrice);
+    const { banquetType, perPlatePrice, Capacity } = formData;
+    return Boolean(banquetType && perPlatePrice && Capacity.trim());
   }, [formData]);
+
+  React.useEffect(() => {
+    if (banquetToUpdate) {
+      setFormData((prevData) => ({
+        ...prevData,
+        banquetType: banquetToUpdate.type,
+        perPlatePrice: banquetToUpdate.perPlatePrice,
+        Capacity: banquetToUpdate.capacity,
+        description: banquetToUpdate.description,
+      }));
+    }
+  }, [banquetToUpdate]);
 
   return (
     <Container>
@@ -200,6 +226,49 @@ const BanquetList = () => {
               variant="standard"
             />
           </Grid>
+          <Grid size={3}>
+            <TextField
+              label={
+                <React.Fragment>
+                  Capacity
+                  <Box
+                    component="span"
+                    sx={{
+                      color: (theme) => theme.palette.error.main,
+                    }}
+                  >
+                    *
+                  </Box>
+                </React.Fragment>
+              }
+              name="Capacity"
+              value={formData.Capacity}
+              onChange={handleChange}
+              variant="standard"
+            />
+          </Grid>
+          <Grid size={3}>
+            <TextField
+              label={
+                <React.Fragment>
+                  Description
+                  {/* <Box
+                    component="span"
+                    sx={{
+                      color: (theme) => theme.palette.error.main,
+                    }}
+                  >
+                    *
+                  </Box> */}
+                </React.Fragment>
+              }
+              inputProps={{ maxLength: 50 }}
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              variant="standard"
+            />
+          </Grid>
         </Grid>
 
         <Box
@@ -227,7 +296,7 @@ const BanquetList = () => {
             type="submit"
             disabled={!isFormValid()}
           >
-            Add Banquet
+            {Boolean(banquetToUpdate) ? "Update Banquet" : "Add Banquet"}
           </Button>
         </Box>
       </Box>
@@ -264,6 +333,9 @@ const BanquetList = () => {
                 <TableCell>Sl No.</TableCell>
                 <TableCell> Banquet Type</TableCell>
                 <TableCell>Price per plate</TableCell>
+                <TableCell>Capacity</TableCell>
+                <TableCell>Description</TableCell>
+                <TableCell>Action</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -277,10 +349,18 @@ const BanquetList = () => {
                         letterSpacing: 1,
                       },
                     }}
+                    key={item.id}
                   >
                     <TableCell> {index + 1}</TableCell>
                     <TableCell>{item?.type}</TableCell>
                     <TableCell>{item?.perPlatePrice}</TableCell>
+                    <TableCell>{item?.capacity}</TableCell>
+                    <TableCell>{item?.description}</TableCell>
+                    <TableCell>
+                      <IconButton onClick={() => setBanquettoUpdate(item)}>
+                        <EditIcon />
+                      </IconButton>
+                    </TableCell>
                   </TableRow>
                 );
               })}
