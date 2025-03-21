@@ -1709,6 +1709,39 @@ const RoomServiceCard = memo(function ({
                       </Grid>
                       <Grid size={9}>
                         <Grid container size={12}>
+                          {/* BOOKING REF NUMBER */}
+                          <Grid size={5}>
+                            <Typography
+                              sx={{
+                                fontSize: "15.5px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                              }}
+                            >
+                              Booking Ref.
+                            </Typography>
+                          </Grid>
+                          <Grid size={7}>
+                            <Typography
+                              sx={{
+                                fontSize: "15.5px",
+                                // color: "#707070",
+                                // fontWeight: 600,
+                              }}
+                            >
+                              <span
+                                style={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                  marginRight: "5px",
+                                }}
+                              >
+                                :
+                              </span>
+                              {isSelectedRoom?.bookingDto?.bookingRefNumber}
+                            </Typography>
+                          </Grid>
                           {/* NAME */}
                           <Grid size={5}>
                             <Typography
@@ -2772,6 +2805,39 @@ const RoomServiceCard = memo(function ({
                       </Grid>
                       <Grid size={9}>
                         <Grid container size={12}>
+                          {/* BOOKING REF NUMBER */}
+                          <Grid size={5}>
+                            <Typography
+                              sx={{
+                                fontSize: "15.5px",
+                                // color: "#707070",
+                                fontWeight: 600,
+                              }}
+                            >
+                              Booking Ref.
+                            </Typography>
+                          </Grid>
+                          <Grid size={7}>
+                            <Typography
+                              sx={{
+                                fontSize: "15.5px",
+                                // color: "#707070",
+                                // fontWeight: 600,
+                              }}
+                            >
+                              <span
+                                style={{
+                                  fontSize: "15.5px",
+                                  // color: "#707070",
+                                  fontWeight: 600,
+                                  marginRight: "5px",
+                                }}
+                              >
+                                :
+                              </span>
+                              {isSelectedRoom?.bookingDto?.bookingRefNumber}
+                            </Typography>
+                          </Grid>
                           {/* NAME */}
                           <Grid size={5}>
                             <Typography
