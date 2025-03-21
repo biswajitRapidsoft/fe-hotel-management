@@ -209,6 +209,24 @@ const hotelApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["getAllConfiguredPricesTableData"],
     }),
+    getLaundryItemByHotelId: build.query({
+      query: (payload) => ({
+        url: config.apiName.getLaundryItemTypeByHotelId,
+        method: "GET",
+        params: {
+          hotelId: payload.hotelId,
+        },
+      }),
+      providesTags: ["getLaundryItemByHotelId"],
+    }),
+    saveLaundryItem: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.saveLaundryItem,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getLaundryItemByHotelId", "getHotelListByCompany"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -237,4 +255,6 @@ export const {
   useUpdateConfiguredPricesMutation,
   useGetAllConfiguredPricesTableDataQuery,
   useUpdateConfigurationStatusMutation,
+  useGetLaundryItemByHotelIdQuery,
+  useSaveLaundryItemMutation,
 } = hotelApi;

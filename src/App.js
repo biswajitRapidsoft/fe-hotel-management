@@ -142,6 +142,9 @@ const CounterStaffDashboard = React.lazy(() =>
 );
 
 const RoomDineIn = React.lazy(() => import("./features/restaurant/RoomDineIn"));
+const LaundryItemList = React.lazy(() =>
+  import("./features/hotel/LaundryItemList")
+);
 
 function App() {
   const location = useLocation();
@@ -291,6 +294,7 @@ function App() {
             />
             <Route path="/Parking" element={<Parking />} />
             <Route path="/ParkingHistory" element={<ParkingHistory />} />
+            <Route path="/laundryItemList" element={<LaundryItemList />} />
           </Route>
         </Routes>
       </React.Suspense>

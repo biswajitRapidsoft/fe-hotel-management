@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -20,12 +20,14 @@ import {
   Paper,
   Autocomplete,
   Tooltip,
+  Divider,
 } from "@mui/material";
 import { jsPDF } from "jspdf";
 
 import ClearIcon from "@mui/icons-material/Clear";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ReceiptIcon from "@mui/icons-material/Receipt";
+import CloseIcon from "@mui/icons-material/Close";
 
 import { BootstrapDialog } from "../header/Header";
 import ChairIcon from "@mui/icons-material/Chair";
@@ -67,7 +69,7 @@ const CounterStaffDashboard = () => {
   const {
     data: tableListForCounterStaff = { data: [] },
     isLoading,
-    isFetching,
+    // isFetching,
   } = useGetAllTablesForCounterQuery(
     {
       hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
@@ -424,6 +426,14 @@ const OrderDetailsDialog = ({
     roomNumber: "",
     paymentType: null,
   });
+
+  const [isSplit, setIsSplit] = useState(false);
+
+  const [orderMapDtos, setOrderMapDtos] = useState([]);
+  const [customOrderMapDtos, setCustomOrderMapDtos] = useState([]);
+
+  console.log("customOrderMapDtos : ", customOrderMapDtos);
+
   const paymentOptions = [
     { id: 1, type: "Cash" },
     { id: 2, type: "Online" },
@@ -449,29 +459,63 @@ const OrderDetailsDialog = ({
           severity: "error",
         });
       });
-  }, [bookingDetails, formData]);
+  }, [bookingDetails, formData, setSnack]);
 
   const handleAssosciateWithRoom = React.useCallback(() => {
-    assosciateWithRoom({
-      orderId: orderDetailsDialog?.bookingRequestDto?.orderId,
-      bookingRefNo: bookingDetailsRes?.data?.data?.bookingRefNumber,
-    })
-      .unwrap()
-      .then((res) => {
-        setSnack({
-          open: true,
-          message: res.message,
-          severity: "success",
-        });
+    if (!isSplit) {
+      assosciateWithRoom({
+        isSplit: false,
+        orderId: orderDetailsDialog?.bookingRequestDto?.orderId,
+        bookingRefNo: bookingDetailsRes?.data?.data?.bookingRefNumber,
       })
-      .catch((err) => {
-        setSnack({
-          open: true,
-          message: err.data?.message || err.data,
-          severity: "error",
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            severity: "success",
+          });
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data,
+            severity: "error",
+          });
         });
-      });
-  }, [assosciateWithRoom, orderDetailsDialog, bookingDetailsRes]);
+    } else if (isSplit) {
+      assosciateWithRoom({
+        isSplit: true,
+        orderId: orderDetailsDialog?.bookingRequestDto?.orderId,
+        orderMapDtos: customOrderMapDtos?.map((item) => ({
+          bookingRefNo: item?.bookingRefNumber,
+          totalPrice: item?.payableAmount || 0,
+        })),
+      })
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            severity: "success",
+          });
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data,
+            severity: "error",
+          });
+        });
+    }
+  }, [
+    assosciateWithRoom,
+    orderDetailsDialog,
+    bookingDetailsRes,
+    setSnack,
+    isSplit,
+    customOrderMapDtos,
+  ]);
 
   const handleMakePaymentWithCash = React.useCallback(() => {
     const totalPrice = orderDetailsDialog?.bookingRequestDto?.totalPrice || 0;
@@ -498,7 +542,12 @@ const OrderDetailsDialog = ({
           severity: "error",
         });
       });
-  }, [completeOrder, orderDetailsDialog]);
+  }, [
+    completeOrder,
+    orderDetailsDialog,
+    setSnack,
+    handleCloseOrderDetailsDialog,
+  ]);
 
   const handleChange = React.useCallback((e, newValue, reason, details) => {
     if (reason === "selectOption" || reason === "clear") {
@@ -596,11 +645,55 @@ const OrderDetailsDialog = ({
     doc.save("restaurant_invoice.pdf");
   }, []);
 
+  const removeBookingByRefNumber = useCallback((refNumber) => {
+    setOrderMapDtos((prev) =>
+      prev.filter((item) => item.bookingRefNumber !== refNumber)
+    );
+  }, []);
+
+  useEffect(() => {
+    const bookingDataByRoomNo = bookingDetailsRes?.data?.data;
+    if (isSplit && bookingDataByRoomNo?.bookingRefNumber) {
+      setOrderMapDtos((prev) => {
+        const exists = prev.some(
+          (item) =>
+            item.bookingRefNumber === bookingDataByRoomNo?.bookingRefNumber
+        );
+
+        return exists ? prev : [...prev, bookingDataByRoomNo];
+      });
+      setFormData((prevData) => ({
+        ...prevData,
+        roomNumber: "",
+      }));
+    } else if (!isSplit) {
+      setOrderMapDtos([]);
+    }
+  }, [bookingDetailsRes, isSplit]);
+
+  useEffect(() => {
+    const totalPrice = orderDetailsDialog?.bookingRequestDto?.totalPrice ?? 0;
+    const gstPrice = orderDetailsDialog?.bookingRequestDto?.gstPrice ?? 0;
+    const totalAmount = totalPrice + gstPrice;
+
+    const updatedOrderDtos =
+      Array.isArray(orderMapDtos) && orderMapDtos.length > 0
+        ? orderMapDtos.map((item) => ({
+            ...item,
+            payableAmount: totalAmount / orderMapDtos.length,
+          }))
+        : [];
+    setCustomOrderMapDtos(updatedOrderDtos);
+  }, [orderMapDtos, orderDetailsDialog]);
+
   return (
     <>
       <BootstrapDialog
         open={Boolean(orderDetailsDialog)}
-        onClose={handleCloseOrderDetailsDialog}
+        onClose={() => {
+          handleCloseOrderDetailsDialog();
+          setIsSplit(false);
+        }}
         aria-labelledby="password-change-dialog-title"
         maxWidth="md"
         fullWidth
@@ -767,6 +860,23 @@ const OrderDetailsDialog = ({
                   />
                 </FormGroup>
               </Box>
+
+              {formData?.isAssosciateWithRoom && (
+                <Box sx={{ display: "flex" }}>
+                  <FormGroup>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={isSplit}
+                          name="split"
+                          onChange={() => setIsSplit((prev) => !prev)}
+                        />
+                      }
+                      label="Split"
+                    />
+                  </FormGroup>
+                </Box>
+              )}
 
               {formData.isAssosciateWithRoom && (
                 <Box sx={{ display: "flex", gap: 2 }}>
@@ -958,7 +1068,8 @@ const OrderDetailsDialog = ({
                 </Box>
               )}
             </Box>
-            {Boolean(bookingDetailsRes.isSuccess) &&
+            {!Boolean(isSplit) &&
+              Boolean(bookingDetailsRes.isSuccess) &&
               Boolean(formData.isAssosciateWithRoom) && (
                 <Paper
                   elevation={4}
@@ -1024,6 +1135,143 @@ const OrderDetailsDialog = ({
                   </Box>
                 </Paper>
               )}
+
+            {/* - - - - - - SOMYA  - - - - - -  */}
+
+            {Boolean(isSplit) && Boolean(customOrderMapDtos?.length > 0) && (
+              <>
+                {customOrderMapDtos?.map((item, index) => {
+                  return (
+                    <Paper
+                      key={`orderMapDtos-${index}`}
+                      elevation={4}
+                      sx={{
+                        p: 2,
+                        mt: 1,
+                        // boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          minWidth: "100%",
+                          position: "relative",
+                        }}
+                      >
+                        <Tooltip
+                          title="Remove"
+                          arrow
+                          sx={{ position: "inherit" }}
+                        >
+                          <IconButton
+                            onClick={() =>
+                              removeBookingByRefNumber(item?.bookingRefNumber)
+                            }
+                            size="small"
+                            sx={{
+                              bgcolor: "red",
+                              color: "white",
+                              position: "absolute",
+                              top: -12,
+                              right: -12,
+                              "&:hover": {
+                                bgcolor: "#ffcccc", // Slight red tint on hover
+                                color: "red",
+                              },
+                            }}
+                          >
+                            <CloseIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        <Typography
+                          sx={{
+                            fontWeight: "bold",
+                            color: (theme) => theme.palette.primary.main,
+                          }}
+                        >
+                          Name:
+                        </Typography>
+                        <Typography>{item?.firstName}</Typography>
+                      </Box>
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        <Typography
+                          sx={{
+                            fontWeight: "bold",
+                            color: (theme) => theme.palette.primary.main,
+                          }}
+                        >
+                          Booking Ref. Number:
+                        </Typography>
+                        <Typography>{item?.bookingRefNumber}</Typography>
+                      </Box>
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        <Typography
+                          sx={{
+                            fontWeight: "bold",
+                            color: (theme) => theme.palette.primary.main,
+                          }}
+                        >
+                          Phone Number:
+                        </Typography>
+                        <Typography>{item?.phoneNumber}</Typography>
+                      </Box>
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        <Typography
+                          sx={{
+                            fontWeight: "bold",
+                            color: (theme) => theme.palette.primary.main,
+                          }}
+                        >
+                          Booking Status:
+                        </Typography>
+                        <Typography>
+                          {item?.bookingStatus.split("_").join(" ")}
+                        </Typography>
+                      </Box>
+
+                      <Divider sx={{ my: 1 }} />
+
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            bgcolor: "#9fe6ff",
+                            display: "inline-block",
+                            px: 2,
+                            py: 0.5,
+                            borderRadius: "7px",
+                          }}
+                        >
+                          <Typography>
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontWeight: "bold",
+                                color: (theme) => theme.palette.primary.main,
+                              }}
+                            >
+                              Payable Amount:
+                            </Typography>
+                            <Typography component="span">
+                              {item?.payableAmount || 0}
+                            </Typography>
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Paper>
+                  );
+                })}
+              </>
+            )}
+
+            {/* - - - - - - SOMYA  - - - - - -  */}
             {Boolean(formData.isAssosciateWithRoom) &&
               Boolean(bookingDetailsRes.isSuccess) && (
                 <Box
