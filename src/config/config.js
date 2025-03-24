@@ -1,5 +1,5 @@
 const config = Object.freeze({
-  baseUrl: "http://192.168.12.37:9000/",
+  // baseUrl: "http://192.168.12.37:9000/",
   // baseUrl: "http://192.168.12.43:9000/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
   // baseUrl: "http://crimarrstaging.nyggs.com/backend/",
@@ -96,6 +96,7 @@ const config = Object.freeze({
     saveLaundryItem: "api/create/laundry/items",
     getAllKitchenStaff: "api/get/all/kitchen/service/users",
     assignKitchenStaff: "api/assign/kitchen/service/staff",
+    extendCheckout: "api/extend/check-out/date",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",

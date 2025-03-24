@@ -427,6 +427,14 @@ const dashboardApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["getRoomTypeUpgradePriceConfig"],
     }),
+    extendCheckout: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.extendCheckout,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllRoomListByHotelId"],
+    }),
   }),
 
   overrideExisting: false,
@@ -476,4 +484,5 @@ export const {
   useCreateTableMutation,
   useGetRoomTypeUpgradePriceConfigQuery,
   useUpgradeRoomRequestMutation,
+  useExtendCheckoutMutation,
 } = dashboardApi;
