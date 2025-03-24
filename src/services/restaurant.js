@@ -154,6 +154,24 @@ const restaurantApi = apiSlice.injectEndpoints({
         "getAllTablesForCounter",
       ],
     }),
+    getAllKitchenStaff: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllKitchenStaff,
+        method: "GET",
+        params: {
+          hotelId: payload?.hotelId,
+        },
+      }),
+      providesTags: ["getAllKitchenStaff"],
+    }),
+    assignServiceStaff: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.assignKitchenStaff,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllDineInRequestFromRoom"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -176,4 +194,6 @@ export const {
   useGetAllDineInRequestFromRoomQuery,
   useGetAllWaitersQuery,
   useAssignTableToWaiterMutation,
+  useGetAllKitchenStaffQuery,
+  useAssignServiceStaffMutation,
 } = restaurantApi;

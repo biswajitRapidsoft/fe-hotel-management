@@ -23,6 +23,7 @@ export const DELIVERED = "Delivered";
 export const CANCELLED = "Cancelled";
 export const REJECTED = "Rejected";
 export const RECEIVED_BY_WAITER = "Received_by_Waiter";
+export const READY_TO_SERVE = "Ready_to_serve";
 
 // ROLES
 export const SUPER_ADMIN = "Super_Admin";

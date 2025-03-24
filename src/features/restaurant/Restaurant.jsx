@@ -320,6 +320,12 @@ const Restaurant = () => {
     severity: "",
   });
 
+  const [customerFormData, setCustomerFormData] = React.useState({
+    customerName: "",
+    customerPhoneNumber: "",
+  });
+
+  console.log("customerFormData", customerFormData);
   const [search, setSearch] = React.useState("");
 
   // Added debouncedSearch state
@@ -329,7 +335,9 @@ const Restaurant = () => {
   const tableId = sessionStorage.getItem("tableId");
   const orderTakenBy = sessionStorage.getItem("orderTakenBy");
   const orderIdFromWaiter = sessionStorage.getItem("orderIdFromWaiter");
-
+  const OrderCreatedByCounterStaff = sessionStorage.getItem(
+    "OrderCreatedByCounterStaff"
+  );
   React.useEffect(() => {
     const timerId = setTimeout(() => {
       setDebouncedSearch(search);
@@ -548,7 +556,27 @@ const Restaurant = () => {
   );
 
   const handlePlaceOrder = React.useCallback(() => {
+    if (Boolean(OrderCreatedByCounterStaff)) {
+      if (!Boolean(customerFormData.customerName)) {
+        setSnack({
+          open: true,
+          message: "Please provide customer name ",
+          severity: "warning",
+        });
+        return;
+      } else if (!Boolean(customerFormData.customerPhoneNumber)) {
+        setSnack({
+          open: true,
+          message: "Please provide customer phone number",
+          severity: "warning",
+        });
+        return;
+      }
+    }
     orderFood({
+      isOrderByCounterStaff: Boolean(OrderCreatedByCounterStaff) ? true : false,
+      phoneNumber: customerFormData.customerPhoneNumber,
+      name: customerFormData.customerName,
       bookingRefNo: sessionStorage.getItem("bookingRefNumber"),
       hotelId:
         sessionStorage.getItem("hotelId") ||
@@ -559,7 +587,10 @@ const Restaurant = () => {
         itemId: item.id,
         noOfItems: item.quantity,
       })),
-      isStayingGuest: Boolean(tableId) ? false : true,
+      // isStayingGuest: Boolean(tableId ) ? false : true,
+      isStayingGuest:
+        Boolean(tableId) || Boolean(OrderCreatedByCounterStaff) ? false : true,
+
       tableId: tableId,
       orderTakenBy: { id: Number(orderTakenBy) },
       orderId: orderIdFromWaiter,
@@ -589,6 +620,11 @@ const Restaurant = () => {
         }
         setCartItems([]);
         setSelectedRestaurantCoupon(null);
+        setCustomerFormData((prevData) => ({
+          ...prevData,
+          customerName: "",
+          customerPhoneNumber: "",
+        }));
       })
       .catch((err) => {
         setSnack({
@@ -604,6 +640,7 @@ const Restaurant = () => {
     calculateTotalAmountOfCartItems,
     calculateDiscountOnOrder,
     selectedRestaurantCoupon,
+    customerFormData,
   ]);
 
   const handleChangeIsViewAllCouponsSelected = React.useCallback(() => {
@@ -630,6 +667,20 @@ const Restaurant = () => {
     },
     [handleChangeIsViewAllCouponsSelected, selectedRestaurantCoupon]
   );
+
+  const handleChangeCustomerFormData = React.useCallback((e) => {
+    if (["customerPhoneNumber"].includes(e.target.name)) {
+      setCustomerFormData((prevData) => ({
+        ...prevData,
+        [e.target.name]: e.target.value.replace(/\D/g, ""),
+      }));
+    } else {
+      setCustomerFormData((prevData) => ({
+        ...prevData,
+        [e.target.name]: e.target.value,
+      }));
+    }
+  }, []);
 
   return (
     <React.Fragment>
@@ -940,6 +991,78 @@ const Restaurant = () => {
                   })}
                 </Grid>
               </Box>
+              {Boolean(OrderCreatedByCounterStaff) && (
+                <Box
+                  sx={{
+                    ".MuiTextField-root": {
+                      width: "100%",
+                      backgroundColor: "transparent",
+                      ".MuiInputBase-root": {
+                        color: "#B4B4B4",
+                        background: "rgba(255, 255, 255, 0.25)",
+                      },
+                    },
+                    ".MuiFormLabel-root": {
+                      color: (theme) => theme.palette.primary.main,
+                      fontWeight: 600,
+                      fontSize: 14,
+                    },
+                    ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+                      borderBottom: (theme) =>
+                        `1px solid ${theme.palette.primary.main}`,
+                    },
+                    ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+                      borderBottom: (theme) =>
+                        `1px solid ${theme.palette.primary.main}`,
+                    },
+                    "& .MuiOutlinedInput-root": {
+                      height: "35px",
+                      minHeight: "35px",
+                    },
+                    "& .MuiInputBase-input": {
+                      padding: "13px",
+                      height: "100%",
+                      boxSizing: "border-box",
+                      fontSize: "13px",
+                    },
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 1,
+                  }}
+                >
+                  <TextField
+                    label="Customer Name"
+                    variant="outlined"
+                    size="small"
+                    name="customerName"
+                    value={customerFormData.customerName}
+                    // onChange={(e) =>
+                    //   setCustomerFormData((prev) => ({
+                    //     ...prev,
+                    //     customerName: e.target.value,
+                    //   }))
+                    // }
+                    onChange={handleChangeCustomerFormData}
+                  />
+
+                  <TextField
+                    label="Phone Number"
+                    variant="outlined"
+                    size="small"
+                    name="customerPhoneNumber"
+                    value={customerFormData.customerPhoneNumber}
+                    inputProps={{ maxLength: 10 }}
+                    // onChange={(e) =>
+                    //   setCustomerFormData((prev) => ({
+                    //     ...prev,
+                    //     customerPhoneNumber: e.target.value,
+                    //   }))
+                    // }
+                    onChange={handleChangeCustomerFormData}
+                  />
+                </Box>
+              )}
+
               <Divider sx={{ mt: 1 }} />
               {Boolean(allRestaurantPromocodeByHotelIdData?.data?.length) && (
                 <>
@@ -1105,8 +1228,15 @@ const Restaurant = () => {
 
             {!Boolean(tableId) && (
               <FormGroup row>
-                {dineTypes.data.map((option) => {
-                  return (
+                {dineTypes.data
+                  // .filter(
+                  //   (option) =>
+                  //     !(
+                  //       Boolean(OrderCreatedByCounterStaff) &&
+                  //       option === "Room_Delivery"
+                  //     )
+                  // )
+                  .map((option) => (
                     <FormControlLabel
                       key={option}
                       control={
@@ -1119,8 +1249,7 @@ const Restaurant = () => {
                       }
                       label={option.replace("_", " ")}
                     />
-                  );
-                })}
+                  ))}
               </FormGroup>
             )}
 
@@ -1514,7 +1643,7 @@ const FoodDetailsDialog = memo(function ({
     setCurrentIndex(index);
   };
 
-  console.log("length", foodDetailsData?.imageList?.length);
+  // console.log("length", foodDetailsData?.imageList?.length);
   return (
     <Dialog
       TransitionComponent={Transition}

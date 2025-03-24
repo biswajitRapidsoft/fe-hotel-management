@@ -32,25 +32,52 @@ import {
   useGetAllTablesForCounterQuery,
   useGetAllWaitersQuery,
   useAssignTableToWaiterMutation,
+  useCompleteFoodOrderMutation,
+  useGetAllKitchenStaffQuery,
+  useAssignServiceStaffMutation,
 } from "../../services/restaurant";
 import moment from "moment";
 import {
   CANCELLED,
   DELIVERED,
   // KITCHENSTAFF,
-  // ORDER_PLACED,
+  ORDER_PLACED,
+  READY_TO_SERVE,
   REJECTED,
 } from "../../helper/constants";
+import { useNavigate } from "react-router-dom";
+import { PaymentDialog } from "../dashboard/GuestDashboard";
+
 const RoomDineIn = () => {
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
     severity: "",
   });
+  const [completeOrder, completeOrderRes] = useCompleteFoodOrderMutation();
+
   const [updateStatusDialog, setUpdateStatusDialog] = React.useState();
   const [assignTableToWaiter, assignTableToWaiterRes] =
     useAssignTableToWaiterMutation();
+  const [assignServiceStaff, assignServiceStaffRes] =
+    useAssignServiceStaffMutation();
+  const [openPaymentDialog, setOpenPaymentDialog] = React.useState(false);
+  const [makePartialPaymentPayload, setMakePartialPaymentPayload] =
+    React.useState(null);
 
+  const [assignStaffDialog, setAssignStaffDialog] = React.useState();
+
+  const handlePayment = React.useCallback((item) => {
+    const totalPrice = item?.totalPrice || 0;
+    const gstPrice = item?.gstPrice || 0;
+
+    const payload = {
+      paidAmount: totalPrice + gstPrice,
+      orderId: item?.orderId,
+    };
+    setMakePartialPaymentPayload(payload);
+    setOpenPaymentDialog(true);
+  }, []);
   const {
     data: roomDineInTableList = { data: [] },
     isLoading: isroomDineInTableListLoading,
@@ -68,29 +95,66 @@ const RoomDineIn = () => {
     userId: JSON.parse(sessionStorage.getItem("data")).id,
   });
 
+  const { data: serviceStaffList = { data: [] } } = useGetAllKitchenStaffQuery({
+    hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
+  });
+
   const { data: waiterList = { data: [] } } = useGetAllWaitersQuery({
     hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
   });
 
+  const navigate = useNavigate();
+
   return (
     <React.Fragment>
       <Paper>
-        <Toolbar
-          sx={[
-            {
-              pl: { sm: 2 },
-              pr: { xs: 1, sm: 1 },
-            },
-          ]}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
         >
-          {" "}
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: "bold", letterSpacing: 1 }}
+          <Toolbar
+            sx={[
+              {
+                pl: { sm: 2 },
+                pr: { xs: 1, sm: 1 },
+              },
+            ]}
           >
-            Room Dine-In List
-          </Typography>
-        </Toolbar>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", letterSpacing: 1 }}
+            >
+              Room Dine-In List
+            </Typography>
+          </Toolbar>
+          <Box>
+            <Button
+              color="secondary"
+              variant="contained"
+              size="small"
+              sx={{
+                color: "#fff",
+                fontWeight: 600,
+                textTransform: "none",
+                fontSize: 18,
+                "&.Mui-disabled": {
+                  background: "#B2E5F6",
+                  color: "#FFFFFF",
+                },
+              }}
+              onClick={() => {
+                sessionStorage.setItem("isStayingGuest", false);
+                sessionStorage.setItem("OrderCreatedByCounterStaff", true);
+                navigate("/resturant");
+              }}
+            >
+              Place Order
+            </Button>
+          </Box>
+        </Box>
         <TableContainer>
           <Table>
             <TableHead>
@@ -124,6 +188,10 @@ const RoomDineIn = () => {
                     item={item}
                     index={index}
                     setUpdateStatusDialog={setUpdateStatusDialog}
+                    setMakePartialPaymentPayload={setMakePartialPaymentPayload}
+                    setOpenPaymentDialog={setOpenPaymentDialog}
+                    handlePayment={handlePayment}
+                    setAssignStaffDialog={setAssignStaffDialog}
                   />
                 );
               })}
@@ -141,13 +209,33 @@ const RoomDineIn = () => {
         assignTableToWaiter={assignTableToWaiter}
       />
 
+      <AssignStaffDialog
+        assignStaffDialog={assignStaffDialog}
+        setAssignStaffDialog={setAssignStaffDialog}
+        serviceStaffList={serviceStaffList}
+        handleClose={() => setAssignStaffDialog(null)}
+        assignServiceStaff={assignServiceStaff}
+        setSnack={setSnack}
+      />
+      <PaymentDialog
+        openPaymentDialog={openPaymentDialog}
+        handlePaymentDialogClose={() => setOpenPaymentDialog(false)}
+        reservationPayload={makePartialPaymentPayload}
+        setSnack={setSnack}
+        reserveHotelRoom={completeOrder}
+        // handleAfterSuccessFunction={() => {
+        //   handleCloseOrderDetailsDialog();
+        // }}
+      />
       <LoadingComponent
         open={
           // isLoading ||
           isroomDineInTableListLoading ||
           isRoomDineInTableListFetching ||
           istableListForCounterStaffLoading ||
-          assignTableToWaiterRes.isLoading
+          assignTableToWaiterRes.isLoading ||
+          completeOrderRes.isLoading ||
+          assignServiceStaffRes.isLoading
         }
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
@@ -155,7 +243,16 @@ const RoomDineIn = () => {
   );
 };
 
-const Row = ({ item, index, setUpdateStatusDialog }) => {
+const Row = ({
+  item,
+  index,
+  setUpdateStatusDialog,
+  // setOpenPaymentDialog,
+  // setMakePartialPaymentPayload,
+  handlePayment,
+  setAssignStaffDialog,
+}) => {
+  console.log("foodBookingStatus", item?.foodBookingStatus);
   const [open, setOpen] = React.useState(false);
   return (
     <React.Fragment>
@@ -188,7 +285,7 @@ const Row = ({ item, index, setUpdateStatusDialog }) => {
               letterSpacing: 1,
             }}
           >
-            CREATED
+            {item?.foodBookingStatus}
           </Typography>
         </TableCell>{" "}
         <TableCell>
@@ -201,17 +298,17 @@ const Row = ({ item, index, setUpdateStatusDialog }) => {
         <TableCell sx={{ p: 0 }} colSpan={8}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ p: 2, backgroundColor: "#f4f4f4" }}>
-              {item.bookingDetails.isRated && (
+              {item?.bookingDetails?.isRated && (
                 <Box sx={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <Box>
                     <Typography component="legend">Rating</Typography>
                     <Rating
                       size="large"
-                      value={item.bookingDetails.ratingPoints}
+                      value={item?.bookingDetails?.ratingPoints}
                       disabled
                     />
                   </Box>
-                  <Typography>{item.bookingDetails.ratingMessage}</Typography>
+                  <Typography>{item?.bookingDetails?.ratingMessage}</Typography>
                 </Box>
               )}
               <Table size="small">
@@ -251,9 +348,31 @@ const Row = ({ item, index, setUpdateStatusDialog }) => {
                   })}
                 </TableBody>
               </Table>
-              {![DELIVERED, CANCELLED, REJECTED].includes(
-                item.bookingDetails.foodBookingStatus
-              ) && (
+              {[DELIVERED, CANCELLED, REJECTED, ORDER_PLACED].includes(
+                item?.foodBookingStatus
+              ) &&
+                item?.dinningType !== "Room_Delivery" && (
+                  <Button
+                    sx={{
+                      display: "block",
+                      mx: "auto",
+                      mt: 2,
+                      mb: 1,
+                      textTransform: "none",
+                      fontSize: 18,
+                      fontWeight: 600,
+                      px: 3,
+                      letterSpacing: 1,
+                    }}
+                    variant="outlined"
+                    color="secondary"
+                    onClick={() => setUpdateStatusDialog(item)}
+                  >
+                    Update Status
+                  </Button>
+                )}
+
+              {item?.foodBookingStatus === READY_TO_SERVE && (
                 <Button
                   sx={{
                     display: "block",
@@ -268,9 +387,29 @@ const Row = ({ item, index, setUpdateStatusDialog }) => {
                   }}
                   variant="outlined"
                   color="secondary"
-                  onClick={() => setUpdateStatusDialog(item)}
+                  onClick={() => handlePayment(item)}
                 >
-                  Update Status
+                  Proceed to Payment
+                </Button>
+              )}
+              {item?.dinningType === "Room_Delivery" && (
+                <Button
+                  sx={{
+                    display: "block",
+                    mx: "auto",
+                    mt: 2,
+                    mb: 1,
+                    textTransform: "none",
+                    fontSize: 18,
+                    fontWeight: 600,
+                    px: 3,
+                    letterSpacing: 1,
+                  }}
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => setAssignStaffDialog(item)}
+                >
+                  Assign Staff
                 </Button>
               )}
             </Box>
@@ -549,6 +688,231 @@ function FormDialog({
             type="submit"
           >
             Update Status
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </React.Fragment>
+  );
+}
+
+function AssignStaffDialog({
+  assignStaffDialog,
+  setAssignStaffDialog,
+  serviceStaffList,
+  handleClose,
+  assignServiceStaff,
+  setSnack,
+}) {
+  const [selectedServiceStaff, setSelectedServiceStaff] = React.useState(null);
+  console.log("selectedServiceStaff", selectedServiceStaff);
+  const [selectedServiceStaffInputVal, setSelectedServiceStaffInputVal] =
+    React.useState("");
+
+  const handleSubmitAssignStaffForm = React.useCallback(
+    (e) => {
+      e.preventDefault();
+      assignServiceStaff({
+        orderId: assignStaffDialog?.orderId,
+        orderTakenBy: {
+          id: selectedServiceStaff?.id,
+        },
+      })
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            severity: "success",
+          });
+          handleClose();
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data,
+            severity: "error",
+          });
+        });
+    },
+    [assignServiceStaff, assignStaffDialog, setSnack, handleClose]
+  );
+  return (
+    <React.Fragment>
+      <Dialog
+        maxWidth="md"
+        fullWidth
+        open={Boolean(assignStaffDialog)}
+        onClose={handleClose}
+        PaperProps={{
+          component: "form",
+          onSubmit: handleSubmitAssignStaffForm,
+          sx: {
+            ".MuiTextField-root": {
+              width: "100%",
+              backgroundColor: "transparent",
+              ".MuiInputBase-root": {
+                color: "#7A7A7A",
+              },
+            },
+            ".MuiFormLabel-root": {
+              color: (theme) => `${theme.palette.primary.main} !important`,
+              fontWeight: 600,
+              fontSize: 18,
+            },
+            ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+              borderBottom: (theme) =>
+                `1px solid ${theme.palette.primary.main} !important`,
+            },
+            ".css-iwxl7s::before": {
+              borderBottom: (theme) =>
+                `1px solid ${theme.palette.primary.main} !important`,
+            },
+            ".css-3zi3c9-MuiInputBase-root-MuiInput-root:after": {
+              borderBottom: "1px solid #fff !important",
+            },
+            ".css-iwxl7s::after": {
+              borderBottom: "1px solid #fff !important",
+            },
+            ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+              borderBottom: (theme) =>
+                `1px solid ${theme.palette.primary.main} !important`,
+            },
+            ".css-1kbklr8::before": {
+              borderBottom: (theme) =>
+                `1px solid ${theme.palette.primary.main} !important`,
+            },
+            ".css-iwadjf-MuiInputBase-root-MuiInput-root:after": {
+              borderBottom: "1px solid #fff !important",
+            },
+            ".css-1kbklr8::after": {
+              borderBottom: "1px solid #fff !important",
+            },
+          },
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 600, fontSize: 24 }}>
+          Assign Staff
+          <Typography sx={{ fontWeight: 600, color: "#7A7A7A" }}>
+            {assignStaffDialog?.orderId}
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ py: 2 }}>
+            <TableContainer>
+              <Table stickyHeader>
+                <TableHead>
+                  <TableRow
+                    sx={{
+                      ".MuiTableCell-root": {
+                        fontWeight: "bold",
+                        fontSize: "1rem",
+                        letterSpacing: 1,
+                        backgroundColor: "#f5f5f5",
+                      },
+                    }}
+                  >
+                    <TableCell>Sl. No.</TableCell>
+                    <TableCell>Item Name</TableCell>
+                    <TableCell>Quantity</TableCell>
+                    <TableCell>Delivered</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {assignStaffDialog?.trailData?.map((item, index) => {
+                    return (
+                      <>
+                        <TableRow key={index}>
+                          <TableCell>{index + 1}</TableCell>
+                          <TableCell>{item?.itemName}</TableCell>
+                          <TableCell>{item?.noOfItems}</TableCell>
+                          <TableCell>
+                            {Boolean(item?.isDelivered) ? "Yes" : "No"}
+                          </TableCell>
+                        </TableRow>
+                      </>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+          <Grid container rowSpacing={2}>
+            <Grid size={6}>
+              <Autocomplete
+                options={serviceStaffList?.data}
+                getOptionLabel={(option) => option?.name}
+                value={selectedServiceStaff}
+                onChange={(e, newVal) => setSelectedServiceStaff(newVal)}
+                inputValue={selectedServiceStaffInputVal}
+                onInputChange={(e, newVal) =>
+                  setSelectedServiceStaffInputVal(newVal || "")
+                }
+                clearOnEscape
+                popupIcon={<KeyboardArrowDownIcon color="primary" />}
+                sx={{
+                  "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover": {
+                    backgroundColor: "#E9E5F1",
+                    color: "#280071",
+                    fontWeight: 600,
+                  },
+                }}
+                clearIcon={<ClearIcon color="primary" />}
+                PaperComponent={(props) => (
+                  <Paper
+                    sx={{
+                      background: "#fff",
+                      color: "#B4B4B4",
+                      borderRadius: "10px",
+                    }}
+                    {...props}
+                  />
+                )}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label={
+                      <>
+                        Select Staff
+                        <Box
+                          component="span"
+                          sx={{
+                            color: (theme) => theme.palette.secondary.main,
+                          }}
+                        >
+                          *
+                        </Box>
+                      </>
+                    }
+                    variant="standard"
+                  />
+                )}
+              />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            color="secondary"
+            variant="contained"
+            sx={{
+              display: "block",
+              mx: "auto",
+              mb: 1,
+              color: "#fff",
+              fontWeight: 600,
+              textTransform: "none",
+              fontSize: 16,
+              mt: 1.5,
+              "&.Mui-disabled": {
+                background: "#B2E5F6",
+                color: "#FFFFFF",
+              },
+            }}
+            size="small"
+            // disabled={!Boolean(selectedWaiter && selectedTable)}
+            type="submit"
+          >
+            Assign Staff
           </Button>
         </DialogActions>
       </Dialog>

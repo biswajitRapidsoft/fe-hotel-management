@@ -186,9 +186,9 @@ const CounterStaffDashboard = () => {
         reservationPayload={makePartialPaymentPayload}
         setSnack={setSnack}
         reserveHotelRoom={completeOrder}
-        // handleAfterSuccessFunction={() => {
-        //   onClose();
-        // }}
+        handleAfterSuccessFunction={() => {
+          handleCloseOrderDetailsDialog();
+        }}
       />
 
       <LoadingComponent
@@ -463,10 +463,19 @@ const OrderDetailsDialog = ({
 
   const handleAssosciateWithRoom = React.useCallback(() => {
     if (!isSplit) {
+      const totalPrice = orderDetailsDialog?.bookingRequestDto?.totalPrice ?? 0;
+      const gstPrice = orderDetailsDialog?.bookingRequestDto?.gstPrice ?? 0;
+      const totalAmount = totalPrice + gstPrice;
       assosciateWithRoom({
         isSplit: false,
         orderId: orderDetailsDialog?.bookingRequestDto?.orderId,
         bookingRefNo: bookingDetailsRes?.data?.data?.bookingRefNumber,
+        orderMapDtos: [
+          {
+            bookingRefNo: bookingDetailsRes?.data?.data?.bookingRefNumber,
+            totalPrice: totalAmount || 0,
+          },
+        ],
       })
         .unwrap()
         .then((res) => {
@@ -475,6 +484,7 @@ const OrderDetailsDialog = ({
             message: res.message,
             severity: "success",
           });
+          handleCloseOrderDetailsDialog();
         })
         .catch((err) => {
           setSnack({
@@ -499,6 +509,7 @@ const OrderDetailsDialog = ({
             message: res.message,
             severity: "success",
           });
+          handleCloseOrderDetailsDialog();
         })
         .catch((err) => {
           setSnack({

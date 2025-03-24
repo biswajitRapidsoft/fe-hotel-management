@@ -178,7 +178,7 @@ const sideBarMenuOptions = [
     isLibraryIcon: true,
     menuIcon: <ChecklistIcon style={{ color: "#fff" }} />,
     menuIconAlt: "Activity Logo",
-    menuTitle: "Room Dine-In  ",
+    menuTitle: "Order History  ",
     visibility: [COUNTER_STAFF],
   },
 ];
