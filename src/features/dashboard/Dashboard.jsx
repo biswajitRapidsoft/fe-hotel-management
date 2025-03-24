@@ -69,6 +69,7 @@ import {
   useGetKeysDataQuery,
   useGetRoomTypeUpgradePriceConfigQuery,
   useUpgradeRoomRequestMutation,
+  useExtendCheckoutMutation,
 } from "../../services/dashboard";
 import { checkRoomStatusType } from "../../helper/helperFunctions";
 import moment from "moment";
@@ -1434,6 +1435,7 @@ const RoomServiceCard = memo(function ({
   handleRoomCleanRequest,
   handleOpenShowcaseModalForLaundry,
   handleAssignNewKey,
+  setExtendCheckoutDrawer,
 }) {
   const navigate = useNavigate();
   const {
@@ -3467,6 +3469,30 @@ const RoomServiceCard = memo(function ({
             </Button>
           )}
 
+          {/* EXTEND CHECKOUT CASE */}
+
+          {Boolean(
+            Boolean(isSelectedRoom?.bookingDto?.bookingStatus === "Checked_In")
+          ) && (
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => setExtendCheckoutDrawer(isSelectedRoom)}
+              sx={{
+                backgroundImage:
+                  "linear-gradient(to right, #a4508b 0%, #5f0a87 100%)",
+                color: "white",
+                "&:hover": {
+                  backgroundImage:
+                    "linear-gradient(to right, #a4508b 10%, #5f0a87 90%)",
+                },
+              }}
+              fullWidth
+            >
+              Extend Checkout
+            </Button>
+          )}
+
           {/* UPGRADE ROOM  */}
           {isSelectedRoom?.bookingDto &&
             selectedRoomStatusType?.key === RESERVED?.key && (
@@ -3986,7 +4012,7 @@ const RoomUpgradeDrawer = memo(function ({
           : 0
       );
     }
-  }, [selectedUpgrade, isSelectedRoom]);
+  }, [selectedUpgrade, isSelectedRoom, setAmountToPay, setApiPayload]);
 
   return (
     <Drawer
@@ -4675,6 +4701,294 @@ const RoomUpgradeDrawer = memo(function ({
                 : "UPGRADE NOW"}
             </Button>
           )}
+        </Box>
+      </Box>
+    </Drawer>
+  );
+});
+
+const ExtendCheckoutDrawer = memo(function ({
+  open,
+  onClose,
+  isSelectedRoom,
+  handleExtendCheckout,
+}) {
+  console.log(isSelectedRoom, "isExtendCheckout");
+  const [checkInDate, setCheckInDate] = React.useState(null);
+  const [checkoutDate, setCheckoutDate] = React.useState(null);
+
+  React.useEffect(() => {
+    if (isSelectedRoom) {
+      setCheckInDate(
+        dayjs(
+          new Date(
+            isSelectedRoom.bookingDto.fromDate.split("-").reverse().join("-")
+          )
+        )
+      );
+      setCheckoutDate(
+        dayjs(
+          new Date(
+            isSelectedRoom.bookingDto.toDate.split("-").reverse().join("-")
+          )
+        )
+      );
+    }
+  }, [isSelectedRoom]);
+
+  return (
+    <Drawer
+      anchor="right"
+      open={open}
+      onClose={() => {
+        onClose();
+      }}
+      sx={{ zIndex: 1300 }}
+    >
+      <Box Box sx={{ width: 500, paddingBottom: "15px" }} role="presentation">
+        <Box
+          sx={{
+            px: 2,
+
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <Typography sx={{ fontWeight: 550, fontSize: "1.5em" }}>
+            Extend Checkout
+          </Typography>
+          <IconButton
+            onClick={() => {
+              onClose();
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </Box>
+        <Divider sx={{ mb: 1 }} />
+        <Box sx={{ px: 2 }}>
+          <Grid container size={12} spacing={1}>
+            <Grid size={12}>
+              <Grid container size={12}>
+                <Grid size={4}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Booking Ref. No.
+                  </Typography>
+                </Grid>
+                <Grid size={8}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {isSelectedRoom?.bookingDto?.bookingRefNumber || ""}
+                    </Typography>
+                  </Typography>
+                </Grid>
+                <Grid size={12}></Grid>
+                {/* STAYERS */}
+                <Grid size={2}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    Stayers
+                  </Typography>
+                </Grid>
+                <Grid size={1}>
+                  <Typography
+                    sx={{
+                      fontSize: "15.5px",
+                      // color: "#707070",
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        fontWeight: 600,
+                        marginRight: "5px",
+                      }}
+                    >
+                      :
+                    </Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        fontSize: "15.5px",
+                        // color: "#707070",
+                        // fontWeight: 600,
+                      }}
+                    >
+                      {isSelectedRoom?.bookingDto?.noOfPeoples || 0}
+                    </Typography>
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid size={12}>
+              <Grid container>
+                <Grid size={6}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      disabled
+                      value={checkInDate}
+                      onChange={(newVal) => setCheckInDate(newVal)}
+                      slotProps={{
+                        textField: {
+                          variant: "standard",
+                          size: "small",
+                          readOnly: true,
+                          label: "Check-In Date",
+                          sx: {
+                            "& .MuiOutlinedInput-root": {
+                              borderRadius: 2,
+                              backgroundColor: "rgba(255, 255, 255, 0.25)",
+                              color: "#B4B4B4",
+                            },
+                            "& .MuiTextField-root": {
+                              width: "100%",
+                              backgroundColor: "transparent",
+                            },
+                            "& .MuiFormLabel-root": {
+                              fontSize: 15,
+                              mt: 0.5,
+                            },
+                            "& input": {
+                              fontSize: "13px", // Date font size
+                            },
+                          },
+                        },
+                      }}
+                      slots={{
+                        openPickerIcon: StyledCalendarIcon,
+                      }}
+                      format="DD-MM-YYYY"
+                    />
+                  </LocalizationProvider>
+                </Grid>
+                <Grid size={6}>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      disablePast
+                      value={checkoutDate}
+                      minDate={
+                        isSelectedRoom
+                          ? dayjs(
+                              new Date(
+                                isSelectedRoom.bookingDto?.toDate
+                                  .split("-")
+                                  .reverse()
+                                  .join("-")
+                              )
+                            )
+                          : null
+                      }
+                      onChange={(newVal) => setCheckoutDate(newVal)}
+                      slotProps={{
+                        textField: {
+                          variant: "standard",
+                          size: "small",
+                          readOnly: true,
+                          label: "Check-Out Date",
+                          sx: {
+                            "& .MuiOutlinedInput-root": {
+                              borderRadius: 2,
+                              backgroundColor: "rgba(255, 255, 255, 0.25)",
+                              color: "#B4B4B4",
+                            },
+                            "& .MuiTextField-root": {
+                              width: "100%",
+                              backgroundColor: "transparent",
+                            },
+                            "& .MuiFormLabel-root": {
+                              fontSize: 15,
+                              mt: 0.5,
+                            },
+                            "& input": {
+                              fontSize: "13px", // Date font size
+                            },
+                          },
+                        },
+                      }}
+                      slots={{
+                        openPickerIcon: StyledCalendarIcon,
+                      }}
+                      format="DD-MM-YYYY"
+                    />
+                  </LocalizationProvider>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Box sx={{ mt: 2 }}>
+            {isSelectedRoom?.bookingDto.toDate !==
+              moment(checkoutDate?.$d).format("DD-MM-YYYY") && (
+              <Button
+                variant="contained"
+                sx={{
+                  backgroundImage:
+                    "linear-gradient(to right, #a4508b 0%, #5f0a87 100%)",
+                  color: "white",
+                  "&:hover": {
+                    backgroundImage:
+                      "linear-gradient(to right, #a4508b 10%, #5f0a87 90%)",
+                  },
+                }}
+                onClick={() =>
+                  handleExtendCheckout(
+                    isSelectedRoom?.bookingDto?.bookingRefNumber,
+                    moment(checkoutDate.$d).format("DD-MM-YYYY"),
+                    (new Date(
+                      moment(checkoutDate.$d).format("YYYY-MM-DD")
+                    ).getTime() -
+                      new Date(
+                        isSelectedRoom?.bookingDto.toDate
+                          .split("-")
+                          .reverse()
+                          .join("-")
+                      ).getTime()) /
+                      (1000 * 3600 * 24),
+                    isSelectedRoom?.bookingDto?.roomType?.basePrice || 0
+                  )
+                }
+              >
+                Extend Checkout
+              </Button>
+            )}
+          </Box>
         </Box>
       </Box>
     </Drawer>
@@ -8871,7 +9185,9 @@ const Dashboard = () => {
   const [apiPayload, setApiPayload] = React.useState({});
   const [upgradeRoomRequest, upgradeRoomRequestRes] =
     useUpgradeRoomRequestMutation();
+  const [extendCheckout, extendCheckoutRes] = useExtendCheckoutMutation();
   console.log(roomUpgradeDrawer, "roomUpgradeDrawerrrr");
+  const [extendCheckoutDrawer, setExtendCheckoutDrawer] = React.useState(null);
   const [roomFilters, setRoomFilters] = React.useState({
     roomStatus: null,
     searchKey: "",
@@ -9306,7 +9622,36 @@ const Dashboard = () => {
           severity: "error",
         });
       });
-  }, [apiPayload]);
+  }, [apiPayload, upgradeRoomRequest]);
+
+  const handleExtendCheckout = useCallback(
+    (bookingRefNumber, checkoutDate, extendedDays, basePrice) => {
+      extendCheckout({
+        bookingRefNumber: bookingRefNumber,
+        checkOutDate: checkoutDate + " 00:00:00",
+        bookingAmount: extendedDays * basePrice,
+        gstPrice: extendedDays * basePrice * 0.18,
+      })
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            serverity: "success",
+          });
+          setExtendCheckoutDrawer(null);
+          setIsSelectedRoom(null);
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data,
+            severity: "error",
+          });
+        });
+    },
+    [extendCheckout]
+  );
 
   const handleChangeRoomFilters = useCallback((name, value) => {
     console.log("handleChangeRoomFilters value : ", value);
@@ -10748,6 +11093,7 @@ const Dashboard = () => {
                 {isSelectedRoom && (
                   <Grid size={12}>
                     <RoomServiceCard
+                      setExtendCheckoutDrawer={setExtendCheckoutDrawer}
                       setRoomUpgradeDrawer={setRoomUpgradeDrawer}
                       handleOpenShowcaseModalForInventory={
                         handleOpenShowcaseModalForInventory
@@ -10820,6 +11166,12 @@ const Dashboard = () => {
         handleUpgradeRoomRequest={handleUpgradeRoomRequest}
         handleReset={() => {}}
       />
+      <ExtendCheckoutDrawer
+        open={Boolean(extendCheckoutDrawer)}
+        isSelectedRoom={extendCheckoutDrawer}
+        handleExtendCheckout={handleExtendCheckout}
+        onClose={() => setExtendCheckoutDrawer(null)}
+      />
       <LoadingComponent
         open={
           isApiRoomDataFetching ||
@@ -10836,6 +11188,7 @@ const Dashboard = () => {
           isPendingBookingRequestCountsDataLoading ||
           assignNewKeyRes.isLoading ||
           upgradeRoomRequestRes.isLoading ||
+          extendCheckoutRes.isLoading ||
           false
         }
       />

@@ -6,12 +6,14 @@ import {
   Autocomplete,
   Box,
   Button,
+  Checkbox,
   Collapse,
   DialogActions,
   DialogContent,
   DialogTitle,
   Divider,
   Drawer,
+  FormControlLabel,
   IconButton,
   Paper,
   Rating,
@@ -2457,8 +2459,11 @@ const CustomBookingHistoryDrawer = memo(function ({
   bookingRoomsChildTableHeaders,
   bookingRoomsTableData,
   handleChangeBookingConfirmation,
+  setBookingConfirmationFormData,
 }) {
+  console.log(selectedBookingHistory, "selectedBookingHistoryyyy");
   console.log("CustomFormDrawer customDrawerOpen : ", customDrawerOpen, type);
+  const [isCheckOutExtended, setIsCheckOutExtended] = React.useState(false);
   const handleToggleCustomFormDrawerOnChange = useCallback(() => {
     handleToggleCustomFormDrawer();
     handleChangeSelectedBookingHistory();
@@ -2478,6 +2483,23 @@ const CustomBookingHistoryDrawer = memo(function ({
     [handleChangeBookingConfirmation]
   );
 
+  const handleIsCheckOutExtended = React.useCallback(
+    (e) => {
+      if (e.target.checked === false) {
+        setBookingConfirmationFormData((prevData) => ({
+          ...prevData,
+          to: dayjs(
+            new Date(
+              selectedBookingHistory.toDate.split("-").reverse().join("-")
+            )
+          ),
+        }));
+      }
+      setIsCheckOutExtended(e.target.checked);
+    },
+    [setBookingConfirmationFormData, selectedBookingHistory]
+  );
+
   useEffect(() => {
     if (customDrawerOpen && selectedBookingHistory) {
       handleChangeBookingConfirmationFormDataOnChange(
@@ -2491,12 +2513,19 @@ const CustomBookingHistoryDrawer = memo(function ({
     selectedBookingHistory,
   ]);
 
+  React.useEffect(() => {
+    handleChangeBookingConfirmationFormData("selectedRoom", null);
+  }, [bookingConfirmationFormData.to, handleChangeBookingConfirmationFormData]);
+
   return (
     <Drawer
       anchor="right"
       open={customDrawerOpen}
       onClose={() => handleToggleCustomFormDrawerOnChange()}
       sx={{ zIndex: 1300 }}
+      onTransitionExited={() => {
+        setIsCheckOutExtended(false);
+      }}
     >
       <Box sx={{ width: 500 }} role="presentation">
         <Box
@@ -2763,6 +2792,18 @@ const CustomBookingHistoryDrawer = memo(function ({
                       <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <DatePicker
                           // disabled={!bookingConfirmationFormData?.from}
+                          minDate={
+                            selectedBookingHistory?.toDate
+                              ? dayjs(
+                                  new Date(
+                                    selectedBookingHistory.toDate
+                                      .split("-")
+                                      .reverse()
+                                      .join("-")
+                                  )
+                                )
+                              : null
+                          }
                           disablePast={!bookingConfirmationFormData?.from}
                           shouldDisableDate={(date) => {
                             // Disable dates before 'from' date if it exists
@@ -2818,10 +2859,23 @@ const CustomBookingHistoryDrawer = memo(function ({
                             openPickerIcon: StyledCalendarIcon,
                           }}
                           format="DD/MM/YYYY"
-                          disabled
+                          disabled={!isCheckOutExtended}
                         />
                       </LocalizationProvider>
                     </Box>
+                  </Grid>
+                  {/* is Checkout Extended */}
+                  <Grid size={12}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          size="small"
+                          checked={isCheckOutExtended}
+                          onChange={handleIsCheckOutExtended}
+                        />
+                      }
+                      label="Is Checkout Extended"
+                    />
                   </Grid>
                 </Grid>
               </Grid>
@@ -2903,7 +2957,29 @@ const CustomBookingHistoryDrawer = memo(function ({
 
               <Grid size={12}>
                 <Box sx={{ width: "100%", marginY: "2px" }}>
-                  {selectedBookingHistory?.bookingStatus === "Checked_In" ? (
+                  {selectedBookingHistory?.bookingStatus === "Checked_In" &&
+                  isCheckOutExtended ? (
+                    <Button
+                      variant="contained"
+                      color="success"
+                      disabled={
+                        !bookingConfirmationFormData?.roomDto?.id ||
+                        selectedBookingHistory?.toDate ===
+                          moment(bookingConfirmationFormData?.to.$d).format(
+                            "DD-MM-YYYY"
+                          )
+                      }
+                      sx={{ fontSize: "11px" }}
+                      onClick={() =>
+                        handleChangeBookingConfirmationOnClick(
+                          "confirmChangeRoomAndExtendCheckout",
+                          bookingConfirmationFormData
+                        )
+                      }
+                    >
+                      Confirm Change Room And Extend Checkout
+                    </Button>
+                  ) : selectedBookingHistory?.bookingStatus === "Checked_In" ? (
                     <Button
                       variant="contained"
                       color="success"
@@ -3464,6 +3540,58 @@ const FrontdeskBookingHistory = () => {
               });
           }
         });
+      } else if (name === "confirmChangeRoomAndExtendCheckout") {
+        Swal.fire({
+          title: "Confirm Change Room & Extend Checkout!",
+          text: "Are you Sure To Change Room And Extend Checkout For This Booking?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const bookingAmountOfExtendedDays =
+              ((new Date(
+                moment(bookingData.to.$d).format("YYYY-MM-DD")
+              ).getTime() -
+                new Date(
+                  selectedBookingHistory.toDate.split("-").reverse().join("-")
+                ).getTime()) /
+                (1000 * 3600 * 24)) *
+              selectedBookingHistory.roomType.basePrice;
+            const payload = {
+              bookingRefNumber: bookingData?.bookingRefNumber || null,
+              roomDto: {
+                id: bookingData?.roomDto?.id || null,
+              },
+              isExtendedBooking: true,
+              toDate: moment(bookingData.to.$d).format("DD-MM-YYYY"),
+              bookingAmount: bookingAmountOfExtendedDays,
+              gstPrice: bookingAmountOfExtendedDays * 0.18,
+            };
+            changeRoom(payload)
+              .unwrap()
+              .then((res) => {
+                setSnack({
+                  open: true,
+                  message: res?.message || "Booking Confirmation Success",
+                  severity: "success",
+                });
+                handleOpenCustomBookingHistoryDrawer();
+              })
+              .catch((err) => {
+                setSnack({
+                  open: true,
+                  message:
+                    err?.data?.message ||
+                    err?.data ||
+                    "Booking Confirmation Failed",
+                  severity: "error",
+                });
+              });
+          }
+        });
       } else if (name === "confirmChangeRoom") {
         Swal.fire({
           title: "Confirm Change Room!",
@@ -3557,6 +3685,7 @@ const FrontdeskBookingHistory = () => {
       cancelBookingByFrontDesk,
       confirmBookingByFrontDesk,
       handleOpenCustomBookingHistoryDrawer,
+      selectedBookingHistory,
     ]
   );
 
@@ -3957,6 +4086,7 @@ const FrontdeskBookingHistory = () => {
         // bookingRoomsTableData={getRoomsByRoomTypeData?.data || []}
         bookingRoomsTableData={filteredRooms || []}
         handleChangeBookingConfirmation={handleChangeBookingConfirmation}
+        setBookingConfirmationFormData={setBookingConfirmationFormData}
       />
       <ShowcaseBookingDialog
         openShowcaseBookingDialog={showcaseBookingDialogData?.open}
