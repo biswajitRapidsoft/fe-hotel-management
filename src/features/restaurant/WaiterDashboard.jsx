@@ -25,7 +25,7 @@ import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
-import { RECEIVED_BY_WAITER } from "../../helper/constants";
+// import { RECEIVED_BY_WAITER } from "../../helper/constants";
 const WaiterDashboard = () => {
   const [snack, setSnack] = React.useState({
     open: false,
@@ -43,7 +43,7 @@ const WaiterDashboard = () => {
       data: [],
     },
     isLoading,
-    isFetching,
+    // isFetching,
   } = useGetAllTablesForWaiterQuery(
     {
       hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
@@ -450,7 +450,12 @@ const OrderDetailsDialog = ({
           severity: "error",
         });
       });
-  }, [deliverFood, orderDetailsDialog?.bookingRequestDto?.orderId]);
+  }, [
+    deliverFood,
+    orderDetailsDialog?.bookingRequestDto?.orderId,
+    handleCloseOrderDetailsDialog,
+    setSnack,
+  ]);
   return (
     <>
       <BootstrapDialog
@@ -531,6 +536,16 @@ const OrderDetailsDialog = ({
               <Typography>
                 {orderDetailsDialog?.bookingRequestDto?.orderId}
               </Typography>
+            </Box>
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <Typography
+                sx={{
+                  fontWeight: "bold",
+                }}
+              >
+                Table No:
+              </Typography>
+              <Typography>{orderDetailsDialog?.tableNo}</Typography>
             </Box>
             <Box sx={{ display: "flex", gap: 1 }}>
               <Typography sx={{ fontWeight: "bold" }}>Order Date:</Typography>

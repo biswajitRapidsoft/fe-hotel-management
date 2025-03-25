@@ -86,10 +86,35 @@ const CounterStaffDashboard = () => {
   const [assosciateWithRoom, assosciateWithRoomRes] =
     useAssosciateOrderWithRoomMutation();
   const [completeOrder, completeOrderRes] = useCompleteFoodOrderMutation();
+  // const handleCloseOrderDetailsDialog = React.useCallback(() => {
+  //   setOrderDetailsDialog(null);
+  // }, []);
+  const [formDataForDialog, setFormDataForDialog] = React.useState({
+    isAssosciateWithRoom: false,
+    isProceedToPayment: false,
+    roomNumber: "",
+    paymentType: null,
+  });
+
+  const [isSplit, setIsSplit] = useState(false);
+
+  const [orderMapDtos, setOrderMapDtos] = useState([]);
+  const [customOrderMapDtos, setCustomOrderMapDtos] = useState([]);
+
   const handleCloseOrderDetailsDialog = React.useCallback(() => {
+    setFormDataForDialog({
+      isAssosciateWithRoom: false,
+      isProceedToPayment: false,
+      roomNumber: "",
+      paymentType: null,
+    });
+
+    setIsSplit(false);
+    setOrderMapDtos([]);
+    setCustomOrderMapDtos([]);
+
     setOrderDetailsDialog(null);
   }, []);
-
   return (
     <>
       <Box>
@@ -179,6 +204,14 @@ const CounterStaffDashboard = () => {
         assosciateWithRoom={assosciateWithRoom}
         handleOpenPaymentDialog={handleOpenPaymentDialog}
         completeOrder={completeOrder}
+        formData={formDataForDialog}
+        setFormData={setFormDataForDialog}
+        isSplit={isSplit}
+        setIsSplit={setIsSplit}
+        orderMapDtos={orderMapDtos}
+        setOrderMapDtos={setOrderMapDtos}
+        customOrderMapDtos={customOrderMapDtos}
+        setCustomOrderMapDtos={setCustomOrderMapDtos}
       />
       <PaymentDialog
         openPaymentDialog={openPaymentDialog}
@@ -418,19 +451,27 @@ const OrderDetailsDialog = ({
   assosciateWithRoom,
   handleOpenPaymentDialog,
   completeOrder,
+  formData,
+  setFormData,
+  isSplit,
+  setIsSplit,
+  orderMapDtos,
+  setOrderMapDtos,
+  customOrderMapDtos,
+  setCustomOrderMapDtos,
 }) => {
   console.log("orderDetailsDialog", orderDetailsDialog);
-  const [formData, setFormData] = React.useState({
-    isAssosciateWithRoom: false,
-    isProceedToPayment: false,
-    roomNumber: "",
-    paymentType: null,
-  });
+  // const [formData, setFormData] = React.useState({
+  //   isAssosciateWithRoom: false,
+  //   isProceedToPayment: false,
+  //   roomNumber: "",
+  //   paymentType: null,
+  // });
 
-  const [isSplit, setIsSplit] = useState(false);
+  // const [isSplit, setIsSplit] = useState(false);
 
-  const [orderMapDtos, setOrderMapDtos] = useState([]);
-  const [customOrderMapDtos, setCustomOrderMapDtos] = useState([]);
+  // const [orderMapDtos, setOrderMapDtos] = useState([]);
+  // const [customOrderMapDtos, setCustomOrderMapDtos] = useState([]);
 
   console.log("customOrderMapDtos : ", customOrderMapDtos);
 
@@ -747,6 +788,16 @@ const OrderDetailsDialog = ({
                   <Typography>
                     {orderDetailsDialog?.bookingRequestDto?.orderId}
                   </Typography>
+                </Box>
+                <Box sx={{ display: "flex", gap: 1 }}>
+                  <Typography
+                    sx={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Table No:
+                  </Typography>
+                  <Typography>{orderDetailsDialog?.tableNo}</Typography>
                 </Box>
                 <Box sx={{ display: "flex", gap: 1 }}>
                   <Typography sx={{ fontWeight: "bold" }}>

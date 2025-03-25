@@ -613,7 +613,7 @@ const Restaurant = () => {
       .unwrap()
       .then((res) => {
         setSnack({ open: true, message: res.message, severity: "success" });
-        if (Boolean(tableId)) {
+        if (Boolean(tableId) || Boolean(OrderCreatedByCounterStaff)) {
           setTimeout(() => {
             navigate(-1);
           }, 500);
@@ -641,6 +641,11 @@ const Restaurant = () => {
     calculateDiscountOnOrder,
     selectedRestaurantCoupon,
     customerFormData,
+    OrderCreatedByCounterStaff,
+    orderIdFromWaiter,
+    navigate,
+    orderTakenBy,
+    tableId,
   ]);
 
   const handleChangeIsViewAllCouponsSelected = React.useCallback(() => {

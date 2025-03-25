@@ -40,6 +40,7 @@ import {
   ORDER_PLACED,
   REJECTED,
   READY_TO_SERVE,
+  COMPLETED,
 } from "../../helper/constants";
 
 const Row = ({ order, index, setUpdateStatusDialog }) => {
@@ -152,9 +153,13 @@ const Row = ({ order, index, setUpdateStatusDialog }) => {
                   })}
                 </TableBody>
               </Table>
-              {![DELIVERED, CANCELLED, REJECTED, READY_TO_SERVE].includes(
-                order.bookingDetails.foodBookingStatus
-              ) && (
+              {![
+                DELIVERED,
+                CANCELLED,
+                REJECTED,
+                READY_TO_SERVE,
+                COMPLETED,
+              ].includes(order.bookingDetails.foodBookingStatus) && (
                 <Button
                   sx={{
                     display: "block",

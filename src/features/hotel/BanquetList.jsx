@@ -30,6 +30,7 @@ import { ADMIN } from "../../helper/constants";
 
 const BanquetList = () => {
   const [banquetToUpdate, setBanquettoUpdate] = React.useState(null);
+  console.log("banquetToUpdate", banquetToUpdate);
   const [formData, setFormData] = React.useState({
     banquetType: "",
     perPlatePrice: "",
@@ -117,17 +118,18 @@ const BanquetList = () => {
 
   const isFormValid = React.useCallback(() => {
     const { banquetType, perPlatePrice, Capacity } = formData;
-    return Boolean(banquetType && perPlatePrice && Capacity.trim());
+    return Boolean(
+      banquetType && perPlatePrice && Capacity && Capacity.toString().trim()
+    );
   }, [formData]);
-
   React.useEffect(() => {
     if (banquetToUpdate) {
       setFormData((prevData) => ({
         ...prevData,
-        banquetType: banquetToUpdate.type,
-        perPlatePrice: banquetToUpdate.perPlatePrice,
-        Capacity: banquetToUpdate.capacity,
-        description: banquetToUpdate.description,
+        banquetType: banquetToUpdate.type || "",
+        perPlatePrice: banquetToUpdate.perPlatePrice || "",
+        Capacity: banquetToUpdate.capacity || "",
+        description: banquetToUpdate.description || "",
       }));
     }
   }, [banquetToUpdate]);

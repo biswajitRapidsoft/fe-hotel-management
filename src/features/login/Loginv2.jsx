@@ -40,6 +40,7 @@ import {
   SUPER_ADMIN,
   WAITER,
   COUNTER_STAFF,
+  KITCHEN_SERVICE_STAFF,
 } from "../../helper/constants";
 
 const phoneRegex = /^[0-9]{10}$/;
@@ -153,6 +154,8 @@ const Loginv2 = () => {
             navigate("/WaiterDashboard");
           } else if (res.data.roleType === COUNTER_STAFF) {
             navigate("/CounterStaffDashboard");
+          } else if (res.data.roleType === KITCHEN_SERVICE_STAFF) {
+            navigate("/KitchenServiceStaff");
           } else {
             navigate("/");
           }

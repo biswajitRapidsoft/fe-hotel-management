@@ -24,6 +24,7 @@ export const CANCELLED = "Cancelled";
 export const REJECTED = "Rejected";
 export const RECEIVED_BY_WAITER = "Received_by_Waiter";
 export const READY_TO_SERVE = "Ready_to_serve";
+export const COMPLETED = "Completed";
 
 // ROLES
 export const SUPER_ADMIN = "Super_Admin";
@@ -37,6 +38,7 @@ export const BARSTAFF = "Bar_Staff";
 export const MANAGER = "Manager";
 export const WAITER = "Waiter";
 export const COUNTER_STAFF = "Counter_Staff";
+export const KITCHEN_SERVICE_STAFF = "Kitchen_Service_Staff";
 //ROOM STATUSES
 export const AVAILABLE = { id: 1, key: "Available" };
 export const RESERVED = { id: 2, key: "Reserved" };

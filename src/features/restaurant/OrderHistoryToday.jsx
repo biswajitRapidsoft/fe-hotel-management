@@ -1,34 +1,39 @@
-import React from "react";
 import {
-  Paper,
   Table,
-  TableBody,
-  TableCell,
-  TableContainer,
   TableHead,
   TableRow,
-  Toolbar,
-  Typography,
+  TableCell,
+  Paper,
   Box,
+  Typography,
+  TableContainer,
+  TableBody,
+  Toolbar,
   IconButton,
+  Collapse,
+  Rating,
   Button,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
+  Grid2 as Grid,
   TextField,
   Autocomplete,
-  Grid2 as Grid,
-  Rating,
-  Collapse,
 } from "@mui/material";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import React from "react";
+import { useGetAllTodayOrderForCounterStaffQuery } from "../../services/restaurant";
 import ClearIcon from "@mui/icons-material/Clear";
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 import {
-  useGetAllDineInRequestFromRoomQuery,
+  CANCELLED,
+  DELIVERED,
+  ORDER_PLACED,
+  READY_TO_SERVE,
+  REJECTED,
+} from "../../helper/constants";
+import {
   useGetAllTablesForCounterQuery,
   useGetAllWaitersQuery,
   useAssignTableToWaiterMutation,
@@ -36,56 +41,33 @@ import {
   useGetAllKitchenStaffQuery,
   useAssignServiceStaffMutation,
 } from "../../services/restaurant";
-import moment from "moment";
-import {
-  CANCELLED,
-  DELIVERED,
-  // KITCHENSTAFF,
-  ORDER_PLACED,
-  READY_TO_SERVE,
-  REJECTED,
-} from "../../helper/constants";
-import { useNavigate } from "react-router-dom";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { PaymentDialog } from "../dashboard/GuestDashboard";
 
-const RoomDineIn = () => {
+const OrderHistoryToday = () => {
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
     severity: "",
   });
-  const [completeOrder, completeOrderRes] = useCompleteFoodOrderMutation();
-
+  const [openPaymentDialog, setOpenPaymentDialog] = React.useState(false);
+  const [makePartialPaymentPayload, setMakePartialPaymentPayload] =
+    React.useState(null);
   const [updateStatusDialog, setUpdateStatusDialog] = React.useState();
+  const [assignStaffDialog, setAssignStaffDialog] = React.useState();
   const [assignTableToWaiter, assignTableToWaiterRes] =
     useAssignTableToWaiterMutation();
   const [assignServiceStaff, assignServiceStaffRes] =
     useAssignServiceStaffMutation();
-  const [openPaymentDialog, setOpenPaymentDialog] = React.useState(false);
-  const [makePartialPaymentPayload, setMakePartialPaymentPayload] =
-    React.useState(null);
+  const [completeOrder, completeOrderRes] = useCompleteFoodOrderMutation();
 
-  const [assignStaffDialog, setAssignStaffDialog] = React.useState();
-
-  const handlePayment = React.useCallback((item) => {
-    const totalPrice = item?.totalPrice || 0;
-    const gstPrice = item?.gstPrice || 0;
-
-    const payload = {
-      paidAmount: totalPrice + gstPrice,
-      orderId: item?.orderId,
-    };
-    setMakePartialPaymentPayload(payload);
-    setOpenPaymentDialog(true);
-  }, []);
   const {
-    data: roomDineInTableList = { data: [] },
-    isLoading: isroomDineInTableListLoading,
-    isFetching: isRoomDineInTableListFetching,
-  } = useGetAllDineInRequestFromRoomQuery({
-    hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
-    date: moment().format("YYYY-MM-DD"),
-  });
+    data: orderList = { data: [] },
+    isLoading: isGetAllTodayOrderForCounterStaff,
+  } = useGetAllTodayOrderForCounterStaffQuery(
+    JSON.parse(sessionStorage.getItem("data")).hotelId
+  );
 
   const {
     data: tableListForCounterStaff = { data: [] },
@@ -102,9 +84,17 @@ const RoomDineIn = () => {
   const { data: waiterList = { data: [] } } = useGetAllWaitersQuery({
     hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
   });
+  const handlePayment = React.useCallback((item) => {
+    const totalPrice = item?.bookingDetails?.totalPrice || 0;
+    const gstPrice = item?.bookingDetails?.gstPrice || 0;
 
-  const navigate = useNavigate();
-
+    const payload = {
+      paidAmount: totalPrice + gstPrice,
+      orderId: item?.orderId,
+    };
+    setMakePartialPaymentPayload(payload);
+    setOpenPaymentDialog(true);
+  }, []);
   return (
     <React.Fragment>
       <Paper>
@@ -127,34 +117,11 @@ const RoomDineIn = () => {
               variant="h6"
               sx={{ fontWeight: "bold", letterSpacing: 1 }}
             >
-              Room Dine-In List
+              Today Order History
             </Typography>
           </Toolbar>
-          <Box>
-            <Button
-              color="secondary"
-              variant="contained"
-              size="small"
-              sx={{
-                color: "#fff",
-                fontWeight: 600,
-                textTransform: "none",
-                fontSize: 18,
-                "&.Mui-disabled": {
-                  background: "#B2E5F6",
-                  color: "#FFFFFF",
-                },
-              }}
-              onClick={() => {
-                sessionStorage.setItem("isStayingGuest", false);
-                sessionStorage.setItem("OrderCreatedByCounterStaff", true);
-                navigate("/resturant");
-              }}
-            >
-              Place Order
-            </Button>
-          </Box>
         </Box>
+
         <TableContainer>
           <Table>
             <TableHead>
@@ -175,21 +142,23 @@ const RoomDineIn = () => {
                 <TableCell>Phone no.</TableCell>
                 <TableCell>Dine Type</TableCell>
                 <TableCell>Room No.(Floor)</TableCell>
+                <TableCell>Order Taken By</TableCell>
                 <TableCell>Order Status</TableCell>
                 <TableCell />
               </TableRow>
             </TableHead>
+
             <TableBody>
-              {roomDineInTableList?.data?.map((item, index) => {
+              {orderList?.data?.map((item, index) => {
                 return (
                   <Row
                     key={item.id}
                     item={item}
                     index={index}
+                    handlePayment={handlePayment}
                     setUpdateStatusDialog={setUpdateStatusDialog}
                     setMakePartialPaymentPayload={setMakePartialPaymentPayload}
                     setOpenPaymentDialog={setOpenPaymentDialog}
-                    handlePayment={handlePayment}
                     setAssignStaffDialog={setAssignStaffDialog}
                   />
                 );
@@ -207,7 +176,6 @@ const RoomDineIn = () => {
         waiterList={waiterList}
         assignTableToWaiter={assignTableToWaiter}
       />
-
       <AssignStaffDialog
         assignStaffDialog={assignStaffDialog}
         setAssignStaffDialog={setAssignStaffDialog}
@@ -222,15 +190,10 @@ const RoomDineIn = () => {
         reservationPayload={makePartialPaymentPayload}
         setSnack={setSnack}
         reserveHotelRoom={completeOrder}
-        // handleAfterSuccessFunction={() => {
-        //   handleCloseOrderDetailsDialog();
-        // }}
       />
       <LoadingComponent
         open={
-          // isLoading ||
-          isroomDineInTableListLoading ||
-          isRoomDineInTableListFetching ||
+          isGetAllTodayOrderForCounterStaff ||
           istableListForCounterStaffLoading ||
           assignTableToWaiterRes.isLoading ||
           completeOrderRes.isLoading ||
@@ -241,17 +204,14 @@ const RoomDineIn = () => {
     </React.Fragment>
   );
 };
-
 const Row = ({
   item,
   index,
   setUpdateStatusDialog,
-  // setOpenPaymentDialog,
-  // setMakePartialPaymentPayload,
   handlePayment,
   setAssignStaffDialog,
 }) => {
-  console.log("foodBookingStatus", item?.foodBookingStatus);
+  console.log("item", item);
   const [open, setOpen] = React.useState(false);
   return (
     <React.Fragment>
@@ -265,17 +225,21 @@ const Row = ({
         }}
       >
         <TableCell>{index + 1}</TableCell>
-        <TableCell>{item?.orderId}</TableCell>
-        <TableCell sx={{ minWidth: 150 }}>{`${item.firstName} ${
-          item.middleName || ""
-        } ${item.lastName || ""}`}</TableCell>
-        <TableCell>{item.phoneNo}</TableCell>
-        <TableCell>{item.dinningType.replace("_", " ")}</TableCell>
+        <TableCell>{item?.bookingDetails?.orderId}</TableCell>
+        <TableCell sx={{ minWidth: 150 }}>{`${item.bookingDetails.firstName} ${
+          item.bookingDetails.middleName || ""
+        } ${item.bookingDetails.lastName || ""}`}</TableCell>
+        <TableCell>{item.bookingDetails.phoneNo}</TableCell>
         <TableCell>
-          {item?.bookingDetails
+          {item.bookingDetails.dinningType.replace("_", " ")}
+        </TableCell>
+        <TableCell>
+          {item?.bookingDetails?.roomDto
             ? `${item?.bookingDetails?.roomDto?.roomNo}(${item?.bookingDetails?.roomDto?.floorNo})`
             : "--"}
         </TableCell>
+        <TableCell>{item?.orderTakenBy?.name}</TableCell>
+
         <TableCell>
           <Typography
             sx={{
@@ -284,9 +248,9 @@ const Row = ({
               letterSpacing: 1,
             }}
           >
-            {item?.foodBookingStatus}
+            {item?.bookingDetails?.foodBookingStatus}
           </Typography>
-        </TableCell>{" "}
+        </TableCell>
         <TableCell>
           <IconButton size="small" onClick={() => setOpen(!open)}>
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
@@ -310,6 +274,7 @@ const Row = ({
                   <Typography>{item?.bookingDetails?.ratingMessage}</Typography>
                 </Box>
               )}
+
               <Table size="small">
                 <TableHead>
                   <TableRow
@@ -327,7 +292,7 @@ const Row = ({
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {item?.trailData?.map((orderItem, orderItemIndex) => {
+                  {item?.itemsList?.map((orderItem, orderItemIndex) => {
                     return (
                       <TableRow
                         sx={{
@@ -347,11 +312,11 @@ const Row = ({
                   })}
                 </TableBody>
               </Table>
-              {/* dont show in case of takeaway */}
+
               {[DELIVERED, CANCELLED, REJECTED, ORDER_PLACED].includes(
-                item?.foodBookingStatus
+                item?.bookingDetails?.foodBookingStatus
               ) &&
-                item?.dinningType !== "Room_Delivery" &&
+                item?.bookingDetails?.dinningType !== "Room_Delivery" &&
                 item?.dinningType === "Take_Away" && (
                   <Button
                     sx={{
@@ -372,7 +337,8 @@ const Row = ({
                     Update Status
                   </Button>
                 )}
-              {item?.foodBookingStatus === READY_TO_SERVE && (
+
+              {item?.bookingDetails?.foodBookingStatus === READY_TO_SERVE && (
                 <Button
                   sx={{
                     display: "block",
@@ -392,26 +358,27 @@ const Row = ({
                   Proceed to Payment
                 </Button>
               )}
-              {item?.dinningType === "Room_Delivery" && (
-                <Button
-                  sx={{
-                    display: "block",
-                    mx: "auto",
-                    mt: 2,
-                    mb: 1,
-                    textTransform: "none",
-                    fontSize: 18,
-                    fontWeight: 600,
-                    px: 3,
-                    letterSpacing: 1,
-                  }}
-                  variant="outlined"
-                  color="secondary"
-                  onClick={() => setAssignStaffDialog(item)}
-                >
-                  Assign Staff
-                </Button>
-              )}
+              {item?.bookingDetails?.dinningType === "Room_Delivery" &&
+                !Boolean(item?.orderTakenBy) && (
+                  <Button
+                    sx={{
+                      display: "block",
+                      mx: "auto",
+                      mt: 2,
+                      mb: 1,
+                      textTransform: "none",
+                      fontSize: 18,
+                      fontWeight: 600,
+                      px: 3,
+                      letterSpacing: 1,
+                    }}
+                    variant="outlined"
+                    color="secondary"
+                    onClick={() => setAssignStaffDialog(item)}
+                  >
+                    Assign Staff
+                  </Button>
+                )}
             </Box>
           </Collapse>
         </TableCell>
@@ -430,19 +397,18 @@ function FormDialog({
   assignTableToWaiter,
 }) {
   console.log("order", order);
-  // const [remark, setRemark] = React.useState("");
+  const [remark, setRemark] = React.useState("");
   const [selectedTable, setSelectedTable] = React.useState(null);
   const [selectedWaiter, setSelectedWaiter] = React.useState(null);
   const [selectedTableInputVal, setSelectedTableInputVal] = React.useState("");
   const [selectedWaiterInputVal, setSelectedWaiterInputVal] =
     React.useState("");
-  console.log("selectedWaiter", selectedWaiter);
 
   const handleSubmitDialogForm = React.useCallback(
     (e) => {
       e.preventDefault();
       assignTableToWaiter({
-        orderId: order?.orderId,
+        orderId: order?.bookingDetails?.orderId,
         tableId: selectedTable?.id,
         orderTakenBy: {
           id: selectedWaiter?.id,
@@ -467,7 +433,7 @@ function FormDialog({
     },
     [
       selectedTable,
-      // remark,
+      remark,
       order,
       setSnack,
       handleClose,
@@ -487,7 +453,7 @@ function FormDialog({
     [order?.bookingDetails?.foodBookingStatus]
   );
   React.useEffect(() => {
-    // setRemark("");
+    setRemark("");
     setSelectedTable(order?.bookingDetails?.foodBookingStatus || null);
     setSelectedTableInputVal(order?.bookingDetails?.foodBookingStatus || "");
   }, [open, order]);
@@ -697,14 +663,13 @@ function FormDialog({
 
 function AssignStaffDialog({
   assignStaffDialog,
-  setAssignStaffDialog,
   serviceStaffList,
   handleClose,
   assignServiceStaff,
   setSnack,
 }) {
+  console.log("assignStaffDialog", assignStaffDialog);
   const [selectedServiceStaff, setSelectedServiceStaff] = React.useState(null);
-  console.log("selectedServiceStaff", selectedServiceStaff);
   const [selectedServiceStaffInputVal, setSelectedServiceStaffInputVal] =
     React.useState("");
 
@@ -712,7 +677,7 @@ function AssignStaffDialog({
     (e) => {
       e.preventDefault();
       assignServiceStaff({
-        orderId: assignStaffDialog?.orderId,
+        orderId: assignStaffDialog?.bookingDetails?.orderId,
         orderTakenBy: {
           id: selectedServiceStaff?.id,
         },
@@ -799,7 +764,7 @@ function AssignStaffDialog({
         <DialogTitle sx={{ fontWeight: 600, fontSize: 24 }}>
           Assign Staff
           <Typography sx={{ fontWeight: 600, color: "#7A7A7A" }}>
-            {assignStaffDialog?.orderId}
+            {assignStaffDialog?.bookingDetails?.orderId}
           </Typography>
         </DialogTitle>
         <DialogContent>
@@ -824,7 +789,7 @@ function AssignStaffDialog({
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {assignStaffDialog?.trailData?.map((item, index) => {
+                  {assignStaffDialog?.itemsList?.map((item, index) => {
                     return (
                       <>
                         <TableRow key={index}>
@@ -925,5 +890,4 @@ function AssignStaffDialog({
     </React.Fragment>
   );
 }
-
-export default RoomDineIn;
+export default OrderHistoryToday;

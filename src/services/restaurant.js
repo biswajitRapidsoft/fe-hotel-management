@@ -19,7 +19,11 @@ const restaurantApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
-      invalidatesTags: ["getCustomerOrdeHistory"],
+      invalidatesTags: [
+        "getCustomerOrdeHistory",
+        "getAllTablesForCounter",
+        "getAllTablesForWaiter",
+      ],
     }),
     getDineType: build.query({
       query: () => ({
@@ -170,7 +174,38 @@ const restaurantApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
-      invalidatesTags: ["getAllDineInRequestFromRoom"],
+      invalidatesTags: [
+        "getAllDineInRequestFromRoom",
+        "getAllTodayOrderForCounterStaff",
+      ],
+    }),
+    getAllOrderRequestForServiceStaff: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllOrderRequestForServiceStaff,
+        method: "GET",
+        params: {
+          userId: payload?.userId,
+        },
+      }),
+      providesTags: ["getAllOrderRequestForServiceStaff"],
+    }),
+    deliverFoodByKitchenServiceStaff: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.deliverFoodByKitchenServiceStaff,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllOrderRequestForServiceStaff"],
+    }),
+    getAllTodayOrderForCounterStaff: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllTodayOrderForCounterStaff,
+        method: "GET",
+        params: {
+          hotelId: payload,
+        },
+      }),
+      providesTags: ["getAllTodayOrderForCounterStaff"],
     }),
   }),
   overrideExisting: false,
@@ -196,4 +231,7 @@ export const {
   useAssignTableToWaiterMutation,
   useGetAllKitchenStaffQuery,
   useAssignServiceStaffMutation,
+  useGetAllOrderRequestForServiceStaffQuery,
+  useDeliverFoodByKitchenServiceStaffMutation,
+  useGetAllTodayOrderForCounterStaffQuery,
 } = restaurantApi;

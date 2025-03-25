@@ -5,7 +5,7 @@ const config = Object.freeze({
   // baseUrl: "http://crimarrstaging.nyggs.com/backend/",
   // baseUrl: "http://192.168.30.44:9000/",
   // baseUrl: "http://192.168.12.43:8080/be-hms/",
-  // baseUrl: "https://hms.watsoo.com/backend/",
+  baseUrl: "https://hms.watsoo.com/backend/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/", // HO Staging
   // baseUrl: "http://192.168.12.3:9000/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
@@ -97,6 +97,12 @@ const config = Object.freeze({
     getAllKitchenStaff: "api/get/all/kitchen/service/users",
     assignKitchenStaff: "api/assign/kitchen/service/staff",
     extendCheckout: "api/extend/check-out/date",
+    getAllOrderRequestForServiceStaff:
+      "api/get/all/kitchen/staff/service/food/order/request",
+    deliverFoodByKitchenServiceStaff:
+      "api/deliver/food/by/kitchen/service/staff",
+    getAllTodayOrderForCounterStaff:
+      "api/get/today/order/history/for/counter-staff",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",

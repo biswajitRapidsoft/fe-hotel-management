@@ -20,7 +20,7 @@ import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 import ChecklistIcon from "@mui/icons-material/Checklist";
 // import GroupsIcon from "@mui/icons-material/Groups";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
-// import AltRouteIcon from "@mui/icons-material/AltRoute";
+import HistoryIcon from "@mui/icons-material/History";
 import KingBedIcon from "@mui/icons-material/KingBed";
 import RoofingIcon from "@mui/icons-material/Roofing";
 import {
@@ -177,6 +177,14 @@ const sideBarMenuOptions = [
     pathname: "/RoomDineIn",
     isLibraryIcon: true,
     menuIcon: <ChecklistIcon style={{ color: "#fff" }} />,
+    menuIconAlt: "Activity Logo",
+    menuTitle: "Order Requests  ",
+    visibility: [COUNTER_STAFF],
+  },
+  {
+    pathname: "/OrderHistoryToday",
+    isLibraryIcon: true,
+    menuIcon: <HistoryIcon style={{ color: "#fff" }} />,
     menuIconAlt: "Activity Logo",
     menuTitle: "Order History  ",
     visibility: [COUNTER_STAFF],
