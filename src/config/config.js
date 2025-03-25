@@ -92,6 +92,10 @@ const config = Object.freeze({
     getRoomTypeUpgradePriceConfigAdmin:
       "api/get/upgrade/price-config/room/type",
     changeRoom: "api/change/new/room",
+    getLaundryItemTypeByHotelId: "api/get/all/laundry/items",
+    saveLaundryItem: "api/create/laundry/items",
+    getAllKitchenStaff: "api/get/all/kitchen/service/users",
+    assignKitchenStaff: "api/assign/kitchen/service/staff",
     extendCheckout: "api/extend/check-out/date",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",

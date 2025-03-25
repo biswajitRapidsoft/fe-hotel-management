@@ -56,6 +56,7 @@ const tableHeader = [
   { label: "PromoCode" },
   { label: "Restaurant" },
   { label: "Bar" },
+  { label: "Laundry" },
   { label: "Action" },
 ];
 
@@ -332,6 +333,22 @@ function Row({ hotel, sequence, setHotelToUpdate, handleChangeStatus }) {
         >
           <Chip
             label={hotel?.noOfBarMenu}
+            clickable
+            color="secondary"
+            sx={{
+              color: "#fff",
+            }}
+          />
+        </TableCell>
+        <TableCell
+          onClick={() => {
+            sessionStorage.setItem("hotelIdForLaundryItem", hotel?.id);
+
+            navigate("/laundryItemList");
+          }}
+        >
+          <Chip
+            label={hotel?.noOfLaundryItemsCount || 0}
             clickable
             color="secondary"
             sx={{

@@ -39,6 +39,7 @@ import {
   KITCHENSTAFF,
   ORDER_PLACED,
   REJECTED,
+  READY_TO_SERVE,
 } from "../../helper/constants";
 
 const Row = ({ order, index, setUpdateStatusDialog }) => {
@@ -151,7 +152,7 @@ const Row = ({ order, index, setUpdateStatusDialog }) => {
                   })}
                 </TableBody>
               </Table>
-              {![DELIVERED, CANCELLED, REJECTED].includes(
+              {![DELIVERED, CANCELLED, REJECTED, READY_TO_SERVE].includes(
                 order.bookingDetails.foodBookingStatus
               ) && (
                 <Button
@@ -303,16 +304,19 @@ function FormDialog({
           <Grid container rowSpacing={2}>
             <Grid size={12}>
               <Autocomplete
-                // options={statusList.filter((status) => status !== "Cancelled")}
                 options={statusList.filter(
                   (status) =>
-                    !(
-                      ["Room_Delivery", "Take_Away"].includes(
-                        order?.bookingDetails?.dinningType
-                      ) &&
-                      (status === "Cancelled" || status === "Ready_to_serve")
-                    )
+                    status === "Food_Preparing" || status === "Ready_to_serve"
                 )}
+                // options={statusList.filter(
+                //   (status) =>
+                //     !(
+                //       ["Room_Delivery", "Take_Away"].includes(
+                //         order?.bookingDetails?.dinningType
+                //       ) &&
+                //       (status === "Cancelled" || status === "Ready_to_serve")
+                //     )
+                // )}
                 getOptionLabel={(option) => option.replace("_", " ")}
                 value={selectedStatus}
                 onChange={(e, newVal) => setSelectedStatus(newVal)}
