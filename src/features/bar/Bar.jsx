@@ -336,7 +336,7 @@ const Bar = () => {
     data: menuList = {
       data: [],
     },
-  } = useGetAllBarItemListQuery();
+  } = useGetAllBarItemListQuery(JSON.parse(sessionStorage.getItem("hotelId")));
 
   //   const {
   //     data: menuList = {
