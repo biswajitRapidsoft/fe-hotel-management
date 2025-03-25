@@ -138,6 +138,7 @@ const BarItemList = () => {
         isActive: Boolean(barItemTypeToUpdate)
           ? barItemTypeToUpdate?.isActive
           : "",
+        hotelId: sessionStorage.getItem("hotelIdForBarItem"),
       })
         .unwrap()
         .then((res) => {
@@ -212,7 +213,7 @@ const BarItemList = () => {
             <TextField
               label={
                 <React.Fragment>
-                  Bar Item Type
+                  Bar Menu Type
                   <Box
                     component="span"
                     sx={{
@@ -256,8 +257,8 @@ const BarItemList = () => {
             disabled={!Boolean(isFormValid())}
           >
             {Boolean(barItemTypeToUpdate)
-              ? "Update Bar Item Type"
-              : "Add Bar Item Type"}
+              ? "Update Bar Menu Type"
+              : "Add Bar Menu Type"}
           </Button>
         </Box>
       </Box>
@@ -275,7 +276,7 @@ const BarItemList = () => {
             variant="h6"
             sx={{ fontWeight: "bold", letterSpacing: 1 }}
           >
-            Bar Item Type List
+            Bar Menu Type List
           </Typography>
         </Toolbar>
         <TableContainer sx={{ maxHeight: 600 }}>
@@ -292,7 +293,7 @@ const BarItemList = () => {
                 }}
               >
                 <TableCell>Sl No.</TableCell>
-                <TableCell>Bar Item Type</TableCell>
+                <TableCell>Bar Menu Type</TableCell>
                 <TableCell>Details</TableCell>
                 <TableCell>Action</TableCell>
               </TableRow>

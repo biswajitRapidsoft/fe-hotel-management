@@ -4,9 +4,12 @@ import config from "../config/config";
 const barApi = apiSlice.injectEndpoints({
   endpoints: (build) => ({
     getAllBarItemList: build.query({
-      query: () => ({
+      query: (payload) => ({
         url: config.apiName.getAllBarItemList,
         method: "GET",
+        params: {
+          hotelId: payload,
+        },
       }),
       providesTags: ["getAllBarItemList"],
     }),
