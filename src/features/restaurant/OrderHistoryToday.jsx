@@ -317,7 +317,8 @@ const Row = ({
                 item?.bookingDetails?.foodBookingStatus
               ) &&
                 item?.bookingDetails?.dinningType !== "Room_Delivery" &&
-                item?.dinningType === "Take_Away" && (
+                item?.bookingDetails?.dinningType !== "Take_Away" &&
+                item?.bookingDetails?.dinningType === "Dine_In" && (
                   <Button
                     sx={{
                       display: "block",

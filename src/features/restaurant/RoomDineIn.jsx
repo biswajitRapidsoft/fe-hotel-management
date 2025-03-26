@@ -352,7 +352,8 @@ const Row = ({
                 item?.foodBookingStatus
               ) &&
                 item?.dinningType !== "Room_Delivery" &&
-                item?.dinningType === "Take_Away" && (
+                item?.dinningType !== "Take_Away" &&
+                item?.dinningType === "Dine_In" && (
                   <Button
                     sx={{
                       display: "block",
