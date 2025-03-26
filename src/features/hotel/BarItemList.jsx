@@ -299,7 +299,7 @@ const BarItemList = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {barMenuTypeList.data.map((item, index) => {
+              {barMenuTypeList?.data?.map((item, index) => {
                 return (
                   <TableRow
                     sx={{
@@ -352,6 +352,7 @@ const BarItemList = () => {
 };
 
 const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
+  console.log("itemsDialog", itemsDialog);
   const {
     data: barSubMenuList = {
       data: [],
@@ -493,7 +494,8 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
         consumeType: formData.consumeType,
         // foodType: "Alcoholic",
         // subMenuId: formData.selectedFoodType.id,
-        subMenuId: 1,
+        // subMenuId: 1,
+        subMenuId: itemsDialog?.id,
         hotelId: sessionStorage.getItem("hotelIdForBarItem"),
         isActive: itemToUpdate ? itemToUpdate.isActive : null,
       })
@@ -524,6 +526,7 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
       handleResetFormItem,
       handleClose,
       itemToUpdate,
+      itemsDialog,
     ]
   );
 

@@ -567,6 +567,7 @@ const OrderDetailsDialog = ({
     setSnack,
     isSplit,
     customOrderMapDtos,
+    handleCloseOrderDetailsDialog,
   ]);
 
   const handleMakePaymentWithCash = React.useCallback(() => {
@@ -632,7 +633,7 @@ const OrderDetailsDialog = ({
 
   const handleDownloadInvoice = React.useCallback((orderDetailsDialog) => {
     const imageUrl = JSON.parse(sessionStorage.getItem("data")).hotelLogoUrl;
-
+    const hotelName = JSON.parse(sessionStorage.getItem("data")).hotelName;
     const doc = new jsPDF();
 
     const img = new Image();
@@ -654,7 +655,10 @@ const OrderDetailsDialog = ({
       doc.setFontSize(16);
       doc.text("Restaurant Invoice", 20, 20);
       doc.setFontSize(12);
-      doc.text(orderDetailsDialog.bookingRequestDto.address, 20, 30);
+      doc.setFontSize(14);
+      doc.text(hotelName, 20, 26);
+      doc.setFontSize(12);
+      doc.text(orderDetailsDialog.bookingRequestDto.address, 20, 32);
 
       doc.setFontSize(12);
       doc.text(

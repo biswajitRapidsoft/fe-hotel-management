@@ -374,7 +374,7 @@ const CreateTableDialog = ({
           severity: "error",
         });
       });
-  }, [createTable, formData.tableList, setSnack]);
+  }, [createTable, formData.tableList, setSnack, handleClose]);
   return (
     <>
       <BootstrapDialog
