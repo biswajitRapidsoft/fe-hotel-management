@@ -38,6 +38,29 @@ const Row = ({ slNo, data, setParkingToUpdate, handleChangeSlotStatus }) => {
         <TableCell>{slNo}</TableCell>
         <TableCell>{data.areaName}</TableCell>
         <TableCell>{data.location}</TableCell>
+        <TableCell>{data.isPaid ? "Yes" : "No"}</TableCell>
+        <TableCell>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Typography>Bike :</Typography>
+            <Typography>{data.bikeParkingAmount || 0}</Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Typography>Car :</Typography>
+            <Typography>{data.carParkingAmount || 0}</Typography>
+          </Box>
+        </TableCell>
         <TableCell>
           <IconButton onClick={() => setParkingToUpdate(data)}>
             <EditIcon />
@@ -50,7 +73,7 @@ const Row = ({ slNo, data, setParkingToUpdate, handleChangeSlotStatus }) => {
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={5}>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={7}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box>
               <Table size="small">
@@ -162,6 +185,8 @@ const ParkingListTable = ({ parkingData, setParkingToUpdate }) => {
                 <TableCell>Sl No.</TableCell>
                 <TableCell>Parking Name</TableCell>
                 <TableCell>Location</TableCell>
+                <TableCell>Paid Parking</TableCell>
+                <TableCell>Parking Charges</TableCell>
                 <TableCell>Action</TableCell>
                 <TableCell />
               </TableRow>
