@@ -272,7 +272,7 @@ const dashboardApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
-      invalidatesTags: ["getKeysData"],
+      invalidatesTags: ["getKeysData", "getAllRoomListByHotelId"],
     }),
 
     getAllRoomListByHotelId: build.query({

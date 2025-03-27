@@ -481,6 +481,7 @@ const AddVehicleToParkFormDialog = memo(
       isBookingRefSuccess,
       setApiPayload,
       setOpenPaymentDialogV2,
+      onClose,
     ]);
 
     return (
@@ -761,7 +762,7 @@ const CustomRowForVehicleParkTable = memo(
         },
         () => {}
       );
-    }, [handleAssignParkingSlot, selectedSlot]);
+    }, [handleAssignParkingSlot, selectedSlot, vehicle.id]);
     return (
       <TableRow
         sx={{
