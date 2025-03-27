@@ -85,7 +85,14 @@ const CleaningServiceHistory = () => {
     cleaningServiceHistoryTableFilters,
     //  setLaundryHistoryTableFilters
   ] = React.useState(initialCleaningServiceHistoryTableFilters);
-
+  const [
+    cleaningServiceHistoryTablePageNo,
+    setCleaningServiceHistoryTablePageNo,
+  ] = React.useState(0);
+  const [
+    cleaningServiceHistoryTableRowsPerPage,
+    setCleaningServiceHistoryTableRowsPerPage,
+  ] = React.useState(10);
   const {
     data: cleaningServiceDetails = {
       paginationData: {
@@ -95,20 +102,19 @@ const CleaningServiceHistory = () => {
         data: [],
       },
     },
-  } = useGetAllCleaningServiceRequestHistoryQuery({
-    userId: JSON.parse(sessionStorage.getItem("data"))?.id,
-    pageNo: cleaningServiceHistoryTableFilters?.pageNo,
-    pageSize: cleaningServiceHistoryTableFilters?.pageSize,
-  });
-
-  const [
-    cleaningServiceHistoryTablePageNo,
-    setCleaningServiceHistoryTablePageNo,
-  ] = React.useState(0);
-  const [
-    cleaningServiceHistoryTableRowsPerPage,
-    setCleaningServiceHistoryTableRowsPerPage,
-  ] = React.useState(10);
+  } = useGetAllCleaningServiceRequestHistoryQuery(
+    {
+      // userId: JSON.parse(sessionStorage.getItem("data"))?.id,
+      // pageNo: cleaningServiceHistoryTableFilters?.pageNo,
+      // pageSize: cleaningServiceHistoryTableFilters?.pageSize,
+      userId: JSON.parse(sessionStorage.getItem("data"))?.id,
+      pageNo: cleaningServiceHistoryTablePageNo,
+      pageSize: cleaningServiceHistoryTableRowsPerPage,
+    },
+    {
+      refetchOnMountOrArgChange: true,
+    }
+  );
 
   const handleChangeCleaningServiceHistoryTablePageNo = React.useCallback(
     (event, newpage) => {
