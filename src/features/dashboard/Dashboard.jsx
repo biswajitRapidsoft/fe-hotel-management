@@ -3576,146 +3576,161 @@ const RoomServiceCard = memo(function ({
               gap: 1,
             }}
           >
-            {Boolean(
+            {/* {Boolean(
               Boolean(
                 isSelectedRoom?.bookingDto?.isCheckoutProceed === false
               ) &&
                 Boolean(
                   isSelectedRoom?.bookingDto?.isCheckedByKeepingStaff === true
                 )
-            ) && (
-              <Box sx={{ width: "100%", display: "flex", gap: 1 }}>
-                <Box
-                  sx={{
-                    ".MuiTextField-root": {
-                      width: "100%",
-                      backgroundColor: "transparent",
-                      ".MuiInputBase-root": {
-                        color: "#B4B4B4",
-                        background: "rgba(255, 255, 255, 0.25)",
-                      },
-                    },
-                    ".MuiFormLabel-root": {
-                      color: (theme) => theme.palette.primary.main,
-                      fontWeight: 600,
-                      fontSize: 14,
-                    },
-                    ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
-                      borderBottom: (theme) =>
-                        `1px solid ${theme.palette.primary.main}`,
-                    },
-                    ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
-                      borderBottom: (theme) =>
-                        `1px solid ${theme.palette.primary.main}`,
-                    },
-                    "& .MuiOutlinedInput-root": {
-                      height: "35px",
-                      minHeight: "35px",
-                    },
-                    "& .MuiInputBase-input": {
-                      padding: "13px",
-                      height: "100%",
-                      boxSizing: "border-box",
-                      fontSize: "13px",
-                    },
-                  }}
-                >
-                  <Autocomplete
-                    options={[
-                      // "Parking Invoice",
-                      "Food Invoice",
-                      "Final Invoice",
-                      "Bar Invoice",
-                      "Spa Invoice",
-                    ]}
-                    // disableClearable
-                    fullWidth
-                    value={selectedInvoice}
-                    onChange={(e, newValue) => setSelectedInvoice(newValue)}
-                    getOptionLabel={(option) => option || ""}
-                    clearOnEscape
-                    // disablePortal
-                    popupIcon={<KeyboardArrowDownIcon color="primary" />}
-                    sx={{
-                      // width: 200,
-                      ".MuiInputBase-root": {
-                        color: "#fff",
-                      },
-                      "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover":
-                        {
-                          backgroundColor: "#E9E5F1",
-                          color: "#280071",
-                          fontWeight: 600,
-                        },
-                      "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
-                        {
-                          backgroundColor: "#E9E5F1",
-                          color: "#280071",
-                          fontWeight: 600,
-                        },
-                    }}
-                    componentsProps={{
-                      popper: {
-                        sx: {
-                          "& .MuiAutocomplete-listbox": {
-                            maxHeight: "150px",
-                            overflow: "auto",
-                          },
-                          "& .MuiAutocomplete-option": {
-                            fontSize: "13px",
-                          },
-                        },
-                      },
-                    }}
-                    size="small"
-                    clearIcon={<ClearIcon color="primary" />}
-                    PaperComponent={(props) => (
-                      <Paper
-                        sx={{
-                          background: "#fff",
-                          color: "#B4B4B4",
-                          borderRadius: "10px",
-                        }}
-                        {...props}
-                      />
-                    )}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Select Invoice"
-                        sx={{
-                          "& .MuiOutlinedInput-root": {
-                            borderRadius: 2,
-                            width: 200,
-                            height: 35,
-                          },
-                        }}
-                      />
-                    )}
-                  />
-                </Box>
+            ) && ( */}
 
-                <Button
-                  variant="contained"
-                  size="small"
-                  onClick={() => {
-                    if (selectedInvoice === "Final Invoice") {
-                      handleViewHotelBillInvoice(isSelectedRoom);
-                    } else if (selectedInvoice === "Food Invoice") {
-                      handleViewFoodBillInvoice(isSelectedRoom);
-                    } else if (selectedInvoice === "Bar Invoice") {
-                      handleViewBarBillInvoice(isSelectedRoom);
-                    } else if (selectedInvoice === "Spa Invoice") {
-                      handleViewSpaBillInvoice(isSelectedRoom);
-                    } else {
-                      alert("Please select an option to view the bill.");
-                    }
-                  }}
-                >
-                  View
-                </Button>
-              </Box>
-            )}
+            {
+              // Boolean(
+              //   isSelectedRoom?.bookingDto?.bookingStatus === "Checked_In"
+              // )
+              ![
+                "Pending_Confirmation",
+                "Booked",
+                "Checked_Out",
+                "Cancelled",
+                "Booking_Cancellation_Requested",
+              ].includes(isSelectedRoom?.bookingDto?.bookingStatus) && (
+                <Box sx={{ width: "100%", display: "flex", gap: 1 }}>
+                  <Box
+                    sx={{
+                      ".MuiTextField-root": {
+                        width: "100%",
+                        backgroundColor: "transparent",
+                        ".MuiInputBase-root": {
+                          color: "#B4B4B4",
+                          background: "rgba(255, 255, 255, 0.25)",
+                        },
+                      },
+                      ".MuiFormLabel-root": {
+                        color: (theme) => theme.palette.primary.main,
+                        fontWeight: 600,
+                        fontSize: 14,
+                      },
+                      ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+                        borderBottom: (theme) =>
+                          `1px solid ${theme.palette.primary.main}`,
+                      },
+                      ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+                        borderBottom: (theme) =>
+                          `1px solid ${theme.palette.primary.main}`,
+                      },
+                      "& .MuiOutlinedInput-root": {
+                        height: "35px",
+                        minHeight: "35px",
+                      },
+                      "& .MuiInputBase-input": {
+                        padding: "13px",
+                        height: "100%",
+                        boxSizing: "border-box",
+                        fontSize: "13px",
+                      },
+                    }}
+                  >
+                    <Autocomplete
+                      options={[
+                        // "Parking Invoice",
+                        "Food Invoice",
+                        "Final Invoice",
+                        "Bar Invoice",
+                        "Spa Invoice",
+                      ]}
+                      // disableClearable
+                      fullWidth
+                      value={selectedInvoice}
+                      onChange={(e, newValue) => setSelectedInvoice(newValue)}
+                      getOptionLabel={(option) => option || ""}
+                      clearOnEscape
+                      // disablePortal
+                      popupIcon={<KeyboardArrowDownIcon color="primary" />}
+                      sx={{
+                        // width: 200,
+                        ".MuiInputBase-root": {
+                          color: "#fff",
+                        },
+                        "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover":
+                          {
+                            backgroundColor: "#E9E5F1",
+                            color: "#280071",
+                            fontWeight: 600,
+                          },
+                        "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                          {
+                            backgroundColor: "#E9E5F1",
+                            color: "#280071",
+                            fontWeight: 600,
+                          },
+                      }}
+                      componentsProps={{
+                        popper: {
+                          sx: {
+                            "& .MuiAutocomplete-listbox": {
+                              maxHeight: "150px",
+                              overflow: "auto",
+                            },
+                            "& .MuiAutocomplete-option": {
+                              fontSize: "13px",
+                            },
+                          },
+                        },
+                      }}
+                      size="small"
+                      clearIcon={<ClearIcon color="primary" />}
+                      PaperComponent={(props) => (
+                        <Paper
+                          sx={{
+                            background: "#fff",
+                            color: "#B4B4B4",
+                            borderRadius: "10px",
+                          }}
+                          {...props}
+                        />
+                      )}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Select Invoice"
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              borderRadius: 2,
+                              width: 200,
+                              height: 35,
+                            },
+                          }}
+                        />
+                      )}
+                    />
+                  </Box>
+
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={() => {
+                      if (selectedInvoice === "Final Invoice") {
+                        handleViewHotelBillInvoice(isSelectedRoom);
+                      } else if (selectedInvoice === "Food Invoice") {
+                        handleViewFoodBillInvoice(isSelectedRoom);
+                      } else if (selectedInvoice === "Bar Invoice") {
+                        handleViewBarBillInvoice(isSelectedRoom);
+                      } else if (selectedInvoice === "Spa Invoice") {
+                        handleViewSpaBillInvoice(isSelectedRoom);
+                      } else {
+                        alert("Please select an option to view the bill.");
+                      }
+                    }}
+                  >
+                    View
+                  </Button>
+                </Box>
+              )
+            }
+
+            {/* )} */}
 
             {Boolean(
               Boolean(

@@ -189,7 +189,7 @@ function App() {
           <Route
             path="/HotelBillInvoiceInHistory/:bookingRefNo"
             element={<HotelBillInvoiceInHistory key="hotel-bill-history" />}
-          />
+          />{" "}
           <Route
             path="/parkingBillInvoice/:bookingRefNo"
             element={<ParkingBillInvoice key="park-bill" />}
@@ -223,7 +223,8 @@ function App() {
             <Route
               path="/super-admin-dashboard"
               element={<SuperAdminDashboard />}
-            />
+            />{" "}
+            <Route path="/laundryItemList" element={<LaundryItemList />} />
             <Route
               path="/employee-list/:companyId"
               element={<SuperAdminEmployeeList />}
@@ -243,7 +244,6 @@ function App() {
             <Route path="/HallList" element={<HallList />} />
             <Route path="/createTable" element={<CreateTable />} />
             <Route path="/WaiterDashboard" element={<WaiterDashboard />} />
-
             <Route path="/BanquetList" element={<BanquetList />} />
             <Route path="/PromocodeList" element={<PromocodeList />} />
             <Route path="/parking-list" element={<ParkingList />} />
@@ -270,7 +270,6 @@ function App() {
             <Route path="/barItemList" element={<BarItemList />} />
             {/* LaundryHistoryForGuest */}
           </Route>
-
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route
@@ -307,7 +306,6 @@ function App() {
             />
             <Route path="/Parking" element={<Parking />} />
             <Route path="/ParkingHistory" element={<ParkingHistory />} />
-            <Route path="/laundryItemList" element={<LaundryItemList />} />
           </Route>
         </Routes>
       </React.Suspense>

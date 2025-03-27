@@ -1931,8 +1931,7 @@ const HotelBillInvoice = () => {
                           // fontWeight: 600,
                         }}
                       >
-                        {/* {invoiceData?.roomType?.type} */}
-                        --
+                        {invoiceData?.bookingDto?.hotel?.gstIn}
                       </Typography>
                     </Typography>
                   </Grid>

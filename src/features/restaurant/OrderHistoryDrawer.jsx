@@ -29,6 +29,8 @@ import {
   ORDER_PLACED,
   REJECTED,
   FOOD_PREPARING,
+  COMPLETED,
+  READY_TO_SERVE,
 } from "../../helper/constants";
 import { jsPDF } from "jspdf";
 
@@ -335,9 +337,14 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
                         (order?.bookingDetails?.discountPrice || 0)}
                     </Typography>
                   </Box>
-                  {![CANCELLED, REJECTED, DELIVERED, FOOD_PREPARING].includes(
-                    order.bookingDetails.foodBookingStatus
-                  ) && (
+                  {![
+                    CANCELLED,
+                    REJECTED,
+                    DELIVERED,
+                    FOOD_PREPARING,
+                    COMPLETED,
+                    READY_TO_SERVE,
+                  ].includes(order.bookingDetails.foodBookingStatus) && (
                     <Button
                       color="error"
                       variant="contained"

@@ -118,6 +118,10 @@ const restaurantApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
+      invalidatesTags: [
+        "getAllDineInRequestFromRoom",
+        "getAllTodayOrderForCounterStaff",
+      ],
     }),
     completeFoodOrder: build.mutation({
       query: (payload) => ({
@@ -145,7 +149,7 @@ const restaurantApi = apiSlice.injectEndpoints({
           hotelId: payload.hotelId,
         },
       }),
-      providesTags: ["hotelId"],
+      providesTags: ["getAllWaiters"],
     }),
     assignTableToWaiter: build.mutation({
       query: (payload) => ({

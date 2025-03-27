@@ -2882,6 +2882,9 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                             : ""
                           : ""
                       }
+                      FormHelperTextProps={{
+                        style: { color: "red" },
+                      }}
                     />
                   </Grid>
                 )}
@@ -3120,8 +3123,13 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                   textAlign: "center",
                 }}
               >
-                {Boolean(hotelDetails?.rewardsPoints)
-                  ? `You have a total of ${hotelDetails?.rewardsPoints} reward points`
+                {Boolean(
+                  JSON.parse(sessionStorage.getItem("data"))?.totalRewardsPoints
+                )
+                  ? `You have a total of ${
+                      JSON.parse(sessionStorage.getItem("data"))
+                        ?.totalRewardsPoints
+                    } reward points`
                   : "You don't have any reward points"}
               </Typography>
             </Box>

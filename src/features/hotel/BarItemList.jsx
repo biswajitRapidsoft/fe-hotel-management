@@ -1023,7 +1023,7 @@ const ItemDialog = ({ open, itemsDialog, handleClose, setSnack }) => {
                           <TableCell>{index + 1}</TableCell>
                           <TableCell>{item?.name}</TableCell>
                           <TableCell>
-                            {item?.barSubMenuCategory?.name}
+                            {item?.barSubMenuCategory?.menuName}
                           </TableCell>
                           <TableCell>{item?.price}</TableCell>
                           <TableCell>

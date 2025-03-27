@@ -66,6 +66,7 @@ const CounterStaffDashboard = () => {
     setMakePartialPaymentPayload(payload);
     setOpenPaymentDialog(true);
   }, [orderDetailsDialog]);
+
   const {
     data: tableListForCounterStaff = { data: [] },
     isLoading,
@@ -100,7 +101,7 @@ const CounterStaffDashboard = () => {
 
   const [orderMapDtos, setOrderMapDtos] = useState([]);
   const [customOrderMapDtos, setCustomOrderMapDtos] = useState([]);
-
+  console.log("customOrderMapDtos", customOrderMapDtos);
   const handleCloseOrderDetailsDialog = React.useCallback(() => {
     setFormDataForDialog({
       isAssosciateWithRoom: false,
@@ -1348,6 +1349,17 @@ const OrderDetailsDialog = ({
                           Name:
                         </Typography>
                         <Typography>{item?.firstName}</Typography>
+                      </Box>
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        <Typography
+                          sx={{
+                            fontWeight: "bold",
+                            color: (theme) => theme.palette.primary.main,
+                          }}
+                        >
+                          Room No.:
+                        </Typography>
+                        <Typography>{item?.roomDto?.roomNo}</Typography>
                       </Box>
                       <Box sx={{ display: "flex", gap: 1 }}>
                         <Typography
