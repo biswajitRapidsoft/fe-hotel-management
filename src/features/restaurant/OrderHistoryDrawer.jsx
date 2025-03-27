@@ -364,7 +364,31 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
                       Cancel Order
                     </Button>
                   )}
-                  {DELIVERED === order.bookingDetails.foodBookingStatus &&
+                  {/* {DELIVERED === order.bookingDetails.foodBookingStatus &&
+                    order.bookingDetails.isRated !== true && (
+                      <Button
+                        color="secondary"
+                        variant="contained"
+                        sx={{
+                          color: "#fff",
+                          display: "block",
+                          width: "100%",
+                          letterSpacing: 1,
+                          fontWeight: 600,
+                          textTransform: "none",
+                          fontSize: 18,
+                          "&.Mui-disabled": {
+                            background: "#B2E5F6",
+                            color: "#FFFFFF",
+                          },
+                        }}
+                        onClick={() => setReviewDialog(order)}
+                      >
+                        Review Your Order
+                      </Button>
+                    )} */}
+                  {(order.bookingDetails.foodBookingStatus === DELIVERED ||
+                    order.bookingDetails.foodBookingStatus === COMPLETED) &&
                     order.bookingDetails.isRated !== true && (
                       <Button
                         color="secondary"
@@ -387,6 +411,7 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
                         Review Your Order
                       </Button>
                     )}
+
                   {order.bookingDetails.isRated && (
                     <Rating
                       value={order.bookingDetails.ratingPoints}
