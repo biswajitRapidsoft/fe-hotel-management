@@ -94,6 +94,66 @@ const parkingApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["getAllParkingHistoryData"],
     }),
+    getValetUserList: build.query({
+      query: (payload) => ({
+        url: config.apiName.getValetUserList,
+        method: "GET",
+        params: {
+          hotelId: payload,
+        },
+      }),
+    }),
+    getParkingType: build.query({
+      query: () => ({
+        url: config.apiName.getParkingType,
+        method: "GET",
+      }),
+    }),
+    getGuestDetilsFromBookingRef: build.query({
+      query: (payload) => ({
+        url: config.apiName.getGuestDetilsFromBookingRef,
+        method: "GET",
+        params: {
+          bookingRefNumber: payload,
+        },
+      }),
+    }),
+    addVehicleToArea: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.addVehicleToArea,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getVehiclesInsideParking"],
+    }),
+    getVehiclesInsideParking: build.query({
+      query: (payload) => ({
+        url: config.apiName.getVehiclesInsideParking,
+        method: "GET",
+        params: {
+          hotelId: payload,
+        },
+      }),
+      providesTags: ["getVehiclesInsideParking"],
+    }),
+    assignParkingSlot: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.assignParkingSlot,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getVehiclesInsideParking", "getAllParkingData"],
+    }),
+    getParkingDetailsFromBookingRef: build.query({
+      query: (payload) => ({
+        url: config.apiName.getParkingDetailsFromBookingRef,
+        method: "GET",
+        params: {
+          bookingRefNumber: payload,
+        },
+      }),
+      providesTags: ["getParkingDetailsFromBookingRef"],
+    }),
   }),
 });
 
@@ -108,4 +168,11 @@ export const {
   useReleaseVehicleMutation,
   useCheckVehicleParkingStatusMutation,
   useGetAllParkingHistoryDataQuery,
+  useGetValetUserListQuery,
+  useGetParkingTypeQuery,
+  useLazyGetGuestDetilsFromBookingRefQuery,
+  useAddVehicleToAreaMutation,
+  useGetVehiclesInsideParkingQuery,
+  useAssignParkingSlotMutation,
+  useGetParkingDetailsFromBookingRefQuery,
 } = parkingApi;

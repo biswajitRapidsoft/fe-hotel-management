@@ -16,6 +16,9 @@ import {
   TextField,
   Typography,
   Paper,
+  FormControlLabel,
+  Checkbox,
+  FormGroup,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -57,18 +60,37 @@ const ParkingList = () => {
   const [formData, setFormData] = React.useState({
     parkingName: "",
     areaName: "",
+    isPaidParking: false,
+    bikeParkingAmount: "",
+    carParkingAmount: "",
   });
   const handleChange = React.useCallback((e) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [e.target.name]: e.target.value,
-    }));
+    if (e.target.type === "checkbox") {
+      setFormData((prevData) => ({
+        ...prevData,
+        bikeParkingAmount: "",
+        carParkingAmount: "",
+        [e.target.name]: e.target.checked,
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [e.target.name]: ["bikeParkingAmount", "carParkingAmount"].includes(
+          e.target.name
+        )
+          ? e.target.value.replace(/\D|^0/g, "")
+          : e.target.value,
+      }));
+    }
   }, []);
 
   const handleResetForm = React.useCallback(() => {
     setFormData({
       parkingName: "",
       areaName: "",
+      isPaidParking: false,
+      bikeParkingAmount: "",
+      carParkingAmount: "",
     });
     setParkingSlotArr([]);
   }, []);
@@ -77,6 +99,9 @@ const ParkingList = () => {
     return Boolean(
       formData.parkingName.trim() &&
         formData.areaName.trim() &&
+        (formData.isPaidParking
+          ? formData.bikeParkingAmount && formData.carParkingAmount
+          : true) &&
         parkingSlotArr.length > 0
     );
   }, [formData, parkingSlotArr]);
@@ -96,6 +121,8 @@ const ParkingList = () => {
             slotNumber: slot.slotName,
             vehicleType: slot.vehicleType,
           })),
+          bikeParkingAmount: formData.bikeParkingAmount || null,
+          carParkingAmount: formData.carParkingAmount || null,
         })
           .unwrap()
           .then((res) => {
@@ -124,6 +151,9 @@ const ParkingList = () => {
             slotNumber: slot.slotName,
             vehicleType: slot.vehicleType,
           })),
+          isPaid: formData.isPaidParking,
+          bikeParkingAmount: formData.bikeParkingAmount || null,
+          carParkingAmount: formData.carParkingAmount || null,
         })
           .unwrap()
           .then((res) => {
@@ -260,6 +290,66 @@ const ParkingList = () => {
               variant="standard"
             />
           </Grid>
+          <Grid size={3}>
+            <FormGroup sx={{ mt: 1 }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formData.isPaidParking}
+                    name="isPaidParking"
+                    onChange={handleChange}
+                  />
+                }
+                label="Is Paid Parking"
+              />
+            </FormGroup>
+          </Grid>
+          {formData.isPaidParking && (
+            <React.Fragment>
+              <Grid size={3}>
+                <TextField
+                  label={
+                    <React.Fragment>
+                      Bike Parking Amount{" "}
+                      <Box
+                        component="span"
+                        sx={{
+                          color: (theme) => theme.palette.error.main,
+                        }}
+                      >
+                        *
+                      </Box>
+                    </React.Fragment>
+                  }
+                  name="bikeParkingAmount"
+                  value={formData.bikeParkingAmount}
+                  onChange={handleChange}
+                  variant="standard"
+                />
+              </Grid>
+              <Grid size={3}>
+                <TextField
+                  label={
+                    <React.Fragment>
+                      Car Parking Amount{" "}
+                      <Box
+                        component="span"
+                        sx={{
+                          color: (theme) => theme.palette.error.main,
+                        }}
+                      >
+                        *
+                      </Box>
+                    </React.Fragment>
+                  }
+                  name="carParkingAmount"
+                  value={formData.carParkingAmount}
+                  onChange={handleChange}
+                  variant="standard"
+                />
+              </Grid>
+            </React.Fragment>
+          )}
         </Grid>
         <Box>
           <AddParkingSlotFormComponent
