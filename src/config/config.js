@@ -187,7 +187,14 @@ const config = Object.freeze({
     releaseVehicle: "api/release/vehicle",
     checkVehicleParkingStatus: "api/check/vehicle/parking/availability",
     getAllParkingHistoryData: "api/get/all/parked/vehicle/data",
-
+    getValetUserList: "api/get/all/valet/users",
+    getParkingType: "api/get/parking-type",
+    getGuestDetilsFromBookingRef: "api/get/booking/detalis/ref-number",
+    addVehicleToArea: "api/add/vehicle/inside/area",
+    getVehiclesInsideParking: "api/vehicles/inside-parking",
+    assignParkingSlot: "api/assign/parking/slots",
+    getParkingDetailsFromBookingRef:
+      "api/get/parking/detalis/booking/ref/number",
     // MANAGER DASHBOARD
     getAllDashboardDataForManager: "api/get/dashboard/data/for/manager",
     getAllInventoryItemsByHotelId: "api/get/inventory/items/stock/list",

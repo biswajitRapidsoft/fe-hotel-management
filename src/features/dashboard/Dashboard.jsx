@@ -71,6 +71,7 @@ import {
   useUpgradeRoomRequestMutation,
   useExtendCheckoutMutation,
 } from "../../services/dashboard";
+import { useGetParkingDetailsFromBookingRefQuery } from "../../services/parking";
 import { checkRoomStatusType } from "../../helper/helperFunctions";
 import moment from "moment";
 import { BootstrapDialog } from "../header/Header";
@@ -5009,6 +5010,15 @@ const CustomFormDrawer = memo(function ({
   handleSubmitRoomBookingCanelation,
   handleSubmitBookingForGuestByFrontDesk,
 }) {
+  const {
+    data: parkingDetails = {
+      data: null,
+    },
+  } = useGetParkingDetailsFromBookingRefQuery(
+    isSelectedRoom?.bookingDto?.bookingRefNumber || null,
+    { skip: !Boolean(isSelectedRoom?.bookingDto?.bookingRefNumber) }
+  );
+  const [parkingSlot, setParkingSlot] = React.useState("");
   // console.log("CustomFormDrawer customDrawerOpen : ", customDrawerOpen, type);
   console.log("customFormDrawerData", customFormDrawerData);
 
@@ -5051,8 +5061,8 @@ const CustomFormDrawer = memo(function ({
   }, [handleChangeCustomFormDrawerData, isSelectedRoom]);
 
   const handleSubmitRoomCheckInOnClick = useCallback(() => {
-    handleSubmitRoomCheckIn();
-  }, [handleSubmitRoomCheckIn]);
+    handleSubmitRoomCheckIn(parkingSlot);
+  }, [handleSubmitRoomCheckIn, parkingSlot]);
 
   const handleSubmitRoomBookingCanelationOnClick = useCallback(() => {
     handleSubmitRoomBookingCanelation();
@@ -5063,8 +5073,8 @@ const CustomFormDrawer = memo(function ({
   }, [handleChangeCustomFormDrawerData, isSelectedRoom]);
 
   const handleSubmitBookingForGuestByFrontDeskOnClick = useCallback(() => {
-    handleSubmitBookingForGuestByFrontDesk();
-  }, [handleSubmitBookingForGuestByFrontDesk]);
+    handleSubmitBookingForGuestByFrontDesk(parkingSlot);
+  }, [handleSubmitBookingForGuestByFrontDesk, parkingSlot]);
 
   useEffect(() => {
     if (customDrawerOpen && isSelectedRoom && type === "checkIn") {
@@ -5076,6 +5086,12 @@ const CustomFormDrawer = memo(function ({
     customDrawerOpen,
     type,
   ]);
+
+  React.useEffect(() => {
+    if (parkingDetails.data) {
+      setParkingSlot(parkingDetails.data.digitalTokenNo);
+    }
+  }, [parkingDetails.data]);
 
   useEffect(() => {
     if (customDrawerOpen && isSelectedRoom && type === "booking") {
@@ -5386,7 +5402,40 @@ const CustomFormDrawer = memo(function ({
                   </LocalizationProvider>
                 </Box>
               </Grid>
-
+              {/* parking Slot */}
+              <Grid size={{ xs: 12 }}>
+                <TextField
+                  margin="normal"
+                  fullWidth
+                  label="Parking Slot Token"
+                  name="parkingSlot"
+                  // autoComplete="noOfPeoples"
+                  inputProps={{
+                    maxLength: 200,
+                    style: {
+                      fontSize: "14px",
+                    },
+                  }}
+                  InputLabelProps={{
+                    style: {
+                      fontSize: "13px",
+                    },
+                  }}
+                  sx={{
+                    "& .MuiInputBase-root": {
+                      height: "23px",
+                    },
+                    "& .MuiTextField-root": {
+                      maxHeight: "30px",
+                      backgroundColor: "transparent",
+                    },
+                  }}
+                  variant="standard"
+                  value={parkingSlot}
+                  disabled={Boolean(parkingDetails.data)}
+                  onChange={(e) => setParkingSlot(e.target.value)}
+                />
+              </Grid>
               <Grid size={12}>
                 <Grid container size={12}>
                   {/* STAYERS */}
@@ -6605,6 +6654,44 @@ const CustomFormDrawer = memo(function ({
                       </Box>
                     </Grid>
                   )}
+
+                  {/* parking slot id */}
+                  {customFormDrawerData?.isBookingForToday && (
+                    <Grid size={{ xs: 12 }}>
+                      <TextField
+                        margin="normal"
+                        fullWidth
+                        label="Parking Slot Token"
+                        name="parkingSlot"
+                        // autoComplete="noOfPeoples"
+                        inputProps={{
+                          maxLength: 200,
+                          style: {
+                            fontSize: "14px",
+                          },
+                        }}
+                        InputLabelProps={{
+                          style: {
+                            fontSize: "13px",
+                          },
+                        }}
+                        sx={{
+                          "& .MuiInputBase-root": {
+                            height: "23px",
+                          },
+                          "& .MuiTextField-root": {
+                            maxHeight: "30px",
+                            backgroundColor: "transparent",
+                          },
+                        }}
+                        variant="standard"
+                        value={parkingSlot}
+                        disabled={Boolean(parkingDetails.data)}
+                        onChange={(e) => setParkingSlot(e.target.value)}
+                      />
+                    </Grid>
+                  )}
+
                   {customFormDrawerData?.isBookingForToday && (
                     <React.Fragment>
                       <Grid size={12}>
@@ -10249,156 +10336,161 @@ const Dashboard = () => {
     ]
   );
 
-  const handleSubmitRoomCheckIn = useCallback(() => {
-    const checkInDateTime = new Date(
-      new Date().toISOString().split("T")[0] +
-        ` ${isSelectedRoom.roomType.checkInTime}`
-    );
-    const currentDateTime = new Date();
+  const handleSubmitRoomCheckIn = useCallback(
+    (parkingSlot) => {
+      const checkInDateTime = new Date(
+        new Date().toISOString().split("T")[0] +
+          ` ${isSelectedRoom.roomType.checkInTime}`
+      );
+      const currentDateTime = new Date();
 
-    const earlyCheckInHour =
-      (checkInDateTime - currentDateTime) / (1000 * 60 * 60) < 0
-        ? 0
-        : Math.ceil((checkInDateTime - currentDateTime) / (1000 * 60 * 60));
-    if (!Boolean(customFormDrawerData?.noOfPeoples)) {
-      setSnack({
-        open: true,
-        message: "Atleat 1 guest is required to Check-In",
-        severity: "warning",
-      });
-      return;
-    } else if (
-      customFormDrawerData?.bookingMapDatas?.some(
-        (item) =>
-          !item?.customerName?.trim() ||
-          !item?.govtIdType?.key ||
-          !item?.govtIdNo?.trim()
-      )
-    ) {
-      setSnack({
-        open: true,
-        message: "Guest Verification Details are required",
-        severity: "warning",
-      });
-      return;
-    }
-    // else if (!Boolean(customFormDrawerData?.remarks?.trim())) {
-    //   setSnack({
-    //     open: true,
-    //     message: "Please add a remark",
-    //     severity: "warning",
-    //   });
-    //   return;
-    // }
-    else if (!Boolean(customFormDrawerData?.checkOutDate)) {
-      setSnack({
-        open: true,
-        message: "Please provide a valid Checkout date",
-        severity: "warning",
-      });
-      return;
-    }
-    // else if (
-    //   customFormDrawerData?.paymentMethod?.key &&
-    //   customFormDrawerData?.paymentMethod?.key !== "Cash" &&
-    //   customFormDrawerData?.paymentMethod?.key.trim() !== "" &&
-    //   !customFormDrawerData?.transactionReferenceNo?.trim()
-    // ) {
-    //   setSnack({
-    //     open: true,
-    //     message:
-    //       "Please provide a valid transaction reference for the selected payment method.",
-    //     severity: "warning",
-    //   });
-    //   return;
-    // }
-    else if (
-      Boolean(customFormDrawerData?.paymentMethod?.key) !==
-      Boolean(parseFloat(customFormDrawerData?.paidAmount))
-    ) {
-      setSnack({
-        open: true,
-        message:
-          "Please provide both payment method and advance amount to proceed.",
-        severity: "warning",
-      });
-      return;
-    }
-
-    const payload = {
-      bookingAmount:
-        earlyCheckInHour &&
-        Math.ceil(isSelectedRoom.roomType.basePrice / 24) * earlyCheckInHour,
-      bookingRefNumber: customFormDrawerData?.bookingRefNumber || "",
-      noOfPeoples: !Boolean(customFormDrawerData?.noOfPeoples)
-        ? 0
-        : Number(customFormDrawerData?.noOfPeoples),
-      paidAmount: !Boolean(customFormDrawerData?.paidAmount)
-        ? 0
-        : Number(customFormDrawerData?.paidAmount),
-      paymentMethod: customFormDrawerData?.paymentMethod?.key,
-      // transactionReferenceNo: customFormDrawerData?.transactionReferenceNo,
-      ...(customFormDrawerData?.paymentMethod?.key !== "Cash" &&
-        customFormDrawerData?.transactionReferenceNo?.trim() && {
-          transactionReferenceNo: customFormDrawerData?.transactionReferenceNo,
-        }),
-      remarks: customFormDrawerData?.remarks,
-      // checkOutDate: customFormDrawerData?.checkOutDate
-      //   ? moment(customFormDrawerData?.checkOutDate.$d).format("DD-MM-YYYY")
-      //   : null,
-      checkOutDate: customFormDrawerData?.checkOutDate
-        ? moment(customFormDrawerData?.checkOutDate.$d).format(
-            "DD-MM-YYYY HH:mm:ss"
-          )
-        : null,
-
-      bookingMapDatas: customFormDrawerData?.bookingMapDatas?.map((item) => {
-        return {
-          customerName: item?.customerName,
-          govtIdType: item?.govtIdType?.key,
-          govtIdNo: item?.govtIdNo,
-        };
-      }),
-    };
-
-    console.log("handleSubmitRoomCheckIn payload : ", payload);
-
-    if (customFormDrawerData?.paymentMethod?.key === "Online") {
-      handleChangeSetPaymentDialogFinalPayload({
-        open: true,
-        mutationType: "saveCheckIn",
-        payloadValue: payload,
-      });
-    } else {
-      saveCustomerCheckIn(payload)
-        .unwrap()
-        .then((res) => {
-          setSnack({
-            open: true,
-            message: res?.message || "Check-In Success",
-            severity: "success",
-          });
-          handleOpenCustomFormDrawer();
-          handleChangeCustomFormDrawerData();
-          handleRoomSelect();
-        })
-        .catch((err) => {
-          setSnack({
-            open: true,
-            message: err?.data?.message || err?.data || "Check-In Failed",
-            severity: "error",
-          });
+      const earlyCheckInHour =
+        (checkInDateTime - currentDateTime) / (1000 * 60 * 60) < 0
+          ? 0
+          : Math.ceil((checkInDateTime - currentDateTime) / (1000 * 60 * 60));
+      if (!Boolean(customFormDrawerData?.noOfPeoples)) {
+        setSnack({
+          open: true,
+          message: "Atleat 1 guest is required to Check-In",
+          severity: "warning",
         });
-    }
-  }, [
-    customFormDrawerData,
-    handleChangeSetPaymentDialogFinalPayload,
-    saveCustomerCheckIn,
-    handleOpenCustomFormDrawer,
-    handleChangeCustomFormDrawerData,
-    handleRoomSelect,
-    isSelectedRoom,
-  ]);
+        return;
+      } else if (
+        customFormDrawerData?.bookingMapDatas?.some(
+          (item) =>
+            !item?.customerName?.trim() ||
+            !item?.govtIdType?.key ||
+            !item?.govtIdNo?.trim()
+        )
+      ) {
+        setSnack({
+          open: true,
+          message: "Guest Verification Details are required",
+          severity: "warning",
+        });
+        return;
+      }
+      // else if (!Boolean(customFormDrawerData?.remarks?.trim())) {
+      //   setSnack({
+      //     open: true,
+      //     message: "Please add a remark",
+      //     severity: "warning",
+      //   });
+      //   return;
+      // }
+      else if (!Boolean(customFormDrawerData?.checkOutDate)) {
+        setSnack({
+          open: true,
+          message: "Please provide a valid Checkout date",
+          severity: "warning",
+        });
+        return;
+      }
+      // else if (
+      //   customFormDrawerData?.paymentMethod?.key &&
+      //   customFormDrawerData?.paymentMethod?.key !== "Cash" &&
+      //   customFormDrawerData?.paymentMethod?.key.trim() !== "" &&
+      //   !customFormDrawerData?.transactionReferenceNo?.trim()
+      // ) {
+      //   setSnack({
+      //     open: true,
+      //     message:
+      //       "Please provide a valid transaction reference for the selected payment method.",
+      //     severity: "warning",
+      //   });
+      //   return;
+      // }
+      else if (
+        Boolean(customFormDrawerData?.paymentMethod?.key) !==
+        Boolean(parseFloat(customFormDrawerData?.paidAmount))
+      ) {
+        setSnack({
+          open: true,
+          message:
+            "Please provide both payment method and advance amount to proceed.",
+          severity: "warning",
+        });
+        return;
+      }
+
+      const payload = {
+        parkingTokenOrVehicleNumber: parkingSlot || null,
+        bookingAmount:
+          earlyCheckInHour &&
+          Math.ceil(isSelectedRoom.roomType.basePrice / 24) * earlyCheckInHour,
+        bookingRefNumber: customFormDrawerData?.bookingRefNumber || "",
+        noOfPeoples: !Boolean(customFormDrawerData?.noOfPeoples)
+          ? 0
+          : Number(customFormDrawerData?.noOfPeoples),
+        paidAmount: !Boolean(customFormDrawerData?.paidAmount)
+          ? 0
+          : Number(customFormDrawerData?.paidAmount),
+        paymentMethod: customFormDrawerData?.paymentMethod?.key,
+        // transactionReferenceNo: customFormDrawerData?.transactionReferenceNo,
+        ...(customFormDrawerData?.paymentMethod?.key !== "Cash" &&
+          customFormDrawerData?.transactionReferenceNo?.trim() && {
+            transactionReferenceNo:
+              customFormDrawerData?.transactionReferenceNo,
+          }),
+        remarks: customFormDrawerData?.remarks,
+        // checkOutDate: customFormDrawerData?.checkOutDate
+        //   ? moment(customFormDrawerData?.checkOutDate.$d).format("DD-MM-YYYY")
+        //   : null,
+        checkOutDate: customFormDrawerData?.checkOutDate
+          ? moment(customFormDrawerData?.checkOutDate.$d).format(
+              "DD-MM-YYYY HH:mm:ss"
+            )
+          : null,
+
+        bookingMapDatas: customFormDrawerData?.bookingMapDatas?.map((item) => {
+          return {
+            customerName: item?.customerName,
+            govtIdType: item?.govtIdType?.key,
+            govtIdNo: item?.govtIdNo,
+          };
+        }),
+      };
+
+      console.log("handleSubmitRoomCheckIn payload : ", payload);
+
+      if (customFormDrawerData?.paymentMethod?.key === "Online") {
+        handleChangeSetPaymentDialogFinalPayload({
+          open: true,
+          mutationType: "saveCheckIn",
+          payloadValue: payload,
+        });
+      } else {
+        saveCustomerCheckIn(payload)
+          .unwrap()
+          .then((res) => {
+            setSnack({
+              open: true,
+              message: res?.message || "Check-In Success",
+              severity: "success",
+            });
+            handleOpenCustomFormDrawer();
+            handleChangeCustomFormDrawerData();
+            handleRoomSelect();
+          })
+          .catch((err) => {
+            setSnack({
+              open: true,
+              message: err?.data?.message || err?.data || "Check-In Failed",
+              severity: "error",
+            });
+          });
+      }
+    },
+    [
+      customFormDrawerData,
+      handleChangeSetPaymentDialogFinalPayload,
+      saveCustomerCheckIn,
+      handleOpenCustomFormDrawer,
+      handleChangeCustomFormDrawerData,
+      handleRoomSelect,
+      isSelectedRoom,
+    ]
+  );
 
   const handleSubmitRoomBookingCanelation = useCallback(() => {
     if (!Boolean(customFormDrawerData?.cancelBookingReason?.trim())) {
@@ -10671,291 +10763,307 @@ const Dashboard = () => {
     [assignNewKey]
   );
 
-  const handleSubmitBookingForGuestByFrontDesk = useCallback(() => {
-    const checkInDateTime = new Date(
-      new Date().toISOString().split("T")[0] +
-        ` ${isSelectedRoom.roomType.checkInTime}`
-    );
-    const currentDateTime = new Date();
+  const handleSubmitBookingForGuestByFrontDesk = useCallback(
+    (parkingSlot) => {
+      const checkInDateTime = new Date(
+        new Date().toISOString().split("T")[0] +
+          ` ${isSelectedRoom.roomType.checkInTime}`
+      );
+      const currentDateTime = new Date();
 
-    const earlyCheckInHour =
-      (checkInDateTime - currentDateTime) / (1000 * 60 * 60) < 0
-        ? 0
-        : Math.ceil((checkInDateTime - currentDateTime) / (1000 * 60 * 60));
-    if (!Boolean(customFormDrawerData?.firstName)) {
-      setSnack({
-        open: true,
-        message: "First name is required!",
-        severity: "warning",
-      });
-      return;
-    } else if (!/^\d{10}$/.test(String(customFormDrawerData?.phoneNumber))) {
-      setSnack({
-        open: true,
-        message: "Please provide a valid phone number",
-        severity: "warning",
-      });
-      return;
-    }
-    //  else if (!Boolean(customFormDrawerData?.email?.trim())) {
-    //   setSnack({
-    //     open: true,
-    //     message: "Please provide a valid email",
-    //     severity: "warning",
-    //   });
-    //   return;
-    // }
-    else if (!Boolean(customFormDrawerData?.address?.trim())) {
-      setSnack({
-        open: true,
-        message: "Please provide guest address",
-        severity: "warning",
-      });
-      return;
-    } else if (
-      Boolean(customFormDrawerData?.isBookingForToday) &&
-      !Boolean(customFormDrawerData?.checkOutDate)
-    ) {
-      setSnack({
-        open: true,
-        message: "Please provide a valid Checkout date",
-        severity: "warning",
-      });
-      return;
-    } else if (
-      !Boolean(customFormDrawerData?.isBookingForToday) &&
-      !Boolean(customFormDrawerData?.fromDate)
-    ) {
-      setSnack({
-        open: true,
-        message: "Please provide a valid From date",
-        severity: "warning",
-      });
-      return;
-    } else if (
-      !Boolean(customFormDrawerData?.isBookingForToday) &&
-      !Boolean(customFormDrawerData?.toDate)
-    ) {
-      setSnack({
-        open: true,
-        message: "Please provide a valid To date",
-        severity: "warning",
-      });
-      return;
-    } else if (!Boolean(customFormDrawerData?.noOfPeoples)) {
-      setSnack({
-        open: true,
-        message: "Atleat 1 guest is required to Check-In",
-        severity: "warning",
-      });
-      return;
-    } else if (
-      Boolean(customFormDrawerData?.isBookingForToday) &&
-      customFormDrawerData?.bookingMapDatas?.some(
-        (item) =>
-          !item?.customerName?.trim() ||
-          !item?.govtIdType?.key ||
-          !item?.govtIdNo?.trim()
-      )
-    ) {
-      setSnack({
-        open: true,
-        message: "Guest Verification Details are required",
-        severity: "warning",
-      });
-      return;
-    } else if (
-      !Boolean(customFormDrawerData?.isBookingForToday) &&
-      customFormDrawerData?.bookingMapDatas?.some((item) => {
-        const hasPartialEntry =
-          item?.customerName?.trim() ||
-          item?.govtIdType?.key ||
-          item?.govtIdNo?.trim();
-
-        const isEntryIncomplete =
-          !item?.customerName?.trim() ||
-          !item?.govtIdType?.key ||
-          !item?.govtIdNo?.trim();
-
-        return hasPartialEntry && isEntryIncomplete; // Trigger error if any key is filled but others are missing
-      })
-    ) {
-      setSnack({
-        open: true,
-        message: "Guest Verification should be completed if required.",
-        severity: "warning",
-      });
-      return;
-    } else if (
-      Boolean(customFormDrawerData?.isAdvanceRequired) &&
-      !Boolean(customFormDrawerData?.paymentMethod?.key)
-    ) {
-      setSnack({
-        open: true,
-        message: "Please select a valid payment method",
-        severity: "warning",
-      });
-      return;
-    }
-    //  else if (
-    //   Boolean(customFormDrawerData?.isAdvanceRequired) &&
-    //   Boolean(customFormDrawerData?.paymentMethod?.key !== "Cash") &&
-    //   !Boolean(customFormDrawerData?.transactionReferenceNo?.trim())
-    // ) {
-    //   setSnack({
-    //     open: true,
-    //     message: "Please provide a valid transacion ref. no.",
-    //     severity: "warning",
-    //   });
-    //   return;
-    // }
-    else if (
-      Boolean(customFormDrawerData?.isAdvanceRequired) &&
-      (isNaN(parseFloat(customFormDrawerData?.paidAmount)) ||
-        parseFloat(customFormDrawerData?.paidAmount) <
-          parseFloat(customFormDrawerData?.accumulatedAdvanceRequired))
-    ) {
-      setSnack({
-        open: true,
-        message: "please proceed with required advance amount",
-        severity: "warning",
-      });
-      return;
-    }
-    //  else if (
-    //   customFormDrawerData?.paymentMethod?.key &&
-    //   customFormDrawerData?.paymentMethod?.key !== "Cash" &&
-    //   customFormDrawerData?.paymentMethod?.key.trim() !== "" &&
-    //   !customFormDrawerData?.transactionReferenceNo?.trim()
-    // ) {
-    //   setSnack({
-    //     open: true,
-    //     message:
-    //       "Please provide a valid transaction reference for the selected payment method.",
-    //     severity: "warning",
-    //   });
-    //   return;
-    // }
-    else if (
-      Boolean(customFormDrawerData?.paymentMethod?.key) !==
-      Boolean(parseFloat(customFormDrawerData?.paidAmount))
-    ) {
-      setSnack({
-        open: true,
-        message:
-          "Please provide both payment method and advance amount to proceed.",
-        severity: "warning",
-      });
-      return;
-    }
-    const payload = {
-      roomTypeId: customFormDrawerData?.roomDto?.roomType?.id,
-      isBookingForToday: customFormDrawerData?.isBookingForToday,
-      firstName: customFormDrawerData?.firstName,
-      middleName: customFormDrawerData?.middleName,
-      lastName: customFormDrawerData?.lastName,
-      phoneNumber: customFormDrawerData?.phoneNumber,
-      email: customFormDrawerData?.email,
-      address: customFormDrawerData?.address,
-      // checkOutDate: customFormDrawerData?.checkOutDate
-      //   ? moment(customFormDrawerData?.checkOutDate.$d).format("DD-MM-YYYY")
-      //   : null,
-      ...(customFormDrawerData?.isBookingForToday
-        ? {
-            checkOutDate: customFormDrawerData?.checkOutDate
-              ? moment(customFormDrawerData?.checkOutDate.$d).format(
-                  "DD-MM-YYYY HH:mm:ss"
-                )
-              : null,
-          }
-        : {
-            fromDate: customFormDrawerData?.fromDate
-              ? moment(customFormDrawerData?.fromDate.$d).format("DD-MM-YYYY")
-              : null,
-            toDate: customFormDrawerData?.toDate
-              ? moment(customFormDrawerData?.toDate.$d).format("DD-MM-YYYY")
-              : null,
-          }),
-      noOfPeoples: customFormDrawerData?.noOfPeoples,
-      hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId,
-      roomDto: {
-        id: customFormDrawerData?.roomDto?.id,
-      },
-      bookingMapDatas: customFormDrawerData?.isBookingForToday
-        ? customFormDrawerData?.bookingMapDatas?.map((item) => {
-            return {
-              customerName: item?.customerName?.trim(),
-              govtIdType: item?.govtIdType?.key,
-              govtIdNo: item?.govtIdNo,
-            };
-          })
-        : customFormDrawerData?.bookingMapDatas?.some(
-            (item) =>
-              item?.customerName?.trim() ||
-              item?.govtIdType?.key ||
-              item?.govtIdNo?.trim()
-          )
-        ? customFormDrawerData?.bookingMapDatas?.map((item) => {
-            return {
-              customerName: item?.customerName,
-              govtIdType: item?.govtIdType?.key,
-              govtIdNo: item?.govtIdNo,
-            };
-          })
-        : [],
-      paidAmount: !Boolean(customFormDrawerData?.paidAmount)
-        ? 0
-        : Number(customFormDrawerData?.paidAmount),
-      paymentMethod: customFormDrawerData?.paymentMethod?.key,
-      // transactionReferenceNo: customFormDrawerData?.transactionReferenceNo,
-      ...(customFormDrawerData?.paymentMethod?.key !== "Cash" &&
-        customFormDrawerData?.transactionReferenceNo?.trim() && {
-          transactionReferenceNo: customFormDrawerData?.transactionReferenceNo,
-        }),
-      bookingAmount:
-        customFormDrawerData.isBookingForToday && earlyCheckInHour
-          ? customFormDrawerData?.accumulatedRoomCharge +
-            Math.ceil(isSelectedRoom.roomType.basePrice / 24) * earlyCheckInHour
-          : customFormDrawerData?.accumulatedRoomCharge,
-      remarks: customFormDrawerData?.remarks,
-    };
-
-    console.log("handleSubmitBookingForGuestByFrontDesk payload : ", payload);
-
-    if (customFormDrawerData?.paymentMethod?.key === "Online") {
-      handleChangeSetPaymentDialogFinalPayload({
-        open: true,
-        mutationType: "roomBooking",
-        payloadValue: payload,
-      });
-    } else {
-      bookingByFrontDeskStaff(payload)
-        .unwrap()
-        .then((res) => {
-          setSnack({
-            open: true,
-            message: res?.message || "Booking Success",
-            severity: "success",
-          });
-          handleOpenCustomFormDrawer();
-          handleRoomSelect();
-        })
-        .catch((err) => {
-          setSnack({
-            open: true,
-            message: err?.data?.message || err?.data || "Booking Failed",
-            severity: "error",
-          });
+      const earlyCheckInHour =
+        (checkInDateTime - currentDateTime) / (1000 * 60 * 60) < 0
+          ? 0
+          : Math.ceil((checkInDateTime - currentDateTime) / (1000 * 60 * 60));
+      if (!Boolean(customFormDrawerData?.firstName)) {
+        setSnack({
+          open: true,
+          message: "First name is required!",
+          severity: "warning",
         });
-    }
-  }, [
-    customFormDrawerData,
-    handleChangeSetPaymentDialogFinalPayload,
-    bookingByFrontDeskStaff,
-    handleOpenCustomFormDrawer,
-    handleRoomSelect,
-    isSelectedRoom,
-  ]);
+        return;
+      } else if (!/^\d{10}$/.test(String(customFormDrawerData?.phoneNumber))) {
+        setSnack({
+          open: true,
+          message: "Please provide a valid phone number",
+          severity: "warning",
+        });
+        return;
+      }
+      //  else if (!Boolean(customFormDrawerData?.email?.trim())) {
+      //   setSnack({
+      //     open: true,
+      //     message: "Please provide a valid email",
+      //     severity: "warning",
+      //   });
+      //   return;
+      // }
+      else if (!Boolean(customFormDrawerData?.address?.trim())) {
+        setSnack({
+          open: true,
+          message: "Please provide guest address",
+          severity: "warning",
+        });
+        return;
+      } else if (
+        Boolean(customFormDrawerData?.isBookingForToday) &&
+        !Boolean(customFormDrawerData?.checkOutDate)
+      ) {
+        setSnack({
+          open: true,
+          message: "Please provide a valid Checkout date",
+          severity: "warning",
+        });
+        return;
+      } else if (
+        !Boolean(customFormDrawerData?.isBookingForToday) &&
+        !Boolean(customFormDrawerData?.fromDate)
+      ) {
+        setSnack({
+          open: true,
+          message: "Please provide a valid From date",
+          severity: "warning",
+        });
+        return;
+      } else if (
+        !Boolean(customFormDrawerData?.isBookingForToday) &&
+        !Boolean(customFormDrawerData?.toDate)
+      ) {
+        setSnack({
+          open: true,
+          message: "Please provide a valid To date",
+          severity: "warning",
+        });
+        return;
+      } else if (!Boolean(customFormDrawerData?.noOfPeoples)) {
+        setSnack({
+          open: true,
+          message: "Atleat 1 guest is required to Check-In",
+          severity: "warning",
+        });
+        return;
+      } else if (
+        Boolean(customFormDrawerData?.isBookingForToday) &&
+        customFormDrawerData?.bookingMapDatas?.some(
+          (item) =>
+            !item?.customerName?.trim() ||
+            !item?.govtIdType?.key ||
+            !item?.govtIdNo?.trim()
+        )
+      ) {
+        setSnack({
+          open: true,
+          message: "Guest Verification Details are required",
+          severity: "warning",
+        });
+        return;
+      } else if (
+        !Boolean(customFormDrawerData?.isBookingForToday) &&
+        customFormDrawerData?.bookingMapDatas?.some((item) => {
+          const hasPartialEntry =
+            item?.customerName?.trim() ||
+            item?.govtIdType?.key ||
+            item?.govtIdNo?.trim();
+
+          const isEntryIncomplete =
+            !item?.customerName?.trim() ||
+            !item?.govtIdType?.key ||
+            !item?.govtIdNo?.trim();
+
+          return hasPartialEntry && isEntryIncomplete; // Trigger error if any key is filled but others are missing
+        })
+      ) {
+        setSnack({
+          open: true,
+          message: "Guest Verification should be completed if required.",
+          severity: "warning",
+        });
+        return;
+      } else if (
+        Boolean(customFormDrawerData?.isAdvanceRequired) &&
+        !Boolean(customFormDrawerData?.paymentMethod?.key)
+      ) {
+        setSnack({
+          open: true,
+          message: "Please select a valid payment method",
+          severity: "warning",
+        });
+        return;
+      }
+      //  else if (
+      //   Boolean(customFormDrawerData?.isAdvanceRequired) &&
+      //   Boolean(customFormDrawerData?.paymentMethod?.key !== "Cash") &&
+      //   !Boolean(customFormDrawerData?.transactionReferenceNo?.trim())
+      // ) {
+      //   setSnack({
+      //     open: true,
+      //     message: "Please provide a valid transacion ref. no.",
+      //     severity: "warning",
+      //   });
+      //   return;
+      // }
+      else if (
+        Boolean(customFormDrawerData?.isAdvanceRequired) &&
+        (isNaN(parseFloat(customFormDrawerData?.paidAmount)) ||
+          parseFloat(customFormDrawerData?.paidAmount) <
+            parseFloat(customFormDrawerData?.accumulatedAdvanceRequired))
+      ) {
+        setSnack({
+          open: true,
+          message: "please proceed with required advance amount",
+          severity: "warning",
+        });
+        return;
+      }
+      //  else if (
+      //   customFormDrawerData?.paymentMethod?.key &&
+      //   customFormDrawerData?.paymentMethod?.key !== "Cash" &&
+      //   customFormDrawerData?.paymentMethod?.key.trim() !== "" &&
+      //   !customFormDrawerData?.transactionReferenceNo?.trim()
+      // ) {
+      //   setSnack({
+      //     open: true,
+      //     message:
+      //       "Please provide a valid transaction reference for the selected payment method.",
+      //     severity: "warning",
+      //   });
+      //   return;
+      // }
+      else if (
+        Boolean(customFormDrawerData?.paymentMethod?.key) !==
+        Boolean(parseFloat(customFormDrawerData?.paidAmount))
+      ) {
+        setSnack({
+          open: true,
+          message:
+            "Please provide both payment method and advance amount to proceed.",
+          severity: "warning",
+        });
+        return;
+      } else if (
+        customFormDrawerData?.accumulatedRoomCharge <
+        customFormDrawerData?.paidAmount
+      ) {
+        setSnack({
+          open: true,
+          message: "Advance can't be more than the room charges.",
+          severity: "warning",
+        });
+        return;
+      }
+      const payload = {
+        parkingTokenOrVehicleNumber: parkingSlot,
+        roomTypeId: customFormDrawerData?.roomDto?.roomType?.id,
+        isBookingForToday: customFormDrawerData?.isBookingForToday,
+        firstName: customFormDrawerData?.firstName,
+        middleName: customFormDrawerData?.middleName,
+        lastName: customFormDrawerData?.lastName,
+        phoneNumber: customFormDrawerData?.phoneNumber,
+        email: customFormDrawerData?.email,
+        address: customFormDrawerData?.address,
+        // checkOutDate: customFormDrawerData?.checkOutDate
+        //   ? moment(customFormDrawerData?.checkOutDate.$d).format("DD-MM-YYYY")
+        //   : null,
+        ...(customFormDrawerData?.isBookingForToday
+          ? {
+              checkOutDate: customFormDrawerData?.checkOutDate
+                ? moment(customFormDrawerData?.checkOutDate.$d).format(
+                    "DD-MM-YYYY HH:mm:ss"
+                  )
+                : null,
+            }
+          : {
+              fromDate: customFormDrawerData?.fromDate
+                ? moment(customFormDrawerData?.fromDate.$d).format("DD-MM-YYYY")
+                : null,
+              toDate: customFormDrawerData?.toDate
+                ? moment(customFormDrawerData?.toDate.$d).format("DD-MM-YYYY")
+                : null,
+            }),
+        noOfPeoples: customFormDrawerData?.noOfPeoples,
+        hotelId: JSON.parse(sessionStorage.getItem("data"))?.hotelId,
+        roomDto: {
+          id: customFormDrawerData?.roomDto?.id,
+        },
+        bookingMapDatas: customFormDrawerData?.isBookingForToday
+          ? customFormDrawerData?.bookingMapDatas?.map((item) => {
+              return {
+                customerName: item?.customerName?.trim(),
+                govtIdType: item?.govtIdType?.key,
+                govtIdNo: item?.govtIdNo,
+              };
+            })
+          : customFormDrawerData?.bookingMapDatas?.some(
+              (item) =>
+                item?.customerName?.trim() ||
+                item?.govtIdType?.key ||
+                item?.govtIdNo?.trim()
+            )
+          ? customFormDrawerData?.bookingMapDatas?.map((item) => {
+              return {
+                customerName: item?.customerName,
+                govtIdType: item?.govtIdType?.key,
+                govtIdNo: item?.govtIdNo,
+              };
+            })
+          : [],
+        paidAmount: !Boolean(customFormDrawerData?.paidAmount)
+          ? 0
+          : Number(customFormDrawerData?.paidAmount),
+        paymentMethod: customFormDrawerData?.paymentMethod?.key,
+        // transactionReferenceNo: customFormDrawerData?.transactionReferenceNo,
+        ...(customFormDrawerData?.paymentMethod?.key !== "Cash" &&
+          customFormDrawerData?.transactionReferenceNo?.trim() && {
+            transactionReferenceNo:
+              customFormDrawerData?.transactionReferenceNo,
+          }),
+        bookingAmount:
+          customFormDrawerData.isBookingForToday && earlyCheckInHour
+            ? customFormDrawerData?.accumulatedRoomCharge +
+              Math.ceil(isSelectedRoom.roomType.basePrice / 24) *
+                earlyCheckInHour
+            : customFormDrawerData?.accumulatedRoomCharge,
+        remarks: customFormDrawerData?.remarks,
+      };
+
+      console.log("handleSubmitBookingForGuestByFrontDesk payload : ", payload);
+
+      if (customFormDrawerData?.paymentMethod?.key === "Online") {
+        handleChangeSetPaymentDialogFinalPayload({
+          open: true,
+          mutationType: "roomBooking",
+          payloadValue: payload,
+        });
+      } else {
+        bookingByFrontDeskStaff(payload)
+          .unwrap()
+          .then((res) => {
+            setSnack({
+              open: true,
+              message: res?.message || "Booking Success",
+              severity: "success",
+            });
+            handleOpenCustomFormDrawer();
+            handleRoomSelect();
+          })
+          .catch((err) => {
+            setSnack({
+              open: true,
+              message: err?.data?.message || err?.data || "Booking Failed",
+              severity: "error",
+            });
+          });
+      }
+    },
+    [
+      customFormDrawerData,
+      handleChangeSetPaymentDialogFinalPayload,
+      bookingByFrontDeskStaff,
+      handleOpenCustomFormDrawer,
+      handleRoomSelect,
+      isSelectedRoom,
+    ]
+  );
 
   useEffect(() => {
     if (Boolean(apiRoomData?.data?.floorRoomMapData?.length)) {
@@ -11155,6 +11263,7 @@ const Dashboard = () => {
         handleSubmitBookingForGuestByFrontDesk={
           handleSubmitBookingForGuestByFrontDesk
         }
+        key={isSelectedRoom?.id || 0}
       />
       <RoomUpgradeDrawer
         open={Boolean(roomUpgradeDrawer)}
