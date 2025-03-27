@@ -3590,12 +3590,11 @@ const RoomServiceCard = memo(function ({
               // Boolean(
               //   isSelectedRoom?.bookingDto?.bookingStatus === "Checked_In"
               // )
-              ![
-                "Pending_Confirmation",
-                "Booked",
-                "Checked_Out",
-                "Cancelled",
-                "Booking_Cancellation_Requested",
+              [
+                "Checked_In",
+                "Room_Checkout_Requested",
+                "Room_Checkout_Request_Approved",
+                "Room_Upgrade_Request",
               ].includes(isSelectedRoom?.bookingDto?.bookingStatus) && (
                 <Box sx={{ width: "100%", display: "flex", gap: 1 }}>
                   <Box
