@@ -402,7 +402,7 @@ const GuestDashboard = () => {
     }
   };
 
-  console.log("bookingDetails", bookingDetails?.data);
+  // console.log("bookingDetails", bookingDetails?.data);
   return (
     <>
       <Box
@@ -773,25 +773,26 @@ const GuestDashboard = () => {
                                             Cancel
                                           </Button>
                                         )}
-                                        {booking?.bookingStatus ===
-                                          "Pending_Confirmation" && (
-                                          <Button
-                                            variant="contained"
-                                            sx={{
-                                              backgroundColor: "#17B169",
-                                              color: "#fff",
-                                              textTransform: "none",
-                                            }}
-                                            onClick={() => {
-                                              // const phoneNumber = "+1234567890";
-                                              const phoneNumber =
-                                                booking?.hotel?.contactNos[0];
-                                              window.location.href = `tel:${phoneNumber}`;
-                                            }}
-                                          >
-                                            <CallIcon />
-                                          </Button>
-                                        )}
+                                        {/* {booking?.bookingStatus ===
+                                          "Pending_Confirmation" && ( */}
+
+                                        <Button
+                                          variant="contained"
+                                          sx={{
+                                            backgroundColor: "#17B169",
+                                            color: "#fff",
+                                            textTransform: "none",
+                                          }}
+                                          onClick={() => {
+                                            // const phoneNumber = "+1234567890";
+                                            const phoneNumber =
+                                              booking?.hotel?.contactNos[0];
+                                            window.location.href = `tel:${phoneNumber}`;
+                                          }}
+                                        >
+                                          <CallIcon />
+                                        </Button>
+                                        {/* // )} */}
 
                                         {booking?.bookingStatus ===
                                           "Checked_Out" &&
@@ -2041,7 +2042,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
   const [openHotelDetailsDialog, setOpenHotelDetailsDialog] =
     React.useState(false);
   const [hotelDetailsData, setHotelDetailsData] = React.useState(null);
-  console.log("hotelDetails", hotelDetails);
+  // console.log("hotelDetails", hotelDetails);
   const handleHotelDetails = (item) => {
     setOpenHotelDetailsDialog(true);
     setHotelDetailsData(item);
@@ -2121,14 +2122,142 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
   }, [formData.fromDate, formData.toDate]);
 
   // Function to validate the form and open payment dialog
+  // const validateAndOpenPaymentDialog = () => {
+  //   const isAdvanceValid =
+  //     !hotelDetails?.isAdvanceRequired ||
+  //     (formData.advancePayment &&
+  //       Number(formData.advancePayment) >=
+  //         Number(hotelDetails.advanceAmount) * calculateNumberOfDays &&
+  //       Number(formData.advancePayment) <=
+  //         Number(hotelDetails.basePrice) * calculateNumberOfDays);
+
+  //   if (!Boolean(formData.noOfPeoples)) {
+  //     return setSnack({
+  //       open: true,
+  //       message: "Please provide number of people",
+  //       severity: "error",
+  //     });
+  //   } else if (!Boolean(formData.firstName)) {
+  //     return setSnack({
+  //       open: true,
+  //       message: "Please provide first name",
+  //       severity: "error",
+  //     });
+  //   } else if (!Boolean(formData.email)) {
+  //     return setSnack({
+  //       open: true,
+  //       message: "Please provide email",
+  //       severity: "error",
+  //     });
+  //   } else if (!Boolean(formData.address)) {
+  //     return setSnack({
+  //       open: true,
+  //       message: "Please provide address",
+  //       severity: "error",
+  //     });
+  //   } else if (!Boolean(formData.fromDate)) {
+  //     return setSnack({
+  //       open: true,
+  //       message: "Please provide fromDate",
+  //       severity: "error",
+  //     });
+  //   } else if (!Boolean(formData.toDate)) {
+  //     return setSnack({
+  //       open: true,
+  //       message: "Please provide toDate",
+  //       severity: "error",
+  //     });
+  //   } else if (!Boolean(formData.noOfPeoples)) {
+  //     return setSnack({
+  //       open: true,
+  //       message: "Please provide number of people",
+  //       severity: "error",
+  //     });
+  //   } else if (Boolean(formData.noOfPeoples > hotelDetails.capacity)) {
+  //     return setSnack({
+  //       open: true,
+  //       message: `Maximum of ${hotelDetails?.capacity} people are allowed`,
+  //       severity: "error",
+  //     });
+  //   } else if (!isAdvanceValid) {
+  //     return setSnack({
+  //       open: true,
+  //       message:
+  //         calculateNumberOfDays > 0
+  //           ? Number(formData.advancePayment) <
+  //             Number(hotelDetails.advanceAmount) * calculateNumberOfDays
+  //             ? `Please pay ₹${
+  //                 hotelDetails.advanceAmount * calculateNumberOfDays
+  //               } in advance`
+  //             : `Advance amount cannot exceed ₹${
+  //                 hotelDetails.basePrice * calculateNumberOfDays
+  //               }`
+  //           : "Invalid advance payment",
+  //       severity: "error",
+  //     });
+  //   }
+  //   // Create payload
+  //   const payload = {
+  //     firstName: formData.firstName,
+  //     middleName: formData.middleName,
+  //     lastName: formData.lastName,
+  //     phoneNumber: formData.phoneNumber,
+  //     email: formData.email,
+  //     address: formData.address,
+  //     fromDate: formData.fromDate
+  //       ? dayjs(formData.fromDate).format("DD-MM-YYYY")
+  //       : null,
+  //     toDate: formData.toDate
+  //       ? dayjs(formData.toDate).format("DD-MM-YYYY")
+  //       : null,
+  //     noOfPeoples: Number(formData.noOfPeoples),
+  //     roomTypeId: hotelDetails?.id,
+  //     hotelId: hotelDetails?.hotelDto?.id,
+  //     paidAmount: formData.advancePayment,
+  //     // bookingAmount: isClaimPoints
+  //     //   ? hotelDetails.basePrice * calculateNumberOfDays -
+  //     //       userDetails?.data?.rewardsPointPrice || 0
+  //     //   : calculateNumberOfDays * Number(hotelDetails?.basePrice),
+  //     bookingAmount: hotelDetails?.configurationPrice
+  //       ? isClaimPoints
+  //         ? hotelDetails.configurationPrice * calculateNumberOfDays -
+  //           (userDetails?.data?.rewardsPointPrice || 0)
+  //         : calculateNumberOfDays * Number(hotelDetails.configurationPrice)
+  //       : isClaimPoints
+  //       ? hotelDetails.basePrice * calculateNumberOfDays -
+  //         (userDetails?.data?.rewardsPointPrice || 0)
+  //       : calculateNumberOfDays * Number(hotelDetails?.basePrice),
+
+  //     isRewardsPointsUsed: isClaimPoints,
+  //     noOfRewardsPointsUsed: userDetails?.data?.noOfRewardsPointsAvailable,
+  //     rewardsPointPrice: userDetails?.data?.rewardsPointPrice,
+  //   };
+
+  //   setReservationPayload(payload);
+  //   setOpenPaymentDialog(true);
+  // };
+
   const validateAndOpenPaymentDialog = () => {
+    // Determine the price base (configured price or base price)
+    const priceBase = hotelDetails.configurationPrice
+      ? hotelDetails.configurationPrice
+      : hotelDetails.basePrice;
+
+    // Calculate required advance amount
+    const requiredAdvanceAmount =
+      (Number(hotelDetails.advanceAmount) / 100) *
+      priceBase *
+      calculateNumberOfDays;
+
+    // Maximum allowed amount
+    const maxAllowedAmount = priceBase * calculateNumberOfDays;
+
+    // Check if advance payment is valid
     const isAdvanceValid =
       !hotelDetails?.isAdvanceRequired ||
       (formData.advancePayment &&
-        Number(formData.advancePayment) >=
-          Number(hotelDetails.advanceAmount) * calculateNumberOfDays &&
-        Number(formData.advancePayment) <=
-          Number(hotelDetails.basePrice) * calculateNumberOfDays);
+        Number(formData.advancePayment) >= requiredAdvanceAmount &&
+        Number(formData.advancePayment) <= maxAllowedAmount);
 
     if (!Boolean(formData.noOfPeoples)) {
       return setSnack({
@@ -2166,12 +2295,6 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
         message: "Please provide toDate",
         severity: "error",
       });
-    } else if (!Boolean(formData.noOfPeoples)) {
-      return setSnack({
-        open: true,
-        message: "Please provide number of people",
-        severity: "error",
-      });
     } else if (Boolean(formData.noOfPeoples > hotelDetails.capacity)) {
       return setSnack({
         open: true,
@@ -2182,19 +2305,13 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
       return setSnack({
         open: true,
         message:
-          calculateNumberOfDays > 0
-            ? Number(formData.advancePayment) <
-              Number(hotelDetails.advanceAmount) * calculateNumberOfDays
-              ? `Please pay ₹${
-                  hotelDetails.advanceAmount * calculateNumberOfDays
-                } in advance`
-              : `Advance amount cannot exceed ₹${
-                  hotelDetails.basePrice * calculateNumberOfDays
-                }`
-            : "Invalid advance payment",
+          Number(formData.advancePayment) < requiredAdvanceAmount
+            ? `Please pay ₹${requiredAdvanceAmount.toFixed(2)} in advance`
+            : `Advance amount cannot exceed ₹${maxAllowedAmount.toFixed(2)}`,
         severity: "error",
       });
     }
+
     // Create payload
     const payload = {
       firstName: formData.firstName,
@@ -2213,20 +2330,9 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
       roomTypeId: hotelDetails?.id,
       hotelId: hotelDetails?.hotelDto?.id,
       paidAmount: formData.advancePayment,
-      // bookingAmount: isClaimPoints
-      //   ? hotelDetails.basePrice * calculateNumberOfDays -
-      //       userDetails?.data?.rewardsPointPrice || 0
-      //   : calculateNumberOfDays * Number(hotelDetails?.basePrice),
-      bookingAmount: hotelDetails?.configurationPrice
-        ? isClaimPoints
-          ? hotelDetails.configurationPrice * calculateNumberOfDays -
-            (userDetails?.data?.rewardsPointPrice || 0)
-          : calculateNumberOfDays * Number(hotelDetails.configurationPrice)
-        : isClaimPoints
-        ? hotelDetails.basePrice * calculateNumberOfDays -
-          (userDetails?.data?.rewardsPointPrice || 0)
-        : calculateNumberOfDays * Number(hotelDetails?.basePrice),
-
+      bookingAmount:
+        priceBase * calculateNumberOfDays -
+        (isClaimPoints ? userDetails?.data?.rewardsPointPrice || 0 : 0),
       isRewardsPointsUsed: isClaimPoints,
       noOfRewardsPointsUsed: userDetails?.data?.noOfRewardsPointsAvailable,
       rewardsPointPrice: userDetails?.data?.rewardsPointPrice,
@@ -2235,97 +2341,236 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
     setReservationPayload(payload);
     setOpenPaymentDialog(true);
   };
+
   // add reservation function
+  // const handleSubmitReserve = React.useCallback(
+  //   (e) => {
+  //     e.preventDefault();
+  //     const sessionData = JSON.parse(sessionStorage.getItem("data"));
+
+  //     const isAdvanceValid =
+  //       !hotelDetails?.isAdvanceRequired ||
+  //       (formData.advancePayment &&
+  //         Number(formData.advancePayment) >=
+  //           Number(hotelDetails.advanceAmount) * calculateNumberOfDays &&
+  //         Number(formData.advancePayment) <=
+  //           Number(hotelDetails.basePrice) * calculateNumberOfDays);
+
+  //     if (!Boolean(formData.noOfPeoples)) {
+  //       return setSnack({
+  //         open: true,
+  //         message: "Please provide number of people",
+  //         severity: "error",
+  //       });
+  //     } else if (!Boolean(formData.firstName)) {
+  //       return setSnack({
+  //         open: true,
+  //         message: "Please provide first name",
+  //         severity: "error",
+  //       });
+  //     } else if (!Boolean(formData.email)) {
+  //       return setSnack({
+  //         open: true,
+  //         message: "Please provide email",
+  //         severity: "error",
+  //       });
+  //     } else if (!Boolean(formData.address)) {
+  //       return setSnack({
+  //         open: true,
+  //         message: "Please provide address",
+  //         severity: "error",
+  //       });
+  //     } else if (!Boolean(formData.fromDate)) {
+  //       return setSnack({
+  //         open: true,
+  //         message: "Please provide fromDate",
+  //         severity: "error",
+  //       });
+  //     } else if (!Boolean(formData.toDate)) {
+  //       return setSnack({
+  //         open: true,
+  //         message: "Please provide toDate",
+  //         severity: "error",
+  //       });
+  //     } else if (!Boolean(formData.noOfPeoples)) {
+  //       return setSnack({
+  //         open: true,
+  //         message: "Please provide number of people",
+  //         severity: "error",
+  //       });
+  //     } else if (Boolean(formData.noOfPeoples > hotelDetails.capacity)) {
+  //       return setSnack({
+  //         open: true,
+  //         message: `Maximum of ${hotelDetails?.capacity} people are allowed`,
+  //         severity: "error",
+  //       });
+  //     } else if (!isAdvanceValid) {
+  //       return setSnack({
+  //         open: true,
+  //         message:
+  //           calculateNumberOfDays > 0
+  //             ? Number(formData.advancePayment) <
+  //               Number(hotelDetails.advanceAmount) * calculateNumberOfDays
+  //               ? `Please pay ₹${
+  //                   hotelDetails.advanceAmount * calculateNumberOfDays
+  //                 } in advance`
+  //               : `Advance amount cannot exceed ₹${
+  //                   hotelDetails.basePrice * calculateNumberOfDays
+  //                 }`
+  //             : "Invalid advance payment",
+  //         severity: "error",
+  //       });
+  //     }
+
+  //     reserveHotelRoom({
+  //       firstName: formData.firstName,
+  //       middleName: formData.middleName,
+  //       lastName: formData.lastName,
+  //       // alternativePhoneNumber: formData.phoneNumber,
+  //       alternativePhoneNumber: Boolean(sessionData.phoneNo)
+  //         ? formData.phoneNumber
+  //         : "",
+  //       // phoneNumber: sessionData?.phoneNo || "",
+  //       phoneNumber: sessionData?.phoneNo || formData?.phoneNumber || "",
+
+  //       email: formData.email,
+  //       address: formData.address,
+  //       fromDate: formData.fromDate
+  //         ? dayjs(formData.fromDate).format("DD-MM-YYYY")
+  //         : null,
+  //       toDate: formData.toDate
+  //         ? dayjs(formData.toDate).format("DD-MM-YYYY")
+  //         : null,
+  //       noOfPeoples: Number(formData.noOfPeoples),
+  //       roomTypeId: hotelDetails?.id,
+  //       hotelId: hotelDetails?.hotelDto?.id,
+  //       paidAmount: formData.advancePayment,
+  //       bookingAmount: isClaimPoints
+  //         ? hotelDetails.basePrice * calculateNumberOfDays -
+  //             userDetails?.data?.rewardsPointPrice || 0
+  //         : calculateNumberOfDays * Number(hotelDetails?.basePrice),
+  //       isRewardsPointsUsed: isClaimPoints,
+  //       noOfRewardsPointsUsed: userDetails?.data?.noOfRewardsPointsAvailable,
+  //       rewardsPointPrice: userDetails?.data?.rewardsPointPrice,
+  //       gstPrice: isClaimPoints
+  //         ? (hotelDetails.basePrice * calculateNumberOfDays -
+  //             userDetails?.data?.rewardsPointPrice) *
+  //             0.18 || 0
+  //         : calculateNumberOfDays * Number(hotelDetails?.basePrice) * 0.18,
+  //       // paymentDetails: Boolean(sessionStorage.getItem("paymentDetail"))
+  //       //   ? sessionStorage.getItem("paymentDetail")
+  //       //   : "",
+  //     })
+  //       .unwrap()
+  //       .then((res) => {
+  //         setSnack({
+  //           open: true,
+  //           message: res.message,
+  //           severity: "success",
+  //         });
+  //         if (sessionStorage.getItem("paymentDetail")) {
+  //           sessionStorage.removeItem("paymentDetail");
+  //         }
+
+  //         setDrawerOpen(false);
+  //         handleResetForm();
+  //       })
+  //       .catch((err) => {
+  //         setSnack({
+  //           open: true,
+  //           message: err.data?.message || err.data || "Something Went Wrong",
+  //           severity: "error",
+  //         });
+
+  //         if (sessionStorage.getItem("paymentDetail")) {
+  //           sessionStorage.removeItem("paymentDetail");
+  //         }
+  //       });
+  //   },
+  //   [
+  //     formData,
+  //     hotelDetails,
+  //     reserveHotelRoom,
+  //     handleResetForm,
+  //     calculateNumberOfDays,
+  //     isClaimPoints,
+  //     userDetails.data,
+  //   ]
+  // );
+
   const handleSubmitReserve = React.useCallback(
     (e) => {
       e.preventDefault();
       const sessionData = JSON.parse(sessionStorage.getItem("data"));
 
+      // Determine base price
+      const priceBase =
+        hotelDetails.configurationPrice || hotelDetails.basePrice;
+
+      // Calculate required advance amount
+      const requiredAdvanceAmount =
+        (Number(hotelDetails.advanceAmount) / 100) *
+        priceBase *
+        calculateNumberOfDays;
+
+      // Maximum allowed advance amount
+      const maxAllowedAmount = priceBase * calculateNumberOfDays;
+
+      // Advance payment validation
       const isAdvanceValid =
         !hotelDetails?.isAdvanceRequired ||
         (formData.advancePayment &&
-          Number(formData.advancePayment) >=
-            Number(hotelDetails.advanceAmount) * calculateNumberOfDays &&
-          Number(formData.advancePayment) <=
-            Number(hotelDetails.basePrice) * calculateNumberOfDays);
+          Number(formData.advancePayment) >= requiredAdvanceAmount &&
+          Number(formData.advancePayment) <= maxAllowedAmount);
 
-      if (!Boolean(formData.noOfPeoples)) {
-        return setSnack({
-          open: true,
+      // Validation checks array
+      const validationChecks = [
+        {
+          condition: !formData.noOfPeoples,
           message: "Please provide number of people",
-          severity: "error",
-        });
-      } else if (!Boolean(formData.firstName)) {
-        return setSnack({
-          open: true,
+        },
+        {
+          condition: !formData.firstName,
           message: "Please provide first name",
-          severity: "error",
-        });
-      } else if (!Boolean(formData.email)) {
-        return setSnack({
-          open: true,
-          message: "Please provide email",
-          severity: "error",
-        });
-      } else if (!Boolean(formData.address)) {
-        return setSnack({
-          open: true,
-          message: "Please provide address",
-          severity: "error",
-        });
-      } else if (!Boolean(formData.fromDate)) {
-        return setSnack({
-          open: true,
-          message: "Please provide fromDate",
-          severity: "error",
-        });
-      } else if (!Boolean(formData.toDate)) {
-        return setSnack({
-          open: true,
-          message: "Please provide toDate",
-          severity: "error",
-        });
-      } else if (!Boolean(formData.noOfPeoples)) {
-        return setSnack({
-          open: true,
-          message: "Please provide number of people",
-          severity: "error",
-        });
-      } else if (Boolean(formData.noOfPeoples > hotelDetails.capacity)) {
-        return setSnack({
-          open: true,
+        },
+        { condition: !formData.email, message: "Please provide email" },
+        { condition: !formData.address, message: "Please provide address" },
+        { condition: !formData.fromDate, message: "Please provide fromDate" },
+        { condition: !formData.toDate, message: "Please provide toDate" },
+        {
+          condition: formData.noOfPeoples > hotelDetails.capacity,
           message: `Maximum of ${hotelDetails?.capacity} people are allowed`,
-          severity: "error",
-        });
-      } else if (!isAdvanceValid) {
-        return setSnack({
-          open: true,
+        },
+        {
+          condition: !isAdvanceValid,
           message:
             calculateNumberOfDays > 0
-              ? Number(formData.advancePayment) <
-                Number(hotelDetails.advanceAmount) * calculateNumberOfDays
-                ? `Please pay ₹${
-                    hotelDetails.advanceAmount * calculateNumberOfDays
-                  } in advance`
-                : `Advance amount cannot exceed ₹${
-                    hotelDetails.basePrice * calculateNumberOfDays
-                  }`
+              ? Number(formData.advancePayment) < requiredAdvanceAmount
+                ? `Please pay ₹${requiredAdvanceAmount} in advance`
+                : `Advance amount cannot exceed ₹${maxAllowedAmount}`
               : "Invalid advance payment",
+        },
+      ];
+
+      // Find first failing validation
+      const firstInvalidCheck = validationChecks.find(
+        (check) => check.condition
+      );
+      if (firstInvalidCheck) {
+        return setSnack({
+          open: true,
+          message: firstInvalidCheck.message,
           severity: "error",
         });
       }
 
+      // Proceed with reservation if validation passes
       reserveHotelRoom({
         firstName: formData.firstName,
         middleName: formData.middleName,
         lastName: formData.lastName,
-        // alternativePhoneNumber: formData.phoneNumber,
-        alternativePhoneNumber: Boolean(sessionData.phoneNo)
-          ? formData.phoneNumber
-          : "",
-        // phoneNumber: sessionData?.phoneNo || "",
+        alternativePhoneNumber: sessionData.phoneNo ? formData.phoneNumber : "",
         phoneNumber: sessionData?.phoneNo || formData?.phoneNumber || "",
-
         email: formData.email,
         address: formData.address,
         fromDate: formData.fromDate
@@ -2339,20 +2584,17 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
         hotelId: hotelDetails?.hotelDto?.id,
         paidAmount: formData.advancePayment,
         bookingAmount: isClaimPoints
-          ? hotelDetails.basePrice * calculateNumberOfDays -
-              userDetails?.data?.rewardsPointPrice || 0
-          : calculateNumberOfDays * Number(hotelDetails?.basePrice),
+          ? priceBase * calculateNumberOfDays -
+            (userDetails?.data?.rewardsPointPrice || 0)
+          : calculateNumberOfDays * Number(priceBase),
         isRewardsPointsUsed: isClaimPoints,
         noOfRewardsPointsUsed: userDetails?.data?.noOfRewardsPointsAvailable,
         rewardsPointPrice: userDetails?.data?.rewardsPointPrice,
         gstPrice: isClaimPoints
-          ? (hotelDetails.basePrice * calculateNumberOfDays -
+          ? (priceBase * calculateNumberOfDays -
               userDetails?.data?.rewardsPointPrice) *
               0.18 || 0
-          : calculateNumberOfDays * Number(hotelDetails?.basePrice) * 0.18,
-        // paymentDetails: Boolean(sessionStorage.getItem("paymentDetail"))
-        //   ? sessionStorage.getItem("paymentDetail")
-        //   : "",
+          : calculateNumberOfDays * Number(priceBase) * 0.18,
       })
         .unwrap()
         .then((res) => {
@@ -2361,10 +2603,8 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
             message: res.message,
             severity: "success",
           });
-          if (sessionStorage.getItem("paymentDetail")) {
-            sessionStorage.removeItem("paymentDetail");
-          }
 
+          sessionStorage.removeItem("paymentDetail");
           setDrawerOpen(false);
           handleResetForm();
         })
@@ -2375,9 +2615,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
             severity: "error",
           });
 
-          if (sessionStorage.getItem("paymentDetail")) {
-            sessionStorage.removeItem("paymentDetail");
-          }
+          sessionStorage.removeItem("paymentDetail");
         });
     },
     [
@@ -2863,25 +3101,71 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
                       value={formData.advancePayment}
                       onChange={handleChangeInput}
                       fullWidth
-                      helperText={
-                        hotelDetails?.isAdvanceRequired &&
-                        calculateNumberOfDays > 0
-                          ? Number(formData.advancePayment) <
-                            Number(hotelDetails.advanceAmount) *
-                              calculateNumberOfDays
-                            ? `Please pay ₹${
-                                hotelDetails.advanceAmount *
+                      // helperText={
+                      //   hotelDetails?.isAdvanceRequired &&
+                      //   calculateNumberOfDays > 0
+                      //     ? Number(formData.advancePayment) <
+                      //       Number(hotelDetails.advanceAmount) *
+                      //         calculateNumberOfDays
+                      //       ? `Please pay ₹${
+                      //           hotelDetails.advanceAmount *
+                      //           calculateNumberOfDays
+                      //         } in advance`
+                      //       : Number(formData.advancePayment) >
+                      //         Number(hotelDetails.basePrice) *
+                      //           calculateNumberOfDays
+                      //       ? `Advance amount cannot exceed ₹${
+                      //           hotelDetails.basePrice * calculateNumberOfDays
+                      //         }`
+                      //       : ""
+                      //     : ""
+                      // }
+                      helperText={(() => {
+                        // If advance is required and days are calculated
+                        if (
+                          hotelDetails?.isAdvanceRequired &&
+                          calculateNumberOfDays > 0
+                        ) {
+                          // Determine the price base (configured price or base price)
+                          const priceBase = hotelDetails.configurationPrice
+                            ? hotelDetails.configurationPrice
+                            : hotelDetails.basePrice;
+
+                          // Calculate required advance amount based on percentage
+                          const requiredAdvanceAmount =
+                            (Number(hotelDetails.advanceAmount) / 100) *
+                            priceBase *
+                            calculateNumberOfDays;
+
+                          // Maximum allowed amount (configured price or base price * days)
+                          const maxAllowedAmount =
+                            hotelDetails.configurationPrice
+                              ? hotelDetails.configurationPrice *
                                 calculateNumberOfDays
-                              } in advance`
-                            : Number(formData.advancePayment) >
-                              Number(hotelDetails.basePrice) *
-                                calculateNumberOfDays
-                            ? `Advance amount cannot exceed ₹${
-                                hotelDetails.basePrice * calculateNumberOfDays
-                              }`
-                            : ""
-                          : ""
-                      }
+                              : hotelDetails.basePrice * calculateNumberOfDays;
+
+                          // Validation conditions
+                          if (
+                            Number(formData.advancePayment) <
+                            requiredAdvanceAmount
+                          ) {
+                            return `Please pay ₹${requiredAdvanceAmount.toFixed(
+                              2
+                            )} in advance`;
+                          }
+
+                          if (
+                            Number(formData.advancePayment) > maxAllowedAmount
+                          ) {
+                            return `Advance amount cannot exceed ₹${maxAllowedAmount.toFixed(
+                              2
+                            )}`;
+                          }
+
+                          return "";
+                        }
+                        return "";
+                      })()}
                       FormHelperTextProps={{
                         style: { color: "red" },
                       }}
@@ -3168,7 +3452,7 @@ export const PaymentDialog = memo(function ({
   setDrawerOpen = () => {},
   handleAfterSuccessFunction = () => {},
 }) {
-  console.log("reservationPayload", reservationPayload);
+  // console.log("reservationPayload", reservationPayload);
   const [paymentMethod, setPaymentMethod] = React.useState("card");
   const [cardNumber, setCardNumber] = React.useState("");
   const [upiNumber, setUpiNumber] = React.useState("");
@@ -3951,7 +4235,7 @@ const CancelRoomDialog = ({
   selectedBookingRefNumber,
   selectedBooking,
 }) => {
-  console.log("selectedBooking", selectedBooking?.roomType?.advanceAmount);
+  // console.log("selectedBooking", selectedBooking?.roomType?.advanceAmount);
   const [rejectionReason, setRejectionReason] = React.useState("");
   const [cancelBooking, cancelBookingRes] = useCancelHotelRoomMutation();
   const [snack, setSnack] = React.useState({

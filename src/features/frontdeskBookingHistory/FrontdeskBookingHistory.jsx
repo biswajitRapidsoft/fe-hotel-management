@@ -1711,7 +1711,7 @@ const CustomRow = memo(function ({
                 </Typography>
               ) : subitem?.key === "noOfPeoples" ? (
                 <>
-                  <Box
+                  {/* <Box
                     sx={{ cursor: "pointer" }}
                     onClick={() => {
                       setOpenStayerDetailsDialog(row);
@@ -1720,18 +1720,34 @@ const CustomRow = memo(function ({
                     <Typography sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
                       {row?.noOfPeoples && row?.noOfPeoples}
                     </Typography>
-                  </Box>
-                  {/* <Chip
-                    onClick={() => {
-                      setOpenStayerDetailsDialog(row);
-                    }}
-                    label={row?.noOfPeoples}
-                    clickable
-                    color="secondary"
-                    sx={{
-                      color: "#fff",
-                    }}
-                  /> */}
+                  </Box> */}
+                  {["Cancelled", "Pending_Confirmation"].includes(
+                    row?.bookingStatus
+                  ) ? (
+                    <Chip
+                      // onClick={() => {
+                      //   setOpenStayerDetailsDialog(row);
+                      // }}
+                      label={0}
+                      clickable
+                      color="secondary"
+                      sx={{
+                        color: "#fff",
+                      }}
+                    />
+                  ) : (
+                    <Chip
+                      onClick={() => {
+                        setOpenStayerDetailsDialog(row);
+                      }}
+                      label={row?.noOfPeoples}
+                      clickable
+                      color="secondary"
+                      sx={{
+                        color: "#fff",
+                      }}
+                    />
+                  )}
                 </>
               ) : subitem?.key === "bookingStatus" ? (
                 <Box

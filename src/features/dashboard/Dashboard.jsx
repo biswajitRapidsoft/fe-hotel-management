@@ -228,7 +228,7 @@ const tempRoomFilterVisibleButtonData = [
   { id: 3, icon: <MdBookmarkAdded />, name: RESERVED?.key },
   { id: 4, icon: <TbBed />, name: OCCUPIED?.key },
   { id: 5, icon: <MdCleaningServices />, name: BEING_SERVICED?.key },
-  { id: 6, icon: <MdOutlineDisabledByDefault />, name: NOT_AVAILABLE?.key },
+  // { id: 6, icon: <MdOutlineDisabledByDefault />, name: NOT_AVAILABLE?.key },
 ];
 
 const CustomInventoryTable = memo(function ({ inventoryData }) {
