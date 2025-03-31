@@ -188,11 +188,12 @@ export const CustomPolygonHeader = ({
 function getRoomStatusColor(key) {
   switch (key) {
     case "Available":
-      return { color: "#3db7ff", bgcolor: "#c9ebff" };
+      return { color: "#3db7ff", bgcolor: "#b4ffd6" };
     case "Reserved":
       return { color: "#ffa83a", bgcolor: "#ffe3c0" };
     case "Occupied":
-      return { color: "#14b85c", bgcolor: "#b4ffd6" };
+      // return { color: "#14b85c", bgcolor: "#b4ffd6" };
+      return { color: "#14b85c", bgcolor: "#FF9999" };
     case "Not Available":
       return { color: "#ff5353", bgcolor: "#ffc0c0" };
     case "Being Serviced":
@@ -228,7 +229,7 @@ const tempRoomFilterVisibleButtonData = [
   { id: 3, icon: <MdBookmarkAdded />, name: RESERVED?.key },
   { id: 4, icon: <TbBed />, name: OCCUPIED?.key },
   { id: 5, icon: <MdCleaningServices />, name: BEING_SERVICED?.key },
-  { id: 6, icon: <MdOutlineDisabledByDefault />, name: NOT_AVAILABLE?.key },
+  // { id: 6, icon: <MdOutlineDisabledByDefault />, name: NOT_AVAILABLE?.key },
 ];
 
 const CustomInventoryTable = memo(function ({ inventoryData }) {
@@ -894,11 +895,13 @@ const CustomRoomFilters = memo(function ({
                           // alignItems: "center",
                           color:
                             item?.name === AVAILABLE.key
-                              ? "hsla(202, 100%, 73%, 0.99)"
+                              ? // ? "hsla(202, 100%, 73%, 0.99)"
+                                "hsla(140, 100%, 36%, 0.99)"
                               : item?.name === RESERVED.key
                               ? "hsla(32, 98%, 65%, 0.99)"
                               : item?.name === OCCUPIED.key
-                              ? "hsla(140, 100%, 36%, 0.99)"
+                              ? // ? "hsla(140, 100%, 36%, 0.99)"
+                                " hsla(0, 100%, 75%, 0.99)"
                               : item?.name === NOT_AVAILABLE.key
                               ? "hsla(0, 100%, 65%, 0.99)"
                               : item?.name === BEING_SERVICED.key
@@ -916,11 +919,13 @@ const CustomRoomFilters = memo(function ({
                           // marginTop: "-8px",
                           color:
                             item?.name === AVAILABLE.key
-                              ? "hsla(202, 100%, 73%, 0.99)"
+                              ? // ? "hsla(202, 100%, 73%, 0.99)"
+                                "hsla(140, 100%, 36%, 0.99)"
                               : item?.name === RESERVED.key
                               ? "hsla(32, 98%, 65%, 0.99)"
                               : item?.name === OCCUPIED.key
-                              ? "hsla(140, 100%, 36%, 0.99)"
+                              ? // ? "hsla(140, 100%, 36%, 0.99)"
+                                "hsla(0, 100%, 75%, 0.99)"
                               : item?.name === NOT_AVAILABLE.key
                               ? "hsla(0, 100%, 65%, 0.99)"
                               : item?.name === BEING_SERVICED.key
