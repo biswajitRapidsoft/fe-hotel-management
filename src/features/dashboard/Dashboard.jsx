@@ -894,11 +894,13 @@ const CustomRoomFilters = memo(function ({
                           // alignItems: "center",
                           color:
                             item?.name === AVAILABLE.key
-                              ? "hsla(202, 100%, 73%, 0.99)"
+                              ? // ? "hsla(202, 100%, 73%, 0.99)"
+                                "hsla(140, 100%, 36%, 0.99)"
                               : item?.name === RESERVED.key
                               ? "hsla(32, 98%, 65%, 0.99)"
                               : item?.name === OCCUPIED.key
-                              ? "hsla(140, 100%, 36%, 0.99)"
+                              ? // ? "hsla(140, 100%, 36%, 0.99)"
+                                " hsla(0, 100%, 75%, 0.99)"
                               : item?.name === NOT_AVAILABLE.key
                               ? "hsla(0, 100%, 65%, 0.99)"
                               : item?.name === BEING_SERVICED.key
@@ -916,11 +918,13 @@ const CustomRoomFilters = memo(function ({
                           // marginTop: "-8px",
                           color:
                             item?.name === AVAILABLE.key
-                              ? "hsla(202, 100%, 73%, 0.99)"
+                              ? // ? "hsla(202, 100%, 73%, 0.99)"
+                                "hsla(140, 100%, 36%, 0.99)"
                               : item?.name === RESERVED.key
                               ? "hsla(32, 98%, 65%, 0.99)"
                               : item?.name === OCCUPIED.key
-                              ? "hsla(140, 100%, 36%, 0.99)"
+                              ? // ? "hsla(140, 100%, 36%, 0.99)"
+                                "hsla(0, 100%, 75%, 0.99)"
                               : item?.name === NOT_AVAILABLE.key
                               ? "hsla(0, 100%, 65%, 0.99)"
                               : item?.name === BEING_SERVICED.key
