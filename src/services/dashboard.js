@@ -435,6 +435,44 @@ const dashboardApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["getAllRoomListByHotelId"],
     }),
+    getAllBarTables: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllBarTables,
+        method: "GET",
+        params: {
+          hotelId: payload?.hotelId,
+        },
+      }),
+      providesTags: ["getAllBarTables"],
+    }),
+    createBarTables: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.createBarTables,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllBarTables"],
+    }),
+    getAllFinalInvoiceDetails: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllFinalInvoiceDetails,
+        method: "GET",
+        params: {
+          bookingRefNumber: payload,
+        },
+      }),
+      providesTags: ["getAllFinalInvoiceDetails"],
+    }),
+    getAllBarTableForCounterStaff: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllBarTableForCounterStaff,
+        method: "GET",
+        params: {
+          hotelId: payload?.hotelId,
+        },
+      }),
+      providesTags: ["getAllBarTableForCounterStaff"],
+    }),
   }),
 
   overrideExisting: false,
@@ -485,4 +523,8 @@ export const {
   useGetRoomTypeUpgradePriceConfigQuery,
   useUpgradeRoomRequestMutation,
   useExtendCheckoutMutation,
+  useGetAllBarTablesQuery,
+  useCreateBarTablesMutation,
+  useGetAllFinalInvoiceDetailsQuery,
+  useGetAllBarTableForCounterStaffQuery,
 } = dashboardApi;

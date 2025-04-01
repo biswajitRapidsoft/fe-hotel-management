@@ -39,6 +39,9 @@ export const MANAGER = "Manager";
 export const WAITER = "Waiter";
 export const COUNTER_STAFF = "Counter_Staff";
 export const KITCHEN_SERVICE_STAFF = "Kitchen_Service_Staff";
+export const BAR_WAITER = "Bar_Waiter";
+export const BAR_COUNTER_STAFF = "Bar_Counter_Staff";
+export const BAR_SERVICE_STAFF = "Bar_Service_Staff";
 //ROOM STATUSES
 export const AVAILABLE = { id: 1, key: "Available" };
 export const RESERVED = { id: 2, key: "Reserved" };

@@ -72,6 +72,41 @@ const barApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["barOrderHistory", "getAllBarItemList"],
     }),
+    getAllTablesForBarWaiter: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllTablesForBarWaiter,
+        method: "GET",
+        params: {
+          hotelId: payload?.hotelId,
+          userId: payload?.userId,
+        },
+      }),
+      providesTags: ["getAllTablesForBarWaiter"],
+    }),
+    deliverBarByWaiter: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.deliverBarByWaiter,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllTablesForBarWaiter"],
+    }),
+    assosciateBarOrderWithRoom: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.assosciateBarOrderWithRoom,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllTablesForBarWaiter"],
+    }),
+    completeBarOrder: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.completeBarOrder,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllTablesForBarWaiter"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -85,4 +120,8 @@ export const {
   useGetBarOrderHistoryAdminQuery,
   useGetAllBarOrderStatusQuery,
   useRateBeerMutation,
+  useGetAllTablesForBarWaiterQuery,
+  useDeliverBarByWaiterMutation,
+  useAssosciateBarOrderWithRoomMutation,
+  useCompleteBarOrderMutation,
 } = barApi;

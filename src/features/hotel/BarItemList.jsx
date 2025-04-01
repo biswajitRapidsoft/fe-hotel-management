@@ -44,8 +44,10 @@ import LoadingComponent from "../../components/LoadingComponent";
 
 import SnackAlert from "../../components/Alert";
 import { BootstrapDialog } from "../header/Header";
+import { useNavigate } from "react-router-dom";
 
 const BarItemList = () => {
+  const navigate = useNavigate();
   const {
     data: barMenuTypeList = {
       data: [],
@@ -272,12 +274,39 @@ const BarItemList = () => {
             },
           ]}
         >
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: "bold", letterSpacing: 1 }}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between  ",
+              width: "100%",
+              alignItems: "center",
+            }}
           >
-            Bar Menu Type List
-          </Typography>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: "bold", letterSpacing: 1 }}
+            >
+              Bar Menu Type List
+            </Typography>
+            <Button
+              color="secondary"
+              variant="contained"
+              size="small"
+              sx={{
+                color: "#fff",
+                fontWeight: 600,
+                textTransform: "none",
+                fontSize: 18,
+                "&.Mui-disabled": {
+                  background: "#B2E5F6",
+                  color: "#FFFFFF",
+                },
+              }}
+              onClick={() => navigate("/CreateBarTable")}
+            >
+              Manage Tables
+            </Button>
+          </Box>
         </Toolbar>
         <TableContainer sx={{ maxHeight: 600 }}>
           <Table stickyHeader>

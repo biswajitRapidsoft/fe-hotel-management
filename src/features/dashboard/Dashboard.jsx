@@ -188,11 +188,12 @@ export const CustomPolygonHeader = ({
 function getRoomStatusColor(key) {
   switch (key) {
     case "Available":
-      return { color: "#3db7ff", bgcolor: "#c9ebff" };
+      return { color: "#3db7ff", bgcolor: "#b4ffd6" };
     case "Reserved":
       return { color: "#ffa83a", bgcolor: "#ffe3c0" };
     case "Occupied":
-      return { color: "#14b85c", bgcolor: "#b4ffd6" };
+      // return { color: "#14b85c", bgcolor: "#b4ffd6" };
+      return { color: "#14b85c", bgcolor: "#FF9999" };
     case "Not Available":
       return { color: "#ff5353", bgcolor: "#ffc0c0" };
     case "Being Serviced":
@@ -1578,6 +1579,22 @@ const RoomServiceCard = memo(function ({
         );
 
         window.open(`/hotelBillInvoice/${bookingRefNumber}`, "_blank");
+      }
+    },
+    // [customerGstNumber]
+    []
+  );
+  const handleViewFinalHotelBillInvoice = useCallback(
+    (roomData) => {
+      const bookingRefNumber = roomData?.bookingDto?.bookingRefNumber;
+
+      if (bookingRefNumber) {
+        sessionStorage.setItem(
+          "FinalHotelBillbookingRefNumber",
+          bookingRefNumber
+        );
+
+        window.open(`/FinalHotelBillInvoice`, "_blank");
       }
     },
     // [customerGstNumber]
@@ -3716,7 +3733,7 @@ const RoomServiceCard = memo(function ({
                     size="small"
                     onClick={() => {
                       if (selectedInvoice === "Final Invoice") {
-                        handleViewHotelBillInvoice(isSelectedRoom);
+                        handleViewFinalHotelBillInvoice(isSelectedRoom);
                       } else if (selectedInvoice === "Food Invoice") {
                         handleViewFoodBillInvoice(isSelectedRoom);
                       } else if (selectedInvoice === "Bar Invoice") {
@@ -3730,6 +3747,25 @@ const RoomServiceCard = memo(function ({
                   >
                     View
                   </Button>
+                  {/* <Button
+                    variant="contained"
+                    size="small"
+                    onClick={() => {
+                      if (selectedInvoice === "Final Invoice") {
+                        handleViewHotelBillInvoice(isSelectedRoom);
+                      } else if (selectedInvoice === "Food Invoice") {
+                        handleViewFoodBillInvoice(isSelectedRoom);
+                      } else if (selectedInvoice === "Bar Invoice") {
+                        handleViewBarBillInvoice(isSelectedRoom);
+                      } else if (selectedInvoice === "Spa Invoice") {
+                        handleViewSpaBillInvoice(isSelectedRoom);
+                      } else {
+                        alert("Please select an option to view the bill.");
+                      }
+                    }}
+                  >
+                    View
+                  </Button> */}
                 </Box>
               )
             }

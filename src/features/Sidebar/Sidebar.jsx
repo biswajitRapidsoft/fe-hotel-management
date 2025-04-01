@@ -28,6 +28,7 @@ import {
   HOUSEKEEPER,
   GUARD,
   COUNTER_STAFF,
+  BAR_COUNTER_STAFF,
 } from "../../helper/constants";
 import SpaIcon from "@mui/icons-material/Spa";
 const drawerWidth = 300;
@@ -188,6 +189,30 @@ const sideBarMenuOptions = [
     menuIconAlt: "Activity Logo",
     menuTitle: "Order History  ",
     visibility: [COUNTER_STAFF],
+  },
+  {
+    pathname: "/BarCounterStaffDashboard",
+    isLibraryIcon: true,
+    menuIcon: <RestaurantMenuIcon style={{ color: "#fff" }} />,
+    menuIconAlt: "Activity Logo",
+    menuTitle: "Dashboard",
+    visibility: [BAR_COUNTER_STAFF],
+  },
+  {
+    pathname: "/BarDineIn",
+    isLibraryIcon: true,
+    menuIcon: <ChecklistIcon style={{ color: "#fff" }} />,
+    menuIconAlt: "Activity Logo",
+    menuTitle: "Order Requests  ",
+    visibility: [BAR_COUNTER_STAFF],
+  },
+  {
+    pathname: "/BarOrderHistoryToday",
+    isLibraryIcon: true,
+    menuIcon: <HistoryIcon style={{ color: "#fff" }} />,
+    menuIconAlt: "Activity Logo",
+    menuTitle: "Order History  ",
+    visibility: [BAR_COUNTER_STAFF],
   },
 ];
 

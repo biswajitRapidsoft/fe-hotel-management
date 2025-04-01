@@ -1,11 +1,11 @@
 const config = Object.freeze({
-  // baseUrl: "http://192.168.12.37:9000/",
+  baseUrl: "http://192.168.12.37:9000/",
   // baseUrl: "http://192.168.12.43:9000/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
   // baseUrl: "http://crimarrstaging.nyggs.com/backend/",
   // baseUrl: "http://192.168.30.44:9000/",
   // baseUrl: "http://192.168.12.43:8080/be-hms/",
-  baseUrl: "https://hms.watsoo.com/backend/",
+  // baseUrl: "https://hms.watsoo.com/backend/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/", // HO Staging
   // baseUrl: "http://192.168.12.3:9000/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
@@ -82,10 +82,15 @@ const config = Object.freeze({
     updateConfigurationStatus: "api/dynamic-price-configuration/update-status",
     rateSpa: "public/rate/spa/service",
     deliverFoodByWaiter: "api/deliver/food/by/waiter",
+    deliverBarByWaiter: "api/deliver/bar/item/by/waiter",
     getBookingDetailsByRoomNumber: "api/get/booking/details/by/room/id",
     assosciateOrderWithRoom: "api/transfer/food/order/to/room/bill",
+    assosciateBarOrderWithRoom: "api/transfer/bar/order/to/room/bill",
     completeFoodOrder: "api/complete/food/order/by/counter-staff",
+    completeBarOrder: "api/complete/bar/order/by/counter-staff",
     getAllDineInRequestFromRoom: "api/get/all/table/not/assigned/orders",
+    getAllDineInRequestForBarFromRoom:
+      "api/get/all/table/not/assigned/bar/orders",
     getAllWaiters: "api/get/all/waiters",
     assignTableToWaiter: "api/assign/table/to/restaurant/order",
     saveRoomTypeUpgradePriceConfig: "api/hotel/room-type/upgrade/price/config",
@@ -103,6 +108,9 @@ const config = Object.freeze({
       "api/deliver/food/by/kitchen/service/staff",
     getAllTodayOrderForCounterStaff:
       "api/get/today/order/history/for/counter-staff",
+    getAllBarTables: "api/get/all/bar/tables",
+    getAllBarTableForCounterStaff: "api/get/bar/tables/for/counter/staff",
+    createBarTables: "api/create/bar/tables",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",
@@ -124,6 +132,7 @@ const config = Object.freeze({
     getAllTables: "api/get/all/restaurant/tables",
     createTable: "api/create/restaurant/tables",
     getAllTablesForWaiter: "api/get/restaurant/tables/for/waiter",
+    getAllTablesForBarWaiter: "api/get/bar/tables/for/waiter",
     getAllTablesForCounterStaff: "api/get/restaurant/tables/for/counter/staff",
     upgradeRoomRequest: "api/upgrade/new/room",
     getRoomTypeUpgradePriceConfig: "api/get/upgrade/price-config/room/type/id",
@@ -137,6 +146,7 @@ const config = Object.freeze({
     approveBookingCancelRequest: "api/approve/booking/cancel/request",
     cancelRoomBookingFromBookingHistory: "api/cancel/booking/by/hotel",
     exportBookingHistory: "api/export/booking/history/data",
+    getAllFinalInvoiceDetails: "api/fetch/transactions/booking-ref",
     // HALL BOOKING DASHBOARD
     getAllHallBookings: "api/get/all/hall/bookings/data",
     getAllHallStatus: "api/get/all/hall/status",
