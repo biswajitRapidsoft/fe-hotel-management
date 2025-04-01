@@ -70,6 +70,7 @@ import {
   useGetRoomTypeUpgradePriceConfigQuery,
   useUpgradeRoomRequestMutation,
   useExtendCheckoutMutation,
+  useForcedCheckoutMutation,
 } from "../../services/dashboard";
 import { useGetParkingDetailsFromBookingRefQuery } from "../../services/parking";
 import { checkRoomStatusType } from "../../helper/helperFunctions";
@@ -1480,9 +1481,12 @@ const RoomServiceCard = memo(function ({
     [handleOpenCustomFormDrawer]
   );
 
-  const handleOpenShowcaseModalForCheckoutOnClick = useCallback(() => {
-    handleOpenShowcaseModalForCheckout();
-  }, [handleOpenShowcaseModalForCheckout]);
+  const handleOpenShowcaseModalForCheckoutOnClick = useCallback(
+    (type) => {
+      handleOpenShowcaseModalForCheckout(type);
+    },
+    [handleOpenShowcaseModalForCheckout]
+  );
 
   const handleRequestRoomCheckoutOnClick = useCallback(() => {
     handleRequestRoomCheckout();
@@ -3847,7 +3851,7 @@ const RoomServiceCard = memo(function ({
                             ?.isCheckedByKeepingStaff === true
                       )
                     ) {
-                      handleOpenShowcaseModalForCheckoutOnClick();
+                      handleOpenShowcaseModalForCheckoutOnClick("CheckOut");
                     }
                   }}
                 >
@@ -3911,6 +3915,27 @@ const RoomServiceCard = memo(function ({
                 </Button>
               )} */}
               </Box>
+            )}
+            {/* forced checkout */}
+            {Boolean(
+              Boolean(
+                isSelectedRoom?.bookingDto?.isCheckoutProceed === false
+              ) &&
+                Boolean(
+                  isSelectedRoom?.bookingDto?.isCheckedByKeepingStaff === null
+                )
+            ) && (
+              <Button
+                fullWidth
+                variant="contained"
+                size="small"
+                color="error"
+                onClick={() =>
+                  handleOpenShowcaseModalForCheckoutOnClick("Forced_CheckOut")
+                }
+              >
+                Forced Checkout
+              </Button>
             )}
           </Box>
         </Box>
@@ -8658,9 +8683,12 @@ const ShowcaseDialog = memo(function ({
     [handleChangeShowcaseDialogFormData]
   );
 
-  const handleConfirmFinalCheckoutOnClick = useCallback(() => {
-    handleConfirmFinalCheckout();
-  }, [handleConfirmFinalCheckout]);
+  const handleConfirmFinalCheckoutOnClick = useCallback(
+    (title) => {
+      handleConfirmFinalCheckout(title);
+    },
+    [handleConfirmFinalCheckout]
+  );
 
   useEffect(() => {
     if (openShowcaseDialog && checkOutRoomData && type === "checkout") {
@@ -9246,9 +9274,11 @@ const ShowcaseDialog = memo(function ({
                                 "linear-gradient(to right, #ff416c 10%, #ff4b2b 90%)",
                             },
                           }}
-                          onClick={() => handleConfirmFinalCheckoutOnClick()}
+                          onClick={() =>
+                            handleConfirmFinalCheckoutOnClick(title)
+                          }
                         >
-                          Confirm Check-Out
+                          {title}
                         </Button>
                       </Box>
                     </Grid>
@@ -9266,6 +9296,7 @@ const ShowcaseDialog = memo(function ({
 });
 
 const Dashboard = () => {
+  const [forcedCheckout, forcedCheckoutRes] = useForcedCheckoutMutation();
   const [amountToPay, setAmountToPay] = React.useState(0);
   const [roomUpgradeDrawer, setRoomUpgradeDrawer] = React.useState(null);
   const [openPaymentDialogV2, setOpenPaymentDialogV2] = React.useState(false);
@@ -9813,11 +9844,12 @@ const Dashboard = () => {
     }));
   }, []);
 
-  const handleOpenShowcaseModalForCheckout = useCallback(() => {
+  const handleOpenShowcaseModalForCheckout = useCallback((type) => {
     setShowcaseDialogData((prevData) => ({
       ...prevData,
       open: true,
-      title: "Confirm Checkout",
+      title:
+        type === "CheckOut" ? "Confirm Checkout" : "Confirm Forced CheckOut",
       type: "checkout",
       inventoryData: [],
       foodData: [],
@@ -10316,6 +10348,14 @@ const Dashboard = () => {
           handleRoomSelect();
           handleChangeSetPaymentDialogFinalPayload(); // MANDATORY FUNCTION
         };
+      } else if (submitType === "forceCheckout") {
+        mutationFunction = forcedCheckout;
+        afterMutationSuccessFunction = () => {
+          handleCloseShowcaseDialog();
+          handleChangeShowcaseDialogFormData();
+          handleRoomSelect();
+          handleChangeSetPaymentDialogFinalPayload(); // MANDATORY FUNCTION
+        };
       }
 
       return {
@@ -10333,6 +10373,7 @@ const Dashboard = () => {
       handleChangeSetPaymentDialogFinalPayload,
       handleCloseShowcaseDialog,
       handleChangeShowcaseDialogFormData,
+      forcedCheckout,
     ]
   );
 
@@ -10578,107 +10619,140 @@ const Dashboard = () => {
     handleRoomSelect,
   ]);
 
-  const handleConfirmFinalCheckout = useCallback(() => {
-    if (
-      Boolean(showcaseDialogFormData?.subTotalAmountRemaining > 0) &&
-      !showcaseDialogFormData?.paymentMethod?.key
-    ) {
-      setSnack({
-        open: true,
-        message: "Please Select A Payment Method",
-        severity: "warning",
-      });
-      return;
-    }
-    //  else if (
-    //   showcaseDialogFormData?.paymentMethod?.key &&
-    //   showcaseDialogFormData?.paymentMethod?.key !== "Cash" &&
-    //   showcaseDialogFormData?.paymentMethod?.key.trim() !== "" &&
-    //   !showcaseDialogFormData?.transactionReferenceNo?.trim()
-    // ) {
-    //   setSnack({
-    //     open: true,
-    //     message:
-    //       "Please provide a valid transaction reference for the selected payment method.",
-    //     severity: "warning",
-    //   });
-    //   return;
-    // }
-    else if (
-      Boolean(showcaseDialogFormData?.subTotalAmountRemaining > 0) &&
-      Boolean(showcaseDialogFormData?.paymentMethod?.key) !==
-        Boolean(parseFloat(showcaseDialogFormData?.paidAmount))
-    ) {
-      setSnack({
-        open: true,
-        message: "Please provide both payment method and amount to proceed.",
-        severity: "warning",
-      });
-      return;
-    } else if (
-      Boolean(showcaseDialogFormData?.subTotalAmountRemaining > 0) &&
-      Boolean(
-        parseFloat(showcaseDialogFormData?.paidAmount) !==
-          parseFloat(showcaseDialogFormData?.subTotalAmountRemaining)
-      )
-    ) {
-      setSnack({
-        open: true,
-        message: "please provide remaining amount.",
-        severity: "warning",
-      });
-      return;
-    }
-
-    const payload = {
-      bookingRefNumber: showcaseDialogFormData?.bookingRefNumber,
-      paidAmount: showcaseDialogFormData?.paidAmount,
-      paymentMethod: showcaseDialogFormData?.paymentMethod?.key,
-      ...(showcaseDialogFormData?.paymentMethod?.key !== "Cash" &&
-        showcaseDialogFormData?.transactionReferenceNo?.trim() && {
-          transactionReferenceNo:
-            showcaseDialogFormData?.transactionReferenceNo,
-        }),
-    };
-
-    if (showcaseDialogFormData?.paymentMethod?.key === "Online") {
-      handleChangeSetPaymentDialogFinalPayload({
-        open: true,
-        mutationType: "finalCheckout",
-        payloadValue: payload,
-      });
-    } else {
-      finalRoomCheckOut(payload)
-        .unwrap()
-        .then((res) => {
-          setSnack({
-            open: true,
-            message: res?.message || "Final Check-Out Success",
-            severity: "success",
-          });
-          handleCloseShowcaseDialog();
-          handleChangeShowcaseDialogFormData();
-          handleRoomSelect();
-        })
-        .catch((err) => {
-          setSnack({
-            open: true,
-            message:
-              err?.data?.message ||
-              err?.data ||
-              "Final Check-Out Request Failed",
-            severity: "error",
-          });
+  const handleConfirmFinalCheckout = useCallback(
+    (title) => {
+      if (
+        Boolean(showcaseDialogFormData?.subTotalAmountRemaining > 0) &&
+        !showcaseDialogFormData?.paymentMethod?.key
+      ) {
+        setSnack({
+          open: true,
+          message: "Please Select A Payment Method",
+          severity: "warning",
         });
-    }
-  }, [
-    finalRoomCheckOut,
-    showcaseDialogFormData,
-    handleCloseShowcaseDialog,
-    handleChangeShowcaseDialogFormData,
-    handleRoomSelect,
-    handleChangeSetPaymentDialogFinalPayload,
-  ]);
+        return;
+      }
+      //  else if (
+      //   showcaseDialogFormData?.paymentMethod?.key &&
+      //   showcaseDialogFormData?.paymentMethod?.key !== "Cash" &&
+      //   showcaseDialogFormData?.paymentMethod?.key.trim() !== "" &&
+      //   !showcaseDialogFormData?.transactionReferenceNo?.trim()
+      // ) {
+      //   setSnack({
+      //     open: true,
+      //     message:
+      //       "Please provide a valid transaction reference for the selected payment method.",
+      //     severity: "warning",
+      //   });
+      //   return;
+      // }
+      else if (
+        Boolean(showcaseDialogFormData?.subTotalAmountRemaining > 0) &&
+        Boolean(showcaseDialogFormData?.paymentMethod?.key) !==
+          Boolean(parseFloat(showcaseDialogFormData?.paidAmount))
+      ) {
+        setSnack({
+          open: true,
+          message: "Please provide both payment method and amount to proceed.",
+          severity: "warning",
+        });
+        return;
+      } else if (
+        Boolean(showcaseDialogFormData?.subTotalAmountRemaining > 0) &&
+        Boolean(
+          parseFloat(showcaseDialogFormData?.paidAmount) !==
+            parseFloat(showcaseDialogFormData?.subTotalAmountRemaining)
+        )
+      ) {
+        setSnack({
+          open: true,
+          message: "please provide remaining amount.",
+          severity: "warning",
+        });
+        return;
+      }
+
+      const payload = {
+        bookingRefNumber: showcaseDialogFormData?.bookingRefNumber,
+        paidAmount: showcaseDialogFormData?.paidAmount,
+        paymentMethod: showcaseDialogFormData?.paymentMethod?.key,
+        ...(showcaseDialogFormData?.paymentMethod?.key !== "Cash" &&
+          showcaseDialogFormData?.transactionReferenceNo?.trim() && {
+            transactionReferenceNo:
+              showcaseDialogFormData?.transactionReferenceNo,
+          }),
+      };
+
+      if (showcaseDialogFormData?.paymentMethod?.key === "Online") {
+        if (title === "Confirm Checkout") {
+          handleChangeSetPaymentDialogFinalPayload({
+            open: true,
+            mutationType: "finalCheckout",
+            payloadValue: payload,
+          });
+        } else {
+          handleChangeSetPaymentDialogFinalPayload({
+            open: true,
+            mutationType: "forceCheckout",
+            payloadValue: payload,
+          });
+        }
+      } else {
+        if (title === "Confirm Checkout") {
+          finalRoomCheckOut(payload)
+            .unwrap()
+            .then((res) => {
+              setSnack({
+                open: true,
+                message: res?.message || "Final Check-Out Success",
+                severity: "success",
+              });
+              handleCloseShowcaseDialog();
+              handleChangeShowcaseDialogFormData();
+              handleRoomSelect();
+            })
+            .catch((err) => {
+              setSnack({
+                open: true,
+                message:
+                  err?.data?.message ||
+                  err?.data ||
+                  "Final Check-Out Request Failed",
+                severity: "error",
+              });
+            });
+        } else {
+          forcedCheckout(payload)
+            .unwrap()
+            .then((res) => {
+              setSnack({
+                open: true,
+                message: res?.message,
+                severity: "success",
+              });
+              handleCloseShowcaseDialog();
+              handleChangeShowcaseDialogFormData();
+              handleRoomSelect();
+            })
+            .catch((err) => {
+              setSnack({
+                open: true,
+                message: err?.data?.message || err?.data,
+                severity: "error",
+              });
+            });
+        }
+      }
+    },
+    [
+      finalRoomCheckOut,
+      showcaseDialogFormData,
+      handleCloseShowcaseDialog,
+      handleChangeShowcaseDialogFormData,
+      handleRoomSelect,
+      handleChangeSetPaymentDialogFinalPayload,
+    ]
+  );
 
   const handleRoomCleanRequest = useCallback(
     (roomId) => {
@@ -11298,6 +11372,7 @@ const Dashboard = () => {
           assignNewKeyRes.isLoading ||
           upgradeRoomRequestRes.isLoading ||
           extendCheckoutRes.isLoading ||
+          forcedCheckoutRes.isLoading ||
           false
         }
       />

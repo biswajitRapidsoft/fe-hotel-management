@@ -127,6 +127,7 @@ const config = Object.freeze({
     getAllTablesForCounterStaff: "api/get/restaurant/tables/for/counter/staff",
     upgradeRoomRequest: "api/upgrade/new/room",
     getRoomTypeUpgradePriceConfig: "api/get/upgrade/price-config/room/type/id",
+    forcedCheckout: "api/customer/force/checkout",
     //FRONTDESK BOOKING HISTORY
     roomBookingHistoryByHotelId: "api/booking/history",
     getAllBookingStatusType: "api/get/all/booking/status/type",

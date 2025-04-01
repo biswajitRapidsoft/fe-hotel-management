@@ -472,6 +472,7 @@ const HouseKeepingDialog = ({
         },
         remarks,
         serviceTypeStatus: selectedRoom?.serviceTypeStatus,
+        bookingRefNumber: selectedRoom?.bookingDto?.bookingRefNumber || null,
       };
     } else if (selectedRoom?.serviceTypeStatus === "Laundry_Service") {
       // Calculate total price and prepare laundry items list
@@ -519,6 +520,7 @@ const HouseKeepingDialog = ({
         },
         remarks,
         serviceTypeStatus: selectedRoom?.serviceTypeStatus,
+        bookingRefNumber: selectedRoom?.bookingDto?.bookingRefNumber || null,
       };
     } else if (
       selectedRoom?.serviceTypeStatus === "Room_Cleaning_After_Checkout"
@@ -530,6 +532,7 @@ const HouseKeepingDialog = ({
         },
         remarks,
         serviceTypeStatus: selectedRoom?.serviceTypeStatus,
+        bookingRefNumber: selectedRoom?.bookingDto?.bookingRefNumber || null,
       };
     } else {
       // Checkout request logic
@@ -548,6 +551,7 @@ const HouseKeepingDialog = ({
         extraItemsList,
         remarks,
         serviceTypeStatus: selectedRoom?.serviceTypeStatus,
+        bookingRefNumber: selectedRoom?.bookingDto?.bookingRefNumber || null,
       };
     }
     approveService(payload)
