@@ -107,6 +107,81 @@ const barApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["getAllTablesForBarWaiter"],
     }),
+    getAllDineInRequestForBarFromRoom: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllDineInRequestForBarFromRoom,
+        method: "GET",
+        params: {
+          hotelId: payload.hotelId,
+          date: payload.date,
+        },
+      }),
+      providesTags: ["getAllDineInRequestForBarFromRoom"],
+    }),
+    getAllWaitersForBar: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllWaitersForBar,
+        method: "GET",
+        params: {
+          hotelId: payload.hotelId,
+        },
+      }),
+      providesTags: ["getAllWaitersForBar"],
+    }),
+    assignTableToBarWaiter: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.assignTableToBarWaiter,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllDineInRequestForBarFromRoom"],
+    }),
+    getAllBarServiceStaff: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllBarServiceStaff,
+        method: "GET",
+        params: {
+          hotelId: payload?.hotelId,
+        },
+      }),
+      providesTags: ["getAllBarServiceStaff"],
+    }),
+    assignBarServiceStaff: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.assignBarServiceStaff,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllDineInRequestForBarFromRoom"],
+    }),
+    getallBarOrderHistoryForCounterStaff: build.query({
+      query: (payload) => ({
+        url: config.apiName.getallBarOrderHistoryForCounterStaff,
+        method: "GET",
+        params: {
+          hotelId: payload,
+        },
+      }),
+      providesTags: ["getallBarOrderHistoryForCounterStaff"],
+    }),
+    getAllServiceRequestsForBarServiceStaff: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllServiceRequestsForBarServiceStaff,
+        method: "GET",
+        params: {
+          userId: payload?.userId,
+        },
+      }),
+      providesTags: ["getAllServiceRequestsForBarServiceStaff"],
+    }),
+    deliverBarOrdersByServiceStaff: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.deliverBarOrdersByServiceStaff,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getAllServiceRequestsForBarServiceStaff"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -124,4 +199,12 @@ export const {
   useDeliverBarByWaiterMutation,
   useAssosciateBarOrderWithRoomMutation,
   useCompleteBarOrderMutation,
+  useGetAllDineInRequestForBarFromRoomQuery,
+  useGetAllWaitersForBarQuery,
+  useAssignTableToBarWaiterMutation,
+  useGetAllBarServiceStaffQuery,
+  useAssignBarServiceStaffMutation,
+  useGetallBarOrderHistoryForCounterStaffQuery,
+  useGetAllServiceRequestsForBarServiceStaffQuery,
+  useDeliverBarOrdersByServiceStaffMutation,
 } = barApi;

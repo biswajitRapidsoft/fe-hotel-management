@@ -188,7 +188,7 @@ const RoomTypeTable = ({ setRoomToUpdate }) => {
               }}
               onClick={() => navigate("/roomUpgradeConfiguration")}
             >
-              Room Upgrage
+              Room Upgrade
             </Button>
           </Box>
         </Toolbar>

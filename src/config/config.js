@@ -92,7 +92,9 @@ const config = Object.freeze({
     getAllDineInRequestForBarFromRoom:
       "api/get/all/table/not/assigned/bar/orders",
     getAllWaiters: "api/get/all/waiters",
+    getAllWaitersForBar: "api/get/all/bar/waiters",
     assignTableToWaiter: "api/assign/table/to/restaurant/order",
+    assignTableToBarWaiter: "api/assign/table/to/bar/order",
     saveRoomTypeUpgradePriceConfig: "api/hotel/room-type/upgrade/price/config",
     getRoomTypeUpgradePriceConfigAdmin:
       "api/get/upgrade/price-config/room/type",
@@ -109,8 +111,16 @@ const config = Object.freeze({
     getAllTodayOrderForCounterStaff:
       "api/get/today/order/history/for/counter-staff",
     getAllBarTables: "api/get/all/bar/tables",
+    getallBarOrderHistoryForCounterStaff:
+      "api/get/today/bar/order/history/for/counter-staff",
     getAllBarTableForCounterStaff: "api/get/bar/tables/for/counter/staff",
     createBarTables: "api/create/bar/tables",
+    getAllBarServiceStaff: "api/get/all/bar/service/users",
+    assignBarServiceStaff: "api/assign/bar/service/staff",
+    getAllServiceRequestsForBarServiceStaff:
+      "api/get/all/bar/staff/service/order/request",
+    deliverBarOrdersByServiceStaff:
+      "api/deliver/bar/order/by/bar/service/staff",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",

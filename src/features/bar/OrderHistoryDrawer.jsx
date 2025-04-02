@@ -118,7 +118,7 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
       <Divider />
       <Box sx={{ padding: (theme) => theme.spacing(0, 1), mt: 1 }}>
         <Grid container rowSpacing={1}>
-          {orderHistory.map((order) => {
+          {orderHistory?.map((order) => {
             return (
               <Grid size={12} key={order.id}>
                 <Box

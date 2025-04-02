@@ -216,6 +216,15 @@ const BarCounterStaffDashboard = () => {
           }}
         />
       </Box>
+      <LoadingComponent
+        open={
+          bookingDetailsRes.isLoading ||
+          completeOrderRes.isLoading ||
+          assosciateWithRoomRes.isLoading ||
+          isLoading
+        }
+      />
+      <SnackAlert snack={snack} setSnack={setSnack} />
     </>
   );
 };

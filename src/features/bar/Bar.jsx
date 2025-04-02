@@ -404,9 +404,9 @@ const Bar = () => {
   const barTableId = sessionStorage.getItem("barTableId");
   const orderTakenBy = sessionStorage.getItem("barorderTakenBy");
   const orderIdFromWaiter = sessionStorage.getItem("orderIdFromBarWaiter");
-  // const OrderCreatedByCounterStaff = sessionStorage.getItem(
-  //   "OrderCreatedByCounterStaff"
-  // );
+  const OrderCreatedByBarCounterStaff = sessionStorage.getItem(
+    "OrderCreatedByBarCounterStaff"
+  );
   console.log(foodType, "foodTypeee");
   const handleAddItemToCart = React.useCallback(
     (item) => {
@@ -1074,22 +1074,31 @@ const Bar = () => {
               </Typography>
             </Box>
             <FormGroup row>
-              {dineTypes.data.map((option) => {
-                return (
-                  <FormControlLabel
-                    key={option}
-                    control={
-                      <Checkbox
-                        checked={dineType === option}
-                        onChange={handleChangeRadioForDineType}
-                        size="small"
-                        value={option}
-                      />
-                    }
-                    label={option.replace("_", " ")}
-                  />
-                );
-              })}
+              {dineTypes.data
+
+                .filter(
+                  (option) =>
+                    !(
+                      Boolean(OrderCreatedByBarCounterStaff) &&
+                      option === "Room_Delivery"
+                    )
+                )
+                .map((option) => {
+                  return (
+                    <FormControlLabel
+                      key={option}
+                      control={
+                        <Checkbox
+                          checked={dineType === option}
+                          onChange={handleChangeRadioForDineType}
+                          size="small"
+                          value={option}
+                        />
+                      }
+                      label={option.replace("_", " ")}
+                    />
+                  );
+                })}
             </FormGroup>
             <Button
               color="secondary"
