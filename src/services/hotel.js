@@ -227,6 +227,24 @@ const hotelApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["getLaundryItemByHotelId", "getHotelListByCompany"],
     }),
+    getCheckInCheckOutConfigByHotelId: build.query({
+      query: (payload) => ({
+        url: config.apiName.getCheckInCheckOutConfigByHotelId,
+        method: "GET",
+        params: {
+          hotelId: payload,
+        },
+      }),
+      providesTags: ["getCheckInCheckOutConfigByHotelId"],
+    }),
+    saveCheckInCheckOutConfigByHotel: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.saveCheckInCheckOutConfigByHotel,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getCheckInCheckOutConfigByHotelId"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -257,4 +275,6 @@ export const {
   useUpdateConfigurationStatusMutation,
   useGetLaundryItemByHotelIdQuery,
   useSaveLaundryItemMutation,
+  useGetCheckInCheckOutConfigByHotelIdQuery,
+  useSaveCheckInCheckOutConfigByHotelMutation,
 } = hotelApi;

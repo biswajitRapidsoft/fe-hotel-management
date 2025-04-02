@@ -103,6 +103,9 @@ const config = Object.freeze({
       "api/deliver/food/by/kitchen/service/staff",
     getAllTodayOrderForCounterStaff:
       "api/get/today/order/history/for/counter-staff",
+    getCheckInCheckOutConfigByHotelId:
+      "api/hotel/checkin-checkout-config/get/hotel",
+    saveCheckInCheckOutConfigByHotel: "api/hotel/checkin-checkout-config/save",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",

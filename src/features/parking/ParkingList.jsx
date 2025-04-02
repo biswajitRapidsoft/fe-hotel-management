@@ -109,21 +109,23 @@ const ParkingList = () => {
   const handleSubmit = React.useCallback(
     (e) => {
       e.preventDefault();
+      const payload = {
+        id: parkingToUpdate?.id || null,
+        areaName: formData.parkingName,
+        locations: formData.areaName,
+        hotelDto: {
+          id: sessionStorage.getItem("hotelIdForParkingList"),
+        },
+        slotList: parkingSlotArr.map((slot) => ({
+          slotNumber: slot.slotName,
+          vehicleType: slot.vehicleType,
+        })),
+        isPaid: formData.isPaidParking,
+        bikeParkingAmount: formData.bikeParkingAmount || null,
+        carParkingAmount: formData.carParkingAmount || null,
+      };
       if (Boolean(parkingToUpdate)) {
-        updateParking({
-          id: parkingToUpdate.id,
-          areaName: formData.parkingName,
-          locations: formData.areaName,
-          hotelDto: {
-            id: sessionStorage.getItem("hotelIdForParkingList"),
-          },
-          slotList: parkingSlotArr.map((slot) => ({
-            slotNumber: slot.slotName,
-            vehicleType: slot.vehicleType,
-          })),
-          bikeParkingAmount: formData.bikeParkingAmount || null,
-          carParkingAmount: formData.carParkingAmount || null,
-        })
+        updateParking(payload)
           .unwrap()
           .then((res) => {
             setSnack({
@@ -141,20 +143,7 @@ const ParkingList = () => {
             });
           });
       } else {
-        createParking({
-          areaName: formData.parkingName,
-          locations: formData.areaName,
-          hotelDto: {
-            id: sessionStorage.getItem("hotelIdForParkingList"),
-          },
-          slotList: parkingSlotArr.map((slot) => ({
-            slotNumber: slot.slotName,
-            vehicleType: slot.vehicleType,
-          })),
-          isPaid: formData.isPaidParking,
-          bikeParkingAmount: formData.bikeParkingAmount || null,
-          carParkingAmount: formData.carParkingAmount || null,
-        })
+        createParking(payload)
           .unwrap()
           .then((res) => {
             setSnack({
@@ -188,6 +177,9 @@ const ParkingList = () => {
       setFormData({
         parkingName: parkingToUpdate.areaName || "",
         areaName: parkingToUpdate.location || "",
+        isPaidParking: parkingToUpdate.isPaid || false,
+        bikeParkingAmount: parkingToUpdate.bikeParkingAmount,
+        carParkingAmount: parkingToUpdate.carParkingAmount,
       });
       setParkingSlotArr(
         parkingToUpdate.parkingSlotData.map((slotData) => ({
