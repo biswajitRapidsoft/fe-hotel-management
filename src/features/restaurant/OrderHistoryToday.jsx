@@ -96,14 +96,14 @@ const OrderHistoryToday = () => {
   }, []);
 
   const [orderDetailsDialog, setOrderDetailsDialog] = React.useState(null);
-
+  console.log("orderDetailsDialog", orderDetailsDialog);
   const handleOpenPaymentDialog = React.useCallback(() => {
-    const totalPrice = orderDetailsDialog?.bookingRequestDto?.totalPrice || 0;
-    const gstPrice = orderDetailsDialog?.bookingRequestDto?.gstPrice || 0;
+    const totalPrice = orderDetailsDialog?.bookingDetails?.totalPrice || 0;
+    const gstPrice = orderDetailsDialog?.bookingDetails?.gstPrice || 0;
 
     const payload = {
       paidAmount: totalPrice + gstPrice,
-      orderId: orderDetailsDialog?.bookingRequestDto?.orderId,
+      orderId: orderDetailsDialog?.bookingDetails?.orderId,
     };
 
     setMakePartialPaymentPayload(payload);
@@ -250,6 +250,9 @@ const OrderHistoryToday = () => {
         reservationPayload={makePartialPaymentPayload}
         setSnack={setSnack}
         reserveHotelRoom={completeOrder}
+        handleAfterSuccessFunction={() => {
+          handleCloseOrderDetailsDialog();
+        }}
       />
 
       <OrderDetailsDialog
@@ -276,7 +279,8 @@ const OrderHistoryToday = () => {
           istableListForCounterStaffLoading ||
           assignTableToWaiterRes.isLoading ||
           completeOrderRes.isLoading ||
-          assignServiceStaffRes.isLoading
+          assignServiceStaffRes.isLoading ||
+          assosciateWithRoomRes.isLoading
         }
       />
       <SnackAlert snack={snack} setSnack={setSnack} />

@@ -38,6 +38,9 @@ import {
   CANCELLED_BAR,
   DELIVERED_BAR,
   PLACED_BAR,
+  REJECTED,
+  READY_TO_SERVE,
+  COMPLETED,
 } from "../../helper/constants";
 
 const Row = ({ order, index, setUpdateStatusDialog }) => {
@@ -143,7 +146,13 @@ const Row = ({ order, index, setUpdateStatusDialog }) => {
                   })}
                 </TableBody>
               </Table>
-              {![DELIVERED_BAR, CANCELLED_BAR].includes(order.orderStatus) && (
+              {![
+                DELIVERED_BAR,
+                CANCELLED_BAR,
+                REJECTED,
+                READY_TO_SERVE,
+                COMPLETED,
+              ].includes(order.orderStatus) && (
                 <Button
                   sx={{
                     display: "block",

@@ -85,7 +85,7 @@ const BarOrderHistoryToday = () => {
     paymentType: null,
   });
   const handlePayment = React.useCallback((item) => {
-    const totalPrice = item?.totalPrice || 0;
+    const totalPrice = item?.totalAmount || 0;
     const gstPrice = item?.gstPrice || 0;
 
     const payload = {
@@ -113,12 +113,12 @@ const BarOrderHistoryToday = () => {
   const [orderDetailsDialog, setOrderDetailsDialog] = React.useState(null);
 
   const handleOpenPaymentDialog = React.useCallback(() => {
-    const totalPrice = orderDetailsDialog?.bookingRequestDto?.totalPrice || 0;
-    const gstPrice = orderDetailsDialog?.bookingRequestDto?.gstPrice || 0;
+    const totalPrice = orderDetailsDialog?.totalAmount || 0;
+    const gstPrice = orderDetailsDialog?.gstPrice || 0;
 
     const payload = {
       paidAmount: totalPrice + gstPrice,
-      orderId: orderDetailsDialog?.bookingRequestDto?.orderId,
+      orderId: orderDetailsDialog?.orderId,
     };
 
     setMakePartialPaymentPayload(payload);
@@ -255,6 +255,9 @@ const BarOrderHistoryToday = () => {
         reservationPayload={makePartialPaymentPayload}
         setSnack={setSnack}
         reserveHotelRoom={completeOrder}
+        handleAfterSuccessFunction={() => {
+          handleCloseOrderDetailsDialog();
+        }}
       />
       <OrderDetailsDialog
         orderDetailsDialog={orderDetailsDialog}
@@ -281,7 +284,8 @@ const BarOrderHistoryToday = () => {
           assignServiceStaffRes.isLoading ||
           assosciateWithRoomRes.isLoading ||
           completeOrderRes.isLoading ||
-          assignTableToBarWaiterRes.isLoading
+          assignTableToBarWaiterRes.isLoading ||
+          isGetAllBarOrderHistoryLoading
         }
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
@@ -1036,12 +1040,12 @@ const OrderDetailsDialog = ({
 
   const handleAssosciateWithRoom = React.useCallback(() => {
     if (!isSplit) {
-      const totalPrice = orderDetailsDialog?.bookingDetails?.totalPrice ?? 0;
-      const gstPrice = orderDetailsDialog?.bookingDetails?.gstPrice ?? 0;
+      const totalPrice = orderDetailsDialog?.totalAmount ?? 0;
+      const gstPrice = orderDetailsDialog?.gstPrice ?? 0;
       const totalAmount = totalPrice + gstPrice;
       assosciateWithRoom({
         isSplit: false,
-        orderId: orderDetailsDialog?.bookingDetails?.orderId,
+        orderId: orderDetailsDialog?.orderId,
         bookingRefNo: bookingDetailsRes?.data?.data?.bookingRefNumber,
         orderMapDtos: [
           {
@@ -1069,7 +1073,7 @@ const OrderDetailsDialog = ({
     } else if (isSplit) {
       assosciateWithRoom({
         isSplit: true,
-        orderId: orderDetailsDialog?.bookingDetails?.orderId,
+        orderId: orderDetailsDialog?.orderId,
         orderMapDtos: customOrderMapDtos?.map((item) => ({
           bookingRefNo: item?.bookingRefNumber,
           totalPrice: item?.payableAmount || 0,
@@ -1103,11 +1107,11 @@ const OrderDetailsDialog = ({
   ]);
 
   const handleMakePaymentWithCash = React.useCallback(() => {
-    const totalPrice = orderDetailsDialog?.bookingDetails?.totalPrice || 0;
-    const gstPrice = orderDetailsDialog?.bookingDetails?.gstPrice || 0;
+    const totalPrice = orderDetailsDialog?.totalAmount || 0;
+    const gstPrice = orderDetailsDialog?.gstPrice || 0;
 
     completeOrder({
-      orderId: orderDetailsDialog?.bookingDetails.orderId,
+      orderId: orderDetailsDialog?.orderId,
       paidAmount: totalPrice + gstPrice,
       paymentMethod: "Cash",
     })
@@ -1280,8 +1284,8 @@ const OrderDetailsDialog = ({
   }, [bookingDetailsRes, isSplit]);
 
   useEffect(() => {
-    const totalPrice = orderDetailsDialog?.bookingDetails?.totalPrice ?? 0;
-    const gstPrice = orderDetailsDialog?.bookingDetails?.gstPrice ?? 0;
+    const totalPrice = orderDetailsDialog?.totalAmount ?? 0;
+    const gstPrice = orderDetailsDialog?.gstPrice ?? 0;
     const totalAmount = totalPrice + gstPrice;
 
     const updatedOrderDtos =
@@ -1341,9 +1345,7 @@ const OrderDetailsDialog = ({
                   >
                     Order Id:
                   </Typography>
-                  <Typography>
-                    {orderDetailsDialog?.bookingDetails?.orderId}
-                  </Typography>
+                  <Typography>{orderDetailsDialog?.orderId}</Typography>
                 </Box>
                 <Box sx={{ display: "flex", gap: 1 }}>
                   <Typography
@@ -1370,9 +1372,7 @@ const OrderDetailsDialog = ({
                     Order Status:
                   </Typography>
                   <Typography>
-                    {orderDetailsDialog?.bookingDetails?.foodBookingStatus
-                      .split("_")
-                      .join(" ")}
+                    {orderDetailsDialog?.orderStatus.split("_").join(" ")}
                   </Typography>
                 </Box>
                 <Box
@@ -1390,15 +1390,12 @@ const OrderDetailsDialog = ({
                   </Typography>
                   <Typography>
                     ₹{" "}
-                    {orderDetailsDialog?.bookingDetails?.totalPrice +
-                      orderDetailsDialog?.bookingDetails?.gstPrice}
+                    {orderDetailsDialog?.totalAmount +
+                      orderDetailsDialog?.gstPrice}
                   </Typography>
                 </Box>
               </Box>
-              {Boolean(
-                orderDetailsDialog?.bookingDetails?.foodBookingStatus ===
-                  "Delivered"
-              ) && (
+              {Boolean(orderDetailsDialog?.orderStatus === "Delivered") && (
                 <Box>
                   <Tooltip title="Download Invoice" arrow>
                     <IconButton
@@ -1431,13 +1428,13 @@ const OrderDetailsDialog = ({
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {orderDetailsDialog?.itemsList?.map((item, index) => {
+                    {orderDetailsDialog?.trailData?.map((item, index) => {
                       return (
                         <>
                           <TableRow key={index}>
                             <TableCell>{index + 1}</TableCell>
-                            <TableCell>{item?.itemName}</TableCell>
-                            <TableCell>{item?.noOfItems}</TableCell>
+                            <TableCell>{item?.name}</TableCell>
+                            <TableCell>{item?.quantity}</TableCell>
                             <TableCell>
                               {Boolean(item?.isDelivered) ? "Yes" : "No"}
                             </TableCell>

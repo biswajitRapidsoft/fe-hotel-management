@@ -152,7 +152,7 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
                     }}
                   >
                     <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                      Dine Type: {order.dinningType.replace("_", " ")}
+                      Dine Type: {order?.dinningType?.replace("_", " ")}
                     </Typography>
                     <Typography
                       variant="h6"
