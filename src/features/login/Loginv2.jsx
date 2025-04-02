@@ -41,6 +41,9 @@ import {
   WAITER,
   COUNTER_STAFF,
   KITCHEN_SERVICE_STAFF,
+  BAR_WAITER,
+  BAR_COUNTER_STAFF,
+  BAR_SERVICE_STAFF,
 } from "../../helper/constants";
 
 const phoneRegex = /^[0-9]{10}$/;
@@ -156,6 +159,12 @@ const Loginv2 = () => {
             navigate("/CounterStaffDashboard");
           } else if (res.data.roleType === KITCHEN_SERVICE_STAFF) {
             navigate("/KitchenServiceStaff");
+          } else if (res.data.roleType === BAR_WAITER) {
+            navigate("/BarWaiterDashboard");
+          } else if (res.data.roleType === BAR_COUNTER_STAFF) {
+            navigate("/BarCounterStaffDashboard");
+          } else if (res.data.roleType === BAR_SERVICE_STAFF) {
+            navigate("/BarServiceStaff");
           } else {
             navigate("/");
           }

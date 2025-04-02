@@ -123,7 +123,7 @@ const Row = ({ order, index, setUpdateStatusDialog }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {order.ordersList.map((orderItem, orderItemIndex) => {
+                  {order.trailData.map((orderItem, orderItemIndex) => {
                     return (
                       <TableRow
                         sx={{
@@ -133,11 +133,11 @@ const Row = ({ order, index, setUpdateStatusDialog }) => {
                           },
                           "& > *": { borderBottom: "unset" },
                         }}
-                        key={`${order.id}-${orderItem.itemName}`}
+                        key={`${order.id}-${orderItem.name}`}
                       >
                         <TableCell>{orderItemIndex + 1}</TableCell>
-                        <TableCell>{orderItem.item.name}</TableCell>
-                        <TableCell>{orderItem.noOfQty}</TableCell>
+                        <TableCell>{orderItem.name}</TableCell>
+                        <TableCell>{orderItem.quantity}</TableCell>
                       </TableRow>
                     );
                   })}
@@ -282,7 +282,11 @@ function FormDialog({
           <Grid container rowSpacing={2}>
             <Grid size={12}>
               <Autocomplete
-                options={statusList}
+                // options={statusList}
+                options={statusList.filter(
+                  (status) =>
+                    status === "Food_Preparing" || status === "Ready_to_serve"
+                )}
                 getOptionLabel={(option) => option.replace("_", " ")}
                 value={selectedStatus}
                 onChange={(e, newVal) => setSelectedStatus(newVal)}

@@ -1,42 +1,44 @@
 import {
+  Paper,
   Table,
+  TableBody,
+  TableCell,
+  TableContainer,
   TableHead,
   TableRow,
-  TableCell,
-  Paper,
-  Box,
-  Typography,
-  TableContainer,
-  TableBody,
   Toolbar,
+  Typography,
+  Box,
   IconButton,
-  Collapse,
-  Rating,
   Button,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
-  Grid2 as Grid,
   TextField,
   Autocomplete,
-  Tooltip,
+  Grid2 as Grid,
+  Rating,
+  Collapse,
   Divider,
   Checkbox,
   FormGroup,
   FormControlLabel,
+  Tooltip,
 } from "@mui/material";
+
 import React, { useCallback, useEffect, useState } from "react";
 import { BootstrapDialog } from "../header/Header";
-import moment from "moment";
 import { jsPDF } from "jspdf";
 
 import ReceiptIcon from "@mui/icons-material/Receipt";
 import CloseIcon from "@mui/icons-material/Close";
-import { useGetAllTodayOrderForCounterStaffQuery } from "../../services/restaurant";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ClearIcon from "@mui/icons-material/Clear";
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
+import moment from "moment";
 import {
   CANCELLED,
   DELIVERED,
@@ -44,33 +46,35 @@ import {
   READY_TO_SERVE,
   REJECTED,
 } from "../../helper/constants";
-import {
-  useGetAllTablesForCounterQuery,
-  useGetAllWaitersQuery,
-  useAssignTableToWaiterMutation,
-  useCompleteFoodOrderMutation,
-  useGetAllKitchenStaffQuery,
-  useAssignServiceStaffMutation,
-  useGetBookingDetailsFromRoomNumberMutation,
-  useAssosciateOrderWithRoomMutation,
-} from "../../services/restaurant";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import { useNavigate } from "react-router-dom";
 import { PaymentDialog } from "../dashboard/GuestDashboard";
+import { useGetBookingDetailsFromRoomNumberMutation } from "../../services/restaurant";
+import { useGetAllBarTableForCounterStaffQuery } from "../../services/dashboard";
 
-const OrderHistoryToday = () => {
+import {
+  useAssosciateBarOrderWithRoomMutation,
+  useCompleteBarOrderMutation,
+  useGetAllDineInRequestForBarFromRoomQuery,
+  useGetAllWaitersForBarQuery,
+  useAssignTableToBarWaiterMutation,
+  useGetAllBarServiceStaffQuery,
+  useAssignBarServiceStaffMutation,
+} from "../../services/bar";
+
+const BarDineIn = () => {
+  const navigate = useNavigate();
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
     severity: "",
   });
+  const [updateStatusDialog, setUpdateStatusDialog] = React.useState();
+
+  const [isSplit, setIsSplit] = useState(false);
   const [openPaymentDialog, setOpenPaymentDialog] = React.useState(false);
   const [makePartialPaymentPayload, setMakePartialPaymentPayload] =
     React.useState(null);
-  const [updateStatusDialog, setUpdateStatusDialog] = React.useState();
   const [assignStaffDialog, setAssignStaffDialog] = React.useState();
-
-  const [isSplit, setIsSplit] = useState(false);
 
   const [orderMapDtos, setOrderMapDtos] = useState([]);
   const [customOrderMapDtos, setCustomOrderMapDtos] = useState([]);
@@ -80,6 +84,17 @@ const OrderHistoryToday = () => {
     roomNumber: "",
     paymentType: null,
   });
+  const handlePayment = React.useCallback((item) => {
+    const totalPrice = item?.totalPrice || 0;
+    const gstPrice = item?.gstPrice || 0;
+
+    const payload = {
+      paidAmount: totalPrice + gstPrice,
+      orderId: item?.orderId,
+    };
+    setMakePartialPaymentPayload(payload);
+    setOpenPaymentDialog(true);
+  }, []);
   const handleCloseOrderDetailsDialog = React.useCallback(() => {
     setFormDataForDialog({
       isAssosciateWithRoom: false,
@@ -110,50 +125,42 @@ const OrderHistoryToday = () => {
     setOpenPaymentDialog(true);
   }, [orderDetailsDialog]);
 
+  const {
+    data: todayBarOrderRequests = { data: [] },
+    isLoading: istodayBarOrderDataLoading,
+    isFetching: istodayBarOrderDataFetching,
+  } = useGetAllDineInRequestForBarFromRoomQuery({
+    hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
+    date: moment().format("YYYY-MM-DD"),
+  });
+
+  const { data: tableListForBarCounterStaff = { data: [] } } =
+    useGetAllBarTableForCounterStaffQuery({
+      hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
+      userId: JSON.parse(sessionStorage.getItem("data")).id,
+    });
+
+  const { data: waiterListForBar = { data: [] } } = useGetAllWaitersForBarQuery(
+    {
+      hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
+    }
+  );
+  const { data: barServiceStaffList = { data: [] } } =
+    useGetAllBarServiceStaffQuery({
+      hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
+    });
+
   const [bookingDetails, bookingDetailsRes] =
     useGetBookingDetailsFromRoomNumberMutation();
 
-  const [assosciateWithRoom, assosciateWithRoomRes] =
-    useAssosciateOrderWithRoomMutation();
-  const [assignTableToWaiter, assignTableToWaiterRes] =
-    useAssignTableToWaiterMutation();
   const [assignServiceStaff, assignServiceStaffRes] =
-    useAssignServiceStaffMutation();
-  const [completeOrder, completeOrderRes] = useCompleteFoodOrderMutation();
+    useAssignBarServiceStaffMutation();
+  const [assosciateWithRoom, assosciateWithRoomRes] =
+    useAssosciateBarOrderWithRoomMutation();
+  const [completeOrder, completeOrderRes] = useCompleteBarOrderMutation();
+  const [assignTableToBarWaiter, assignTableToBarWaiterRes] =
+    useAssignTableToBarWaiterMutation();
 
-  const {
-    data: orderList = { data: [] },
-    isLoading: isGetAllTodayOrderForCounterStaff,
-  } = useGetAllTodayOrderForCounterStaffQuery(
-    JSON.parse(sessionStorage.getItem("data")).hotelId
-  );
-
-  const {
-    data: tableListForCounterStaff = { data: [] },
-    isLoading: istableListForCounterStaffLoading,
-  } = useGetAllTablesForCounterQuery({
-    hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
-    userId: JSON.parse(sessionStorage.getItem("data")).id,
-  });
-
-  const { data: serviceStaffList = { data: [] } } = useGetAllKitchenStaffQuery({
-    hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
-  });
-
-  const { data: waiterList = { data: [] } } = useGetAllWaitersQuery({
-    hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
-  });
-  const handlePayment = React.useCallback((item) => {
-    const totalPrice = item?.bookingDetails?.totalPrice || 0;
-    const gstPrice = item?.bookingDetails?.gstPrice || 0;
-
-    const payload = {
-      paidAmount: totalPrice + gstPrice,
-      orderId: item?.orderId,
-    };
-    setMakePartialPaymentPayload(payload);
-    setOpenPaymentDialog(true);
-  }, []);
   return (
     <React.Fragment>
       <Paper>
@@ -176,9 +183,39 @@ const OrderHistoryToday = () => {
               variant="h6"
               sx={{ fontWeight: "bold", letterSpacing: 1 }}
             >
-              Today Order History
+              Bar Dine-In List
             </Typography>
           </Toolbar>
+
+          <Box>
+            <Button
+              color="secondary"
+              variant="contained"
+              size="small"
+              sx={{
+                color: "#fff",
+                fontWeight: 600,
+                textTransform: "none",
+                fontSize: 18,
+                "&.Mui-disabled": {
+                  background: "#B2E5F6",
+                  color: "#FFFFFF",
+                },
+              }}
+              onClick={() => {
+                sessionStorage.setItem("isStayingGuest", false);
+                sessionStorage.setItem("OrderCreatedByBarCounterStaff", true);
+                sessionStorage.setItem(
+                  "hotelIdFromBarWaiter",
+                  // orderDetailsDialog?.hotelId
+                  JSON.parse(sessionStorage.getItem("data"))?.hotelId
+                );
+                navigate("/bar");
+              }}
+            >
+              Place Order
+            </Button>
+          </Box>
         </Box>
 
         <TableContainer>
@@ -201,23 +238,21 @@ const OrderHistoryToday = () => {
                 <TableCell>Phone no.</TableCell>
                 <TableCell>Dine Type</TableCell>
                 <TableCell>Room No.(Floor)</TableCell>
-                <TableCell>Order Taken By</TableCell>
                 <TableCell>Order Status</TableCell>
                 <TableCell />
               </TableRow>
             </TableHead>
-
             <TableBody>
-              {orderList?.data?.map((item, index) => {
+              {todayBarOrderRequests?.data?.map((item, index) => {
                 return (
                   <Row
                     key={item.id}
                     item={item}
                     index={index}
-                    handlePayment={handlePayment}
                     setUpdateStatusDialog={setUpdateStatusDialog}
                     setMakePartialPaymentPayload={setMakePartialPaymentPayload}
                     setOpenPaymentDialog={setOpenPaymentDialog}
+                    handlePayment={handlePayment}
                     setAssignStaffDialog={setAssignStaffDialog}
                     setOrderDetailsDialog={setOrderDetailsDialog}
                   />
@@ -232,26 +267,18 @@ const OrderHistoryToday = () => {
         handleClose={() => setUpdateStatusDialog(null)}
         order={updateStatusDialog}
         setSnack={setSnack}
-        tableListForCounterStaff={tableListForCounterStaff}
-        waiterList={waiterList}
-        assignTableToWaiter={assignTableToWaiter}
+        tableListForBarCounterStaff={tableListForBarCounterStaff}
+        waiterList={waiterListForBar}
+        assignTableToWaiter={assignTableToBarWaiter}
       />
       <AssignStaffDialog
         assignStaffDialog={assignStaffDialog}
         setAssignStaffDialog={setAssignStaffDialog}
-        serviceStaffList={serviceStaffList}
+        serviceStaffList={barServiceStaffList}
         handleClose={() => setAssignStaffDialog(null)}
         assignServiceStaff={assignServiceStaff}
         setSnack={setSnack}
       />
-      <PaymentDialog
-        openPaymentDialog={openPaymentDialog}
-        handlePaymentDialogClose={() => setOpenPaymentDialog(false)}
-        reservationPayload={makePartialPaymentPayload}
-        setSnack={setSnack}
-        reserveHotelRoom={completeOrder}
-      />
-
       <OrderDetailsDialog
         orderDetailsDialog={orderDetailsDialog}
         handleCloseOrderDetailsDialog={handleCloseOrderDetailsDialog}
@@ -270,28 +297,44 @@ const OrderHistoryToday = () => {
         customOrderMapDtos={customOrderMapDtos}
         setCustomOrderMapDtos={setCustomOrderMapDtos}
       />
+      <PaymentDialog
+        openPaymentDialog={openPaymentDialog}
+        handlePaymentDialogClose={() => setOpenPaymentDialog(false)}
+        reservationPayload={makePartialPaymentPayload}
+        setSnack={setSnack}
+        reserveHotelRoom={completeOrder}
+        // handleAfterSuccessFunction={() => {
+        //   handleCloseOrderDetailsDialog();
+        // }}
+      />
+
       <LoadingComponent
         open={
-          isGetAllTodayOrderForCounterStaff ||
-          istableListForCounterStaffLoading ||
-          assignTableToWaiterRes.isLoading ||
+          assignServiceStaffRes.isLoading ||
+          bookingDetailsRes.isLoading ||
+          istodayBarOrderDataLoading ||
+          istodayBarOrderDataFetching ||
+          assosciateWithRoomRes.isLoading ||
           completeOrderRes.isLoading ||
-          assignServiceStaffRes.isLoading
+          assignTableToBarWaiterRes.isLoading
         }
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </React.Fragment>
   );
 };
+
 const Row = ({
   item,
   index,
   setUpdateStatusDialog,
+  // setOpenPaymentDialog,
+  // setMakePartialPaymentPayload,
   handlePayment,
   setAssignStaffDialog,
   setOrderDetailsDialog,
 }) => {
-  console.log("item", item);
+  console.log("foodBookingStatus", item);
   const [open, setOpen] = React.useState(false);
   return (
     <React.Fragment>
@@ -305,21 +348,18 @@ const Row = ({
         }}
       >
         <TableCell>{index + 1}</TableCell>
-        <TableCell>{item?.bookingDetails?.orderId}</TableCell>
-        <TableCell sx={{ minWidth: 150 }}>{`${item.bookingDetails.firstName} ${
-          item.bookingDetails.middleName || ""
-        } ${item.bookingDetails.lastName || ""}`}</TableCell>
-        <TableCell>{item.bookingDetails.phoneNo}</TableCell>
+        <TableCell>{item?.orderId}</TableCell>
+        {/* <TableCell sx={{ minWidth: 150 }}>{`${item.firstName} ${
+          item.middleName || ""
+        } ${item.lastName || ""}`}</TableCell> */}
+        <TableCell sx={{ minWidth: 150 }}>{item?.customerName}</TableCell>
+        <TableCell>{item.phoneNo}</TableCell>
+        <TableCell>{item.dinningType.replace("_", " ")}</TableCell>
         <TableCell>
-          {item.bookingDetails.dinningType.replace("_", " ")}
-        </TableCell>
-        <TableCell>
-          {item?.bookingDto?.roomDto
-            ? `${item?.bookingDto?.roomDto?.roomNo}(${item?.bookingDto?.roomDto?.floorNo})`
+          {item?.bookingDetails
+            ? `${item?.bookingDetails?.roomDto?.roomNo}(${item?.bookingDetails?.roomDto?.floorNo})`
             : "--"}
         </TableCell>
-        <TableCell>{item?.orderTakenBy?.name}</TableCell>
-
         <TableCell>
           <Typography
             sx={{
@@ -328,9 +368,9 @@ const Row = ({
               letterSpacing: 1,
             }}
           >
-            {item?.bookingDetails?.foodBookingStatus}
+            {item?.orderStatus}
           </Typography>
-        </TableCell>
+        </TableCell>{" "}
         <TableCell>
           <IconButton size="small" onClick={() => setOpen(!open)}>
             {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
@@ -354,7 +394,6 @@ const Row = ({
                   <Typography>{item?.bookingDetails?.ratingMessage}</Typography>
                 </Box>
               )}
-
               <Table size="small">
                 <TableHead>
                   <TableRow
@@ -372,7 +411,7 @@ const Row = ({
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {item?.itemsList?.map((orderItem, orderItemIndex) => {
+                  {item?.trailData?.map((orderItem, orderItemIndex) => {
                     return (
                       <TableRow
                         sx={{
@@ -382,23 +421,23 @@ const Row = ({
                           },
                           "& > *": { borderBottom: "unset" },
                         }}
-                        key={`${item.id}-${orderItem.itemName}`}
+                        key={`${item.id}-${orderItem.name}`}
                       >
                         <TableCell>{orderItemIndex + 1}</TableCell>
-                        <TableCell>{orderItem.itemName}</TableCell>
-                        <TableCell>{orderItem.noOfItems}</TableCell>
+                        <TableCell>{orderItem.name}</TableCell>
+                        <TableCell>{orderItem.quantity}</TableCell>
                       </TableRow>
                     );
                   })}
                 </TableBody>
               </Table>
-
+              {/* dont show in case of takeaway */}
               {[DELIVERED, CANCELLED, REJECTED, ORDER_PLACED].includes(
-                item?.bookingDetails?.foodBookingStatus
+                item?.orderStatus
               ) &&
-                item?.bookingDetails?.dinningType !== "Room_Delivery" &&
-                item?.bookingDetails?.dinningType !== "Take_Away" &&
-                item?.bookingDetails?.dinningType === "Dine_In" && (
+                item?.dinningType !== "Room_Delivery" &&
+                item?.dinningType !== "Take_Away" &&
+                item?.dinningType === "Dine_In" && (
                   <Button
                     sx={{
                       display: "block",
@@ -418,56 +457,51 @@ const Row = ({
                     Update Status
                   </Button>
                 )}
-
-              {item?.bookingDetails?.foodBookingStatus === READY_TO_SERVE &&
-                !Boolean(
-                  item?.bookingDetails?.dinningType === "Room_Delivery"
-                ) && (
-                  <Button
-                    sx={{
-                      display: "block",
-                      mx: "auto",
-                      mt: 2,
-                      mb: 1,
-                      textTransform: "none",
-                      fontSize: 18,
-                      fontWeight: 600,
-                      px: 3,
-                      letterSpacing: 1,
-                    }}
-                    variant="outlined"
-                    color="secondary"
-                    // onClick={() => handlePayment(item)}
-                    onClick={() => {
-                      if (Boolean(item?.bookingDto)) {
-                        setOrderDetailsDialog(item);
-                      }
-                    }}
-                  >
-                    Proceed to Payment
-                  </Button>
-                )}
-              {item?.bookingDetails?.dinningType === "Room_Delivery" &&
-                !Boolean(item?.orderTakenBy) && (
-                  <Button
-                    sx={{
-                      display: "block",
-                      mx: "auto",
-                      mt: 2,
-                      mb: 1,
-                      textTransform: "none",
-                      fontSize: 18,
-                      fontWeight: 600,
-                      px: 3,
-                      letterSpacing: 1,
-                    }}
-                    variant="outlined"
-                    color="secondary"
-                    onClick={() => setAssignStaffDialog(item)}
-                  >
-                    Assign Staff
-                  </Button>
-                )}
+              {item?.orderStatus === READY_TO_SERVE && (
+                <Button
+                  sx={{
+                    display: "block",
+                    mx: "auto",
+                    mt: 2,
+                    mb: 1,
+                    textTransform: "none",
+                    fontSize: 18,
+                    fontWeight: 600,
+                    px: 3,
+                    letterSpacing: 1,
+                  }}
+                  variant="outlined"
+                  color="secondary"
+                  // onClick={() => handlePayment(item)}
+                  onClick={() => {
+                    if (Boolean(item?.totalPrice)) {
+                      setOrderDetailsDialog(item);
+                    }
+                  }}
+                >
+                  Proceed to Payment
+                </Button>
+              )}
+              {item?.dinningType === "Room_Delivery" && (
+                <Button
+                  sx={{
+                    display: "block",
+                    mx: "auto",
+                    mt: 2,
+                    mb: 1,
+                    textTransform: "none",
+                    fontSize: 18,
+                    fontWeight: 600,
+                    px: 3,
+                    letterSpacing: 1,
+                  }}
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => setAssignStaffDialog(item)}
+                >
+                  Assign Staff
+                </Button>
+              )}
             </Box>
           </Collapse>
         </TableCell>
@@ -479,7 +513,7 @@ const Row = ({
 function FormDialog({
   open,
   handleClose,
-  tableListForCounterStaff,
+  tableListForBarCounterStaff,
   waiterList,
   order,
   setSnack,
@@ -492,12 +526,13 @@ function FormDialog({
   const [selectedTableInputVal, setSelectedTableInputVal] = React.useState("");
   const [selectedWaiterInputVal, setSelectedWaiterInputVal] =
     React.useState("");
+  console.log("selectedWaiter", selectedWaiter);
 
   const handleSubmitDialogForm = React.useCallback(
     (e) => {
       e.preventDefault();
       assignTableToWaiter({
-        orderId: order?.bookingDetails?.orderId,
+        orderId: order?.orderId,
         tableId: selectedTable?.id,
         orderTakenBy: {
           id: selectedWaiter?.id,
@@ -611,7 +646,7 @@ function FormDialog({
           <Grid container rowSpacing={2}>
             <Grid size={12}>
               <Autocomplete
-                options={tableListForCounterStaff?.data.filter((item) =>
+                options={tableListForBarCounterStaff?.data.filter((item) =>
                   Boolean(item.isActive)
                 )}
                 // getOptionLabel={(option) => option?.tableNo?.toString() || ""}
@@ -752,13 +787,14 @@ function FormDialog({
 
 function AssignStaffDialog({
   assignStaffDialog,
+  setAssignStaffDialog,
   serviceStaffList,
   handleClose,
   assignServiceStaff,
   setSnack,
 }) {
-  console.log("assignStaffDialog", assignStaffDialog);
   const [selectedServiceStaff, setSelectedServiceStaff] = React.useState(null);
+  console.log("selectedServiceStaff", selectedServiceStaff);
   const [selectedServiceStaffInputVal, setSelectedServiceStaffInputVal] =
     React.useState("");
 
@@ -766,7 +802,7 @@ function AssignStaffDialog({
     (e) => {
       e.preventDefault();
       assignServiceStaff({
-        orderId: assignStaffDialog?.bookingDetails?.orderId,
+        orderId: assignStaffDialog?.orderId,
         orderTakenBy: {
           id: selectedServiceStaff?.id,
         },
@@ -853,7 +889,7 @@ function AssignStaffDialog({
         <DialogTitle sx={{ fontWeight: 600, fontSize: 24 }}>
           Assign Staff
           <Typography sx={{ fontWeight: 600, color: "#7A7A7A" }}>
-            {assignStaffDialog?.bookingDetails?.orderId}
+            {assignStaffDialog?.orderId}
           </Typography>
         </DialogTitle>
         <DialogContent>
@@ -878,7 +914,7 @@ function AssignStaffDialog({
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {assignStaffDialog?.itemsList?.map((item, index) => {
+                  {assignStaffDialog?.trailData?.map((item, index) => {
                     return (
                       <>
                         <TableRow key={index}>
@@ -1031,12 +1067,12 @@ const OrderDetailsDialog = ({
 
   const handleAssosciateWithRoom = React.useCallback(() => {
     if (!isSplit) {
-      const totalPrice = orderDetailsDialog?.bookingDetails?.totalPrice ?? 0;
-      const gstPrice = orderDetailsDialog?.bookingDetails?.gstPrice ?? 0;
+      const totalPrice = orderDetailsDialog?.totalPrice ?? 0;
+      const gstPrice = orderDetailsDialog?.gstPrice ?? 0;
       const totalAmount = totalPrice + gstPrice;
       assosciateWithRoom({
         isSplit: false,
-        orderId: orderDetailsDialog?.bookingDetails?.orderId,
+        orderId: orderDetailsDialog?.orderId,
         bookingRefNo: bookingDetailsRes?.data?.data?.bookingRefNumber,
         orderMapDtos: [
           {
@@ -1064,7 +1100,7 @@ const OrderDetailsDialog = ({
     } else if (isSplit) {
       assosciateWithRoom({
         isSplit: true,
-        orderId: orderDetailsDialog?.bookingDetails?.orderId,
+        orderId: orderDetailsDialog?.orderId,
         orderMapDtos: customOrderMapDtos?.map((item) => ({
           bookingRefNo: item?.bookingRefNumber,
           totalPrice: item?.payableAmount || 0,
@@ -1098,11 +1134,11 @@ const OrderDetailsDialog = ({
   ]);
 
   const handleMakePaymentWithCash = React.useCallback(() => {
-    const totalPrice = orderDetailsDialog?.bookingDetails?.totalPrice || 0;
-    const gstPrice = orderDetailsDialog?.bookingDetails?.gstPrice || 0;
+    const totalPrice = orderDetailsDialog?.totalPrice || 0;
+    const gstPrice = orderDetailsDialog?.gstPrice || 0;
 
     completeOrder({
-      orderId: orderDetailsDialog?.bookingDetails.orderId,
+      orderId: orderDetailsDialog?.orderId,
       paidAmount: totalPrice + gstPrice,
       paymentMethod: "Cash",
     })
@@ -1185,18 +1221,18 @@ const OrderDetailsDialog = ({
       doc.setFontSize(14);
       doc.text(hotelName, 20, 26);
       doc.setFontSize(12);
-      doc.text(orderDetailsDialog.bookingRequestDto.address, 20, 32);
+      doc.text(orderDetailsDialog.address, 20, 32);
 
       doc.setFontSize(12);
       doc.text(
-        `Customer Name: ${orderDetailsDialog.bookingRequestDto.firstName} ${
-          orderDetailsDialog.bookingRequestDto.middleName || ""
-        } ${orderDetailsDialog.bookingRequestDto.lastName || ""}`,
+        `Customer Name: ${orderDetailsDialog.firstName} ${
+          orderDetailsDialog.middleName || ""
+        } ${orderDetailsDialog.lastName || ""}`,
         20,
         50
       );
       doc.text(
-        `Order Status: ${orderDetailsDialog.bookingRequestDto.foodBookingStatus.replace(
+        `Order Status: ${orderDetailsDialog.foodBookingStatus.replace(
           "_",
           " "
         )}`,
@@ -1204,17 +1240,13 @@ const OrderDetailsDialog = ({
         55
       );
       doc.text(
-        `Invoice Date: ${moment(
-          orderDetailsDialog.bookingRequestDto.bookedOn
-        ).format("DD/MM/YYYY hh:mma")}`,
+        `Invoice Date: ${moment(orderDetailsDialog.bookedOn).format(
+          "DD/MM/YYYY hh:mma"
+        )}`,
         20,
         60
       );
-      doc.text(
-        `Invoice Number: ${orderDetailsDialog.bookingRequestDto.orderId}`,
-        20,
-        65
-      );
+      doc.text(`Invoice Number: ${orderDetailsDialog.orderId}`, 20, 65);
 
       const tableTop = 80;
       doc.text("Items", 20, tableTop);
@@ -1222,14 +1254,14 @@ const OrderDetailsDialog = ({
       doc.text("Price", 180, tableTop);
 
       let yPosition = tableTop + 10;
-      orderDetailsDialog?.bookingRequestDto?.trailData?.forEach((item) => {
+      orderDetailsDialog?.trailData?.forEach((item) => {
         doc.text(item.itemName, 20, yPosition);
         doc.text(item.noOfItems.toString(), 120, yPosition);
         doc.text(item.price.toString(), 180, yPosition);
         yPosition += 10;
       });
 
-      const total = orderDetailsDialog.bookingRequestDto.totalPrice;
+      const total = orderDetailsDialog.totalPrice;
       doc.text("Subtotal:", 140, yPosition);
       doc.text(`Rs. ${total.toFixed(2)}`, 180, yPosition);
       yPosition += 10;
@@ -1275,8 +1307,8 @@ const OrderDetailsDialog = ({
   }, [bookingDetailsRes, isSplit]);
 
   useEffect(() => {
-    const totalPrice = orderDetailsDialog?.bookingDetails?.totalPrice ?? 0;
-    const gstPrice = orderDetailsDialog?.bookingDetails?.gstPrice ?? 0;
+    const totalPrice = orderDetailsDialog?.totalPrice ?? 0;
+    const gstPrice = orderDetailsDialog?.gstPrice ?? 0;
     const totalAmount = totalPrice + gstPrice;
 
     const updatedOrderDtos =
@@ -1336,9 +1368,7 @@ const OrderDetailsDialog = ({
                   >
                     Order Id:
                   </Typography>
-                  <Typography>
-                    {orderDetailsDialog?.bookingDetails?.orderId}
-                  </Typography>
+                  <Typography>{orderDetailsDialog?.orderId}</Typography>
                 </Box>
                 <Box sx={{ display: "flex", gap: 1 }}>
                   <Typography
@@ -1355,9 +1385,9 @@ const OrderDetailsDialog = ({
                     Order Date:
                   </Typography>
                   <Typography>
-                    {moment(
-                      orderDetailsDialog?.bookingDetails?.bookedOn
-                    ).format("DD/MM/YYYY hh:mma")}
+                    {moment(orderDetailsDialog?.bookedOn).format(
+                      "DD/MM/YYYY hh:mma"
+                    )}
                   </Typography>
                 </Box>
                 <Box sx={{ display: "flex", gap: 1 }}>
@@ -1365,9 +1395,7 @@ const OrderDetailsDialog = ({
                     Order Status:
                   </Typography>
                   <Typography>
-                    {orderDetailsDialog?.bookingDetails?.foodBookingStatus
-                      .split("_")
-                      .join(" ")}
+                    {orderDetailsDialog?.foodBookingStatus.split("_").join(" ")}
                   </Typography>
                 </Box>
                 <Box
@@ -1385,14 +1413,13 @@ const OrderDetailsDialog = ({
                   </Typography>
                   <Typography>
                     ₹{" "}
-                    {orderDetailsDialog?.bookingDetails?.totalPrice +
-                      orderDetailsDialog?.bookingDetails?.gstPrice}
+                    {orderDetailsDialog?.totalPrice +
+                      orderDetailsDialog?.gstPrice}
                   </Typography>
                 </Box>
               </Box>
               {Boolean(
-                orderDetailsDialog?.bookingDetails?.foodBookingStatus ===
-                  "Delivered"
+                orderDetailsDialog?.foodBookingStatus === "Delivered"
               ) && (
                 <Box>
                   <Tooltip title="Download Invoice" arrow>
@@ -1426,7 +1453,7 @@ const OrderDetailsDialog = ({
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {orderDetailsDialog?.itemsList?.map((item, index) => {
+                    {orderDetailsDialog?.trailData?.map((item, index) => {
                       return (
                         <>
                           <TableRow key={index}>
@@ -1931,4 +1958,4 @@ const OrderDetailsDialog = ({
     </>
   );
 };
-export default OrderHistoryToday;
+export default BarDineIn;

@@ -19,36 +19,37 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { BootstrapDialog } from "../header/Header";
 import CloseIcon from "@mui/icons-material/Close";
 import ChairIcon from "@mui/icons-material/Chair";
-import {
-  useGetAllTablesQuery,
-  useCreateTableMutation,
-} from "../../services/dashboard";
-
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 
-const CreateTable = () => {
-  const [createTableDialog, setCreateTableDialog] = React.useState(null);
-  const handleCloseCreateTableDialog = React.useCallback(() => {
-    setCreateTableDialog(null);
-  }, []);
+import {
+  useGetAllBarTablesQuery,
+  useCreateBarTablesMutation,
+} from "../../services/dashboard";
+
+const CreateBarTable = () => {
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
     severity: "",
   });
+
+  const [createBarTableDialog, setCreateBarTableDialog] = React.useState(null);
+
+  const handleCloseCreateBarTableDialog = React.useCallback(() => {
+    setCreateBarTableDialog(null);
+  }, []);
   const {
-    data: tableList = {
+    data: barTableList = {
       data: [],
     },
-    isLoading: isTableListLoading,
-    isFetching: isTableListFetching,
-  } = useGetAllTablesQuery({
-    hotelId: sessionStorage.getItem("hotelIdForFoodItem"),
-    // hotelId: 4,
+    isLoading: isBarTableListLoading,
+    isFetching: isBarTableListFetching,
+  } = useGetAllBarTablesQuery({
+    hotelId: sessionStorage.getItem("hotelIdForBarItem"),
   });
 
-  const [createTable, createTableRes] = useCreateTableMutation();
+  const [createBarTable, createBarTableRes] = useCreateBarTablesMutation();
 
   return (
     <>
@@ -67,26 +68,29 @@ const CreateTable = () => {
               color: "#FFFFFF",
             },
           }}
-          onClick={() => setCreateTableDialog(true)}
+          onClick={() => setCreateBarTableDialog(true)}
           startIcon={<AddCircleOutlineIcon />}
         >
           Add Table
         </Button>
       </Box>
+
       <Box>
-        <TableCards tableList={tableList} />
+        <BarTableCards barTableList={barTableList} />
       </Box>
-      <CreateTableDialog
-        open={Boolean(createTableDialog)}
-        handleCloseCreateTableDialog={handleCloseCreateTableDialog}
-        createTable={createTable}
+      <CreateBarTableDialog
+        open={Boolean(createBarTableDialog)}
+        handleCloseCreateBarTableDialog={handleCloseCreateBarTableDialog}
+        createBarTable={createBarTable}
         setSnack={setSnack}
-        tableList={tableList}
+        barTableList={barTableList}
       />
 
       <LoadingComponent
         open={
-          isTableListLoading || isTableListFetching || createTableRes.isLoading
+          isBarTableListLoading ||
+          isBarTableListFetching ||
+          createBarTableRes.isLoading
         }
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
@@ -94,9 +98,7 @@ const CreateTable = () => {
   );
 };
 
-export default CreateTable;
-
-const TableCards = ({ tableNumber = "T-101", tableList }) => {
+const BarTableCards = ({ barTableList }) => {
   const getChairDistribution = (capacity) => {
     if (capacity === 4) {
       return { top: 2, right: 0, bottom: 2, left: 0 };
@@ -175,9 +177,9 @@ const TableCards = ({ tableNumber = "T-101", tableList }) => {
   return (
     <>
       <Grid container spacing={2}>
-        {tableList?.data?.map((item, index) => {
+        {barTableList?.data?.map((item, index) => {
           // Use noOfSeats from each item
-          const noOfSeats = item?.noOfSeats;
+          const noOfSeats = item?.capacity;
           const distribution = getChairDistribution(noOfSeats);
           const gridSize = calculateGridSize(noOfSeats);
 
@@ -231,7 +233,7 @@ const TableCards = ({ tableNumber = "T-101", tableList }) => {
                     }}
                   >
                     <Typography sx={{ color: "#fff" }}>
-                      {item?.tableNo}
+                      {item?.tableNumber}
                     </Typography>
                   </Box>
                   <Typography sx={{ color: "#fff", fontSize: "12px" }}>
@@ -261,12 +263,12 @@ const TableCards = ({ tableNumber = "T-101", tableList }) => {
   );
 };
 
-const CreateTableDialog = ({
+const CreateBarTableDialog = ({
   open,
-  handleCloseCreateTableDialog,
-  createTable,
+  handleCloseCreateBarTableDialog,
+  createBarTable,
   setSnack,
-  tableList,
+  barTableList,
 }) => {
   const [formData, setFormData] = React.useState({
     capacity: "",
@@ -289,7 +291,7 @@ const CreateTableDialog = ({
 
   const handleClose = () => {
     resetFormData();
-    handleCloseCreateTableDialog();
+    handleCloseCreateBarTableDialog();
   };
 
   const handleAddTable = () => {
@@ -310,11 +312,11 @@ const CreateTableDialog = ({
       return;
     }
     if (formData.capacity) {
-      const existingTables = tableList?.data || [];
+      const existingTables = barTableList?.data || [];
       let highestTableNumber = 0;
 
       existingTables.forEach((table) => {
-        const match = table.tableNo.match(/\d+/);
+        const match = table.tableNumber.match(/\d+/);
         if (match) {
           const tableNum = parseInt(match[0], 10);
           if (tableNum > highestTableNumber) {
@@ -324,7 +326,7 @@ const CreateTableDialog = ({
       });
 
       formData.tableList.forEach((table) => {
-        const match = table.tableNo.match(/\d+/);
+        const match = table.tableNumber.match(/\d+/);
         if (match) {
           const tableNum = parseInt(match[0], 10);
           if (tableNum > highestTableNumber) {
@@ -341,8 +343,8 @@ const CreateTableDialog = ({
         tableList: [
           ...prev.tableList,
           {
-            tableNo: tableName,
-            noOfSeats: Number(prev.capacity),
+            tableNumber: tableName,
+            capacity: Number(prev.capacity),
           },
         ],
       }));
@@ -350,9 +352,9 @@ const CreateTableDialog = ({
   };
 
   const handleSubmitTableData = React.useCallback(async () => {
-    createTable({
-      tablesDataList: formData.tableList,
-      hotelId: sessionStorage.getItem("hotelIdForFoodItem"),
+    createBarTable({
+      barTableList: formData.tableList,
+      hotelId: sessionStorage.getItem("hotelIdForBarItem"),
     })
       .unwrap()
       .then((res) => {
@@ -374,7 +376,8 @@ const CreateTableDialog = ({
           severity: "error",
         });
       });
-  }, [createTable, formData.tableList, setSnack, handleClose]);
+  }, [createBarTable, formData.tableList, setSnack, handleClose]);
+
   return (
     <>
       <BootstrapDialog
@@ -401,7 +404,7 @@ const CreateTableDialog = ({
               fontFamily: "'Times New Roman', Times, serif",
             }}
           >
-            Add Table
+            Add Bar Table
           </Typography>
         </DialogTitle>
         <IconButton
@@ -431,7 +434,6 @@ const CreateTableDialog = ({
                     },
                   },
                 }}
-                // onSubmit={handleSubmit}
               >
                 <Grid container spacing={2} alignItems="center">
                   <Grid item xs={4}>
@@ -455,7 +457,7 @@ const CreateTableDialog = ({
                       variant="standard"
                       type="number"
                     />
-                  </Grid>
+                  </Grid>{" "}
                   <Grid item xs={4}>
                     <IconButton
                       onClick={handleAddTable}
@@ -490,7 +492,7 @@ const CreateTableDialog = ({
                       {formData.tableList.map((table, index) => (
                         <TableRow key={index}>
                           <TableCell>{index + 1}</TableCell>
-                          <TableCell>{table.tableNo}</TableCell>
+                          <TableCell>{table.tableNumber}</TableCell>
                           <TableCell>{table.noOfSeats}</TableCell>
                         </TableRow>
                       ))}
@@ -505,7 +507,6 @@ const CreateTableDialog = ({
                   </Table>
                 </TableContainer>
               </Box>
-
               <Box
                 sx={{
                   display: "flex",
@@ -529,7 +530,6 @@ const CreateTableDialog = ({
                     },
                   }}
                   disabled={formData.tableList.length === 0}
-                  // type="submit"
                   onClick={handleSubmitTableData}
                 >
                   Add Table
@@ -542,3 +542,4 @@ const CreateTableDialog = ({
     </>
   );
 };
+export default CreateBarTable;

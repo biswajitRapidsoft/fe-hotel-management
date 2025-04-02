@@ -4,30 +4,51 @@ import {
   Button,
   Container,
   Grid2 as Grid,
+  IconButton,
+  InputAdornment,
   Paper,
   TextField,
 } from "@mui/material";
 import React from "react";
 import EmployeeListTable from "./EmployeeListTable";
+import AttachmentIcon from "@mui/icons-material/Attachment";
 
 import SnackAlert from "../../components/Alert";
 import LoadingComponent from "../../components/LoadingComponent";
 
 import { useGetAllRolesQuery, useSaveUserMutation } from "../../services/users";
 import { useGetHotelListByCompanyQuery } from "../../services/hotel";
+import CloseIcon from "@mui/icons-material/Close";
 
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ClearIcon from "@mui/icons-material/Clear";
 import { ADMIN, SUPER_ADMIN } from "../../helper/constants";
+// import { UploadImageFormComponent } from "../roomType/RoomType";
+import { useUploadFileMutation } from "../../services/hotel";
 
 const Employee = () => {
   const [employeeToUpdate, setEmployeeToUpdate] = React.useState(null);
+  console.log("employeeToUpdate", employeeToUpdate);
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
     severity: "",
   });
   const [saveUser, saveUserRes] = useSaveUserMutation();
+
+  const [uploadImage, uploadImageRes] = useUploadFileMutation();
+  // const [uploadedImageArr, setUploadedImageArr] = React.useState([]);
+
+  const [imageFile, setImageFile] = React.useState(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = React.useState("");
+  const [uploadedImageUrl, setUploadedImageUrl] = React.useState("");
+
+  const imageRef = React.useRef(null);
+
+  const handleAttachmentClick = React.useCallback(() => {
+    imageRef.current.click();
+  }, []);
+
   const {
     data: roleList = {
       data: [],
@@ -55,15 +76,7 @@ const Employee = () => {
     selectedHotelInputVal: "",
     phoneNo: "",
   });
-  // const handleChange = React.useCallback((e) => {
-  //   setFormData((prevData) => ({
-  //     ...prevData,
-  //     [e.target.name]:
-  //       e.target.name === "email"
-  //         ? e.target.value.toLowerCase()
-  //         : e.target.value,
-  //   }));
-  // }, []);
+
   const handleChange = React.useCallback((e) => {
     const { name, value } = e.target;
 
@@ -78,6 +91,78 @@ const Employee = () => {
       ...prevData,
       [name]: name === "email" ? value.toLowerCase() : value,
     }));
+  }, []);
+  const handleUploadImage = React.useCallback(
+    (imgSource) => {
+      const formData = new FormData();
+      formData.append("file", imgSource);
+      uploadImage(formData)
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            severity: "success",
+            message: res.message,
+          });
+          setUploadedImageUrl(res.data);
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            severity: "error",
+            message: err.data?.message || err.data,
+          });
+        });
+    },
+    [uploadImage]
+  );
+
+  const uploadHandler = React.useCallback(() => {
+    if (imageFile) {
+      handleUploadImage(imageFile);
+    }
+  }, [handleUploadImage, imageFile]);
+
+  const handleImageChange = React.useCallback((e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      const allowedTypes = ["image/png", "image/jpeg", "image/jpg"];
+      if (!allowedTypes.includes(file.type)) {
+        setSnack({
+          open: true,
+          severity: "error",
+          message: "Only PNG, JPEG, and JPG files are allowed.",
+        });
+        return;
+      }
+
+      // Create a preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+
+      // Store the file
+      setImageFile(file);
+      // Reset uploaded image URL when a new file is selected
+      setUploadedImageUrl("");
+    }
+  }, []);
+  // const handleDeleteImageFromArray = React.useCallback((imgUrl) => {
+  //   setUploadedImageArr((prevImg) => prevImg.filter((url) => url !== imgUrl));
+  // }, []);
+  const handleDeleteImage = React.useCallback(() => {
+    // Reset image states
+    setImageFile(null);
+    setImagePreviewUrl("");
+    setUploadedImageUrl("");
+
+    // Clear the file input
+    if (imageRef.current) {
+      imageRef.current.value = "";
+    }
   }, []);
 
   const handleResetForm = React.useCallback(() => {
@@ -104,6 +189,7 @@ const Employee = () => {
         companyId: JSON.parse(sessionStorage.getItem("data")).companyId,
         phoneNo: formData.phoneNo,
         isActive: employeeToUpdate ? employeeToUpdate.isActive : true,
+        imageUrl: uploadedImageUrl,
       })
         .unwrap()
         .then((res) => {
@@ -113,6 +199,7 @@ const Employee = () => {
             message: res.message,
           });
           handleResetForm();
+          handleDeleteImage();
           setEmployeeToUpdate(null);
         })
         .catch((err) => {
@@ -123,7 +210,14 @@ const Employee = () => {
           });
         });
     },
-    [formData, handleResetForm, saveUser, employeeToUpdate]
+    [
+      formData,
+      handleResetForm,
+      saveUser,
+      employeeToUpdate,
+      uploadedImageUrl,
+      handleDeleteImage,
+    ]
   );
 
   const isFormValid = React.useCallback(() => {
@@ -155,6 +249,14 @@ const Employee = () => {
         selectedHotelInputVal: hotelToSet.name || "",
         phoneNo: employeeToUpdate.phoneNumber,
       }));
+
+      if (employeeToUpdate.imageUrl) {
+        setUploadedImageUrl(employeeToUpdate.imageUrl);
+        setImagePreviewUrl(employeeToUpdate.imageUrl);
+      } else {
+        setUploadedImageUrl("");
+        setImagePreviewUrl("");
+      }
     }
   }, [employeeToUpdate, hotelList.data, roleList.data]);
 
@@ -407,7 +509,97 @@ const Employee = () => {
               )}
             />
           </Grid>
+
+          <Grid size={3}>
+            <TextField
+              label={<React.Fragment>Attach document</React.Fragment>}
+              type="file"
+              name="attachDocument"
+              inputProps={{
+                style: {
+                  opacity: imageFile ? 1 : 0,
+                },
+                ref: imageRef,
+                accept: "image/*",
+              }}
+              onChange={handleImageChange}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton color="primary" onClick={handleAttachmentClick}>
+                      <AttachmentIcon sx={{ transform: "rotate(45deg)" }} />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              variant="standard"
+              autoComplete="off"
+              helperText={
+                <>
+                  <span style={{ color: "red" }}>*</span> png,jpeg,jpg
+                  extensions allowed
+                </>
+              }
+            />
+          </Grid>
+          <Grid size={3}>
+            <Button
+              color="secondary"
+              variant="contained"
+              sx={{
+                color: "#fff",
+                fontWeight: 600,
+                textTransform: "none",
+                fontSize: 15,
+                mt: 1.5,
+                "&.Mui-disabled": {
+                  background: "#B2E5F6",
+                  color: "#FFFFFF",
+                },
+              }}
+              size="small"
+              onClick={uploadHandler}
+              disabled={!Boolean(imageFile)}
+            >
+              Upload
+            </Button>
+          </Grid>
+          {uploadedImageUrl && (
+            <Grid size={3} sx={{ position: "relative", mt: 2 }}>
+              <Box
+                component="img"
+                src={uploadedImageUrl}
+                alt="Uploaded Image"
+                sx={{
+                  width: "100%",
+                  maxHeight: "200px",
+                  objectFit: "contain",
+                  border: "1px solid #ddd",
+                }}
+              />
+              <IconButton
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  right: 0,
+                  backgroundColor: "rgba(255,255,255,0.7)",
+                }}
+                color="error"
+                onClick={handleDeleteImage}
+              >
+                <CloseIcon />
+              </IconButton>
+            </Grid>
+          )}
         </Grid>
+
+        <Box>
+          {/* <UploadImageFormComponent
+            uploadedImageArr={uploadedImageArr}
+            handleUploadImage={handleUploadImage}
+            handleDeleteImageFromArray={handleDeleteImageFromArray}
+          /> */}
+        </Box>
         <Box
           sx={{
             display: "flex",
@@ -444,7 +636,9 @@ const Employee = () => {
         saveUser={saveUser}
         setSnack={setSnack}
       />
-      <LoadingComponent open={saveUserRes.isLoading} />
+      <LoadingComponent
+        open={saveUserRes.isLoading || uploadImageRes.isLoading}
+      />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </Container>
   );

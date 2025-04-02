@@ -309,7 +309,7 @@ const LaundryItemList = () => {
             variant="h6"
             sx={{ fontWeight: "bold", letterSpacing: 1 }}
           >
-            Bar Item Type List
+            Laundry Item List
           </Typography>
         </Toolbar>
         <TableContainer sx={{ maxHeight: 600 }}>

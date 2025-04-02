@@ -7,6 +7,7 @@ import {
   Box,
   Button,
   Checkbox,
+  Chip,
   Collapse,
   DialogActions,
   DialogContent,
@@ -1625,6 +1626,8 @@ const CustomRow = memo(function ({
   handleChangeSelectedBookingHistory,
   handleApproveBookingCancelRequest,
   handleOpenShowcaseBookingDialogForDetails,
+  openStayerDetailsDialog,
+  setOpenStayerDetailsDialog,
 }) {
   const [viewHotelInvoiceDialog, setViewHotelInvoiceDialog] =
     React.useState(null);
@@ -1706,6 +1709,46 @@ const CustomRow = memo(function ({
                   {row?.bookedOn &&
                     moment(row?.bookedOn).format("DD-MM-YYYY hh:mm A")}
                 </Typography>
+              ) : subitem?.key === "noOfPeoples" ? (
+                <>
+                  {/* <Box
+                    sx={{ cursor: "pointer" }}
+                    onClick={() => {
+                      setOpenStayerDetailsDialog(row);
+                    }}
+                  >
+                    <Typography sx={{ fontSize: "13px", whiteSpace: "nowrap" }}>
+                      {row?.noOfPeoples && row?.noOfPeoples}
+                    </Typography>
+                  </Box> */}
+                  {["Cancelled", "Pending_Confirmation"].includes(
+                    row?.bookingStatus
+                  ) ? (
+                    <Chip
+                      // onClick={() => {
+                      //   setOpenStayerDetailsDialog(row);
+                      // }}
+                      label={0}
+                      clickable
+                      color="secondary"
+                      sx={{
+                        color: "#fff",
+                      }}
+                    />
+                  ) : (
+                    <Chip
+                      onClick={() => {
+                        setOpenStayerDetailsDialog(row);
+                      }}
+                      label={row?.noOfPeoples}
+                      clickable
+                      color="secondary"
+                      sx={{
+                        color: "#fff",
+                      }}
+                    />
+                  )}
+                </>
               ) : subitem?.key === "bookingStatus" ? (
                 <Box
                   sx={{
@@ -1908,6 +1951,8 @@ const CustomBookingHistoryTableContainer = memo(function ({
   handleOpenCustomBookingHistoryDrawer,
   handleApproveBookingCancelRequest,
   handleOpenShowcaseBookingDialogForDetails,
+  openStayerDetailsDialog,
+  setOpenStayerDetailsDialog,
 }) {
   console.log("CustomBookingHistoryTableContainer tableData : ", tableData);
 
@@ -1991,6 +2036,8 @@ const CustomBookingHistoryTableContainer = memo(function ({
                   handleOpenShowcaseBookingDialogForDetails={
                     handleOpenShowcaseBookingDialogForDetails
                   }
+                  openStayerDetailsDialog={openStayerDetailsDialog}
+                  setOpenStayerDetailsDialog={setOpenStayerDetailsDialog}
                 />
               ))
             ) : (
@@ -3037,7 +3084,7 @@ const FrontdeskBookingHistory = () => {
   const bookingHistoryTableHeaders = useMemo(
     () => [
       { label: "Sl. No.", key: "sno" },
-      { label: "Guest Name", key: "guestName" },
+      { label: "Booked By", key: "guestName" },
       { label: "Phone No.", key: "phoneNumber" },
       { label: "Booking Ref. No.", key: "bookingRefNumber" },
       { label: "Booked On", key: "bookedOn" },
@@ -3181,7 +3228,9 @@ const FrontdeskBookingHistory = () => {
     useState("");
   const [bookingConfirmationFormData, setBookingConfirmationFormData] =
     useState(initialBookingConfirmationFormData);
-
+  const [openStayerDetailsDialog, setOpenStayerDetailsDialog] =
+    React.useState(null);
+  console.log("openStayerDetailsDialog", openStayerDetailsDialog);
   const {
     data: allBookingStatusTypeData = { data: [] },
     isFetching: isAllBookingStatusTypeDataFetching,
@@ -4041,6 +4090,8 @@ const FrontdeskBookingHistory = () => {
               <CustomBookingHistoryTableContainer
                 tableHeaders={bookingHistoryTableHeaders}
                 tableData={roomBookingHistoryByHotelIdData?.paginationData}
+                openStayerDetailsDialog={openStayerDetailsDialog}
+                setOpenStayerDetailsDialog={setOpenStayerDetailsDialog}
                 pageNo={bookingHistoryTablePageNo}
                 pageSize={bookingHistoryTableRowsPerPage}
                 handlePageChange={handleChangeBookingHistoryTablePageNo}
@@ -4140,6 +4191,10 @@ const FrontdeskBookingHistory = () => {
           handleChangeSelectedStaffForService
         }
         handleAssignRequest={handleAssignRequest}
+      />
+      <ViewStayerDetailsDialog
+        openStayerDetailsDialog={openStayerDetailsDialog}
+        handleCloseStayerDetailsDialog={() => setOpenStayerDetailsDialog(null)}
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
     </>
@@ -4370,6 +4425,89 @@ const ViewAllInvoiceDialogInBookingHistory = React.memo(function ({
             >
               View
             </Button>
+          </Box>
+        </DialogContent>
+      </BootstrapDialog>
+    </React.Fragment>
+  );
+});
+
+const ViewStayerDetailsDialog = React.memo(function ({
+  openStayerDetailsDialog,
+  handleCloseStayerDetailsDialog,
+}) {
+  return (
+    <React.Fragment>
+      <BootstrapDialog
+        open={Boolean(openStayerDetailsDialog)}
+        onClose={handleCloseStayerDetailsDialog}
+        aria-labelledby="password-change-dialog-title"
+        maxWidth="md"
+        fullWidth
+        sx={{
+          ".MuiDialogTitle-root": {
+            px: 5,
+            py: 3,
+          },
+        }}
+        PaperProps={{
+          sx: { borderRadius: 4 },
+        }}
+      >
+        <DialogTitle id="view-image-dialog-title" sx={{ fontSize: 24 }}>
+          Stayer Details
+        </DialogTitle>
+        <IconButton
+          aria-label="close"
+          onClick={handleCloseStayerDetailsDialog}
+          sx={{
+            position: "absolute",
+            right: 30,
+            top: 16,
+            color: "#280071",
+          }}
+        >
+          <CloseIcon sx={{ fontSize: 30 }} />
+        </IconButton>
+        <DialogContent dividers>
+          <Box sx={{ py: 2 }}>
+            <TableContainer sx={{ maxHeight: 600 }}>
+              <Table stickyHeader>
+                <TableHead>
+                  <TableRow
+                    sx={{
+                      ".MuiTableCell-root": {
+                        fontWeight: "bold",
+                        fontSize: "1rem",
+                        letterSpacing: 1,
+                        backgroundColor: "#f5f5f5",
+                      },
+                    }}
+                  >
+                    <TableCell>Sl. No.</TableCell>
+                    <TableCell>Stayer Name</TableCell>
+                    <TableCell>Govt. Id Type</TableCell>
+                    <TableCell>Govt Id No.</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {openStayerDetailsDialog?.bookingMapData?.map(
+                    (item, index) => {
+                      return (
+                        <>
+                          <TableRow key={index}>
+                            <TableCell>{index + 1}</TableCell>
+                            <TableCell>{item?.customerName}</TableCell>
+                            <TableCell>{item?.govtIdType}</TableCell>
+                            <TableCell>{item?.govtIdNo}</TableCell>
+                          </TableRow>
+                        </>
+                      );
+                    }
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </Box>
         </DialogContent>
       </BootstrapDialog>

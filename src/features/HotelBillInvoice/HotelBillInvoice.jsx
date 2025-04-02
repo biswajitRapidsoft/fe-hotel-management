@@ -1121,6 +1121,8 @@ const HotelBillInvoice = () => {
             // },
             overflowX: "hidden",
             overflowY: "auto",
+            border: "2px solid black",
+            px: 3,
           }}
         >
           <Grid container size={12}>
@@ -1931,8 +1933,7 @@ const HotelBillInvoice = () => {
                           // fontWeight: 600,
                         }}
                       >
-                        {/* {invoiceData?.roomType?.type} */}
-                        --
+                        {invoiceData?.bookingDto?.hotel?.gstIn}
                       </Typography>
                     </Typography>
                   </Grid>
@@ -2145,7 +2146,7 @@ const HotelBillInvoice = () => {
                 }}
               >
                 {Boolean(invoiceData?.bookingDto?.foodDataList?.length) && (
-                  <Grid size={6}>
+                  <Grid size={12}>
                     {Boolean(invoiceData?.bookingDto?.foodDataList?.length) && (
                       <Box
                         sx={{

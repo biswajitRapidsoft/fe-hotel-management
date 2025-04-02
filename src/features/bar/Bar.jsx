@@ -41,6 +41,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { FaArrowAltCircleLeft } from "react-icons/fa";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+import { useNavigate } from "react-router-dom";
 
 const drawerWidth = 399;
 
@@ -250,16 +251,16 @@ const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
 const getFilterdMenuList = (menuList, mealType, foodType) => {
   const filterdMenuList = [];
   if (mealType === "ALL") {
-    menuList.forEach((menu) => {
+    menuList?.forEach((menu) => {
       if (foodType === "ALL") {
         // filterdMenuList.push(...menu.subMenus.map((subMenu) => subMenu.items));
-        menu.subMenus.forEach((subMenu) => {
-          filterdMenuList.push(...subMenu.items);
+        menu?.subMenus?.forEach((subMenu) => {
+          filterdMenuList?.push(...subMenu.items);
         });
       } else {
-        menu.subMenus.forEach((subMenu) => {
-          if (subMenu.subMenuName === foodType) {
-            filterdMenuList.push(...subMenu.items);
+        menu?.subMenus?.forEach((subMenu) => {
+          if (subMenu?.subMenuName === foodType) {
+            filterdMenuList?.push(...subMenu.items);
           }
         });
       }
@@ -331,12 +332,15 @@ const Bar = () => {
     message: "",
     severity: "",
   });
-
+  const navigate = useNavigate();
   const {
     data: menuList = {
       data: [],
     },
-  } = useGetAllBarItemListQuery(JSON.parse(sessionStorage.getItem("hotelId")));
+  } = useGetAllBarItemListQuery(
+    JSON.parse(sessionStorage.getItem("hotelId")) ||
+      JSON.parse(sessionStorage.getItem("hotelIdFromBarWaiter"))
+  );
 
   //   const {
   //     data: menuList = {
@@ -380,7 +384,8 @@ const Bar = () => {
     },
     isLoading: isPromoCodeLoading,
   } = useGetBarPromoCodeListQuery(
-    JSON.parse(sessionStorage.getItem("hotelId"))
+    JSON.parse(sessionStorage.getItem("hotelId")) ||
+      JSON.parse(sessionStorage.getItem("hotelIdFromBarWaiter"))
   );
   const handleTabChange = React.useCallback((e, value) => {
     setFoodType("ALL");
@@ -396,6 +401,12 @@ const Bar = () => {
     setCartItems([]);
   }, []);
 
+  const barTableId = sessionStorage.getItem("barTableId");
+  const orderTakenBy = sessionStorage.getItem("barorderTakenBy");
+  const orderIdFromWaiter = sessionStorage.getItem("orderIdFromBarWaiter");
+  const OrderCreatedByBarCounterStaff = sessionStorage.getItem(
+    "OrderCreatedByBarCounterStaff"
+  );
   console.log(foodType, "foodTypeee");
   const handleAddItemToCart = React.useCallback(
     (item) => {
@@ -548,7 +559,14 @@ const Bar = () => {
   const handlePlaceOrder = React.useCallback(() => {
     orderFromBar({
       bookingRefNo: sessionStorage.getItem("bookingRefNumber"),
-      hotelId: sessionStorage.getItem("hotelId"),
+      // hotelId: sessionStorage.getItem("hotelId")
+      //   ? sessionStorage.getItem("hotelId")
+      //   : JSON.parse(sessionStorage.getItem("hotelIdFromBarWaiter")),
+      hotel: {
+        id: sessionStorage.getItem("hotelId")
+          ? sessionStorage.getItem("hotelId")
+          : JSON.parse(sessionStorage.getItem("hotelIdFromBarWaiter")),
+      },
       dinningType: dineType,
       ordersList: cartItems.map((item) => ({
         item: {
@@ -558,7 +576,10 @@ const Bar = () => {
       })),
       gstPrice: (calculateTotalAmountOfCartItems() * 0.18).toFixed(2),
       totalAmount: calculateTotalAmountOfCartItems(),
+      orderTakenBy: { id: Number(orderTakenBy) },
+      tableId: barTableId,
 
+      isStayingGuest: Boolean(barTableId) ? false : true,
       ...(Boolean(selectedRestaurantCoupon?.id) && {
         discountPrice: parseFloat(
           calculateDiscountOnOrder({
@@ -573,6 +594,11 @@ const Bar = () => {
     })
       .unwrap()
       .then((res) => {
+        if (Boolean(barTableId)) {
+          setTimeout(() => {
+            navigate(-1);
+          }, 500);
+        }
         setSnack({ open: true, message: res.message, severity: "success" });
         setCartItems([]);
         setSelectedRestaurantCoupon(null);
@@ -650,12 +676,12 @@ const Bar = () => {
             <TabContext value={mealType}>
               <TabList onChange={handleTabChange}>
                 <Tab label="All" value="ALL" />
-                {menuList.data.map((menu) => {
+                {menuList?.data?.map((menu) => {
                   return (
                     <Tab
-                      label={menu.menuName}
-                      value={menu.menuName}
-                      key={menu.menuName}
+                      label={menu?.menuName}
+                      value={menu?.menuName}
+                      key={menu?.menuName}
                     />
                   );
                 })}
@@ -1048,22 +1074,31 @@ const Bar = () => {
               </Typography>
             </Box>
             <FormGroup row>
-              {dineTypes.data.map((option) => {
-                return (
-                  <FormControlLabel
-                    key={option}
-                    control={
-                      <Checkbox
-                        checked={dineType === option}
-                        onChange={handleChangeRadioForDineType}
-                        size="small"
-                        value={option}
-                      />
-                    }
-                    label={option.replace("_", " ")}
-                  />
-                );
-              })}
+              {dineTypes.data
+
+                .filter(
+                  (option) =>
+                    !(
+                      Boolean(OrderCreatedByBarCounterStaff) &&
+                      option === "Room_Delivery"
+                    )
+                )
+                .map((option) => {
+                  return (
+                    <FormControlLabel
+                      key={option}
+                      control={
+                        <Checkbox
+                          checked={dineType === option}
+                          onChange={handleChangeRadioForDineType}
+                          size="small"
+                          value={option}
+                        />
+                      }
+                      label={option.replace("_", " ")}
+                    />
+                  );
+                })}
             </FormGroup>
             <Button
               color="secondary"

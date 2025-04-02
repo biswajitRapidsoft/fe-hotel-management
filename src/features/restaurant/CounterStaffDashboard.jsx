@@ -66,6 +66,7 @@ const CounterStaffDashboard = () => {
     setMakePartialPaymentPayload(payload);
     setOpenPaymentDialog(true);
   }, [orderDetailsDialog]);
+
   const {
     data: tableListForCounterStaff = { data: [] },
     isLoading,
@@ -100,7 +101,7 @@ const CounterStaffDashboard = () => {
 
   const [orderMapDtos, setOrderMapDtos] = useState([]);
   const [customOrderMapDtos, setCustomOrderMapDtos] = useState([]);
-
+  console.log("customOrderMapDtos", customOrderMapDtos);
   const handleCloseOrderDetailsDialog = React.useCallback(() => {
     setFormDataForDialog({
       isAssosciateWithRoom: false,
@@ -273,7 +274,7 @@ const TableCardsForCounterStaff = ({
   const calculateGridSize = (capacity) => {
     const sizeMappings = {
       1: 1.2,
-      2: { xs: 12, sm: 6, md: 4, lg: 1.2, xl: 1.2 },
+      2: { xs: 5, sm: 6, md: 2, lg: 1.3, xl: 1.3 },
       3: 1.3,
       4: 1.3,
       5: 1.4,
@@ -567,6 +568,7 @@ const OrderDetailsDialog = ({
     setSnack,
     isSplit,
     customOrderMapDtos,
+    handleCloseOrderDetailsDialog,
   ]);
 
   const handleMakePaymentWithCash = React.useCallback(() => {
@@ -629,73 +631,164 @@ const OrderDetailsDialog = ({
       return prevData;
     });
   }, []);
+
   const handleDownloadInvoice = React.useCallback((orderDetailsDialog) => {
-    // console.log("order", order);
+    const imageUrl = JSON.parse(sessionStorage.getItem("data")).hotelLogoUrl;
+    const hotelName = JSON.parse(sessionStorage.getItem("data")).hotelName;
     const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text("Restaurant Invoice", 20, 20);
-    doc.setFontSize(12);
-    doc.text(orderDetailsDialog.bookingRequestDto.address, 20, 30);
 
-    doc.setFontSize(12);
-    doc.text(
-      `Customer Name: ${orderDetailsDialog.bookingRequestDto.firstName} ${
-        orderDetailsDialog.bookingRequestDto.middleName || ""
-      } ${orderDetailsDialog.bookingRequestDto.lastName || ""}`,
-      20,
-      50
-    );
-    doc.text(
-      `Order Status: ${orderDetailsDialog.bookingRequestDto.foodBookingStatus.replace(
-        "_",
-        " "
-      )}`,
-      20,
-      55
-    );
-    doc.text(
-      `Invoice Date: ${moment(
-        orderDetailsDialog.bookingRequestDto.bookedOn
-      ).format("DD/MM/YYYY hh:mma")}`,
-      20,
-      60
-    );
-    doc.text(
-      `Invoice Number: ${orderDetailsDialog.bookingRequestDto.orderId}`,
-      20,
-      65
-    );
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.src = imageUrl;
 
-    const tableTop = 80;
-    doc.text("Items", 20, tableTop);
-    doc.text("Quantity", 120, tableTop);
-    doc.text("Price", 180, tableTop);
+    img.onload = function () {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
 
-    let yPosition = tableTop + 10;
-    orderDetailsDialog?.bookingRequestDto?.trailData?.forEach((item) => {
-      doc.text(item.itemName, 20, yPosition);
-      doc.text(item.noOfItems.toString(), 120, yPosition);
-      doc.text(item.price.toString(), 180, yPosition);
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+
+      const imgData = canvas.toDataURL("image/png");
+
+      doc.addImage(imgData, "PNG", 150, 10, 40, 20);
+
+      doc.setFontSize(16);
+      doc.text("Restaurant Invoice", 20, 20);
+      doc.setFontSize(12);
+      doc.setFontSize(14);
+      doc.text(hotelName, 20, 26);
+      doc.setFontSize(12);
+      doc.text(orderDetailsDialog.bookingRequestDto.address, 20, 32);
+
+      doc.setFontSize(12);
+      doc.text(
+        `Customer Name: ${orderDetailsDialog.bookingRequestDto.firstName} ${
+          orderDetailsDialog.bookingRequestDto.middleName || ""
+        } ${orderDetailsDialog.bookingRequestDto.lastName || ""}`,
+        20,
+        50
+      );
+      doc.text(
+        `Order Status: ${orderDetailsDialog.bookingRequestDto.foodBookingStatus.replace(
+          "_",
+          " "
+        )}`,
+        20,
+        55
+      );
+      doc.text(
+        `Invoice Date: ${moment(
+          orderDetailsDialog.bookingRequestDto.bookedOn
+        ).format("DD/MM/YYYY hh:mma")}`,
+        20,
+        60
+      );
+      doc.text(
+        `Invoice Number: ${orderDetailsDialog.bookingRequestDto.orderId}`,
+        20,
+        65
+      );
+
+      const tableTop = 80;
+      doc.text("Items", 20, tableTop);
+      doc.text("Quantity", 120, tableTop);
+      doc.text("Price", 180, tableTop);
+
+      let yPosition = tableTop + 10;
+      orderDetailsDialog?.bookingRequestDto?.trailData?.forEach((item) => {
+        doc.text(item.itemName, 20, yPosition);
+        doc.text(item.noOfItems.toString(), 120, yPosition);
+        doc.text(item.price.toString(), 180, yPosition);
+        yPosition += 10;
+      });
+
+      const total = orderDetailsDialog.bookingRequestDto.totalPrice;
+      doc.text("Subtotal:", 140, yPosition);
+      doc.text(`Rs. ${total.toFixed(2)}`, 180, yPosition);
       yPosition += 10;
-    });
 
-    const total = orderDetailsDialog.bookingRequestDto.totalPrice;
-    doc.text("Subtotal:", 140, yPosition);
-    doc.text(`Rs. ${total.toFixed(2)}`, 180, yPosition);
-    yPosition += 10;
+      const gst = total * 0.18;
+      doc.text("GST (18%):", 140, yPosition);
+      doc.text(`Rs. ${gst.toFixed(2)}`, 180, yPosition);
+      yPosition += 10;
 
-    const gst = total * 0.18;
-    doc.text("GST (18%):", 140, yPosition);
-    doc.text(`Rs. ${gst.toFixed(2)}`, 180, yPosition);
-    yPosition += 10;
+      const grandTotal = total + gst;
+      doc.text("Total Amount:", 140, yPosition);
+      doc.text(`Rs. ${grandTotal.toFixed(2)}`, 180, yPosition);
+      yPosition += 10;
 
-    const grandTotal = total + gst;
-    doc.text("Total Amount:", 140, yPosition);
-    doc.text(`Rs. ${grandTotal.toFixed(2)}`, 180, yPosition);
-    yPosition += 10;
-
-    doc.save("restaurant_invoice.pdf");
+      doc.save("restaurant_invoice.pdf");
+    };
   }, []);
+
+  // const handleDownloadInvoice = React.useCallback((orderDetailsDialog) => {
+  //   // console.log("order", order);
+  //   const doc = new jsPDF();
+  //   doc.setFontSize(16);
+  //   doc.text("Restaurant Invoice", 20, 20);
+  //   doc.setFontSize(12);
+  //   doc.text(orderDetailsDialog.bookingRequestDto.address, 20, 30);
+
+  //   doc.setFontSize(12);
+  //   doc.text(
+  //     `Customer Name: ${orderDetailsDialog.bookingRequestDto.firstName} ${
+  //       orderDetailsDialog.bookingRequestDto.middleName || ""
+  //     } ${orderDetailsDialog.bookingRequestDto.lastName || ""}`,
+  //     20,
+  //     50
+  //   );
+  //   doc.text(
+  //     `Order Status: ${orderDetailsDialog.bookingRequestDto.foodBookingStatus.replace(
+  //       "_",
+  //       " "
+  //     )}`,
+  //     20,
+  //     55
+  //   );
+  //   doc.text(
+  //     `Invoice Date: ${moment(
+  //       orderDetailsDialog.bookingRequestDto.bookedOn
+  //     ).format("DD/MM/YYYY hh:mma")}`,
+  //     20,
+  //     60
+  //   );
+  //   doc.text(
+  //     `Invoice Number: ${orderDetailsDialog.bookingRequestDto.orderId}`,
+  //     20,
+  //     65
+  //   );
+
+  //   const tableTop = 80;
+  //   doc.text("Items", 20, tableTop);
+  //   doc.text("Quantity", 120, tableTop);
+  //   doc.text("Price", 180, tableTop);
+
+  //   let yPosition = tableTop + 10;
+  //   orderDetailsDialog?.bookingRequestDto?.trailData?.forEach((item) => {
+  //     doc.text(item.itemName, 20, yPosition);
+  //     doc.text(item.noOfItems.toString(), 120, yPosition);
+  //     doc.text(item.price.toString(), 180, yPosition);
+  //     yPosition += 10;
+  //   });
+
+  //   const total = orderDetailsDialog.bookingRequestDto.totalPrice;
+  //   doc.text("Subtotal:", 140, yPosition);
+  //   doc.text(`Rs. ${total.toFixed(2)}`, 180, yPosition);
+  //   yPosition += 10;
+
+  //   const gst = total * 0.18;
+  //   doc.text("GST (18%):", 140, yPosition);
+  //   doc.text(`Rs. ${gst.toFixed(2)}`, 180, yPosition);
+  //   yPosition += 10;
+
+  //   const grandTotal = total + gst;
+  //   doc.text("Total Amount:", 140, yPosition);
+  //   doc.text(`Rs. ${grandTotal.toFixed(2)}`, 180, yPosition);
+  //   yPosition += 10;
+
+  //   doc.save("restaurant_invoice.pdf");
+  // }, []);
 
   const removeBookingByRefNumber = useCallback((refNumber) => {
     setOrderMapDtos((prev) =>
@@ -1256,6 +1349,17 @@ const OrderDetailsDialog = ({
                           Name:
                         </Typography>
                         <Typography>{item?.firstName}</Typography>
+                      </Box>
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        <Typography
+                          sx={{
+                            fontWeight: "bold",
+                            color: (theme) => theme.palette.primary.main,
+                          }}
+                        >
+                          Room No.:
+                        </Typography>
+                        <Typography>{item?.roomDto?.roomNo}</Typography>
                       </Box>
                       <Box sx={{ display: "flex", gap: 1 }}>
                         <Typography

@@ -142,7 +142,6 @@ const RoomType = () => {
   const handleDeleteImageFromArray = React.useCallback((imgUrl) => {
     setUploadedImageArr((prevImg) => prevImg.filter((url) => url !== imgUrl));
   }, []);
-
   const handleChange = React.useCallback((e) => {
     if (
       [
@@ -153,9 +152,15 @@ const RoomType = () => {
         "cancellationFeePercentage",
       ].includes(e.target.name)
     ) {
+      let value = e.target.value.replace(/\D/g, "");
+
+      if (e.target.name === "advanceAmount") {
+        value = Math.min(Number(value), 100).toString();
+      }
+
       setFormData((prevData) => ({
         ...prevData,
-        [e.target.name]: e.target.value.replace(/\D/g, ""),
+        [e.target.name]: value,
       }));
     } else if (e.target.type === "checkbox") {
       if (e.target.name === "isAdvance") {
@@ -478,7 +483,7 @@ const RoomType = () => {
               <TextField
                 label={
                   <React.Fragment>
-                    Advance Amount{" "}
+                    Advance Percentage{" "}
                     <Box
                       component="span"
                       sx={{

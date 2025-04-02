@@ -1,85 +1,98 @@
+import React, { useCallback, useEffect, useState } from "react";
 import {
+  Box,
+  Button,
+  IconButton,
+  DialogTitle,
+  DialogContent,
+  Typography,
+  Grid2 as Grid,
   Table,
+  TableContainer,
   TableHead,
   TableRow,
   TableCell,
-  Paper,
-  Box,
-  Typography,
-  TableContainer,
   TableBody,
-  Toolbar,
-  IconButton,
-  Collapse,
-  Rating,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Grid2 as Grid,
-  TextField,
-  Autocomplete,
-  Tooltip,
-  Divider,
   Checkbox,
   FormGroup,
   FormControlLabel,
+  TextField,
+  Paper,
+  Autocomplete,
+  Tooltip,
+  Divider,
 } from "@mui/material";
-import React, { useCallback, useEffect, useState } from "react";
-import { BootstrapDialog } from "../header/Header";
-import moment from "moment";
 import { jsPDF } from "jspdf";
-
+import ClearIcon from "@mui/icons-material/Clear";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import ReceiptIcon from "@mui/icons-material/Receipt";
 import CloseIcon from "@mui/icons-material/Close";
-import { useGetAllTodayOrderForCounterStaffQuery } from "../../services/restaurant";
-import ClearIcon from "@mui/icons-material/Clear";
+
+import { BootstrapDialog } from "../header/Header";
+import ChairIcon from "@mui/icons-material/Chair";
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
-import {
-  CANCELLED,
-  DELIVERED,
-  ORDER_PLACED,
-  READY_TO_SERVE,
-  REJECTED,
-} from "../../helper/constants";
-import {
-  useGetAllTablesForCounterQuery,
-  useGetAllWaitersQuery,
-  useAssignTableToWaiterMutation,
-  useCompleteFoodOrderMutation,
-  useGetAllKitchenStaffQuery,
-  useAssignServiceStaffMutation,
-  useGetBookingDetailsFromRoomNumberMutation,
-  useAssosciateOrderWithRoomMutation,
-} from "../../services/restaurant";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { PaymentDialog } from "../dashboard/GuestDashboard";
 
-const OrderHistoryToday = () => {
+import moment from "moment";
+import { PaymentDialog } from "../dashboard/GuestDashboard";
+import { useGetAllBarTableForCounterStaffQuery } from "../../services/dashboard";
+import { useGetBookingDetailsFromRoomNumberMutation } from "../../services/restaurant";
+import {
+  useAssosciateBarOrderWithRoomMutation,
+  useCompleteBarOrderMutation,
+} from "../../services/bar";
+const BarCounterStaffDashboard = () => {
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
     severity: "",
   });
+
+  const { data: tableListForBarCounterStaff = { data: [] }, isLoading } =
+    useGetAllBarTableForCounterStaffQuery(
+      {
+        hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
+        userId: JSON.parse(sessionStorage.getItem("data")).id,
+      },
+      {
+        pollingInterval: 10000,
+      }
+    );
+
+  const [bookingDetails, bookingDetailsRes] =
+    useGetBookingDetailsFromRoomNumberMutation();
+
+  const [assosciateWithRoom, assosciateWithRoomRes] =
+    useAssosciateBarOrderWithRoomMutation();
+  const [completeOrder, completeOrderRes] = useCompleteBarOrderMutation();
   const [openPaymentDialog, setOpenPaymentDialog] = React.useState(false);
   const [makePartialPaymentPayload, setMakePartialPaymentPayload] =
     React.useState(null);
-  const [updateStatusDialog, setUpdateStatusDialog] = React.useState();
-  const [assignStaffDialog, setAssignStaffDialog] = React.useState();
+  const [orderDetailsDialog, setOrderDetailsDialog] = React.useState(null);
+  const handleOpenPaymentDialog = React.useCallback(() => {
+    const totalPrice = orderDetailsDialog?.bookingRequestDto?.totalPrice || 0;
+    const gstPrice = orderDetailsDialog?.bookingRequestDto?.gstPrice || 0;
 
-  const [isSplit, setIsSplit] = useState(false);
+    const payload = {
+      paidAmount: totalPrice + gstPrice,
+      orderId: orderDetailsDialog?.bookingRequestDto?.orderId,
+    };
 
-  const [orderMapDtos, setOrderMapDtos] = useState([]);
-  const [customOrderMapDtos, setCustomOrderMapDtos] = useState([]);
+    setMakePartialPaymentPayload(payload);
+    setOpenPaymentDialog(true);
+  }, [orderDetailsDialog]);
+
   const [formDataForDialog, setFormDataForDialog] = React.useState({
     isAssosciateWithRoom: false,
     isProceedToPayment: false,
     roomNumber: "",
     paymentType: null,
   });
+  const [isSplit, setIsSplit] = useState(false);
+
+  const [orderMapDtos, setOrderMapDtos] = useState([]);
+  const [customOrderMapDtos, setCustomOrderMapDtos] = useState([]);
+  console.log("customOrderMapDtos", customOrderMapDtos);
   const handleCloseOrderDetailsDialog = React.useCallback(() => {
     setFormDataForDialog({
       isAssosciateWithRoom: false,
@@ -95,890 +108,329 @@ const OrderHistoryToday = () => {
     setOrderDetailsDialog(null);
   }, []);
 
-  const [orderDetailsDialog, setOrderDetailsDialog] = React.useState(null);
-
-  const handleOpenPaymentDialog = React.useCallback(() => {
-    const totalPrice = orderDetailsDialog?.bookingRequestDto?.totalPrice || 0;
-    const gstPrice = orderDetailsDialog?.bookingRequestDto?.gstPrice || 0;
-
-    const payload = {
-      paidAmount: totalPrice + gstPrice,
-      orderId: orderDetailsDialog?.bookingRequestDto?.orderId,
-    };
-
-    setMakePartialPaymentPayload(payload);
-    setOpenPaymentDialog(true);
-  }, [orderDetailsDialog]);
-
-  const [bookingDetails, bookingDetailsRes] =
-    useGetBookingDetailsFromRoomNumberMutation();
-
-  const [assosciateWithRoom, assosciateWithRoomRes] =
-    useAssosciateOrderWithRoomMutation();
-  const [assignTableToWaiter, assignTableToWaiterRes] =
-    useAssignTableToWaiterMutation();
-  const [assignServiceStaff, assignServiceStaffRes] =
-    useAssignServiceStaffMutation();
-  const [completeOrder, completeOrderRes] = useCompleteFoodOrderMutation();
-
-  const {
-    data: orderList = { data: [] },
-    isLoading: isGetAllTodayOrderForCounterStaff,
-  } = useGetAllTodayOrderForCounterStaffQuery(
-    JSON.parse(sessionStorage.getItem("data")).hotelId
-  );
-
-  const {
-    data: tableListForCounterStaff = { data: [] },
-    isLoading: istableListForCounterStaffLoading,
-  } = useGetAllTablesForCounterQuery({
-    hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
-    userId: JSON.parse(sessionStorage.getItem("data")).id,
-  });
-
-  const { data: serviceStaffList = { data: [] } } = useGetAllKitchenStaffQuery({
-    hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
-  });
-
-  const { data: waiterList = { data: [] } } = useGetAllWaitersQuery({
-    hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
-  });
-  const handlePayment = React.useCallback((item) => {
-    const totalPrice = item?.bookingDetails?.totalPrice || 0;
-    const gstPrice = item?.bookingDetails?.gstPrice || 0;
-
-    const payload = {
-      paidAmount: totalPrice + gstPrice,
-      orderId: item?.orderId,
-    };
-    setMakePartialPaymentPayload(payload);
-    setOpenPaymentDialog(true);
-  }, []);
   return (
-    <React.Fragment>
-      <Paper>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <Toolbar
-            sx={[
-              {
-                pl: { sm: 2 },
-                pr: { xs: 1, sm: 1 },
-              },
-            ]}
+    <>
+      <Box>
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-end",
+              gap: 1,
+            }}
           >
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: "bold", letterSpacing: 1 }}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 1,
+              }}
             >
-              Today Order History
-            </Typography>
-          </Toolbar>
+              <Box
+                sx={{
+                  width: 12,
+                  height: 12,
+                  borderRadius: "50%",
+                  backgroundColor: "#EE82EE",
+                }}
+              />
+              <Typography variant="body2" color="textPrimary">
+                Ready to serve
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 12,
+                  height: 12,
+                  borderRadius: "50%",
+                  backgroundColor: "#007FFF",
+                }}
+              />
+              <Typography variant="body2" color="textPrimary">
+                Recieved By Waiter
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 12,
+                  height: 12,
+                  borderRadius: "50%",
+                  backgroundColor: "#00CED1",
+                }}
+              />
+              <Typography variant="body2" color="textPrimary">
+                Delivered
+              </Typography>
+            </Box>
+          </Box>
         </Box>
 
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow
-                sx={{
-                  ".MuiTableCell-root": {
-                    fontWeight: "bold",
-                    letterSpacing: 1,
-                    backgroundColor: "#3F3C87",
-                    color: "#fff",
-                    fontSize: 18,
-                  },
-                }}
-              >
-                <TableCell>SL No.</TableCell>
-                <TableCell>Order ID</TableCell>
-                <TableCell>Guest</TableCell>
-                <TableCell>Phone no.</TableCell>
-                <TableCell>Dine Type</TableCell>
-                <TableCell>Room No.(Floor)</TableCell>
-                <TableCell>Order Taken By</TableCell>
-                <TableCell>Order Status</TableCell>
-                <TableCell />
-              </TableRow>
-            </TableHead>
-
-            <TableBody>
-              {orderList?.data?.map((item, index) => {
-                return (
-                  <Row
-                    key={item.id}
-                    item={item}
-                    index={index}
-                    handlePayment={handlePayment}
-                    setUpdateStatusDialog={setUpdateStatusDialog}
-                    setMakePartialPaymentPayload={setMakePartialPaymentPayload}
-                    setOpenPaymentDialog={setOpenPaymentDialog}
-                    setAssignStaffDialog={setAssignStaffDialog}
-                    setOrderDetailsDialog={setOrderDetailsDialog}
-                  />
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Paper>
-      <FormDialog
-        open={Boolean(updateStatusDialog)}
-        handleClose={() => setUpdateStatusDialog(null)}
-        order={updateStatusDialog}
-        setSnack={setSnack}
-        tableListForCounterStaff={tableListForCounterStaff}
-        waiterList={waiterList}
-        assignTableToWaiter={assignTableToWaiter}
-      />
-      <AssignStaffDialog
-        assignStaffDialog={assignStaffDialog}
-        setAssignStaffDialog={setAssignStaffDialog}
-        serviceStaffList={serviceStaffList}
-        handleClose={() => setAssignStaffDialog(null)}
-        assignServiceStaff={assignServiceStaff}
-        setSnack={setSnack}
-      />
-      <PaymentDialog
-        openPaymentDialog={openPaymentDialog}
-        handlePaymentDialogClose={() => setOpenPaymentDialog(false)}
-        reservationPayload={makePartialPaymentPayload}
-        setSnack={setSnack}
-        reserveHotelRoom={completeOrder}
-      />
-
-      <OrderDetailsDialog
-        orderDetailsDialog={orderDetailsDialog}
-        handleCloseOrderDetailsDialog={handleCloseOrderDetailsDialog}
-        setSnack={setSnack}
-        bookingDetails={bookingDetails}
-        bookingDetailsRes={bookingDetailsRes}
-        assosciateWithRoom={assosciateWithRoom}
-        handleOpenPaymentDialog={handleOpenPaymentDialog}
-        completeOrder={completeOrder}
-        formData={formDataForDialog}
-        setFormData={setFormDataForDialog}
-        isSplit={isSplit}
-        setIsSplit={setIsSplit}
-        orderMapDtos={orderMapDtos}
-        setOrderMapDtos={setOrderMapDtos}
-        customOrderMapDtos={customOrderMapDtos}
-        setCustomOrderMapDtos={setCustomOrderMapDtos}
-      />
+        <BarTableCardsForCounterStaff
+          tableListForBarCounterStaff={tableListForBarCounterStaff}
+          setOrderDetailsDialog={setOrderDetailsDialog}
+        />
+        <OrderDetailsDialog
+          orderDetailsDialog={orderDetailsDialog}
+          handleCloseOrderDetailsDialog={handleCloseOrderDetailsDialog}
+          setSnack={setSnack}
+          bookingDetails={bookingDetails}
+          bookingDetailsRes={bookingDetailsRes}
+          assosciateWithRoom={assosciateWithRoom}
+          handleOpenPaymentDialog={handleOpenPaymentDialog}
+          completeOrder={completeOrder}
+          formData={formDataForDialog}
+          setFormData={setFormDataForDialog}
+          isSplit={isSplit}
+          setIsSplit={setIsSplit}
+          orderMapDtos={orderMapDtos}
+          setOrderMapDtos={setOrderMapDtos}
+          customOrderMapDtos={customOrderMapDtos}
+          setCustomOrderMapDtos={setCustomOrderMapDtos}
+        />
+        <PaymentDialog
+          openPaymentDialog={openPaymentDialog}
+          handlePaymentDialogClose={() => setOpenPaymentDialog(false)}
+          reservationPayload={makePartialPaymentPayload}
+          setSnack={setSnack}
+          reserveHotelRoom={completeOrder}
+          handleAfterSuccessFunction={() => {
+            handleCloseOrderDetailsDialog();
+          }}
+        />
+      </Box>
       <LoadingComponent
         open={
-          isGetAllTodayOrderForCounterStaff ||
-          istableListForCounterStaffLoading ||
-          assignTableToWaiterRes.isLoading ||
+          bookingDetailsRes.isLoading ||
           completeOrderRes.isLoading ||
-          assignServiceStaffRes.isLoading
+          assosciateWithRoomRes.isLoading ||
+          isLoading
         }
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
-    </React.Fragment>
+    </>
   );
 };
-const Row = ({
-  item,
-  index,
-  setUpdateStatusDialog,
-  handlePayment,
-  setAssignStaffDialog,
+
+const BarTableCardsForCounterStaff = ({
+  tableListForBarCounterStaff,
   setOrderDetailsDialog,
 }) => {
-  console.log("item", item);
-  const [open, setOpen] = React.useState(false);
+  const getChairDistribution = (capacity) => {
+    if (capacity === 4) {
+      return { top: 2, right: 0, bottom: 2, left: 0 };
+    } else if (capacity === 8) {
+      return { top: 4, right: 0, bottom: 4, left: 0 };
+    } else if (capacity === 2) {
+      return { top: 1, right: 0, bottom: 1, left: 0 };
+    } else if (capacity === 6) {
+      return { top: 3, right: 0, bottom: 3, left: 0 };
+    } else if (capacity === 3) {
+      return { top: 2, right: 0, bottom: 1, left: 0 };
+    } else if (capacity === 5) {
+      return { top: 3, right: 0, bottom: 2, left: 0 };
+    } else if (capacity === 7) {
+      return { top: 4, right: 0, bottom: 3, left: 0 };
+    } else {
+      // Default for other capacities
+      const half = Math.floor(capacity / 2);
+      const remainder = capacity % 2;
+      return {
+        top: half + remainder,
+        right: 0,
+        bottom: half,
+        left: 0,
+      };
+    }
+  };
+
+  const calculateGridSize = (capacity) => {
+    const sizeMappings = {
+      1: 1.2,
+      2: { xs: 5, sm: 6, md: 2, lg: 1.3, xl: 1.3 },
+      3: 1.3,
+      4: 1.3,
+      5: 1.4,
+      6: 1.4,
+      7: 1.5,
+      8: 1.8,
+      9: 1.8,
+      10: 2,
+      11: 2.4,
+      12: 2.4,
+      13: 2.6,
+      14: 2.6,
+      15: 2.8,
+      16: 2.8,
+      17: 3,
+      18: 3,
+      19: 3.1,
+      20: 3.2,
+    };
+
+    if (sizeMappings[capacity]) {
+      return sizeMappings[capacity];
+    }
+
+    const calculatedSize = 1.0 + (capacity - 2) * 0.05;
+    return Math.min(calculatedSize, 3.2);
+  };
+
+  const generateChairs = (count, rotation) => {
+    return Array(count)
+      .fill(0)
+      .map((_, index) => (
+        <ChairIcon
+          key={index}
+          sx={{
+            transform: `rotate(${rotation}deg)`,
+            color: "#888",
+            mx: 1,
+            fontSize: "1.6rem",
+          }}
+        />
+      ));
+  };
+
   return (
-    <React.Fragment>
-      <TableRow
-        sx={{
-          ".MuiTableCell-root": {
-            letterSpacing: 1,
-            fontSize: 18,
-          },
-          "& > *": { borderBottom: "unset" },
-        }}
-      >
-        <TableCell>{index + 1}</TableCell>
-        <TableCell>{item?.bookingDetails?.orderId}</TableCell>
-        <TableCell sx={{ minWidth: 150 }}>{`${item.bookingDetails.firstName} ${
-          item.bookingDetails.middleName || ""
-        } ${item.bookingDetails.lastName || ""}`}</TableCell>
-        <TableCell>{item.bookingDetails.phoneNo}</TableCell>
-        <TableCell>
-          {item.bookingDetails.dinningType.replace("_", " ")}
-        </TableCell>
-        <TableCell>
-          {item?.bookingDto?.roomDto
-            ? `${item?.bookingDto?.roomDto?.roomNo}(${item?.bookingDto?.roomDto?.floorNo})`
-            : "--"}
-        </TableCell>
-        <TableCell>{item?.orderTakenBy?.name}</TableCell>
-
-        <TableCell>
-          <Typography
-            sx={{
-              color: (theme) => theme.palette.warning.main,
-              fontWeight: 600,
-              letterSpacing: 1,
-            }}
-          >
-            {item?.bookingDetails?.foodBookingStatus}
-          </Typography>
-        </TableCell>
-        <TableCell>
-          <IconButton size="small" onClick={() => setOpen(!open)}>
-            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-          </IconButton>
-        </TableCell>
-      </TableRow>
-      <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
-        <TableCell sx={{ p: 0 }} colSpan={8}>
-          <Collapse in={open} timeout="auto" unmountOnExit>
-            <Box sx={{ p: 2, backgroundColor: "#f4f4f4" }}>
-              {item?.bookingDetails?.isRated && (
-                <Box sx={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <Box>
-                    <Typography component="legend">Rating</Typography>
-                    <Rating
-                      size="large"
-                      value={item?.bookingDetails?.ratingPoints}
-                      disabled
-                    />
-                  </Box>
-                  <Typography>{item?.bookingDetails?.ratingMessage}</Typography>
+    <>
+      <Grid container spacing={2}>
+        {tableListForBarCounterStaff?.data?.map((item, index) => {
+          const noOfSeats = item?.noOfSeats;
+          const distribution = getChairDistribution(noOfSeats);
+          const gridSize = calculateGridSize(noOfSeats);
+          return (
+            <Grid size={gridSize} key={index}>
+              <Box
+                sx={{
+                  position: "relative",
+                  padding: "25px",
+                  marginY: "10px",
+                }}
+              >
+                {/* Top chairs */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    position: "absolute",
+                    top: "0",
+                    left: "0",
+                    right: "0",
+                  }}
+                >
+                  {generateChairs(distribution.top, 0)}
                 </Box>
-              )}
+                <Box
+                  sx={{
+                    boxShadow:
+                      "0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19)",
+                    minHeight: "7rem",
+                    transition: "background-color 0.3s ease",
+                    borderRadius: "8px",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    flexDirection: "column",
+                    fontSize: "18px",
+                    fontWeight: "600",
+                    backgroundColor: Boolean(
+                      item?.bookingRequestDto?.foodBookingStatus ===
+                        "Ready_to_serve"
+                    )
+                      ? "#EE82EE"
+                      : item?.bookingRequestDto?.foodBookingStatus ===
+                        "Received_by_Waiter"
+                      ? "#007FFF"
+                      : item?.bookingRequestDto?.foodBookingStatus ===
+                        "Delivered"
+                      ? "#00CED1"
+                      : Boolean(item?.bookingRequestDto)
+                      ? "#FFAC1C"
+                      : "#17B169",
+                    opacity: 0.7,
+                    cursor: "pointer",
+                    mt: 1,
+                    mb: 1,
+                  }}
+                  onClick={() => {
+                    if (Boolean(item?.bookingRequestDto)) {
+                      setOrderDetailsDialog(item);
+                    }
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      gap: 1,
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        color: "#fff",
+                        fontWeight: "bold",
+                        fontSize: "1.4rem",
+                      }}
+                    >
+                      {item?.tableNo}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: "flex" }}>
+                    <Typography
+                      sx={{
+                        color: "#fff",
+                        // fontSize: "12px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Capacity:
+                    </Typography>
+                    <Typography sx={{ color: "#fff" }}>
+                      {item?.noOfSeats}
+                    </Typography>
+                  </Box>
+                </Box>
 
-              <Table size="small">
-                <TableHead>
-                  <TableRow
-                    sx={{
-                      ".MuiTableCell-root": {
-                        letterSpacing: 1,
-                        fontWeight: 600,
-                        fontSize: 16,
-                      },
-                    }}
-                  >
-                    <TableCell>SL no.</TableCell>
-                    <TableCell>Item Name</TableCell>
-                    <TableCell>Qty</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {item?.itemsList?.map((orderItem, orderItemIndex) => {
-                    return (
-                      <TableRow
-                        sx={{
-                          ".MuiTableCell-root": {
-                            letterSpacing: 1,
-                            fontSize: 16,
-                          },
-                          "& > *": { borderBottom: "unset" },
-                        }}
-                        key={`${item.id}-${orderItem.itemName}`}
-                      >
-                        <TableCell>{orderItemIndex + 1}</TableCell>
-                        <TableCell>{orderItem.itemName}</TableCell>
-                        <TableCell>{orderItem.noOfItems}</TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-
-              {[DELIVERED, CANCELLED, REJECTED, ORDER_PLACED].includes(
-                item?.bookingDetails?.foodBookingStatus
-              ) &&
-                item?.bookingDetails?.dinningType !== "Room_Delivery" &&
-                item?.bookingDetails?.dinningType !== "Take_Away" &&
-                item?.bookingDetails?.dinningType === "Dine_In" && (
-                  <Button
-                    sx={{
-                      display: "block",
-                      mx: "auto",
-                      mt: 2,
-                      mb: 1,
-                      textTransform: "none",
-                      fontSize: 18,
-                      fontWeight: 600,
-                      px: 3,
-                      letterSpacing: 1,
-                    }}
-                    variant="outlined"
-                    color="secondary"
-                    onClick={() => setUpdateStatusDialog(item)}
-                  >
-                    Update Status
-                  </Button>
-                )}
-
-              {item?.bookingDetails?.foodBookingStatus === READY_TO_SERVE &&
-                !Boolean(
-                  item?.bookingDetails?.dinningType === "Room_Delivery"
-                ) && (
-                  <Button
-                    sx={{
-                      display: "block",
-                      mx: "auto",
-                      mt: 2,
-                      mb: 1,
-                      textTransform: "none",
-                      fontSize: 18,
-                      fontWeight: 600,
-                      px: 3,
-                      letterSpacing: 1,
-                    }}
-                    variant="outlined"
-                    color="secondary"
-                    // onClick={() => handlePayment(item)}
-                    onClick={() => {
-                      if (Boolean(item?.bookingDto)) {
-                        setOrderDetailsDialog(item);
-                      }
-                    }}
-                  >
-                    Proceed to Payment
-                  </Button>
-                )}
-              {item?.bookingDetails?.dinningType === "Room_Delivery" &&
-                !Boolean(item?.orderTakenBy) && (
-                  <Button
-                    sx={{
-                      display: "block",
-                      mx: "auto",
-                      mt: 2,
-                      mb: 1,
-                      textTransform: "none",
-                      fontSize: 18,
-                      fontWeight: 600,
-                      px: 3,
-                      letterSpacing: 1,
-                    }}
-                    variant="outlined"
-                    color="secondary"
-                    onClick={() => setAssignStaffDialog(item)}
-                  >
-                    Assign Staff
-                  </Button>
-                )}
-            </Box>
-          </Collapse>
-        </TableCell>
-      </TableRow>
-    </React.Fragment>
+                {/* Bottom chairs */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    position: "absolute",
+                    bottom: "0",
+                    left: "0",
+                    right: "0",
+                  }}
+                >
+                  {generateChairs(distribution.bottom, 180)}
+                </Box>
+              </Box>
+            </Grid>
+          );
+        })}
+      </Grid>
+    </>
   );
 };
-
-function FormDialog({
-  open,
-  handleClose,
-  tableListForCounterStaff,
-  waiterList,
-  order,
-  setSnack,
-  assignTableToWaiter,
-}) {
-  console.log("order", order);
-  // const [remark, setRemark] = React.useState("");
-  const [selectedTable, setSelectedTable] = React.useState(null);
-  const [selectedWaiter, setSelectedWaiter] = React.useState(null);
-  const [selectedTableInputVal, setSelectedTableInputVal] = React.useState("");
-  const [selectedWaiterInputVal, setSelectedWaiterInputVal] =
-    React.useState("");
-
-  const handleSubmitDialogForm = React.useCallback(
-    (e) => {
-      e.preventDefault();
-      assignTableToWaiter({
-        orderId: order?.bookingDetails?.orderId,
-        tableId: selectedTable?.id,
-        orderTakenBy: {
-          id: selectedWaiter?.id,
-        },
-      })
-        .unwrap()
-        .then((res) => {
-          setSnack({
-            open: true,
-            message: res.message,
-            severity: "success",
-          });
-          handleClose();
-        })
-        .catch((err) => {
-          setSnack({
-            open: true,
-            message: err.data?.message || err.data,
-            severity: "error",
-          });
-        });
-    },
-    [
-      selectedTable,
-      // remark,
-      order,
-      setSnack,
-      handleClose,
-      assignTableToWaiter,
-      selectedWaiter,
-    ]
-  );
-
-  const isStatusDisabled = React.useCallback(
-    (option) => {
-      const currentStatus = order?.bookingDetails?.foodBookingStatus;
-      return (
-        option === currentStatus ||
-        (currentStatus === "Food_Preparing" && option === "Order_Placed")
-      );
-    },
-    [order?.bookingDetails?.foodBookingStatus]
-  );
-  React.useEffect(() => {
-    // setRemark("");
-    setSelectedTable(order?.bookingDetails?.foodBookingStatus || null);
-    setSelectedTableInputVal(order?.bookingDetails?.foodBookingStatus || "");
-  }, [open, order]);
-
-  return (
-    <React.Fragment>
-      <Dialog
-        maxWidth="sm"
-        fullWidth
-        open={open}
-        onClose={handleClose}
-        PaperProps={{
-          component: "form",
-          onSubmit: handleSubmitDialogForm,
-          sx: {
-            ".MuiTextField-root": {
-              width: "100%",
-              backgroundColor: "transparent",
-              ".MuiInputBase-root": {
-                color: "#7A7A7A",
-              },
-            },
-            ".MuiFormLabel-root": {
-              color: (theme) => `${theme.palette.primary.main} !important`,
-              fontWeight: 600,
-              fontSize: 18,
-            },
-            ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
-              borderBottom: (theme) =>
-                `1px solid ${theme.palette.primary.main} !important`,
-            },
-            ".css-iwxl7s::before": {
-              borderBottom: (theme) =>
-                `1px solid ${theme.palette.primary.main} !important`,
-            },
-            ".css-3zi3c9-MuiInputBase-root-MuiInput-root:after": {
-              borderBottom: "1px solid #fff !important",
-            },
-            ".css-iwxl7s::after": {
-              borderBottom: "1px solid #fff !important",
-            },
-            ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
-              borderBottom: (theme) =>
-                `1px solid ${theme.palette.primary.main} !important`,
-            },
-            ".css-1kbklr8::before": {
-              borderBottom: (theme) =>
-                `1px solid ${theme.palette.primary.main} !important`,
-            },
-            ".css-iwadjf-MuiInputBase-root-MuiInput-root:after": {
-              borderBottom: "1px solid #fff !important",
-            },
-            ".css-1kbklr8::after": {
-              borderBottom: "1px solid #fff !important",
-            },
-          },
-        }}
-      >
-        <DialogTitle sx={{ fontWeight: 600, fontSize: 24 }}>
-          Update Order Status
-          <Typography sx={{ fontWeight: 600, color: "#7A7A7A" }}>
-            {order?.bookingDetails?.orderId}
-          </Typography>
-        </DialogTitle>
-        <DialogContent>
-          <Grid container rowSpacing={2}>
-            <Grid size={12}>
-              <Autocomplete
-                options={tableListForCounterStaff?.data.filter((item) =>
-                  Boolean(item.isActive)
-                )}
-                // getOptionLabel={(option) => option?.tableNo?.toString() || ""}
-                getOptionLabel={(option) =>
-                  option?.tableNo
-                    ? `${option.tableNo} (Capacity: ${option.noOfSeats})`
-                    : ""
-                }
-                value={selectedTable}
-                onChange={(e, newVal) => setSelectedTable(newVal)}
-                inputValue={selectedTableInputVal}
-                onInputChange={(e, newVal) =>
-                  setSelectedTableInputVal(newVal || "")
-                }
-                clearOnEscape
-                popupIcon={<KeyboardArrowDownIcon color="primary" />}
-                sx={{
-                  "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover": {
-                    backgroundColor: "#E9E5F1",
-                    color: "#280071",
-                    fontWeight: 600,
-                  },
-                }}
-                clearIcon={<ClearIcon color="primary" />}
-                getOptionDisabled={isStatusDisabled}
-                PaperComponent={(props) => (
-                  <Paper
-                    sx={{
-                      background: "#fff",
-                      color: "#B4B4B4",
-                      borderRadius: "10px",
-                    }}
-                    {...props}
-                  />
-                )}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label={
-                      <>
-                        Select Table
-                        <Box
-                          component="span"
-                          sx={{
-                            color: (theme) => theme.palette.secondary.main,
-                          }}
-                        >
-                          *
-                        </Box>
-                      </>
-                    }
-                    variant="standard"
-                  />
-                )}
-              />
-            </Grid>
-            <Grid size={12}>
-              <Autocomplete
-                options={waiterList?.data || []}
-                getOptionLabel={(option) => option.name}
-                value={selectedWaiter}
-                onChange={(e, newVal) => setSelectedWaiter(newVal)}
-                inputValue={selectedWaiterInputVal}
-                onInputChange={(e, newVal) => setSelectedWaiterInputVal(newVal)}
-                clearOnEscape
-                popupIcon={<KeyboardArrowDownIcon color="primary" />}
-                sx={{
-                  "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover": {
-                    backgroundColor: "#E9E5F1",
-                    color: "#280071",
-                    fontWeight: 600,
-                  },
-                }}
-                clearIcon={<ClearIcon color="primary" />}
-                // getOptionDisabled={isStatusDisabled}
-                PaperComponent={(props) => (
-                  <Paper
-                    sx={{
-                      background: "#fff",
-                      color: "#B4B4B4",
-                      borderRadius: "10px",
-                    }}
-                    {...props}
-                  />
-                )}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label={
-                      <>
-                        Select Waiter
-                        <Box
-                          component="span"
-                          sx={{
-                            color: (theme) => theme.palette.secondary.main,
-                          }}
-                        >
-                          *
-                        </Box>
-                      </>
-                    }
-                    variant="standard"
-                  />
-                )}
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            color="secondary"
-            variant="contained"
-            sx={{
-              display: "block",
-              mx: "auto",
-              mb: 1,
-              color: "#fff",
-              fontWeight: 600,
-              textTransform: "none",
-              fontSize: 16,
-              mt: 1.5,
-              "&.Mui-disabled": {
-                background: "#B2E5F6",
-                color: "#FFFFFF",
-              },
-            }}
-            size="small"
-            disabled={!Boolean(selectedWaiter && selectedTable)}
-            type="submit"
-          >
-            Update Status
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </React.Fragment>
-  );
-}
-
-function AssignStaffDialog({
-  assignStaffDialog,
-  serviceStaffList,
-  handleClose,
-  assignServiceStaff,
-  setSnack,
-}) {
-  console.log("assignStaffDialog", assignStaffDialog);
-  const [selectedServiceStaff, setSelectedServiceStaff] = React.useState(null);
-  const [selectedServiceStaffInputVal, setSelectedServiceStaffInputVal] =
-    React.useState("");
-
-  const handleSubmitAssignStaffForm = React.useCallback(
-    (e) => {
-      e.preventDefault();
-      assignServiceStaff({
-        orderId: assignStaffDialog?.bookingDetails?.orderId,
-        orderTakenBy: {
-          id: selectedServiceStaff?.id,
-        },
-      })
-        .unwrap()
-        .then((res) => {
-          setSnack({
-            open: true,
-            message: res.message,
-            severity: "success",
-          });
-          handleClose();
-        })
-        .catch((err) => {
-          setSnack({
-            open: true,
-            message: err.data?.message || err.data,
-            severity: "error",
-          });
-        });
-    },
-    [
-      assignServiceStaff,
-      assignStaffDialog,
-      setSnack,
-      handleClose,
-      selectedServiceStaff,
-    ]
-  );
-  return (
-    <React.Fragment>
-      <Dialog
-        maxWidth="md"
-        fullWidth
-        open={Boolean(assignStaffDialog)}
-        onClose={handleClose}
-        PaperProps={{
-          component: "form",
-          onSubmit: handleSubmitAssignStaffForm,
-          sx: {
-            ".MuiTextField-root": {
-              width: "100%",
-              backgroundColor: "transparent",
-              ".MuiInputBase-root": {
-                color: "#7A7A7A",
-              },
-            },
-            ".MuiFormLabel-root": {
-              color: (theme) => `${theme.palette.primary.main} !important`,
-              fontWeight: 600,
-              fontSize: 18,
-            },
-            ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
-              borderBottom: (theme) =>
-                `1px solid ${theme.palette.primary.main} !important`,
-            },
-            ".css-iwxl7s::before": {
-              borderBottom: (theme) =>
-                `1px solid ${theme.palette.primary.main} !important`,
-            },
-            ".css-3zi3c9-MuiInputBase-root-MuiInput-root:after": {
-              borderBottom: "1px solid #fff !important",
-            },
-            ".css-iwxl7s::after": {
-              borderBottom: "1px solid #fff !important",
-            },
-            ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
-              borderBottom: (theme) =>
-                `1px solid ${theme.palette.primary.main} !important`,
-            },
-            ".css-1kbklr8::before": {
-              borderBottom: (theme) =>
-                `1px solid ${theme.palette.primary.main} !important`,
-            },
-            ".css-iwadjf-MuiInputBase-root-MuiInput-root:after": {
-              borderBottom: "1px solid #fff !important",
-            },
-            ".css-1kbklr8::after": {
-              borderBottom: "1px solid #fff !important",
-            },
-          },
-        }}
-      >
-        <DialogTitle sx={{ fontWeight: 600, fontSize: 24 }}>
-          Assign Staff
-          <Typography sx={{ fontWeight: 600, color: "#7A7A7A" }}>
-            {assignStaffDialog?.bookingDetails?.orderId}
-          </Typography>
-        </DialogTitle>
-        <DialogContent>
-          <Box sx={{ py: 2 }}>
-            <TableContainer>
-              <Table stickyHeader>
-                <TableHead>
-                  <TableRow
-                    sx={{
-                      ".MuiTableCell-root": {
-                        fontWeight: "bold",
-                        fontSize: "1rem",
-                        letterSpacing: 1,
-                        backgroundColor: "#f5f5f5",
-                      },
-                    }}
-                  >
-                    <TableCell>Sl. No.</TableCell>
-                    <TableCell>Item Name</TableCell>
-                    <TableCell>Quantity</TableCell>
-                    <TableCell>Delivered</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {assignStaffDialog?.itemsList?.map((item, index) => {
-                    return (
-                      <>
-                        <TableRow key={index}>
-                          <TableCell>{index + 1}</TableCell>
-                          <TableCell>{item?.itemName}</TableCell>
-                          <TableCell>{item?.noOfItems}</TableCell>
-                          <TableCell>
-                            {Boolean(item?.isDelivered) ? "Yes" : "No"}
-                          </TableCell>
-                        </TableRow>
-                      </>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-          <Grid container rowSpacing={2}>
-            <Grid size={6}>
-              <Autocomplete
-                options={serviceStaffList?.data}
-                getOptionLabel={(option) => option?.name}
-                value={selectedServiceStaff}
-                onChange={(e, newVal) => setSelectedServiceStaff(newVal)}
-                inputValue={selectedServiceStaffInputVal}
-                onInputChange={(e, newVal) =>
-                  setSelectedServiceStaffInputVal(newVal || "")
-                }
-                clearOnEscape
-                popupIcon={<KeyboardArrowDownIcon color="primary" />}
-                sx={{
-                  "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover": {
-                    backgroundColor: "#E9E5F1",
-                    color: "#280071",
-                    fontWeight: 600,
-                  },
-                }}
-                clearIcon={<ClearIcon color="primary" />}
-                PaperComponent={(props) => (
-                  <Paper
-                    sx={{
-                      background: "#fff",
-                      color: "#B4B4B4",
-                      borderRadius: "10px",
-                    }}
-                    {...props}
-                  />
-                )}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label={
-                      <>
-                        Select Staff
-                        <Box
-                          component="span"
-                          sx={{
-                            color: (theme) => theme.palette.secondary.main,
-                          }}
-                        >
-                          *
-                        </Box>
-                      </>
-                    }
-                    variant="standard"
-                  />
-                )}
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            color="secondary"
-            variant="contained"
-            sx={{
-              display: "block",
-              mx: "auto",
-              mb: 1,
-              color: "#fff",
-              fontWeight: 600,
-              textTransform: "none",
-              fontSize: 16,
-              mt: 1.5,
-              "&.Mui-disabled": {
-                background: "#B2E5F6",
-                color: "#FFFFFF",
-              },
-            }}
-            size="small"
-            // disabled={!Boolean(selectedWaiter && selectedTable)}
-            type="submit"
-          >
-            Assign Staff
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </React.Fragment>
-  );
-}
 
 const OrderDetailsDialog = ({
   orderDetailsDialog,
@@ -998,14 +450,12 @@ const OrderDetailsDialog = ({
   customOrderMapDtos,
   setCustomOrderMapDtos,
 }) => {
-  console.log("orderDetailsDialog", orderDetailsDialog);
-
-  console.log("customOrderMapDtos : ", customOrderMapDtos);
-
   const paymentOptions = [
     { id: 1, type: "Cash" },
     { id: 2, type: "Online" },
   ];
+
+  console.log("OrderDetailsDialog", orderDetailsDialog);
 
   const handleGetBookingDetails = React.useCallback(() => {
     bookingDetails({
@@ -1031,12 +481,12 @@ const OrderDetailsDialog = ({
 
   const handleAssosciateWithRoom = React.useCallback(() => {
     if (!isSplit) {
-      const totalPrice = orderDetailsDialog?.bookingDetails?.totalPrice ?? 0;
-      const gstPrice = orderDetailsDialog?.bookingDetails?.gstPrice ?? 0;
+      const totalPrice = orderDetailsDialog?.bookingRequestDto?.totalPrice ?? 0;
+      const gstPrice = orderDetailsDialog?.bookingRequestDto?.gstPrice ?? 0;
       const totalAmount = totalPrice + gstPrice;
       assosciateWithRoom({
         isSplit: false,
-        orderId: orderDetailsDialog?.bookingDetails?.orderId,
+        orderId: orderDetailsDialog?.bookingRequestDto?.orderId,
         bookingRefNo: bookingDetailsRes?.data?.data?.bookingRefNumber,
         orderMapDtos: [
           {
@@ -1064,7 +514,7 @@ const OrderDetailsDialog = ({
     } else if (isSplit) {
       assosciateWithRoom({
         isSplit: true,
-        orderId: orderDetailsDialog?.bookingDetails?.orderId,
+        orderId: orderDetailsDialog?.bookingRequestDto?.orderId,
         orderMapDtos: customOrderMapDtos?.map((item) => ({
           bookingRefNo: item?.bookingRefNumber,
           totalPrice: item?.payableAmount || 0,
@@ -1098,11 +548,11 @@ const OrderDetailsDialog = ({
   ]);
 
   const handleMakePaymentWithCash = React.useCallback(() => {
-    const totalPrice = orderDetailsDialog?.bookingDetails?.totalPrice || 0;
-    const gstPrice = orderDetailsDialog?.bookingDetails?.gstPrice || 0;
+    const totalPrice = orderDetailsDialog?.bookingRequestDto?.totalPrice || 0;
+    const gstPrice = orderDetailsDialog?.bookingRequestDto?.gstPrice || 0;
 
     completeOrder({
-      orderId: orderDetailsDialog?.bookingDetails.orderId,
+      orderId: orderDetailsDialog?.bookingRequestDto.orderId,
       paidAmount: totalPrice + gstPrice,
       paymentMethod: "Cash",
     })
@@ -1275,8 +725,8 @@ const OrderDetailsDialog = ({
   }, [bookingDetailsRes, isSplit]);
 
   useEffect(() => {
-    const totalPrice = orderDetailsDialog?.bookingDetails?.totalPrice ?? 0;
-    const gstPrice = orderDetailsDialog?.bookingDetails?.gstPrice ?? 0;
+    const totalPrice = orderDetailsDialog?.bookingRequestDto?.totalPrice ?? 0;
+    const gstPrice = orderDetailsDialog?.bookingRequestDto?.gstPrice ?? 0;
     const totalAmount = totalPrice + gstPrice;
 
     const updatedOrderDtos =
@@ -1337,7 +787,7 @@ const OrderDetailsDialog = ({
                     Order Id:
                   </Typography>
                   <Typography>
-                    {orderDetailsDialog?.bookingDetails?.orderId}
+                    {orderDetailsDialog?.bookingRequestDto?.orderId}
                   </Typography>
                 </Box>
                 <Box sx={{ display: "flex", gap: 1 }}>
@@ -1356,7 +806,7 @@ const OrderDetailsDialog = ({
                   </Typography>
                   <Typography>
                     {moment(
-                      orderDetailsDialog?.bookingDetails?.bookedOn
+                      orderDetailsDialog?.bookingRequestDto?.bookedOn
                     ).format("DD/MM/YYYY hh:mma")}
                   </Typography>
                 </Box>
@@ -1365,7 +815,7 @@ const OrderDetailsDialog = ({
                     Order Status:
                   </Typography>
                   <Typography>
-                    {orderDetailsDialog?.bookingDetails?.foodBookingStatus
+                    {orderDetailsDialog?.bookingRequestDto?.orderStatus
                       .split("_")
                       .join(" ")}
                   </Typography>
@@ -1385,13 +835,13 @@ const OrderDetailsDialog = ({
                   </Typography>
                   <Typography>
                     ₹{" "}
-                    {orderDetailsDialog?.bookingDetails?.totalPrice +
-                      orderDetailsDialog?.bookingDetails?.gstPrice}
+                    {orderDetailsDialog?.bookingRequestDto?.totalAmount +
+                      orderDetailsDialog?.bookingRequestDto?.gstPrice}
                   </Typography>
                 </Box>
               </Box>
               {Boolean(
-                orderDetailsDialog?.bookingDetails?.foodBookingStatus ===
+                orderDetailsDialog?.bookingRequestDto?.foodBookingStatus ===
                   "Delivered"
               ) && (
                 <Box>
@@ -1426,20 +876,22 @@ const OrderDetailsDialog = ({
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {orderDetailsDialog?.itemsList?.map((item, index) => {
-                      return (
-                        <>
-                          <TableRow key={index}>
-                            <TableCell>{index + 1}</TableCell>
-                            <TableCell>{item?.itemName}</TableCell>
-                            <TableCell>{item?.noOfItems}</TableCell>
-                            <TableCell>
-                              {Boolean(item?.isDelivered) ? "Yes" : "No"}
-                            </TableCell>
-                          </TableRow>
-                        </>
-                      );
-                    })}
+                    {orderDetailsDialog?.bookingRequestDto?.trailData?.map(
+                      (item, index) => {
+                        return (
+                          <>
+                            <TableRow key={index}>
+                              <TableCell>{index + 1}</TableCell>
+                              <TableCell>{item?.name}</TableCell>
+                              <TableCell>{item?.quantity}</TableCell>
+                              <TableCell>
+                                {Boolean(item?.isDelivered) ? "Yes" : "No"}
+                              </TableCell>
+                            </TableRow>
+                          </>
+                        );
+                      }
+                    )}
                   </TableBody>
                 </Table>
               </TableContainer>
@@ -1931,4 +1383,4 @@ const OrderDetailsDialog = ({
     </>
   );
 };
-export default OrderHistoryToday;
+export default BarCounterStaffDashboard;

@@ -189,11 +189,12 @@ export const CustomPolygonHeader = ({
 function getRoomStatusColor(key) {
   switch (key) {
     case "Available":
-      return { color: "#3db7ff", bgcolor: "#c9ebff" };
+      return { color: "#3db7ff", bgcolor: "#b4ffd6" };
     case "Reserved":
       return { color: "#ffa83a", bgcolor: "#ffe3c0" };
     case "Occupied":
-      return { color: "#14b85c", bgcolor: "#b4ffd6" };
+      // return { color: "#14b85c", bgcolor: "#b4ffd6" };
+      return { color: "#14b85c", bgcolor: "#FF9999" };
     case "Not Available":
       return { color: "#ff5353", bgcolor: "#ffc0c0" };
     case "Being Serviced":
@@ -229,7 +230,7 @@ const tempRoomFilterVisibleButtonData = [
   { id: 3, icon: <MdBookmarkAdded />, name: RESERVED?.key },
   { id: 4, icon: <TbBed />, name: OCCUPIED?.key },
   { id: 5, icon: <MdCleaningServices />, name: BEING_SERVICED?.key },
-  { id: 6, icon: <MdOutlineDisabledByDefault />, name: NOT_AVAILABLE?.key },
+  // { id: 6, icon: <MdOutlineDisabledByDefault />, name: NOT_AVAILABLE?.key },
 ];
 
 const CustomInventoryTable = memo(function ({ inventoryData }) {
@@ -895,11 +896,13 @@ const CustomRoomFilters = memo(function ({
                           // alignItems: "center",
                           color:
                             item?.name === AVAILABLE.key
-                              ? "hsla(202, 100%, 73%, 0.99)"
+                              ? // ? "hsla(202, 100%, 73%, 0.99)"
+                                "hsla(140, 100%, 36%, 0.99)"
                               : item?.name === RESERVED.key
                               ? "hsla(32, 98%, 65%, 0.99)"
                               : item?.name === OCCUPIED.key
-                              ? "hsla(140, 100%, 36%, 0.99)"
+                              ? // ? "hsla(140, 100%, 36%, 0.99)"
+                                " hsla(0, 100%, 75%, 0.99)"
                               : item?.name === NOT_AVAILABLE.key
                               ? "hsla(0, 100%, 65%, 0.99)"
                               : item?.name === BEING_SERVICED.key
@@ -917,11 +920,13 @@ const CustomRoomFilters = memo(function ({
                           // marginTop: "-8px",
                           color:
                             item?.name === AVAILABLE.key
-                              ? "hsla(202, 100%, 73%, 0.99)"
+                              ? // ? "hsla(202, 100%, 73%, 0.99)"
+                                "hsla(140, 100%, 36%, 0.99)"
                               : item?.name === RESERVED.key
                               ? "hsla(32, 98%, 65%, 0.99)"
                               : item?.name === OCCUPIED.key
-                              ? "hsla(140, 100%, 36%, 0.99)"
+                              ? // ? "hsla(140, 100%, 36%, 0.99)"
+                                "hsla(0, 100%, 75%, 0.99)"
                               : item?.name === NOT_AVAILABLE.key
                               ? "hsla(0, 100%, 65%, 0.99)"
                               : item?.name === BEING_SERVICED.key
@@ -1578,6 +1583,22 @@ const RoomServiceCard = memo(function ({
         );
 
         window.open(`/hotelBillInvoice/${bookingRefNumber}`, "_blank");
+      }
+    },
+    // [customerGstNumber]
+    []
+  );
+  const handleViewFinalHotelBillInvoice = useCallback(
+    (roomData) => {
+      const bookingRefNumber = roomData?.bookingDto?.bookingRefNumber;
+
+      if (bookingRefNumber) {
+        sessionStorage.setItem(
+          "FinalHotelBillbookingRefNumber",
+          bookingRefNumber
+        );
+
+        window.open(`/FinalHotelBillInvoice`, "_blank");
       }
     },
     // [customerGstNumber]
@@ -3581,146 +3602,179 @@ const RoomServiceCard = memo(function ({
               gap: 1,
             }}
           >
-            {Boolean(
+            {/* {Boolean(
               Boolean(
                 isSelectedRoom?.bookingDto?.isCheckoutProceed === false
               ) &&
                 Boolean(
                   isSelectedRoom?.bookingDto?.isCheckedByKeepingStaff === true
                 )
-            ) && (
-              <Box sx={{ width: "100%", display: "flex", gap: 1 }}>
-                <Box
-                  sx={{
-                    ".MuiTextField-root": {
-                      width: "100%",
-                      backgroundColor: "transparent",
-                      ".MuiInputBase-root": {
-                        color: "#B4B4B4",
-                        background: "rgba(255, 255, 255, 0.25)",
-                      },
-                    },
-                    ".MuiFormLabel-root": {
-                      color: (theme) => theme.palette.primary.main,
-                      fontWeight: 600,
-                      fontSize: 14,
-                    },
-                    ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
-                      borderBottom: (theme) =>
-                        `1px solid ${theme.palette.primary.main}`,
-                    },
-                    ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
-                      borderBottom: (theme) =>
-                        `1px solid ${theme.palette.primary.main}`,
-                    },
-                    "& .MuiOutlinedInput-root": {
-                      height: "35px",
-                      minHeight: "35px",
-                    },
-                    "& .MuiInputBase-input": {
-                      padding: "13px",
-                      height: "100%",
-                      boxSizing: "border-box",
-                      fontSize: "13px",
-                    },
-                  }}
-                >
-                  <Autocomplete
-                    options={[
-                      // "Parking Invoice",
-                      "Food Invoice",
-                      "Final Invoice",
-                      "Bar Invoice",
-                      "Spa Invoice",
-                    ]}
-                    // disableClearable
-                    fullWidth
-                    value={selectedInvoice}
-                    onChange={(e, newValue) => setSelectedInvoice(newValue)}
-                    getOptionLabel={(option) => option || ""}
-                    clearOnEscape
-                    // disablePortal
-                    popupIcon={<KeyboardArrowDownIcon color="primary" />}
-                    sx={{
-                      // width: 200,
-                      ".MuiInputBase-root": {
-                        color: "#fff",
-                      },
-                      "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover":
-                        {
-                          backgroundColor: "#E9E5F1",
-                          color: "#280071",
-                          fontWeight: 600,
-                        },
-                      "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
-                        {
-                          backgroundColor: "#E9E5F1",
-                          color: "#280071",
-                          fontWeight: 600,
-                        },
-                    }}
-                    componentsProps={{
-                      popper: {
-                        sx: {
-                          "& .MuiAutocomplete-listbox": {
-                            maxHeight: "150px",
-                            overflow: "auto",
-                          },
-                          "& .MuiAutocomplete-option": {
-                            fontSize: "13px",
-                          },
-                        },
-                      },
-                    }}
-                    size="small"
-                    clearIcon={<ClearIcon color="primary" />}
-                    PaperComponent={(props) => (
-                      <Paper
-                        sx={{
-                          background: "#fff",
-                          color: "#B4B4B4",
-                          borderRadius: "10px",
-                        }}
-                        {...props}
-                      />
-                    )}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Select Invoice"
-                        sx={{
-                          "& .MuiOutlinedInput-root": {
-                            borderRadius: 2,
-                            width: 200,
-                            height: 35,
-                          },
-                        }}
-                      />
-                    )}
-                  />
-                </Box>
+            ) && ( */}
 
-                <Button
-                  variant="contained"
-                  size="small"
-                  onClick={() => {
-                    if (selectedInvoice === "Final Invoice") {
-                      handleViewHotelBillInvoice(isSelectedRoom);
-                    } else if (selectedInvoice === "Food Invoice") {
-                      handleViewFoodBillInvoice(isSelectedRoom);
-                    } else if (selectedInvoice === "Bar Invoice") {
-                      handleViewBarBillInvoice(isSelectedRoom);
-                    } else if (selectedInvoice === "Spa Invoice") {
-                      handleViewSpaBillInvoice(isSelectedRoom);
-                    } else {
-                      alert("Please select an option to view the bill.");
-                    }
-                  }}
-                >
-                  View
-                </Button>
-              </Box>
-            )}
+            {
+              // Boolean(
+              //   isSelectedRoom?.bookingDto?.bookingStatus === "Checked_In"
+              // )
+              [
+                "Checked_In",
+                "Room_Checkout_Requested",
+                "Room_Checkout_Request_Approved",
+                "Room_Upgrade_Request",
+              ].includes(isSelectedRoom?.bookingDto?.bookingStatus) && (
+                <Box sx={{ width: "100%", display: "flex", gap: 1 }}>
+                  <Box
+                    sx={{
+                      ".MuiTextField-root": {
+                        width: "100%",
+                        backgroundColor: "transparent",
+                        ".MuiInputBase-root": {
+                          color: "#B4B4B4",
+                          background: "rgba(255, 255, 255, 0.25)",
+                        },
+                      },
+                      ".MuiFormLabel-root": {
+                        color: (theme) => theme.palette.primary.main,
+                        fontWeight: 600,
+                        fontSize: 14,
+                      },
+                      ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+                        borderBottom: (theme) =>
+                          `1px solid ${theme.palette.primary.main}`,
+                      },
+                      ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+                        borderBottom: (theme) =>
+                          `1px solid ${theme.palette.primary.main}`,
+                      },
+                      "& .MuiOutlinedInput-root": {
+                        height: "35px",
+                        minHeight: "35px",
+                      },
+                      "& .MuiInputBase-input": {
+                        padding: "13px",
+                        height: "100%",
+                        boxSizing: "border-box",
+                        fontSize: "13px",
+                      },
+                    }}
+                  >
+                    <Autocomplete
+                      options={[
+                        // "Parking Invoice",
+                        "Food Invoice",
+                        "Final Invoice",
+                        "Bar Invoice",
+                        "Spa Invoice",
+                      ]}
+                      // disableClearable
+                      fullWidth
+                      value={selectedInvoice}
+                      onChange={(e, newValue) => setSelectedInvoice(newValue)}
+                      getOptionLabel={(option) => option || ""}
+                      clearOnEscape
+                      // disablePortal
+                      popupIcon={<KeyboardArrowDownIcon color="primary" />}
+                      sx={{
+                        // width: 200,
+                        ".MuiInputBase-root": {
+                          color: "#fff",
+                        },
+                        "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover":
+                          {
+                            backgroundColor: "#E9E5F1",
+                            color: "#280071",
+                            fontWeight: 600,
+                          },
+                        "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                          {
+                            backgroundColor: "#E9E5F1",
+                            color: "#280071",
+                            fontWeight: 600,
+                          },
+                      }}
+                      componentsProps={{
+                        popper: {
+                          sx: {
+                            "& .MuiAutocomplete-listbox": {
+                              maxHeight: "150px",
+                              overflow: "auto",
+                            },
+                            "& .MuiAutocomplete-option": {
+                              fontSize: "13px",
+                            },
+                          },
+                        },
+                      }}
+                      size="small"
+                      clearIcon={<ClearIcon color="primary" />}
+                      PaperComponent={(props) => (
+                        <Paper
+                          sx={{
+                            background: "#fff",
+                            color: "#B4B4B4",
+                            borderRadius: "10px",
+                          }}
+                          {...props}
+                        />
+                      )}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Select Invoice"
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              borderRadius: 2,
+                              width: 200,
+                              height: 35,
+                            },
+                          }}
+                        />
+                      )}
+                    />
+                  </Box>
+
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={() => {
+                      if (selectedInvoice === "Final Invoice") {
+                        handleViewFinalHotelBillInvoice(isSelectedRoom);
+                      } else if (selectedInvoice === "Food Invoice") {
+                        handleViewFoodBillInvoice(isSelectedRoom);
+                      } else if (selectedInvoice === "Bar Invoice") {
+                        handleViewBarBillInvoice(isSelectedRoom);
+                      } else if (selectedInvoice === "Spa Invoice") {
+                        handleViewSpaBillInvoice(isSelectedRoom);
+                      } else {
+                        alert("Please select an option to view the bill.");
+                      }
+                    }}
+                  >
+                    View
+                  </Button>
+                  {/* <Button
+                    variant="contained"
+                    size="small"
+                    onClick={() => {
+                      if (selectedInvoice === "Final Invoice") {
+                        handleViewHotelBillInvoice(isSelectedRoom);
+                      } else if (selectedInvoice === "Food Invoice") {
+                        handleViewFoodBillInvoice(isSelectedRoom);
+                      } else if (selectedInvoice === "Bar Invoice") {
+                        handleViewBarBillInvoice(isSelectedRoom);
+                      } else if (selectedInvoice === "Spa Invoice") {
+                        handleViewSpaBillInvoice(isSelectedRoom);
+                      } else {
+                        alert("Please select an option to view the bill.");
+                      }
+                    }}
+                  >
+                    View
+                  </Button> */}
+                </Box>
+              )
+            }
+
+            {/* )} */}
 
             {Boolean(
               Boolean(

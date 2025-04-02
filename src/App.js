@@ -133,16 +133,34 @@ const BarInvoiceInBookingHistory = React.lazy(() =>
 );
 
 const CreateTable = React.lazy(() => import("./features/hotel/CreateTable"));
+const CreateBarTable = React.lazy(() =>
+  import("./features/bar/CreateBarTable")
+);
 const WaiterDashboard = React.lazy(() =>
   import("./features/restaurant/WaiterDashboard")
 );
 
+const BarWaiterDashboard = React.lazy(() =>
+  import("./features/bar/BarWaiterDashboard")
+);
 const CounterStaffDashboard = React.lazy(() =>
   import("./features/restaurant/CounterStaffDashboard")
 );
 
+const BarCounterStaffDashboard = React.lazy(() =>
+  import("./features/bar/BarCounterStaffDashboard")
+);
+
 const KitchenServiceStaff = React.lazy(() =>
   import("./features/restaurant/KitchenServiceStaff")
+);
+
+const BarServiceStaff = React.lazy(() =>
+  import("./features/bar/BarServiceStaff")
+);
+const BarDineIn = React.lazy(() => import("./features/bar/BarDineIn"));
+const BarOrderHistoryToday = React.lazy(() =>
+  import("./features/bar/BarOrderHistoryToday")
 );
 
 const RoomDineIn = React.lazy(() => import("./features/restaurant/RoomDineIn"));
@@ -152,6 +170,10 @@ const LaundryItemList = React.lazy(() =>
 
 const OrderHistoryToday = React.lazy(() =>
   import("./features/restaurant/OrderHistoryToday")
+);
+
+const FinalHotelBillInvoice = React.lazy(() =>
+  import("./features/HotelBillInvoice/FinalHotelBillInvoice")
 );
 
 function App() {
@@ -189,7 +211,7 @@ function App() {
           <Route
             path="/HotelBillInvoiceInHistory/:bookingRefNo"
             element={<HotelBillInvoiceInHistory key="hotel-bill-history" />}
-          />
+          />{" "}
           <Route
             path="/parkingBillInvoice/:bookingRefNo"
             element={<ParkingBillInvoice key="park-bill" />}
@@ -197,6 +219,10 @@ function App() {
           <Route
             path="/foodBillInvoice/:bookingRefNo"
             element={<FoodInvoice key="food-bill" />}
+          />
+          <Route
+            path="/FinalHotelBillInvoice/"
+            element={<FinalHotelBillInvoice key="final-bill" />}
           />
           <Route
             path="/foodBillInvoiceInBookingHistory/:bookingRefNo"
@@ -223,7 +249,8 @@ function App() {
             <Route
               path="/super-admin-dashboard"
               element={<SuperAdminDashboard />}
-            />
+            />{" "}
+            <Route path="/laundryItemList" element={<LaundryItemList />} />
             <Route
               path="/employee-list/:companyId"
               element={<SuperAdminEmployeeList />}
@@ -242,8 +269,12 @@ function App() {
             <Route path="/spa" element={<Spa />} />
             <Route path="/HallList" element={<HallList />} />
             <Route path="/createTable" element={<CreateTable />} />
+            <Route path="/CreateBarTable" element={<CreateBarTable />} />
             <Route path="/WaiterDashboard" element={<WaiterDashboard />} />
-
+            <Route
+              path="/BarWaiterDashboard"
+              element={<BarWaiterDashboard />}
+            />
             <Route path="/BanquetList" element={<BanquetList />} />
             <Route path="/PromocodeList" element={<PromocodeList />} />
             <Route path="/parking-list" element={<ParkingList />} />
@@ -270,16 +301,24 @@ function App() {
             <Route path="/barItemList" element={<BarItemList />} />
             {/* LaundryHistoryForGuest */}
           </Route>
-
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route
               path="/frontdeskBookingHistory"
               element={<FrontdeskBookingHistory />}
-            />{" "}
+            />
             <Route
               path="/CounterStaffDashboard"
               element={<CounterStaffDashboard />}
+            />
+            <Route
+              path="/BarCounterStaffDashboard"
+              element={<BarCounterStaffDashboard />}
+            />
+            <Route path="/BarDineIn" element={<BarDineIn />} />
+            <Route
+              path="/BarOrderHistoryToday"
+              element={<BarOrderHistoryToday />}
             />
             <Route path="/OrderHistoryToday" element={<OrderHistoryToday />} />
             <Route path="/RoomDineIn" element={<RoomDineIn />} />
@@ -297,6 +336,7 @@ function App() {
               path="/KitchenServiceStaff"
               element={<KitchenServiceStaff />}
             />
+            <Route path="/BarServiceStaff" element={<BarServiceStaff />} />
             <Route
               path="/LaundryHistory"
               element={<LaundryHistoryForAdmin />}
@@ -307,7 +347,6 @@ function App() {
             />
             <Route path="/Parking" element={<Parking />} />
             <Route path="/ParkingHistory" element={<ParkingHistory />} />
-            <Route path="/laundryItemList" element={<LaundryItemList />} />
           </Route>
         </Routes>
       </React.Suspense>

@@ -63,7 +63,10 @@ const CleaningServiceHistory = () => {
   const CleaningServiceHistoryTableHeaders = React.useMemo(() => {
     return [
       { label: "Sl. No.", key: "sno" },
+      { label: "Room No.", key: "roomNo" },
+      { label: "Floor No.", key: "floorNo" },
       { label: "Created At", key: "createdAt" },
+      { label: "Completed At", key: "updatedAt" },
       { label: "Cleaning Status", key: "cleaningStatus" },
     ];
   }, []);
@@ -82,7 +85,14 @@ const CleaningServiceHistory = () => {
     cleaningServiceHistoryTableFilters,
     //  setLaundryHistoryTableFilters
   ] = React.useState(initialCleaningServiceHistoryTableFilters);
-
+  const [
+    cleaningServiceHistoryTablePageNo,
+    setCleaningServiceHistoryTablePageNo,
+  ] = React.useState(0);
+  const [
+    cleaningServiceHistoryTableRowsPerPage,
+    setCleaningServiceHistoryTableRowsPerPage,
+  ] = React.useState(10);
   const {
     data: cleaningServiceDetails = {
       paginationData: {
@@ -92,20 +102,19 @@ const CleaningServiceHistory = () => {
         data: [],
       },
     },
-  } = useGetAllCleaningServiceRequestHistoryQuery({
-    userId: JSON.parse(sessionStorage.getItem("data"))?.id,
-    pageNo: cleaningServiceHistoryTableFilters?.pageNo,
-    pageSize: cleaningServiceHistoryTableFilters?.pageSize,
-  });
-
-  const [
-    cleaningServiceHistoryTablePageNo,
-    setCleaningServiceHistoryTablePageNo,
-  ] = React.useState(0);
-  const [
-    cleaningServiceHistoryTableRowsPerPage,
-    setCleaningServiceHistoryTableRowsPerPage,
-  ] = React.useState(10);
+  } = useGetAllCleaningServiceRequestHistoryQuery(
+    {
+      // userId: JSON.parse(sessionStorage.getItem("data"))?.id,
+      // pageNo: cleaningServiceHistoryTableFilters?.pageNo,
+      // pageSize: cleaningServiceHistoryTableFilters?.pageSize,
+      userId: JSON.parse(sessionStorage.getItem("data"))?.id,
+      pageNo: cleaningServiceHistoryTablePageNo,
+      pageSize: cleaningServiceHistoryTableRowsPerPage,
+    },
+    {
+      refetchOnMountOrArgChange: true,
+    }
+  );
 
   const handleChangeCleaningServiceHistoryTablePageNo = React.useCallback(
     (event, newpage) => {
@@ -324,10 +333,23 @@ const CustomRow = memo(function ({ tableHeaders, rowSerialNumber, row }) {
                   >
                     {rowSerialNumber}
                   </Typography>
+                ) : subitem?.key === "roomNo" ? (
+                  <Typography sx={{ fontSize: "13px" }}>
+                    {row?.roomData && row?.roomData?.roomNo}
+                  </Typography>
+                ) : subitem?.key === "floorNo" ? (
+                  <Typography sx={{ fontSize: "13px" }}>
+                    {row?.roomData && row?.roomData?.floorNo}
+                  </Typography>
                 ) : subitem?.key === "createdAt" ? (
                   <Typography sx={{ fontSize: "13px" }}>
                     {row?.createdAt &&
                       moment(row?.createdAt).format("DD-MM-YYYY hh:mm A")}
+                  </Typography>
+                ) : subitem?.key === "updatedAt" ? (
+                  <Typography sx={{ fontSize: "13px" }}>
+                    {row?.updatedAt &&
+                      moment(row?.updatedAt).format("DD-MM-YYYY hh:mm A")}
                   </Typography>
                 ) : subitem?.key === "cleaningStatus" ? (
                   <Box

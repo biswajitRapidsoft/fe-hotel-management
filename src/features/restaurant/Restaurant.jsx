@@ -28,7 +28,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import StarIcon from "@mui/icons-material/Star";
 import LunchDiningIcon from "@mui/icons-material/LunchDining";
 import { MdOutlineRoomService } from "react-icons/md";
-import { CUSTOMER } from "../../helper/constants";
+import { CUSTOMER, FRONTDESK } from "../../helper/constants";
 import { TabContext, TabList } from "@mui/lab";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import {
@@ -371,7 +371,13 @@ const Restaurant = () => {
   } = useGetCustomerOrdeHistoryQuery(
     sessionStorage.getItem("bookingRefNumber"),
     {
-      skip: JSON.parse(sessionStorage.getItem("data"))?.roleType !== CUSTOMER,
+      skip:
+        Boolean(
+          JSON.parse(sessionStorage.getItem("data"))?.roleType !== CUSTOMER
+        ) &&
+        Boolean(
+          JSON.parse(sessionStorage.getItem("data"))?.roleType !== FRONTDESK
+        ),
     }
   );
 
@@ -1234,13 +1240,13 @@ const Restaurant = () => {
             {!Boolean(tableId) && (
               <FormGroup row>
                 {dineTypes.data
-                  // .filter(
-                  //   (option) =>
-                  //     !(
-                  //       Boolean(OrderCreatedByCounterStaff) &&
-                  //       option === "Room_Delivery"
-                  //     )
-                  // )
+                  .filter(
+                    (option) =>
+                      !(
+                        Boolean(OrderCreatedByCounterStaff) &&
+                        option === "Room_Delivery"
+                      )
+                  )
                   .map((option) => (
                     <FormControlLabel
                       key={option}
