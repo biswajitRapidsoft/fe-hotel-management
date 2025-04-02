@@ -32,6 +32,7 @@ const BarWaiterDashboard = () => {
     severity: "",
   });
   const [orderDetailsDialog, setOrderDetailsDialog] = React.useState(null);
+  console.log("orderDetailsDialog", orderDetailsDialog);
 
   const handleCloseOrderDetailsDialog = React.useCallback(() => {
     setOrderDetailsDialog(null);
@@ -293,15 +294,13 @@ const TableCardsForBarWaiter = ({
                     fontSize: "18px",
                     fontWeight: "600",
                     backgroundColor: Boolean(
-                      item?.bookingRequestDto?.foodBookingStatus ===
-                        "Ready_to_serve"
+                      item?.bookingRequestDto?.orderStatus === "Ready_to_serve"
                     )
                       ? "#EE82EE"
-                      : item?.bookingRequestDto?.foodBookingStatus ===
+                      : item?.bookingRequestDto?.orderStatus ===
                         "Received_by_Waiter"
                       ? "#007FFF"
-                      : item?.bookingRequestDto?.foodBookingStatus ===
-                        "Delivered"
+                      : item?.bookingRequestDto?.orderStatus === "Delivered"
                       ? "#00CED1"
                       : Boolean(item?.bookingRequestDto)
                       ? "#FFAC1C"

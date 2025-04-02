@@ -474,7 +474,7 @@ const Row = ({
                   color="secondary"
                   // onClick={() => handlePayment(item)}
                   onClick={() => {
-                    if (Boolean(item?.totalPrice)) {
+                    if (Boolean(item?.totalAmount)) {
                       setOrderDetailsDialog(item);
                     }
                   }}
@@ -1034,7 +1034,7 @@ const OrderDetailsDialog = ({
   customOrderMapDtos,
   setCustomOrderMapDtos,
 }) => {
-  console.log("orderDetailsDialog", orderDetailsDialog);
+  console.log("orderDetailsDialog", orderDetailsDialog?.orderId);
 
   console.log("customOrderMapDtos : ", customOrderMapDtos);
 
@@ -1221,21 +1221,18 @@ const OrderDetailsDialog = ({
       doc.setFontSize(14);
       doc.text(hotelName, 20, 26);
       doc.setFontSize(12);
-      doc.text(orderDetailsDialog.address, 20, 32);
+      doc.text(orderDetailsDialog?.address, 20, 32);
 
       doc.setFontSize(12);
       doc.text(
-        `Customer Name: ${orderDetailsDialog.firstName} ${
-          orderDetailsDialog.middleName || ""
-        } ${orderDetailsDialog.lastName || ""}`,
+        `Customer Name: ${orderDetailsDialog?.firstName} ${
+          orderDetailsDialog?.middleName || ""
+        } ${orderDetailsDialog?.lastName || ""}`,
         20,
         50
       );
       doc.text(
-        `Order Status: ${orderDetailsDialog.foodBookingStatus.replace(
-          "_",
-          " "
-        )}`,
+        `Order Status: ${orderDetailsDialog.orderStatus.replace("_", " ")}`,
         20,
         55
       );
@@ -1255,13 +1252,13 @@ const OrderDetailsDialog = ({
 
       let yPosition = tableTop + 10;
       orderDetailsDialog?.trailData?.forEach((item) => {
-        doc.text(item.itemName, 20, yPosition);
-        doc.text(item.noOfItems.toString(), 120, yPosition);
+        doc.text(item.name, 20, yPosition);
+        doc.text(item.quantity.toString(), 120, yPosition);
         doc.text(item.price.toString(), 180, yPosition);
         yPosition += 10;
       });
 
-      const total = orderDetailsDialog.totalPrice;
+      const total = orderDetailsDialog.totalAmount;
       doc.text("Subtotal:", 140, yPosition);
       doc.text(`Rs. ${total.toFixed(2)}`, 180, yPosition);
       yPosition += 10;
@@ -1307,7 +1304,7 @@ const OrderDetailsDialog = ({
   }, [bookingDetailsRes, isSplit]);
 
   useEffect(() => {
-    const totalPrice = orderDetailsDialog?.totalPrice ?? 0;
+    const totalPrice = orderDetailsDialog?.totalAmount ?? 0;
     const gstPrice = orderDetailsDialog?.gstPrice ?? 0;
     const totalAmount = totalPrice + gstPrice;
 
@@ -1395,7 +1392,9 @@ const OrderDetailsDialog = ({
                     Order Status:
                   </Typography>
                   <Typography>
-                    {orderDetailsDialog?.foodBookingStatus.split("_").join(" ")}
+                    {orderDetailsDialog?.foodBookingStatus
+                      ?.split("_")
+                      .join(" ")}
                   </Typography>
                 </Box>
                 <Box
@@ -1413,14 +1412,12 @@ const OrderDetailsDialog = ({
                   </Typography>
                   <Typography>
                     ₹{" "}
-                    {orderDetailsDialog?.totalPrice +
+                    {orderDetailsDialog?.totalAmount +
                       orderDetailsDialog?.gstPrice}
                   </Typography>
                 </Box>
               </Box>
-              {Boolean(
-                orderDetailsDialog?.foodBookingStatus === "Delivered"
-              ) && (
+              {Boolean(orderDetailsDialog?.orderStatus === "Delivered") && (
                 <Box>
                   <Tooltip title="Download Invoice" arrow>
                     <IconButton
@@ -1458,8 +1455,8 @@ const OrderDetailsDialog = ({
                         <>
                           <TableRow key={index}>
                             <TableCell>{index + 1}</TableCell>
-                            <TableCell>{item?.itemName}</TableCell>
-                            <TableCell>{item?.noOfItems}</TableCell>
+                            <TableCell>{item?.name}</TableCell>
+                            <TableCell>{item?.quantity}</TableCell>
                             <TableCell>
                               {Boolean(item?.isDelivered) ? "Yes" : "No"}
                             </TableCell>

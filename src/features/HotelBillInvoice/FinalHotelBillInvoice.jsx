@@ -66,6 +66,12 @@ const FinalHotelBillInvoice = () => {
   } = useGetAllFinalInvoiceDetailsQuery(
     sessionStorage.getItem("FinalHotelBillbookingRefNumber")
   );
+
+  console.log(
+    "finalInvoiceDetails",
+
+    finalInvoiceDetails
+  );
   return (
     <>
       <Box
@@ -127,8 +133,11 @@ const FinalHotelBillInvoice = () => {
                       textAlign: "right",
                     }}
                   >
-                    Mayfair
-                  </Typography>{" "}
+                    {
+                      finalInvoiceDetails?.data?.customerBookingDetalis?.hotel
+                        ?.name
+                    }
+                  </Typography>
                   <Typography
                     sx={{
                       fontWeight: "bold",
@@ -136,9 +145,10 @@ const FinalHotelBillInvoice = () => {
                       textAlign: "right",
                     }}
                   >
-                    Mirza Ismail Rd, opposite GPO, behind Jangid Bhawan, Panch
-                    Batti, C Scheme, Ashok Nagar, Jaipur, Rajasthan 302001?0141
-                    426 8777, ODISHA
+                    {
+                      finalInvoiceDetails?.data?.customerBookingDetalis?.hotel
+                        ?.address
+                    }
                   </Typography>
                   <Typography
                     sx={{

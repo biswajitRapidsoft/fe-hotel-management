@@ -404,6 +404,8 @@ const Bar = () => {
   const barTableId = sessionStorage.getItem("barTableId");
   const orderTakenBy = sessionStorage.getItem("barorderTakenBy");
   const orderIdFromWaiter = sessionStorage.getItem("orderIdFromBarWaiter");
+
+  console.log("orderIdFromWaiter", orderIdFromWaiter);
   const OrderCreatedByBarCounterStaff = sessionStorage.getItem(
     "OrderCreatedByBarCounterStaff"
   );
@@ -578,6 +580,8 @@ const Bar = () => {
       totalAmount: calculateTotalAmountOfCartItems(),
       orderTakenBy: { id: Number(orderTakenBy) },
       tableId: barTableId,
+      // orderIdFromWaiter
+      orderId: orderIdFromWaiter,
 
       isStayingGuest: Boolean(barTableId) ? false : true,
       ...(Boolean(selectedRestaurantCoupon?.id) && {
@@ -1004,6 +1008,7 @@ const Bar = () => {
               display: "flex",
               flexDirection: "column",
               p: 2,
+              width: "100%",
             }}
           >
             <Box sx={{ display: "flex", justifyContent: "space-between" }}>
@@ -1073,6 +1078,8 @@ const Bar = () => {
                 })?.discountedPrice.toFixed(2)}`}
               </Typography>
             </Box>
+
+            {/* {!Boolean(barTableId) && ( */}
             <FormGroup row>
               {dineTypes.data
 
@@ -1100,6 +1107,8 @@ const Bar = () => {
                   );
                 })}
             </FormGroup>
+            {/* )} */}
+
             <Button
               color="secondary"
               variant="contained"
