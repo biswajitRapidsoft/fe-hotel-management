@@ -2196,6 +2196,15 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
       });
     }
     // Create payload
+    const bookingAmountToSend = hotelDetails?.configurationPrice
+      ? isClaimPoints
+        ? hotelDetails.configurationPrice * calculateNumberOfDays -
+          (userDetails?.data?.rewardsPointPrice || 0)
+        : calculateNumberOfDays * Number(hotelDetails.configurationPrice)
+      : isClaimPoints
+      ? hotelDetails.basePrice * calculateNumberOfDays -
+        (userDetails?.data?.rewardsPointPrice || 0)
+      : calculateNumberOfDays * Number(hotelDetails?.basePrice);
     const payload = {
       firstName: formData.firstName,
       middleName: formData.middleName,
@@ -2217,16 +2226,9 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
       //   ? hotelDetails.basePrice * calculateNumberOfDays -
       //       userDetails?.data?.rewardsPointPrice || 0
       //   : calculateNumberOfDays * Number(hotelDetails?.basePrice),
-      bookingAmount: hotelDetails?.configurationPrice
-        ? isClaimPoints
-          ? hotelDetails.configurationPrice * calculateNumberOfDays -
-            (userDetails?.data?.rewardsPointPrice || 0)
-          : calculateNumberOfDays * Number(hotelDetails.configurationPrice)
-        : isClaimPoints
-        ? hotelDetails.basePrice * calculateNumberOfDays -
-          (userDetails?.data?.rewardsPointPrice || 0)
-        : calculateNumberOfDays * Number(hotelDetails?.basePrice),
-
+      bookingAmount: bookingAmountToSend,
+      noOfDays: calculateNumberOfDays,
+      gstPrice: bookingAmountToSend * 0.18,
       isRewardsPointsUsed: isClaimPoints,
       noOfRewardsPointsUsed: userDetails?.data?.noOfRewardsPointsAvailable,
       rewardsPointPrice: userDetails?.data?.rewardsPointPrice,
@@ -2342,6 +2344,7 @@ const CustomHotelCard = memo(function ({ hotelDetails, userDetails }) {
           ? hotelDetails.basePrice * calculateNumberOfDays -
               userDetails?.data?.rewardsPointPrice || 0
           : calculateNumberOfDays * Number(hotelDetails?.basePrice),
+        noOfDays: calculateNumberOfDays,
         isRewardsPointsUsed: isClaimPoints,
         noOfRewardsPointsUsed: userDetails?.data?.noOfRewardsPointsAvailable,
         rewardsPointPrice: userDetails?.data?.rewardsPointPrice,

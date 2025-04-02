@@ -995,7 +995,8 @@ function ExtraItemFormComponent({
                             <TableCell>{item.extraItem.name}</TableCell>
                             <TableCell>{item.quantity}</TableCell>
                             <TableCell>
-                              {item.isReusable ? "Yes" : "No"}
+                              {/* {item.isReusable ? "Yes" : "No"} */}
+                              {item.extraItem?.isReusable ? "Yes" : "No"}
                             </TableCell>
                             <TableCell>
                               {item.uid && (

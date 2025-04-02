@@ -9749,6 +9749,7 @@ const Dashboard = () => {
         checkOutDate: checkoutDate + " 00:00:00",
         bookingAmount: extendedDays * basePrice,
         gstPrice: extendedDays * basePrice * 0.18,
+        noOfDays: extendedDays || null,
       })
         .unwrap()
         .then((res) => {
@@ -10381,7 +10382,10 @@ const Dashboard = () => {
     (parkingSlot) => {
       const checkInDateTime = new Date(
         new Date().toISOString().split("T")[0] +
-          ` ${isSelectedRoom.roomType.checkInTime}`
+          ` ${
+            isSelectedRoom.checkInCheckOutTimeConfigDto?.checkInTime ||
+            isSelectedRoom.roomType.checkInTime
+          }`
       );
       const currentDateTime = new Date();
 
@@ -10454,12 +10458,25 @@ const Dashboard = () => {
         return;
       }
 
+      const bookingAmountToSend =
+        earlyCheckInHour &&
+        isSelectedRoom.checkInCheckOutTimeConfigDto &&
+        isSelectedRoom.checkInCheckOutTimeConfigDto.isPaid
+          ? isSelectedRoom.checkInCheckOutTimeConfigDto.isFixedAmount
+            ? isSelectedRoom.checkInCheckOutTimeConfigDto.fixedAmount
+            : earlyCheckInHour *
+              isSelectedRoom.checkInCheckOutTimeConfigDto.perHourRate
+          : 0;
+
       const payload = {
         parkingTokenOrVehicleNumber: parkingSlot || null,
-        bookingAmount:
-          earlyCheckInHour &&
-          Math.ceil(isSelectedRoom.roomType.basePrice / 24) * earlyCheckInHour,
-        bookingRefNumber: customFormDrawerData?.bookingRefNumber || "",
+        // bookingAmount:
+        //   earlyCheckInHour &&
+        //   Math.ceil(isSelectedRoom.roomType.basePrice / 24) * earlyCheckInHour,
+        // bookingRefNumber: customFormDrawerData?.bookingRefNumber || "",
+        bookingAmount: bookingAmountToSend,
+        chargedHours: earlyCheckInHour || null,
+        gstPrice: bookingAmountToSend * 0.18,
         noOfPeoples: !Boolean(customFormDrawerData?.noOfPeoples)
           ? 0
           : Number(customFormDrawerData?.noOfPeoples),
@@ -10841,7 +10858,10 @@ const Dashboard = () => {
     (parkingSlot) => {
       const checkInDateTime = new Date(
         new Date().toISOString().split("T")[0] +
-          ` ${isSelectedRoom.roomType.checkInTime}`
+          ` ${
+            isSelectedRoom.checkInCheckOutTimeConfigDto?.checkInTime ||
+            isSelectedRoom.roomType.checkInTime
+          }`
       );
       const currentDateTime = new Date();
 
@@ -11025,6 +11045,18 @@ const Dashboard = () => {
         });
         return;
       }
+
+      const bookingAmountToSend =
+        customFormDrawerData.isBookingForToday &&
+        earlyCheckInHour &&
+        isSelectedRoom.checkInCheckOutTimeConfigDto &&
+        isSelectedRoom.checkInCheckOutTimeConfigDto.isPaid === true
+          ? (isSelectedRoom.checkInCheckOutTimeConfigDto.isFixedAmount === true
+              ? isSelectedRoom.fixedAmount
+              : earlyCheckInHour * isSelectedRoom.perHourRate) +
+            customFormDrawerData.accumulatedRoomCharge
+          : customFormDrawerData?.accumulatedRoomCharge;
+
       const payload = {
         parkingTokenOrVehicleNumber: parkingSlot,
         roomTypeId: customFormDrawerData?.roomDto?.roomType?.id,
@@ -11091,12 +11123,15 @@ const Dashboard = () => {
             transactionReferenceNo:
               customFormDrawerData?.transactionReferenceNo,
           }),
-        bookingAmount:
-          customFormDrawerData.isBookingForToday && earlyCheckInHour
-            ? customFormDrawerData?.accumulatedRoomCharge +
-              Math.ceil(isSelectedRoom.roomType.basePrice / 24) *
-                earlyCheckInHour
-            : customFormDrawerData?.accumulatedRoomCharge,
+        // bookingAmount:
+        //   customFormDrawerData.isBookingForToday && earlyCheckInHour
+        //     ? customFormDrawerData?.accumulatedRoomCharge +
+        //       Math.ceil(isSelectedRoom.roomType.basePrice / 24) *
+        //         earlyCheckInHour
+        //     : customFormDrawerData?.accumulatedRoomCharge,
+        bookingAmount: bookingAmountToSend,
+        chargedHours: earlyCheckInHour || null,
+        gstPrice: bookingAmountToSend * 0.18,
         remarks: customFormDrawerData?.remarks,
       };
 
