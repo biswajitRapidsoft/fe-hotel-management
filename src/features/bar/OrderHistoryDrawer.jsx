@@ -71,7 +71,7 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
     doc.text("Price", 180, tableTop);
 
     let yPosition = tableTop + 10;
-    order.ordersList.forEach((item) => {
+    order?.barOrderList?.forEach((item) => {
       doc.text(item.item.name, 20, yPosition);
       doc.text(item.noOfQty.toString(), 120, yPosition);
       doc.text(item.item.price.toString(), 180, yPosition);
@@ -175,7 +175,7 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
                     </Typography>
                   </Box>
                   <Grid container>
-                    {order.ordersList.map((item) => {
+                    {order?.barOrderList?.map((item) => {
                       return (
                         <Grid size={12} key={item.itemName + item.noOfItems}>
                           <Box

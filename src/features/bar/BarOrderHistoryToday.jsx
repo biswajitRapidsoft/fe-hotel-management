@@ -456,7 +456,7 @@ const Row = ({
                     Proceed to Payment
                   </Button>
                 )}
-              {item?.dinningType === "Room_Delivery" &&
+              {/* {item?.dinningType === "Room_Delivery" &&
                 !Boolean(item?.orderTakenBy) && (
                   <Button
                     sx={{
@@ -476,7 +476,7 @@ const Row = ({
                   >
                     Assign Staff
                   </Button>
-                )}
+                )} */}
             </Box>
           </Collapse>
         </TableCell>
