@@ -27,6 +27,7 @@ import ReceiptIcon from "@mui/icons-material/Receipt";
 import moment from "moment";
 import {
   CANCELLED_BAR,
+  COMPLETED,
   DELIVERED,
   DELIVERED_BAR,
   ORDER_PLACED,
@@ -290,9 +291,12 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
                         (order?.discountPrice || 0)}
                     </Typography>
                   </Box>
-                  {![CANCELLED_BAR, REJECTED, DELIVERED_BAR].includes(
-                    order.orderStatus
-                  ) && (
+                  {![
+                    CANCELLED_BAR,
+                    REJECTED,
+                    DELIVERED_BAR,
+                    COMPLETED,
+                  ].includes(order.orderStatus) && (
                     <Button
                       color="error"
                       variant="contained"

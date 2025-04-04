@@ -96,8 +96,9 @@ const OrderHistoryToday = () => {
   }, []);
 
   const [orderDetailsDialog, setOrderDetailsDialog] = React.useState(null);
-  console.log("orderDetailsDialog", orderDetailsDialog);
   const handleOpenPaymentDialog = React.useCallback(() => {
+    console.log("orderDetailsDialog", orderDetailsDialog);
+
     const totalPrice = orderDetailsDialog?.bookingDetails?.totalPrice || 0;
     const gstPrice = orderDetailsDialog?.bookingDetails?.gstPrice || 0;
 

@@ -175,6 +175,12 @@ const OrderHistoryToday = React.lazy(() =>
 const FinalHotelBillInvoice = React.lazy(() =>
   import("./features/HotelBillInvoice/FinalHotelBillInvoice")
 );
+const FinalFoodBillInvoice = React.lazy(() =>
+  import("./features/HotelBillInvoice/FinalFoodBillInvoice")
+);
+const FinalBarBillInvoice = React.lazy(() =>
+  import("./features/HotelBillInvoice/FinalBarBillInvoice")
+);
 
 function App() {
   const location = useLocation();
@@ -223,6 +229,14 @@ function App() {
           <Route
             path="/FinalHotelBillInvoice/"
             element={<FinalHotelBillInvoice key="final-bill" />}
+          />
+          <Route
+            path="/FinalFoodBillInvoice"
+            element={<FinalFoodBillInvoice key="final-foodBill" />}
+          />
+          <Route
+            path="/FinalBarBillInvoice"
+            element={<FinalBarBillInvoice key="final-barBill" />}
           />
           <Route
             path="/foodBillInvoiceInBookingHistory/:bookingRefNo"

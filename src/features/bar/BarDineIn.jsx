@@ -111,14 +111,14 @@ const BarDineIn = () => {
   }, []);
 
   const [orderDetailsDialog, setOrderDetailsDialog] = React.useState(null);
-
+  console.log("orderDetailsDialog", orderDetailsDialog);
   const handleOpenPaymentDialog = React.useCallback(() => {
-    const totalPrice = orderDetailsDialog?.bookingRequestDto?.totalPrice || 0;
-    const gstPrice = orderDetailsDialog?.bookingRequestDto?.gstPrice || 0;
+    const totalPrice = orderDetailsDialog?.totalAmount || 0;
+    const gstPrice = orderDetailsDialog?.gstPrice || 0;
 
     const payload = {
       paidAmount: totalPrice + gstPrice,
-      orderId: orderDetailsDialog?.bookingRequestDto?.orderId,
+      orderId: orderDetailsDialog?.orderId,
     };
 
     setMakePartialPaymentPayload(payload);
