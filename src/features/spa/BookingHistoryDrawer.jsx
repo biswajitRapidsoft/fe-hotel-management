@@ -181,7 +181,7 @@ const BookingHistoryDrawer = ({ open, handleClose }) => {
                   </Typography>
                   <Typography>{booking.bookingDate}</Typography>
                 </Box>
-                <Box sx={{ display: "flex", alignItems: "center" }}>
+                {/* <Box sx={{ display: "flex", alignItems: "center" }}>
                   <Typography sx={{ width: "100px", fontWeight: "bold" }}>
                     Slot:
                   </Typography>
@@ -190,7 +190,7 @@ const BookingHistoryDrawer = ({ open, handleClose }) => {
                     .slice(0, 5)}-${booking.endTime
                     .split(" ")[1]
                     .slice(0, 5)}`}</Typography>
-                </Box>
+                </Box> */}
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                   <Typography sx={{ width: "100px", fontWeight: "bold" }}>
                     Price:

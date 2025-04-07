@@ -3971,14 +3971,7 @@ const RoomServiceCard = memo(function ({
               </Box>
             )}
             {/* forced checkout */}
-            {Boolean(
-              Boolean(
-                isSelectedRoom?.bookingDto?.isCheckoutProceed === false
-              ) &&
-                Boolean(
-                  isSelectedRoom?.bookingDto?.isCheckedByKeepingStaff === null
-                )
-            ) && (
+            {isSelectedRoom?.bookingDto?.bookingStatus === "Checked_In" && (
               <Button
                 fullWidth
                 variant="contained"
@@ -10529,6 +10522,7 @@ const Dashboard = () => {
         //   Math.ceil(isSelectedRoom.roomType.basePrice / 24) * earlyCheckInHour,
         // bookingRefNumber: customFormDrawerData?.bookingRefNumber || "",
         bookingAmount: bookingAmountToSend,
+        bookingRefNumber: customFormDrawerData?.bookingRefNumber || "",
         chargedHours: earlyCheckInHour || null,
         gstPrice: bookingAmountToSend * 0.18,
         noOfPeoples: !Boolean(customFormDrawerData?.noOfPeoples)

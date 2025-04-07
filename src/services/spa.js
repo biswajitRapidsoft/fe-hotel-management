@@ -105,6 +105,34 @@ const spaApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["getSpaBookingHistoryGuest"],
     }),
+    getAllTherapistByHotelId: build.query({
+      query: (payload) => ({
+        url: config.apiName.getAllTherapistByHotelId,
+        method: "GET",
+        params: {
+          hotelId: payload,
+        },
+      }),
+      providesTags: ["getAllTherapistByHotelId"],
+    }),
+    saveSpaRoom: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.saveSpaRoom,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getSpaRooms"],
+    }),
+    getSpaRooms: build.query({
+      query: (payload) => ({
+        url: config.apiName.getSpaRooms,
+        method: "GET",
+        params: {
+          hotelId: payload,
+        },
+      }),
+      providesTags: ["getSpaRooms"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -121,4 +149,7 @@ export const {
   useGetSpaBookingStatusTypeQuery,
   useUpdateSpaBookingStatusMutation,
   useRateSpaMutation,
+  useGetAllTherapistByHotelIdQuery,
+  useSaveSpaRoomMutation,
+  useGetSpaRoomsQuery,
 } = spaApi;

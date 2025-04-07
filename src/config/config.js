@@ -1,5 +1,5 @@
 const config = Object.freeze({
-  baseUrl: "http://192.168.12.37:9000/",
+  // baseUrl: "http://192.168.12.37:9000/",
   // baseUrl: "http://192.168.12.43:9000/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
   // baseUrl: "http://crimarrstaging.nyggs.com/backend/",
@@ -7,7 +7,7 @@ const config = Object.freeze({
   // baseUrl: "http://192.168.12.43:8080/be-hms/",
   // baseUrl: "https://hms.watsoo.com/backend/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/", // HO Staging
-  // baseUrl: "http://192.168.12.3:9000/",
+  baseUrl: "http://192.168.12.3:9000/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
   // baseUrl: "http://192.168.12.3:9000/",
   apiName: {
@@ -124,6 +124,9 @@ const config = Object.freeze({
       "api/get/all/bar/staff/service/order/request",
     deliverBarOrdersByServiceStaff:
       "api/deliver/bar/order/by/bar/service/staff",
+    getAllTherapistByHotelId: "api/get/all/therapist/users",
+    saveSpaRoom: "api/save/spa/room",
+    getSpaRooms: "api/get/all/spa/room",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",

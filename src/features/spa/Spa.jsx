@@ -26,7 +26,7 @@ import { DrawerHeader } from "../restaurant/Restaurant";
 import { TabContext, TabList } from "@mui/lab";
 import { DAY, NIGHT } from "../../helper/constants";
 import moment from "moment";
-import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { StyledCalendarIcon } from "../dashboard/Dashboard";
 import dayjs from "dayjs";
@@ -59,7 +59,7 @@ const Spa = () => {
   const [spaToBook, setSpaToBook] = React.useState(null);
   const [selectedSlotType, setSelectedSlotType] = React.useState(DAY);
   const [selectedSlot, setSelectedSlot] = React.useState(null);
-  const [selectedDate, setSelectedDate] = React.useState(dayjs(new Date()));
+  const [selectedDate, setSelectedDate] = React.useState(dayjs(moment()));
   const [bookingPayload, setBookingPayload] = React.useState({});
   const [openSpaDetailsDialog, setOpenSpaDetailsDialog] = React.useState(false);
   const [spaDetailsData, setSpaDetailsData] = React.useState(null);
@@ -90,14 +90,15 @@ const Spa = () => {
       setOpenPaymentDialog((spaToBook.price * 0.2).toFixed(2));
       setBookingPayload({
         spaTypeId: spaToBook.id,
+        spaTypeList: [{ id: spaToBook.id }],
         hotelBookingReferenceNumber: sessionStorage.getItem("bookingRefNumber"),
-        startTime: `${moment(selectedDate.$d).format("DD-MM-YYYY")} ${
-          selectedSlot.startTime
-        }:00`,
-        endTime: `${moment(selectedDate.$d).format("DD-MM-YYYY")} ${
-          selectedSlot.endTime
-        }:00`,
-        bookingDate: moment(selectedDate.$d).format("DD-MM-YYYY"),
+        // startTime: `${moment(selectedDate.$d).format("DD-MM-YYYY")} ${
+        //   selectedSlot.startTime
+        // }:00`,
+        // endTime: `${moment(selectedDate.$d).format("DD-MM-YYYY")} ${
+        //   selectedSlot.endTime
+        // }:00`,
+        bookingDate: moment(selectedDate.$d).format("DD-MM-YYYY HH:mm:ss"),
         // price: spaToBook.price,
         gstPrice: spaToBook.price * 0.18,
         transactionReferenceNo: null,
@@ -109,14 +110,15 @@ const Spa = () => {
     } else {
       bookSpa({
         spaTypeId: spaToBook.id,
+        spaTypeList: [{ id: spaToBook.id }],
         hotelBookingReferenceNumber: sessionStorage.getItem("bookingRefNumber"),
-        startTime: `${moment(selectedDate.$d).format("DD-MM-YYYY")} ${
-          selectedSlot.startTime
-        }:00`,
-        endTime: `${moment(selectedDate.$d).format("DD-MM-YYYY")} ${
-          selectedSlot.endTime
-        }:00`,
-        bookingDate: moment(selectedDate.$d).format("DD-MM-YYYY"),
+        // startTime: `${moment(selectedDate.$d).format("DD-MM-YYYY")} ${
+        //   selectedSlot.startTime
+        // }:00`,
+        // endTime: `${moment(selectedDate.$d).format("DD-MM-YYYY")} ${
+        //   selectedSlot.endTime
+        // }:00`,
+        bookingDate: moment(selectedDate.$d).format("DD-MM-YYYY HH:mm:ss"),
         // price: spaToBook.price,
         gstPrice: spaToBook.price * 0.18,
 
@@ -186,7 +188,7 @@ const Spa = () => {
                   sm: 6,
                   md: 4,
                   lg: 3,
-                  xl: 2.5,
+                  xl: 2.4,
                 }}
                 key={spa.id}
               >
@@ -236,47 +238,102 @@ const Spa = () => {
                     <Box
                       sx={{
                         display: "flex",
-                        alignItems: "flex-end",
+                        alignItems: "flex-start",
                         justifyContent: "space-between",
+                        flexDirection: "column",
                       }}
                     >
                       <Box>
-                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        <Typography
+                          variant="h6"
+                          sx={{ fontWeight: 600, letterSpacing: 1 }}
+                        >
                           {spa.name}
                         </Typography>
-                        <Typography variant="body1" sx={{ fontSize: 18 }}>
-                          {`Rs. ${spa.price.toFixed(2)}`}
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            letterSpacing: 1,
+                            letterSpacing: 1,
+                            display: "-webkit-box",
+                            WebkitBoxOrient: "vertical",
+                            WebkitLineClamp: 1,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
+                          gutterBottom
+                        >
+                          {spa.description}
                         </Typography>
                         {/* <Typography>lorem20</Typography> */}
                       </Box>
-                      <Box
-                      // sx={{
-                      //   border: "2px solid black",
-                      //   height: "100%",
-                      // }}
+                    </Box>
+
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        mb: 0.5,
+                      }}
+                    >
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          fontSize: 18,
+                          letterSpacing: 1,
+                        }}
                       >
-                        <Button
-                          color="secondary"
-                          variant="contained"
-                          sx={{
-                            color: "#fff",
-                            display: "block",
-                            mx: "auto",
-                            letterSpacing: 1,
-                            fontWeight: 600,
-                            textTransform: "none",
-                            whiteSpace: "nowrap",
-                            fontSize: 18,
-                            "&.Mui-disabled": {
-                              background: "#B2E5F6",
-                              color: "#FFFFFF",
-                            },
-                          }}
-                          onClick={() => setSpaToBook(spa)}
-                        >
-                          Book Now
-                        </Button>
-                      </Box>
+                        {`Rs. ${spa.price.toFixed(2)}`}
+                      </Typography>
+                      <Typography
+                        sx={{
+                          fontWeight: 600,
+                          letterSpacing: 1,
+                          color: (theme) => theme.palette.warning.main,
+                          border: (theme) =>
+                            `1px solid ${theme.palette.warning.main}`,
+                          width: "fit-content",
+                          px: 0.5,
+                          borderRadius: 2,
+                        }}
+                      >
+                        {`${
+                          spa.spaTypeDetailsList?.reduce(
+                            (prev, curr) => prev + curr.durationMinutes,
+                            0
+                          ) || 0
+                        } Min`}
+                      </Typography>
+                    </Box>
+                    <Box
+                    // sx={{
+                    //   border: "2px solid black",
+                    //   height: "100%",
+                    // }}
+                    >
+                      <Button
+                        color="secondary"
+                        variant="contained"
+                        sx={{
+                          color: "#fff",
+                          display: "block",
+                          mx: "auto",
+                          letterSpacing: 1,
+                          fontWeight: 600,
+                          textTransform: "none",
+                          whiteSpace: "nowrap",
+                          fontSize: 18,
+                          "&.Mui-disabled": {
+                            background: "#B2E5F6",
+                            color: "#FFFFFF",
+                          },
+                        }}
+                        fullWidth
+                        onClick={() => setSpaToBook(spa)}
+                      >
+                        Book Now
+                      </Button>
                     </Box>
                   </CardContent>
                 </Card>
@@ -313,62 +370,37 @@ const Spa = () => {
           <Box sx={{ p: 2 }}>
             <Grid container spacing={3}>
               <Grid size={12}>
-                <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                  {spaToBook?.name}
-                </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                    {spaToBook?.name}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontWeight: 600,
+                      letterSpacing: 1,
+                      color: (theme) => theme.palette.warning.main,
+                      border: (theme) =>
+                        `1px solid ${theme.palette.warning.main}`,
+                      width: "fit-content",
+                      px: 0.5,
+                      borderRadius: 2,
+                    }}
+                  >{`${
+                    spaToBook?.spaTypeDetailsList?.reduce(
+                      (prev, curr) => prev + curr.durationMinutes,
+                      0
+                    ) || 0
+                  } Min`}</Typography>
+                </Box>
               </Grid>
               <Grid size={12}>
-                {/* <TextField
-                  label="Booking Date"
-                  type="date"
-                  slotProps={{
-                    inputLabel: {
-                      shrink: true,
-                    },
-                    htmlInput: {
-                      min: new Date().toISOString().split("T")[0],
-                    },
-                  }}
-                  value={selectedDate}
-                  onChange={(e) => {
-                    setSelectedDate(e.target.value);
-                    setSelectedSlot(null);
-                  }}
-                  fullWidth
-                /> */}
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    disablePast
-                    label={
-                      <React.Fragment>
-                        Booking Date{" "}
-                        <Box
-                          component="span"
-                          sx={{
-                            color: (theme) => theme.palette.secondary.main,
-                          }}
-                        >
-                          *
-                        </Box>
-                      </React.Fragment>
-                    }
-                    value={selectedDate}
-                    onChange={(newVal) => {
-                      setSelectedDate(newVal);
-                      setSelectedSlot(null);
-                    }}
-                    slotProps={{
-                      textField: { variant: "outlined", readOnly: true },
-                    }}
-                    slots={{
-                      openPickerIcon: StyledCalendarIcon,
-                    }}
-                    format="DD/MM/YYYY"
-                  />
-                </LocalizationProvider>
-              </Grid>
-              <Grid size={12}>
-                <Box>
+                {/* <Box>
                   <Typography
                     variant="h6"
                     sx={{
@@ -434,7 +466,113 @@ const Spa = () => {
                       })}
                     </Grid>
                   </Box>
+                </Box> */}
+                <Box>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      borderBottom: (theme) =>
+                        `3px solid ${theme.palette.primary.main}`,
+                      fontWeight: "bold",
+                      letterSpacing: 1,
+                    }}
+                  >
+                    Spa Service Details
+                  </Typography>
+
+                  <Box sx={{ mt: 2 }}>
+                    {spaToBook?.spaTypeDetailsList?.map((spaTypeDetail) => {
+                      return (
+                        <Box
+                          key={spaTypeDetail.id}
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                          }}
+                        >
+                          <Box>
+                            <Typography
+                              sx={{ fontWeight: "bold", letterSpacing: 1 }}
+                            >
+                              {spaTypeDetail.serviceName}
+                            </Typography>
+                            <Typography
+                              sx={{ letterSpacing: 1 }}
+                              variant="caption"
+                            >
+                              {spaTypeDetail.serviceDescription}
+                            </Typography>
+                          </Box>
+                          <Typography
+                            sx={{
+                              fontWeight: 600,
+                              letterSpacing: 1,
+                              color: (theme) => theme.palette.warning.light,
+                              border: (theme) =>
+                                `1px solid ${theme.palette.warning.light}`,
+                              width: "fit-content",
+                              px: 0.5,
+                              borderRadius: 2,
+                            }}
+                          >
+                            {`${spaTypeDetail.durationMinutes} Min`}
+                          </Typography>
+                        </Box>
+                      );
+                    })}
+                  </Box>
                 </Box>
+              </Grid>
+              <Grid size={12}>
+                {/* <TextField
+                  label="Booking Date"
+                  type="date"
+                  slotProps={{
+                    inputLabel: {
+                      shrink: true,
+                    },
+                    htmlInput: {
+                      min: new Date().toISOString().split("T")[0],
+                    },
+                  }}
+                  value={selectedDate}
+                  onChange={(e) => {
+                    setSelectedDate(e.target.value);
+                    setSelectedSlot(null);
+                  }}
+                  fullWidth
+                /> */}
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DateTimePicker
+                    disablePast
+                    label={
+                      <React.Fragment>
+                        Booking Date{" "}
+                        <Box
+                          component="span"
+                          sx={{
+                            color: (theme) => theme.palette.secondary.main,
+                          }}
+                        >
+                          *
+                        </Box>
+                      </React.Fragment>
+                    }
+                    value={selectedDate}
+                    onChange={(newVal) => {
+                      setSelectedDate(newVal);
+                      setSelectedSlot(null);
+                    }}
+                    slotProps={{
+                      textField: { variant: "outlined", readOnly: true },
+                    }}
+                    slots={{
+                      openPickerIcon: StyledCalendarIcon,
+                    }}
+                    format="DD/MM/YYYY hh:mm A"
+                  />
+                </LocalizationProvider>
               </Grid>
             </Grid>
           </Box>
@@ -544,7 +682,7 @@ const Spa = () => {
                   color: "#FFFFFF",
                 },
               }}
-              disabled={!Boolean(selectedSlot)}
+              // disabled={!Boolean(selectedSlot)}
               onClick={handleReserveSpa}
             >
               {spaToBook?.isAdvanceNeeded ? "Pay And Reserve" : "Reserve"}

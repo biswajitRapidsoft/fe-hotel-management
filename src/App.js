@@ -87,6 +87,9 @@ const ManagerDashboard = React.lazy(() =>
 const SpaType = React.lazy(() => import("./features/spaType/SpaType"));
 const Spa = React.lazy(() => import("./features/spa/Spa"));
 const SpaInvoice = React.lazy(() => import("./features/spa/SpaInvoice"));
+const SpaRoomAllocation = React.lazy(() =>
+  import("./features/spaType/SpaRoomAllocation")
+);
 
 const SpaInvoiceForFrontesk = React.lazy(() =>
   import("./features/spaInvoiceForFrontdesk/SpaInvoiceForFrontdesk")
@@ -266,6 +269,10 @@ function App() {
             <Route path="/extra-item" element={<ExtraItem />} />
             <Route path="/employee-list" element={<EmployeeList />} />
             <Route path="/spa-type" element={<SpaType />} />
+            <Route
+              path="/spa-room-allocation"
+              element={<SpaRoomAllocation />}
+            />
             <Route path="/spa" element={<Spa />} />
             <Route path="/HallList" element={<HallList />} />
             <Route path="/createTable" element={<CreateTable />} />

@@ -2912,18 +2912,20 @@ const CustomBookingHistoryDrawer = memo(function ({
                     </Box>
                   </Grid>
                   {/* is Checkout Extended */}
-                  <Grid size={12}>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          size="small"
-                          checked={isCheckOutExtended}
-                          onChange={handleIsCheckOutExtended}
-                        />
-                      }
-                      label="Is Checkout Extended"
-                    />
-                  </Grid>
+                  {selectedBookingHistory?.bookingStatus === "Checked_In" && (
+                    <Grid size={12}>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            size="small"
+                            checked={isCheckOutExtended}
+                            onChange={handleIsCheckOutExtended}
+                          />
+                        }
+                        label="Is Checkout Extended"
+                      />
+                    </Grid>
+                  )}
                 </Grid>
               </Grid>
               <Grid size={12}>
