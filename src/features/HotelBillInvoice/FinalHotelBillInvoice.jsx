@@ -143,7 +143,8 @@ const FinalHotelBillInvoice = () => {
           display: "flex",
           flexDirection: "column",
           gap: 1,
-          backgroundColor: "white",
+          backgroundColor: "#fff",
+          overflowY: "auto",
           // px: "400px",
           px: {
             xs: "50px",

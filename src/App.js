@@ -286,6 +286,11 @@ function App() {
             <Route path="/CreateBarTable" element={<CreateBarTable />} />
             <Route path="/WaiterDashboard" element={<WaiterDashboard />} />
             <Route
+              path="/KitchenServiceStaff"
+              element={<KitchenServiceStaff />}
+            />
+            <Route path="/BarServiceStaff" element={<BarServiceStaff />} />
+            <Route
               path="/BarWaiterDashboard"
               element={<BarWaiterDashboard />}
             />
@@ -346,11 +351,6 @@ function App() {
               path="/housekeeper-dashboard"
               element={<HouseKeeperDashboard />}
             />
-            <Route
-              path="/KitchenServiceStaff"
-              element={<KitchenServiceStaff />}
-            />
-            <Route path="/BarServiceStaff" element={<BarServiceStaff />} />
             <Route
               path="/LaundryHistory"
               element={<LaundryHistoryForAdmin />}

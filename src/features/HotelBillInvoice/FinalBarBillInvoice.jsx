@@ -66,7 +66,8 @@ const FinalBarBillInvoice = () => {
       <Box
         sx={{
           width: "100%",
-          // height: "100vh",
+          height: "100vh",
+          backgroundColor: "#fff",
           display: "flex",
           flexDirection: "column",
           gap: 1,

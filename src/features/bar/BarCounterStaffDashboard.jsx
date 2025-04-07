@@ -897,32 +897,37 @@ const OrderDetailsDialog = ({
               </TableContainer>
             </Box>
             <Box>
-              <Box sx={{ display: "flex" }}>
-                <FormGroup sx={{ mt: 1 }}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={formData.isAssosciateWithRoom}
-                        name="isAssosciateWithRoom"
-                        onChange={handleChange}
-                      />
-                    }
-                    label="Is Assosciate With Room"
-                  />
-                </FormGroup>
-                <FormGroup sx={{ mt: 1 }}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={formData.isProceedToPayment}
-                        name="isProceedToPayment"
-                        onChange={handleChange}
-                      />
-                    }
-                    label="Proceed to Payment"
-                  />
-                </FormGroup>
-              </Box>
+              {Boolean(
+                orderDetailsDialog?.bookingRequestDto?.foodBookingStatus ===
+                  "Delivered"
+              ) && (
+                <Box sx={{ display: "flex" }}>
+                  <FormGroup sx={{ mt: 1 }}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={formData.isAssosciateWithRoom}
+                          name="isAssosciateWithRoom"
+                          onChange={handleChange}
+                        />
+                      }
+                      label="Is Assosciate With Room"
+                    />
+                  </FormGroup>
+                  <FormGroup sx={{ mt: 1 }}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={formData.isProceedToPayment}
+                          name="isProceedToPayment"
+                          onChange={handleChange}
+                        />
+                      }
+                      label="Proceed to Payment"
+                    />
+                  </FormGroup>
+                </Box>
+              )}
 
               {formData?.isAssosciateWithRoom && (
                 <Box sx={{ display: "flex" }}>

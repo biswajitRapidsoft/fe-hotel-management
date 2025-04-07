@@ -404,7 +404,7 @@ const Row = ({
                 </TableBody>
               </Table>
 
-              {[DELIVERED, CANCELLED, REJECTED, ORDER_PLACED].includes(
+              {[CANCELLED, REJECTED, ORDER_PLACED].includes(
                 item?.orderStatus
               ) &&
                 item?.dinningType !== "Room_Delivery" &&
@@ -430,7 +430,8 @@ const Row = ({
                   </Button>
                 )}
 
-              {item?.orderStatus === READY_TO_SERVE &&
+              {[DELIVERED, READY_TO_SERVE].includes(item?.orderStatus) &&
+                // item?.orderStatus === READY_TO_SERVE &&
                 !Boolean(item?.dinningType === "Room_Delivery") && (
                   <Button
                     sx={{
@@ -1447,32 +1448,37 @@ const OrderDetailsDialog = ({
               </TableContainer>
             </Box>
             <Box>
-              <Box sx={{ display: "flex" }}>
-                <FormGroup sx={{ mt: 1 }}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={formData.isAssosciateWithRoom}
-                        name="isAssosciateWithRoom"
-                        onChange={handleChange}
-                      />
-                    }
-                    label="Is Assosciate With Room"
-                  />
-                </FormGroup>
-                <FormGroup sx={{ mt: 1 }}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={formData.isProceedToPayment}
-                        name="isProceedToPayment"
-                        onChange={handleChange}
-                      />
-                    }
-                    label="Proceed to Payment"
-                  />
-                </FormGroup>
-              </Box>
+              {(orderDetailsDialog?.dinningType === "Dine_In" &&
+                orderDetailsDialog?.orderStatus === "Delivered") ||
+              (orderDetailsDialog?.dinningType === "Take_Away" &&
+                orderDetailsDialog?.orderStatus === "Ready_to_serve") ? (
+                <Box sx={{ display: "flex" }}>
+                  <FormGroup sx={{ mt: 1 }}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={formData.isAssosciateWithRoom}
+                          name="isAssosciateWithRoom"
+                          onChange={handleChange}
+                        />
+                      }
+                      label="Is Assosciate With Room"
+                    />
+                  </FormGroup>
+                  <FormGroup sx={{ mt: 1 }}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={formData.isProceedToPayment}
+                          name="isProceedToPayment"
+                          onChange={handleChange}
+                        />
+                      }
+                      label="Proceed to Payment"
+                    />
+                  </FormGroup>
+                </Box>
+              ) : null}
 
               {formData?.isAssosciateWithRoom && (
                 <Box sx={{ display: "flex" }}>

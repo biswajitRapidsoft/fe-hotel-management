@@ -425,10 +425,7 @@ const OrderDetailsDialog = ({
   setSnack,
 }) => {
   const navigate = useNavigate();
-  console.log(
-    "orderDetailsDialog",
-    orderDetailsDialog?.bookingRequestDto?.orderId
-  );
+  console.log("orderDetailsDialog", orderDetailsDialog);
 
   const handleDeliverOrder = React.useCallback(() => {
     deliverFood({
@@ -579,7 +576,9 @@ const OrderDetailsDialog = ({
                 Order Sub-total:
               </Typography>
               <Typography>
-                ₹ {orderDetailsDialog?.bookingRequestDto?.totalPrice}
+                ₹{" "}
+                {orderDetailsDialog?.bookingRequestDto?.totalPrice +
+                  orderDetailsDialog?.bookingRequestDto?.gstPrice}
               </Typography>
             </Box>
             {Boolean(
