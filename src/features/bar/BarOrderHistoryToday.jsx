@@ -301,7 +301,7 @@ const Row = ({
   setAssignStaffDialog,
   setOrderDetailsDialog,
 }) => {
-  console.log("item", item);
+  console.log("item", item?.bookingDto?.phoneNumber);
   const [open, setOpen] = React.useState(false);
   return (
     <React.Fragment>
@@ -322,7 +322,7 @@ const Row = ({
         {/* <TableCell sx={{ minWidth: 150 }}>{`${item.bookingDetails.firstName} ${
           item.bookingDetails.middleName || ""
         } ${item.bookingDetails.lastName || ""}`}</TableCell> */}
-        <TableCell>{item?.phoneNo}</TableCell>
+        <TableCell>{item?.bookingDto?.phoneNumber}</TableCell>
         <TableCell>{item?.dinningType?.replace("_", " ")}</TableCell>
         <TableCell>
           {item?.bookingDto?.roomDto

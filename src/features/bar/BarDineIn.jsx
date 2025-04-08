@@ -353,7 +353,7 @@ const Row = ({
           item.middleName || ""
         } ${item.lastName || ""}`}</TableCell> */}
         <TableCell sx={{ minWidth: 150 }}>{item?.customerName}</TableCell>
-        <TableCell>{item.phoneNo}</TableCell>
+        <TableCell>{item.bookingDetails.phoneNumber}</TableCell>
         <TableCell>{item.dinningType.replace("_", " ")}</TableCell>
         <TableCell>
           {item?.bookingDetails
@@ -457,7 +457,7 @@ const Row = ({
                     Update Status
                   </Button>
                 )}
-              {item?.orderStatus === READY_TO_SERVE && (
+              {/* {item?.orderStatus === READY_TO_SERVE && (
                 <Button
                   sx={{
                     display: "block",
@@ -481,7 +481,7 @@ const Row = ({
                 >
                   Proceed to Payment
                 </Button>
-              )}
+              )} */}
               {item?.dinningType === "Room_Delivery" && (
                 <Button
                   sx={{
@@ -794,7 +794,7 @@ function AssignStaffDialog({
   setSnack,
 }) {
   const [selectedServiceStaff, setSelectedServiceStaff] = React.useState(null);
-  console.log("selectedServiceStaff", selectedServiceStaff);
+  console.log("assignStaffDialog", assignStaffDialog);
   const [selectedServiceStaffInputVal, setSelectedServiceStaffInputVal] =
     React.useState("");
 
@@ -919,8 +919,8 @@ function AssignStaffDialog({
                       <>
                         <TableRow key={index}>
                           <TableCell>{index + 1}</TableCell>
-                          <TableCell>{item?.itemName}</TableCell>
-                          <TableCell>{item?.noOfItems}</TableCell>
+                          <TableCell>{item?.name}</TableCell>
+                          <TableCell>{item?.quantity}</TableCell>
                           <TableCell>
                             {Boolean(item?.isDelivered) ? "Yes" : "No"}
                           </TableCell>

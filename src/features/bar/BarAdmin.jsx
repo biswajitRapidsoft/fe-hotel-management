@@ -61,7 +61,7 @@ const Row = ({ order, index, setUpdateStatusDialog }) => {
         <TableCell>{order.orderId}</TableCell>
         {/* <TableCell>{order.bookingRefNo}</TableCell> */}
         <TableCell sx={{ minWidth: 150 }}>{order.customerName}</TableCell>
-        <TableCell>{order.phoneNo}</TableCell>
+        <TableCell>{order?.bookingDto?.phoneNumber}</TableCell>
         <TableCell>{order.dinningType.replace("_", " ")}</TableCell>
         <TableCell>
           {order.bookingDto

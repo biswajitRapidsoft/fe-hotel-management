@@ -262,7 +262,7 @@ const Header = () => {
         >
           <Avatar
             alt="avatar"
-            src={JSON.parse(sessionStorage.getItem("data")).userImageUrl}
+            src={JSON.parse(sessionStorage?.getItem("data"))?.userImageUrl}
             sx={{ width: 48, height: 48 }}
           />
           <Box

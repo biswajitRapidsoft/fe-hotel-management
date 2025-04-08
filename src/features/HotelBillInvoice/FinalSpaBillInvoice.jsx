@@ -35,7 +35,7 @@ const hotelLogo = JSON.parse(sessionStorage.getItem("data"))?.hotelLogoUrl;
 const customerGstNumberfromSession =
   sessionStorage.getItem("customerGstNumber");
 
-const FinalBarBillInvoice = () => {
+const FinalSpaBillInvoice = () => {
   const [isPrinting, setIsPrinting] = useState(false);
   const handlePrint = useCallback(() => {
     setIsPrinting(true);
@@ -44,12 +44,12 @@ const FinalBarBillInvoice = () => {
       setIsPrinting(false);
     }, 0);
   }, []);
-
-  const barListTableHeaders = useMemo(() => [
+  const spaListTableHeaders = useMemo(() => [
     { label: "Sl. No.", key: "sno" },
-    { label: "Item", key: "itemName" },
-    { label: "Quantity", key: "totalQuantity" },
-    { label: "Price", key: "Price" },
+    { label: "Ref. Number", key: "spaBookingRefNumber" },
+    { label: "Spa Type", key: "spaType" },
+    { label: "Therapist", key: "therapist" },
+    { label: "Price", key: "price" },
   ]);
 
   const {
@@ -58,7 +58,7 @@ const FinalBarBillInvoice = () => {
     },
     isLoading,
   } = useGetAllFinalInvoiceDetailsQuery(
-    sessionStorage.getItem("FinalHotelBillBarbookingRefNumber")
+    sessionStorage.getItem("FinalHotelBillSpabookingRefNumber")
   );
 
   return (
@@ -861,7 +861,7 @@ const FinalBarBillInvoice = () => {
                   width: "100%",
                 }}
               >
-                {Boolean(finalInvoiceDetails?.data?.mergeBarItems?.length) && (
+                {Boolean(finalInvoiceDetails?.data?.mergeFoodItem?.length) && (
                   <Grid size={12}>
                     <Box
                       sx={{
@@ -877,12 +877,14 @@ const FinalBarBillInvoice = () => {
                           marginBottom: "5px",
                         }}
                       >
-                        Bar Details :
+                        Spa Details :
                       </Typography>
 
-                      <BarInvoiceTable
-                        barListTableHeaders={barListTableHeaders}
-                        barOrderDtos={finalInvoiceDetails?.data?.mergeBarItems}
+                      <SpaInvoiceTable
+                        spaListTableHeaders={spaListTableHeaders}
+                        spaListTableData={
+                          finalInvoiceDetails?.data?.spaBookingDetailsTrailDtos
+                        }
                       />
                     </Box>
                   </Grid>
@@ -918,7 +920,7 @@ const FinalBarBillInvoice = () => {
                           }}
                         >
                           <Typography sx={{ fontWeight: 550 }}>
-                            Bar Charges
+                            Spa Charges
                           </Typography>
                         </Box>
                       </Grid>
@@ -936,7 +938,7 @@ const FinalBarBillInvoice = () => {
                             sx={{ textAlign: "right", fontWeight: 550 }}
                           >
                             {
-                              finalInvoiceDetails?.data?.barCharge
+                              finalInvoiceDetails?.data?.spaCharge
                                 ?.amountWithoutGst
                             }
                           </Typography>
@@ -971,7 +973,7 @@ const FinalBarBillInvoice = () => {
                           <Typography
                             sx={{ textAlign: "right", fontWeight: 550 }}
                           >
-                            {finalInvoiceDetails?.data?.barCharge?.gstAmount}
+                            {finalInvoiceDetails?.data?.spaCharge?.gstAmount}
                           </Typography>
                         </Box>
                       </Grid>
@@ -1004,7 +1006,7 @@ const FinalBarBillInvoice = () => {
                           <Typography
                             sx={{ textAlign: "right", fontWeight: 550 }}
                           >
-                            {finalInvoiceDetails?.data?.barCharge?.amount}
+                            {finalInvoiceDetails?.data?.spaCharge?.amount}
                           </Typography>
                         </Box>
                       </Grid>
@@ -1014,7 +1016,7 @@ const FinalBarBillInvoice = () => {
               </Grid>
             </Grid>
           </Grid>
-        </Box>
+        </Box>{" "}
         {!isPrinting && (
           <Box
             sx={{
@@ -1053,7 +1055,10 @@ const FinalBarBillInvoice = () => {
   );
 };
 
-const BarInvoiceTable = memo(function ({ barListTableHeaders, barOrderDtos }) {
+const SpaInvoiceTable = memo(function ({
+  spaListTableHeaders,
+  spaListTableData,
+}) {
   return (
     <React.Fragment>
       <TableContainer
@@ -1076,7 +1081,7 @@ const BarInvoiceTable = memo(function ({ barListTableHeaders, barOrderDtos }) {
         <Table aria-label="simple table" stickyHeader size="small">
           <TableHead>
             <TableRow>
-              {barListTableHeaders?.map((item, index) => {
+              {spaListTableHeaders?.map((item, index) => {
                 return (
                   <TableCell
                     key={`room-table-head-${index}`}
@@ -1084,6 +1089,7 @@ const BarInvoiceTable = memo(function ({ barListTableHeaders, barOrderDtos }) {
                     sx={{
                       backgroundColor: "#dbd8ff",
                       fontWeight: "bold",
+                      // paddingY: "10px",
                       fontSize: "13px",
                     }}
                   >
@@ -1093,15 +1099,17 @@ const BarInvoiceTable = memo(function ({ barListTableHeaders, barOrderDtos }) {
               })}
             </TableRow>
           </TableHead>
-
           <TableBody>
-            {barOrderDtos?.map((item, index) => {
+            {spaListTableData?.map((item, index) => {
               return (
-                <TableRow key={`bar-item-${item}-${index}`}>
+                <TableRow key={`food-item-${item}-${index}`}>
                   <TableCell align="center">{index + 1}</TableCell>
-                  <TableCell align="center">{item?.name}</TableCell>
-                  <TableCell align="center">{item?.quantity}</TableCell>
-                  <TableCell align="center">{item?.price}</TableCell>
+                  <TableCell align="center">
+                    {item?.spaBookingRefNumber}
+                  </TableCell>
+                  <TableCell align="center">{item?.spaType?.name}</TableCell>
+                  <TableCell align="center">{item?.therapist?.name}</TableCell>
+                  <TableCell align="center">{item?.spaType?.price}</TableCell>
                 </TableRow>
               );
             })}
@@ -1111,4 +1119,5 @@ const BarInvoiceTable = memo(function ({ barListTableHeaders, barOrderDtos }) {
     </React.Fragment>
   );
 });
-export default FinalBarBillInvoice;
+
+export default FinalSpaBillInvoice;

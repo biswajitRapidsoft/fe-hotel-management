@@ -1707,6 +1707,17 @@ const RoomServiceCard = memo(function ({
       window.open(`/FinalBarBillInvoice`, "_blank");
     }
   }, []);
+  const handleViewFinalSpaBillInvoice = useCallback((roomData) => {
+    const bookingRefNumber = roomData?.bookingDto?.bookingRefNumber;
+    if (bookingRefNumber) {
+      sessionStorage.setItem(
+        "FinalHotelBillSpabookingRefNumber",
+        bookingRefNumber
+      );
+
+      window.open(`/FinalSpaBillInvoice`, "_blank");
+    }
+  }, []);
   return (
     <>
       <Box
@@ -3774,7 +3785,8 @@ const RoomServiceCard = memo(function ({
                         // handleViewBarBillInvoice(isSelectedRoom);
                         handleViewFinalBarBillInvoice(isSelectedRoom);
                       } else if (selectedInvoice === "Spa Invoice") {
-                        handleViewSpaBillInvoice(isSelectedRoom);
+                        // handleViewSpaBillInvoice(isSelectedRoom);
+                        handleViewFinalSpaBillInvoice(isSelectedRoom);
                       } else {
                         alert("Please select an option to view the bill.");
                       }
