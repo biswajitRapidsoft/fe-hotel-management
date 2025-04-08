@@ -44,13 +44,15 @@ const FinalBarBillInvoice = () => {
       setIsPrinting(false);
     }, 0);
   }, []);
-
-  const barListTableHeaders = useMemo(() => [
-    { label: "Sl. No.", key: "sno" },
-    { label: "Item", key: "itemName" },
-    { label: "Quantity", key: "totalQuantity" },
-    { label: "Price", key: "Price" },
-  ]);
+  const barListTableHeaders = useMemo(
+    () => [
+      { label: "Sl. No.", key: "sno" },
+      { label: "Item", key: "itemName" },
+      { label: "Quantity", key: "totalQuantity" },
+      { label: "Price", key: "Price" },
+    ],
+    []
+  );
 
   const {
     data: finalInvoiceDetails = {

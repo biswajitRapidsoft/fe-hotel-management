@@ -44,13 +44,16 @@ const FinalSpaBillInvoice = () => {
       setIsPrinting(false);
     }, 0);
   }, []);
-  const spaListTableHeaders = useMemo(() => [
-    { label: "Sl. No.", key: "sno" },
-    { label: "Ref. Number", key: "spaBookingRefNumber" },
-    { label: "Spa Type", key: "spaType" },
-    { label: "Therapist", key: "therapist" },
-    { label: "Price", key: "price" },
-  ]);
+  const spaListTableHeaders = useMemo(
+    () => [
+      { label: "Sl. No.", key: "sno" },
+      { label: "Ref. Number", key: "spaBookingRefNumber" },
+      { label: "Spa Type", key: "spaType" },
+      { label: "Therapist", key: "therapist" },
+      { label: "Price", key: "price" },
+    ],
+    []
+  );
 
   const {
     data: finalInvoiceDetails = {
@@ -213,11 +216,11 @@ const FinalSpaBillInvoice = () => {
                         {
                           finalInvoiceDetails?.data?.customerBookingDetalis
                             ?.firstName
-                        }{" "}
+                        }
                         {
                           finalInvoiceDetails?.data?.customerBookingDetalis
                             ?.middleName
-                        }{" "}
+                        }
                         {
                           finalInvoiceDetails?.data?.customerBookingDetalis
                             ?.lastName
@@ -1016,7 +1019,7 @@ const FinalSpaBillInvoice = () => {
               </Grid>
             </Grid>
           </Grid>
-        </Box>{" "}
+        </Box>
         {!isPrinting && (
           <Box
             sx={{

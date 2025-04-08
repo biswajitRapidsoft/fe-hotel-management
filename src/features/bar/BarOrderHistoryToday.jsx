@@ -59,10 +59,10 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ClearIcon from "@mui/icons-material/Clear";
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 const BarOrderHistoryToday = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
@@ -132,7 +132,7 @@ const BarOrderHistoryToday = () => {
     JSON.parse(sessionStorage.getItem("data")).hotelId
   );
 
-  const { data: tableListForBarCounterStaff = { data: [] }, isLoading } =
+  const { data: tableListForBarCounterStaff = { data: [] } } =
     useGetAllBarTableForCounterStaffQuery({
       hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
       userId: JSON.parse(sessionStorage.getItem("data")).id,
@@ -1139,34 +1139,37 @@ const OrderDetailsDialog = ({
     handleCloseOrderDetailsDialog,
   ]);
 
-  const handleChange = React.useCallback((e, newValue, reason, details) => {
-    if (reason === "selectOption" || reason === "clear") {
-      setFormData((prevData) => ({
-        ...prevData,
-        paymentType: newValue,
-      }));
-      return;
-    }
-
-    const { name, type, checked, value } = e.target;
-
-    setFormData((prevData) => {
-      if (name === "roomNumber") {
-        return {
+  const handleChange = React.useCallback(
+    (e, newValue, reason, details) => {
+      if (reason === "selectOption" || reason === "clear") {
+        setFormData((prevData) => ({
           ...prevData,
-          [name]: value.replace(/\D/g, ""),
-        };
-      } else if (type === "checkbox") {
-        return {
-          ...prevData,
-          isAssosciateWithRoom:
-            name === "isAssosciateWithRoom" ? checked : false,
-          isProceedToPayment: name === "isProceedToPayment" ? checked : false,
-        };
+          paymentType: newValue,
+        }));
+        return;
       }
-      return prevData;
-    });
-  }, []);
+
+      const { name, type, checked, value } = e.target;
+
+      setFormData((prevData) => {
+        if (name === "roomNumber") {
+          return {
+            ...prevData,
+            [name]: value.replace(/\D/g, ""),
+          };
+        } else if (type === "checkbox") {
+          return {
+            ...prevData,
+            isAssosciateWithRoom:
+              name === "isAssosciateWithRoom" ? checked : false,
+            isProceedToPayment: name === "isProceedToPayment" ? checked : false,
+          };
+        }
+        return prevData;
+      });
+    },
+    [setFormData]
+  );
 
   const handleDownloadInvoice = React.useCallback((orderDetailsDialog) => {
     const imageUrl = JSON.parse(sessionStorage.getItem("data")).hotelLogoUrl;
@@ -1258,11 +1261,14 @@ const OrderDetailsDialog = ({
     };
   }, []);
 
-  const removeBookingByRefNumber = useCallback((refNumber) => {
-    setOrderMapDtos((prev) =>
-      prev.filter((item) => item.bookingRefNumber !== refNumber)
-    );
-  }, []);
+  const removeBookingByRefNumber = useCallback(
+    (refNumber) => {
+      setOrderMapDtos((prev) =>
+        prev.filter((item) => item.bookingRefNumber !== refNumber)
+      );
+    },
+    [setOrderMapDtos]
+  );
 
   useEffect(() => {
     const bookingDataByRoomNo = bookingDetailsRes?.data?.data;
@@ -1282,7 +1288,7 @@ const OrderDetailsDialog = ({
     } else if (!isSplit) {
       setOrderMapDtos([]);
     }
-  }, [bookingDetailsRes, isSplit]);
+  }, [bookingDetailsRes, isSplit, setOrderMapDtos, setFormData]);
 
   useEffect(() => {
     const totalPrice = orderDetailsDialog?.totalAmount ?? 0;
@@ -1297,7 +1303,7 @@ const OrderDetailsDialog = ({
           }))
         : [];
     setCustomOrderMapDtos(updatedOrderDtos);
-  }, [orderMapDtos, orderDetailsDialog]);
+  }, [orderMapDtos, orderDetailsDialog, setCustomOrderMapDtos]);
 
   return (
     <>
@@ -1331,7 +1337,7 @@ const OrderDetailsDialog = ({
               }}
             >
               Order Details
-            </Typography>{" "}
+            </Typography>
           </Box>
         </DialogTitle>
         <DialogContent dividers>
