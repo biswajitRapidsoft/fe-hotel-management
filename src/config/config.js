@@ -124,7 +124,7 @@ const config = Object.freeze({
       "api/get/all/bar/staff/service/order/request",
     deliverBarOrdersByServiceStaff:
       "api/deliver/bar/order/by/bar/service/staff",
-    // DASHBOARD API ENDPOINTS
+    // DASHBOARD API ENDPOINTS-106
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",
     getAllPaymentMethods: "api/get/all/payment/methods",

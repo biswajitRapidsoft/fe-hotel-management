@@ -185,6 +185,10 @@ const FinalSpaBillInvoice = React.lazy(() =>
   import("./features/HotelBillInvoice/FinalSpaBillInvoice")
 );
 
+const SpaManagerDashboard = React.lazy(() =>
+  import("./features/spa/SpaManagerDashboard")
+);
+
 function App() {
   const location = useLocation();
   // console.log("hello3", location);
@@ -310,6 +314,10 @@ function App() {
             <Route path="/bar" element={<Bar />} />
             <Route path="/bar-admin" element={<BarAdmin />} />
             <Route path="/managerDashboard" element={<ManagerDashboard />} />
+            <Route
+              path="/SpaManagerDashboard"
+              element={<SpaManagerDashboard />}
+            />
             <Route
               path="/inventoryManagement"
               element={<InventoryManagement />}

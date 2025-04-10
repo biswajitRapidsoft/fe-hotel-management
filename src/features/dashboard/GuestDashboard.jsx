@@ -753,46 +753,44 @@ const GuestDashboard = () => {
                                             "Pending_Confirmation" ||
                                             booking?.bookingStatus === "Booked"
                                         ) && (
-                                          <Button
-                                            variant="contained"
-                                            sx={{
-                                              backgroundImage:
-                                                "linear-gradient(to right, #ff512f 0%, #dd2476 100%)",
-                                              color: "white",
-                                              "&:hover": {
+                                          <Box sx={{ display: "flex", gap: 1 }}>
+                                            <Button
+                                              variant="contained"
+                                              sx={{
                                                 backgroundImage:
-                                                  "linear-gradient(to right, #ff512f 10%, #dd2476 90%)",
-                                              },
-                                              textTransform: "none",
-                                            }}
-                                            onClick={() => {
-                                              handleCancelClick(booking);
-                                              // handleBookingCancel(booking.bookingRefNumber);
-                                            }}
-                                          >
-                                            Cancel
-                                          </Button>
+                                                  "linear-gradient(to right, #ff512f 0%, #dd2476 100%)",
+                                                color: "white",
+                                                "&:hover": {
+                                                  backgroundImage:
+                                                    "linear-gradient(to right, #ff512f 10%, #dd2476 90%)",
+                                                },
+                                                textTransform: "none",
+                                              }}
+                                              onClick={() => {
+                                                handleCancelClick(booking);
+                                                // handleBookingCancel(booking.bookingRefNumber);
+                                              }}
+                                            >
+                                              Cancel
+                                            </Button>
+                                            <Button
+                                              variant="contained"
+                                              sx={{
+                                                backgroundColor: "#17B169",
+                                                color: "#fff",
+                                                textTransform: "none",
+                                              }}
+                                              onClick={() => {
+                                                // const phoneNumber = "+1234567890";
+                                                const phoneNumber =
+                                                  booking?.hotel?.contactNos[0];
+                                                window.location.href = `tel:${phoneNumber}`;
+                                              }}
+                                            >
+                                              <CallIcon />
+                                            </Button>
+                                          </Box>
                                         )}
-                                        {/* {booking?.bookingStatus ===
-                                          "Pending_Confirmation" && ( */}
-
-                                        <Button
-                                          variant="contained"
-                                          sx={{
-                                            backgroundColor: "#17B169",
-                                            color: "#fff",
-                                            textTransform: "none",
-                                          }}
-                                          onClick={() => {
-                                            // const phoneNumber = "+1234567890";
-                                            const phoneNumber =
-                                              booking?.hotel?.contactNos[0];
-                                            window.location.href = `tel:${phoneNumber}`;
-                                          }}
-                                        >
-                                          <CallIcon />
-                                        </Button>
-                                        {/* // )} */}
 
                                         {booking?.bookingStatus ===
                                           "Checked_Out" &&
@@ -831,6 +829,7 @@ const GuestDashboard = () => {
                                           <Box
                                             sx={{
                                               width: "100%",
+                                              // backgroundColor: "green",
                                             }}
                                           >
                                             <Grid
@@ -838,13 +837,13 @@ const GuestDashboard = () => {
                                               size={{ xs: 12 }}
                                               // sx={{ backgroundColor: "yellow" }}
                                               fullWidth
-                                              spacing={1}
+                                              spacing={0.7}
                                             >
                                               <Grid
                                                 size={{
                                                   xs: 1.5,
-                                                  lg: 1.6,
-                                                  xl: 1.5,
+                                                  lg: 1.33,
+                                                  xl: 1.33,
                                                 }}
                                               >
                                                 <Box
@@ -887,8 +886,8 @@ const GuestDashboard = () => {
                                               <Grid
                                                 size={{
                                                   xs: 1.5,
-                                                  lg: 1.6,
-                                                  xl: 1.5,
+                                                  lg: 1.33,
+                                                  xl: 1.33,
                                                 }}
                                               >
                                                 <Box
@@ -947,8 +946,8 @@ const GuestDashboard = () => {
                                               <Grid
                                                 size={{
                                                   xs: 1.5,
-                                                  lg: 1.6,
-                                                  xl: 1.5,
+                                                  lg: 1.33,
+                                                  xl: 1.33,
                                                 }}
                                               >
                                                 <Box
@@ -990,8 +989,8 @@ const GuestDashboard = () => {
                                               <Grid
                                                 size={{
                                                   xs: 1.5,
-                                                  lg: 1.6,
-                                                  xl: 1.5,
+                                                  lg: 1.33,
+                                                  xl: 1.33,
                                                 }}
                                               >
                                                 <Box
@@ -1043,8 +1042,8 @@ const GuestDashboard = () => {
                                               <Grid
                                                 size={{
                                                   xs: 1.5,
-                                                  lg: 1.6,
-                                                  xl: 1.5,
+                                                  lg: 1.33,
+                                                  xl: 1.33,
                                                 }}
                                               >
                                                 <Box
@@ -1086,8 +1085,8 @@ const GuestDashboard = () => {
                                               <Grid
                                                 size={{
                                                   xs: 1.5,
-                                                  lg: 1.6,
-                                                  xl: 1.5,
+                                                  lg: 1.33,
+                                                  xl: 1.33,
                                                 }}
                                               >
                                                 <Box
@@ -1128,8 +1127,8 @@ const GuestDashboard = () => {
                                               <Grid
                                                 size={{
                                                   xs: 1.5,
-                                                  lg: 1.6,
-                                                  xl: 1.5,
+                                                  lg: 1.33,
+                                                  xl: 1.33,
                                                 }}
                                               >
                                                 <Box
@@ -1170,8 +1169,8 @@ const GuestDashboard = () => {
                                               <Grid
                                                 size={{
                                                   xs: 1.5,
-                                                  lg: 1.6,
-                                                  xl: 1.5,
+                                                  lg: 1.33,
+                                                  xl: 1.33,
                                                 }}
                                               >
                                                 <Box
@@ -1207,6 +1206,35 @@ const GuestDashboard = () => {
                                                     </Button>
                                                   </Tooltip>
                                                 </Box>
+                                              </Grid>
+                                              <Grid
+                                                size={{
+                                                  xs: 1.5,
+                                                  lg: 1.33,
+                                                  xl: 1.33,
+                                                }}
+                                              >
+                                                {/* {booking?.bookingStatus ===
+                                          "Pending_Confirmation" && ( */}
+
+                                                <Button
+                                                  variant="contained"
+                                                  sx={{
+                                                    backgroundColor: "#17B169",
+                                                    color: "#fff",
+                                                    textTransform: "none",
+                                                  }}
+                                                  onClick={() => {
+                                                    // const phoneNumber = "+1234567890";
+                                                    const phoneNumber =
+                                                      booking?.hotel
+                                                        ?.contactNos[0];
+                                                    window.location.href = `tel:${phoneNumber}`;
+                                                  }}
+                                                >
+                                                  <CallIcon />
+                                                </Button>
+                                                {/* // )} */}
                                               </Grid>
                                             </Grid>
                                           </Box>
