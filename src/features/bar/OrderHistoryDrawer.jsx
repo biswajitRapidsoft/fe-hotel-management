@@ -139,11 +139,15 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
                     <Typography variant="h6">
                       {moment(order.createdAt).format("DD/MM/YYYY hh:mma")}
                     </Typography>
-                    <Tooltip title="Download Invoice" arrow>
-                      <IconButton onClick={() => handleDownloadInvoice(order)}>
-                        <ReceiptIcon />
-                      </IconButton>
-                    </Tooltip>
+                    {!Boolean(order.orderStatus === CANCELLED_BAR) && (
+                      <Tooltip title="Download Invoice" arrow>
+                        <IconButton
+                          onClick={() => handleDownloadInvoice(order)}
+                        >
+                          <ReceiptIcon />
+                        </IconButton>
+                      </Tooltip>
+                    )}
                   </Box>
                   <Box
                     sx={{
