@@ -56,11 +56,11 @@ const spaApi = apiSlice.injectEndpoints({
         url: config.apiName.getSpaBookingHistoryAdmin,
         method: "GET",
         params: {
-          pageNo: 0,
-          pageSize: 0,
+          pageNo: payload.pageNo,
+          pageSize: payload.pageSize,
           hotelId: payload.hotelId,
-          fromData: null,
-          toDate: null,
+          fromData: payload.fromDate,
+          toDate: payload.toDate,
         },
       }),
       providesTags: ["getSpaBookingHistoryAdmin"],
@@ -133,6 +133,47 @@ const spaApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["getSpaRooms"],
     }),
+    getSpaTypeReceptionist: build.query({
+      query: (payload) => ({
+        url: config.apiName.getSpaTypeReceptionist,
+        method: "GET",
+        params: {
+          hotelId: payload,
+        },
+      }),
+      providesTags: ["getSpaTypeReceptionist"],
+    }),
+    getRoomBySpaTypeReceptionist: build.query({
+      query: (payload) => ({
+        url: config.apiName.getRoomBySpaTypeReceptionist,
+        method: "GET",
+        params: {
+          spaTypeId: payload.spaTypeId,
+          startTime: payload.startTime,
+          endTime: payload.endTime,
+          hotelId: payload.hotelId,
+        },
+      }),
+      providesTags: ["getRoomBySpaTypeReceptionist"],
+    }),
+    bookSpaByReceptionist: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.bookSpaByReceptionist,
+        method: "POST",
+        data: payload,
+      }),
+      invalidatesTags: ["getSpaBookingReceptionist"],
+    }),
+    getSpaBookingReceptionist: build.query({
+      query: (payload) => ({
+        url: config.apiName.getSpaBookingReceptionist,
+        method: "GET",
+        params: {
+          hotelId: payload,
+        },
+      }),
+      providesTags: ["getSpaBookingReceptionist"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -152,4 +193,8 @@ export const {
   useGetAllTherapistByHotelIdQuery,
   useSaveSpaRoomMutation,
   useGetSpaRoomsQuery,
+  useGetSpaTypeReceptionistQuery,
+  useGetRoomBySpaTypeReceptionistQuery,
+  useBookSpaByReceptionistMutation,
+  useGetSpaBookingReceptionistQuery,
 } = spaApi;

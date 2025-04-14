@@ -127,6 +127,10 @@ const config = Object.freeze({
     getAllTherapistByHotelId: "api/get/all/therapist/users",
     saveSpaRoom: "api/save/spa/room",
     getSpaRooms: "api/get/all/spa/room",
+    getSpaTypeReceptionist: "api/spa/types/receptionist",
+    getRoomBySpaTypeReceptionist: "api/get/room/by/spa-type",
+    bookSpaByReceptionist: "api/spa/bookings/receptionist",
+    getSpaBookingReceptionist: "api/get/booking/receptionist",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",

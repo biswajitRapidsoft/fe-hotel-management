@@ -81,11 +81,13 @@ const Row = ({ booking, index, setUpdateStatusDialog }) => {
           booking.customerMiddleName || ""
         } ${booking.customerLastName || ""}`}</TableCell>
         <TableCell>{booking.bookingDate}</TableCell>
-        <TableCell>{`${booking.startTime
+        <TableCell>
+          {/* {`${booking.startTime
           .split(" ")[1]
           .slice(0, 5)}-${booking.endTime
           .split(" ")[1]
-          .slice(0, 5)}`}</TableCell>
+          .slice(0, 5)}`} */}
+        </TableCell>
         <TableCell align="center">
           {booking?.roomDto?.roomNo ? (
             <>
@@ -231,13 +233,21 @@ function FormDialog({
 
   const isStatusDisabled = React.useCallback(
     (option) => {
+      // const statusSequence = [
+      //   "BOOKED",
+      //   "CONFIRMED",
+      //   "FOOD_PREPARING",
+      //   "ORDER_PLACED",
+      //   "DONE",
+      //   "CANCELLED",
+      // ];
       const statusSequence = [
         "BOOKED",
         "CONFIRMED",
-        "FOOD_PREPARING",
-        "ORDER_PLACED",
         "DONE",
         "CANCELLED",
+        "COMPLETED",
+        "STARTED",
       ];
       const currentStatusIndex = statusSequence.indexOf(order?.status);
       const optionIndex = statusSequence.indexOf(option);
@@ -518,6 +528,10 @@ const SpaAdmin = () => {
     isLoading,
   } = useGetSpaBookingHistoryAdminQuery({
     hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
+    pageNo: 0,
+    pageSize: 0,
+    fromDate: null,
+    toDate: null,
   });
   const {
     data: statusList = {

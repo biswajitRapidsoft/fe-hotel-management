@@ -96,6 +96,12 @@ const SpaInvoiceForFrontesk = React.lazy(() =>
 );
 const LoginV2 = React.lazy(() => import("./features/login/Loginv2"));
 const SpaAdmin = React.lazy(() => import("./features/spa/SpaAdmin"));
+const SpaFrontdeskDashboard = React.lazy(() =>
+  import("./features/spa/SpaFrontdeskDashboard")
+);
+const SpaFrontdeskBookingHistory = React.lazy(() =>
+  import("./features/spa/SpaFrontdeskBookingHistory")
+);
 const CleaningServiceHistory = React.lazy(() =>
   import("./features/dashboard/CleaningServiceHistory")
 );
@@ -306,6 +312,14 @@ function App() {
             />
             <Route path="/FoodItemList" element={<FoodItemList />} />
             <Route path="/barItemList" element={<BarItemList />} />
+            <Route
+              path="/spa-frontdesk-dashboard"
+              element={<SpaFrontdeskDashboard />}
+            />
+            <Route
+              path="/spa-frontdesk-booking-history"
+              element={<SpaFrontdeskBookingHistory />}
+            />
             {/* LaundryHistoryForGuest */}
           </Route>
           <Route element={<Layout />}>
