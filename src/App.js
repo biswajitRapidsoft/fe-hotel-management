@@ -316,6 +316,7 @@ function App() {
               path="/spa-frontdesk-dashboard"
               element={<SpaFrontdeskDashboard />}
             />
+            <Route path="/spa-admin" element={<SpaAdmin />} />
             <Route
               path="/spa-frontdesk-booking-history"
               element={<SpaFrontdeskBookingHistory />}
@@ -343,7 +344,7 @@ function App() {
             />
             <Route path="/OrderHistoryToday" element={<OrderHistoryToday />} />
             <Route path="/RoomDineIn" element={<RoomDineIn />} />
-            <Route path="/spa-admin" element={<SpaAdmin />} />
+            {/* <Route path="/spa-admin" element={<SpaAdmin />} /> */}
             <Route path="/hallBookings" element={<HallBookingDashboard />} />
             <Route
               path="/HouseKeepingHistory"

@@ -256,60 +256,62 @@ const Row = React.memo(function ({
                   )}
                 </TableBody>
               </Table>
-              <Box
-                sx={{
-                  mt: 2,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 2,
-                }}
-              >
-                <Button
-                  color="secondary"
-                  variant="outlined"
+              {booking.status === "BOOKED" && (
+                <Box
                   sx={{
-                    display: "block",
-                    //   color: "#fff",
-                    fontWeight: 600,
-                    textTransform: "none",
-                    fontSize: 15,
-                    "&.Mui-disabled": {
-                      background: "#B2E5F6",
-                      color: "#FFFFFF",
-                    },
-                  }}
-                  // size="small"
-                  onClick={() => {
-                    setSpaToBook(booking);
-                    setIsCancelDialog(false);
+                    mt: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 2,
                   }}
                 >
-                  Confirm Booking
-                </Button>
-                <Button
-                  color="error"
-                  variant="outlined"
-                  sx={{
-                    display: "block",
-                    //   color: "#fff",
-                    fontWeight: 600,
-                    textTransform: "none",
-                    fontSize: 15,
-                    "&.Mui-disabled": {
-                      background: "#B2E5F6",
-                      color: "#FFFFFF",
-                    },
-                  }}
-                  // size="small"
-                  onClick={() => {
-                    setSpaToBook(booking);
-                    setIsCancelDialog(true);
-                  }}
-                >
-                  Cancel Booking
-                </Button>
-              </Box>
+                  <Button
+                    color="secondary"
+                    variant="outlined"
+                    sx={{
+                      display: "block",
+                      //   color: "#fff",
+                      fontWeight: 600,
+                      textTransform: "none",
+                      fontSize: 15,
+                      "&.Mui-disabled": {
+                        background: "#B2E5F6",
+                        color: "#FFFFFF",
+                      },
+                    }}
+                    // size="small"
+                    onClick={() => {
+                      setSpaToBook(booking);
+                      setIsCancelDialog(false);
+                    }}
+                  >
+                    Confirm Booking
+                  </Button>
+                  <Button
+                    color="error"
+                    variant="outlined"
+                    sx={{
+                      display: "block",
+                      //   color: "#fff",
+                      fontWeight: 600,
+                      textTransform: "none",
+                      fontSize: 15,
+                      "&.Mui-disabled": {
+                        background: "#B2E5F6",
+                        color: "#FFFFFF",
+                      },
+                    }}
+                    // size="small"
+                    onClick={() => {
+                      setSpaToBook(booking);
+                      setIsCancelDialog(true);
+                    }}
+                  >
+                    Cancel Booking
+                  </Button>
+                </Box>
+              )}
             </Box>
           </Collapse>
         </TableCell>

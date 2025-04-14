@@ -44,6 +44,8 @@ import {
   BAR_WAITER,
   BAR_COUNTER_STAFF,
   BAR_SERVICE_STAFF,
+  SPA_RECEPTIONIST,
+  SPA_THERAPIST,
 } from "../../helper/constants";
 
 const phoneRegex = /^[0-9]{10}$/;
@@ -165,6 +167,10 @@ const Loginv2 = () => {
             navigate("/BarCounterStaffDashboard");
           } else if (res.data.roleType === BAR_SERVICE_STAFF) {
             navigate("/BarServiceStaff");
+          } else if (res.data.roleType === SPA_RECEPTIONIST) {
+            navigate("/spa-frontdesk-dashboard");
+          } else if (res.data.roleType == SPA_THERAPIST) {
+            navigate("/spa-admin");
           } else {
             navigate("/");
           }

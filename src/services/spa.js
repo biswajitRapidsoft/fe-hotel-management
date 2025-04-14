@@ -180,7 +180,7 @@ const spaApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
-      invalidatesTags: ["getSpaBookingReceptionist"],
+      invalidatesTags: ["getSpaBookingHistoryAdmin"],
     }),
   }),
   overrideExisting: false,
