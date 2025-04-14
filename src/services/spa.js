@@ -178,9 +178,7 @@ const spaApi = apiSlice.injectEndpoints({
       query: (payload) => ({
         url: config.apiName.updateSpaBooking,
         method: "POST",
-        params: {
-          hotelId: payload,
-        },
+        data: payload,
       }),
       invalidatesTags: ["getSpaBookingReceptionist"],
     }),

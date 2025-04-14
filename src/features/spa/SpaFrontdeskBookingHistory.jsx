@@ -39,6 +39,7 @@ import SnackAlert from "../../components/Alert";
 
 const SpaFrontdeskBookingHistory = () => {
   const [spaToBook, setSpaToBook] = React.useState(null);
+  const [isCancelDialog, setIsCancelDialog] = React.useState(false);
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
@@ -98,6 +99,8 @@ const SpaFrontdeskBookingHistory = () => {
             message: res.message,
             seveirty: "success",
           });
+          setSpaToBook(null);
+          setIsCancelDialog(false);
         })
         .catch((err) => {
           setSnack({
@@ -152,6 +155,7 @@ const SpaFrontdeskBookingHistory = () => {
                   index={index}
                   key={booking.id}
                   setSpaToBook={setSpaToBook}
+                  setIsCancelDialog={setIsCancelDialog}
                 />
               );
             })}
@@ -164,7 +168,9 @@ const SpaFrontdeskBookingHistory = () => {
         spaToBook={spaToBook}
         spaRoomDtoList={spaRoomList.data.spaRoomDtoList}
         therapistUserList={spaRoomList.data.therapistUserList}
+        isCancelDialog={isCancelDialog}
         key={spaToBook?.id || null}
+        handleUpdateSpaBooking={handleUpdateSpaBooking}
       />
       <LoadingComponent open={isLoading || updateSpaBookingRes.isLoading} />
       <SnackAlert snack={snack} setSnack={setSnack} />
@@ -172,7 +178,12 @@ const SpaFrontdeskBookingHistory = () => {
   );
 };
 
-const Row = React.memo(function ({ booking, index, setSpaToBook }) {
+const Row = React.memo(function ({
+  booking,
+  index,
+  setSpaToBook,
+  setIsCancelDialog,
+}) {
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -269,7 +280,10 @@ const Row = React.memo(function ({ booking, index, setSpaToBook }) {
                     },
                   }}
                   // size="small"
-                  onClick={() => setSpaToBook(booking)}
+                  onClick={() => {
+                    setSpaToBook(booking);
+                    setIsCancelDialog(false);
+                  }}
                 >
                   Confirm Booking
                 </Button>
@@ -288,7 +302,10 @@ const Row = React.memo(function ({ booking, index, setSpaToBook }) {
                     },
                   }}
                   // size="small"
-                  onClick={() => setSpaToBook(booking)}
+                  onClick={() => {
+                    setSpaToBook(booking);
+                    setIsCancelDialog(true);
+                  }}
                 >
                   Cancel Booking
                 </Button>
@@ -307,10 +324,13 @@ const UpdateStatusDialog = ({
   spaToBook,
   spaRoomDtoList,
   therapistUserList,
+  isCancelDialog,
+  handleUpdateSpaBooking,
 }) => {
   const [formData, setFormData] = React.useState({
     selectedRoom: null,
     selectedTherapist: null,
+    remark: "",
   });
 
   const handleChange = React.useCallback((name, value) => {
@@ -320,9 +340,27 @@ const UpdateStatusDialog = ({
     }));
   }, []);
 
-  const handleSubmitDialogForm = React.useCallback((e) => {
-    e.preventDefault();
-  }, []);
+  const handleSubmitDialogForm = React.useCallback(
+    (e) => {
+      e.preventDefault();
+      handleUpdateSpaBooking({
+        status: isCancelDialog ? "CANCELLED" : "CONFIRMED",
+        bookingSpaRefNumber: spaToBook.bookingSpaRefNumber,
+        spaRoomDto: isCancelDialog
+          ? null
+          : {
+              id: formData.selectedRoom.id,
+            },
+        therapist: isCancelDialog
+          ? null
+          : {
+              id: formData.selectedTherapist.id,
+            },
+        remark: isCancelDialog ? formData.remark : null,
+      });
+    },
+    [formData, isCancelDialog, spaToBook]
+  );
 
   return (
     <React.Fragment>
@@ -379,130 +417,160 @@ const UpdateStatusDialog = ({
         }}
       >
         <DialogTitle sx={{ fontWeight: 600, fontSize: 24 }}>
-          Confirm Booking
+          {isCancelDialog ? "Cancel Booking" : "Confirm Booking"}
           <Typography sx={{ fontWeight: 600, color: "#7A7A7A" }}>
             {spaToBook?.bookingSpaRefNumber}
           </Typography>
         </DialogTitle>
         <DialogContent>
           <Grid container rowSpacing={2}>
-            <Grid size={12}>
-              <Autocomplete
-                size="small"
-                options={spaRoomDtoList}
-                getOptionLabel={(option) => option.name}
-                value={formData.selectedRoom}
-                onChange={(e, newVal) => handleChange("selectedRoom", newVal)}
-                clearOnEscape
-                // disablePortal
-                popupIcon={<KeyboardArrowDownIcon color="primary" />}
-                sx={{
-                  "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover": {
-                    backgroundColor: "#E9E5F1",
-                    color: "#280071",
-                    fontWeight: 600,
-                  },
-                  "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
-                    {
-                      backgroundColor: "#E9E5F1",
-                      color: "#280071",
-                      fontWeight: 600,
-                    },
-                }}
-                clearIcon={<ClearIcon color="primary" />}
-                PaperComponent={(props) => (
-                  <Paper
-                    sx={{
-                      background: "#fff",
-                      color: "#B4B4B4",
-                      borderRadius: "10px",
-                    }}
-                    {...props}
-                  />
-                )}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label={
-                      <React.Fragment>
-                        Select Room{" "}
-                        <Box
-                          component="span"
-                          sx={{
-                            color: (theme) => theme.palette.error.main,
-                          }}
-                        >
-                          *
-                        </Box>
-                      </React.Fragment>
+            {isCancelDialog ? (
+              <Grid size={12}>
+                <TextField
+                  label={
+                    <React.Fragment>
+                      Remark{" "}
+                      <Box
+                        component="span"
+                        sx={{
+                          color: (theme) => theme.palette.error.main,
+                        }}
+                      >
+                        *
+                      </Box>
+                    </React.Fragment>
+                  }
+                  name="remark"
+                  value={formData.remark}
+                  onChange={(e) => handleChange(e.target.name, e.target.value)}
+                  variant="standard"
+                />
+              </Grid>
+            ) : (
+              <React.Fragment>
+                <Grid size={12}>
+                  <Autocomplete
+                    size="small"
+                    options={spaRoomDtoList}
+                    getOptionLabel={(option) => option.name}
+                    value={formData.selectedRoom}
+                    onChange={(e, newVal) =>
+                      handleChange("selectedRoom", newVal)
                     }
-                    variant="standard"
-                  />
-                )}
-              />
-            </Grid>
-            <Grid size={12}>
-              <Autocomplete
-                size="small"
-                options={therapistUserList}
-                getOptionLabel={(option) => option.name}
-                value={formData.selectedTherapist}
-                onChange={(e, newVal) =>
-                  handleChange("selectedTherapist", newVal)
-                }
-                clearOnEscape
-                // disablePortal
-                popupIcon={<KeyboardArrowDownIcon color="primary" />}
-                sx={{
-                  "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover": {
-                    backgroundColor: "#E9E5F1",
-                    color: "#280071",
-                    fontWeight: 600,
-                  },
-                  "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
-                    {
-                      backgroundColor: "#E9E5F1",
-                      color: "#280071",
-                      fontWeight: 600,
-                    },
-                }}
-                clearIcon={<ClearIcon color="primary" />}
-                PaperComponent={(props) => (
-                  <Paper
+                    clearOnEscape
+                    // disablePortal
+                    popupIcon={<KeyboardArrowDownIcon color="primary" />}
                     sx={{
-                      background: "#fff",
-                      color: "#B4B4B4",
-                      borderRadius: "10px",
+                      "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover":
+                        {
+                          backgroundColor: "#E9E5F1",
+                          color: "#280071",
+                          fontWeight: 600,
+                        },
+                      "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                        {
+                          backgroundColor: "#E9E5F1",
+                          color: "#280071",
+                          fontWeight: 600,
+                        },
                     }}
-                    {...props}
+                    clearIcon={<ClearIcon color="primary" />}
+                    PaperComponent={(props) => (
+                      <Paper
+                        sx={{
+                          background: "#fff",
+                          color: "#B4B4B4",
+                          borderRadius: "10px",
+                        }}
+                        {...props}
+                      />
+                    )}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label={
+                          <React.Fragment>
+                            Select Room{" "}
+                            <Box
+                              component="span"
+                              sx={{
+                                color: (theme) => theme.palette.error.main,
+                              }}
+                            >
+                              *
+                            </Box>
+                          </React.Fragment>
+                        }
+                        variant="standard"
+                      />
+                    )}
                   />
-                )}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label={
-                      <React.Fragment>
-                        Select Therapist{" "}
-                        <Box
-                          component="span"
-                          sx={{
-                            color: (theme) => theme.palette.error.main,
-                          }}
-                        >
-                          *
-                        </Box>
-                      </React.Fragment>
+                </Grid>
+                <Grid size={12}>
+                  <Autocomplete
+                    size="small"
+                    options={therapistUserList}
+                    getOptionLabel={(option) => option.name}
+                    value={formData.selectedTherapist}
+                    onChange={(e, newVal) =>
+                      handleChange("selectedTherapist", newVal)
                     }
-                    variant="standard"
+                    clearOnEscape
+                    // disablePortal
+                    popupIcon={<KeyboardArrowDownIcon color="primary" />}
+                    sx={{
+                      "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover":
+                        {
+                          backgroundColor: "#E9E5F1",
+                          color: "#280071",
+                          fontWeight: 600,
+                        },
+                      "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                        {
+                          backgroundColor: "#E9E5F1",
+                          color: "#280071",
+                          fontWeight: 600,
+                        },
+                    }}
+                    clearIcon={<ClearIcon color="primary" />}
+                    PaperComponent={(props) => (
+                      <Paper
+                        sx={{
+                          background: "#fff",
+                          color: "#B4B4B4",
+                          borderRadius: "10px",
+                        }}
+                        {...props}
+                      />
+                    )}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label={
+                          <React.Fragment>
+                            Select Therapist{" "}
+                            <Box
+                              component="span"
+                              sx={{
+                                color: (theme) => theme.palette.error.main,
+                              }}
+                            >
+                              *
+                            </Box>
+                          </React.Fragment>
+                        }
+                        variant="standard"
+                      />
+                    )}
                   />
-                )}
-              />
-            </Grid>
+                </Grid>
+              </React.Fragment>
+            )}
           </Grid>
         </DialogContent>
         <DialogActions>
           <Button
-            color="secondary"
+            color={isCancelDialog ? "error" : "secondary"}
             variant="contained"
             sx={{
               display: "block",
@@ -520,11 +588,15 @@ const UpdateStatusDialog = ({
             }}
             size="small"
             disabled={
-              !Boolean(formData.selectedRoom && formData.selectedTherapist)
+              !Boolean(
+                isCancelDialog
+                  ? formData.remark.trim()
+                  : formData.selectedRoom && formData.selectedTherapist
+              )
             }
             type="submit"
           >
-            Confirm Booking
+            {isCancelDialog ? "Cancel Booking" : "Confirm Booking"}
           </Button>
         </DialogActions>
       </Dialog>
