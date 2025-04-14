@@ -29,23 +29,29 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import {
   useGetRoomBySpaTypeReceptionistQuery,
   useGetSpaBookingHistoryAdminQuery,
+  useUpdateSpaBookingMutation,
 } from "../../services/spa";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
 
+import LoadingComponent from "../../components/LoadingComponent";
+import SnackAlert from "../../components/Alert";
+
 const SpaFrontdeskBookingHistory = () => {
   const [spaToBook, setSpaToBook] = React.useState(null);
-
-  console.log(spaToBook, "spaToBook");
-
-  const firstSpaDuration = 0;
-
+  const [snack, setSnack] = React.useState({
+    open: false,
+    message: "",
+    severity: "",
+  });
+  const [updateSpaBooking, updateSpaBookingRes] = useUpdateSpaBookingMutation();
   const {
     data: bookingList = {
       data: {
         data: [],
       },
     },
+    isLoading,
   } = useGetSpaBookingHistoryAdminQuery({
     hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
     pageNo: 0,
@@ -62,19 +68,48 @@ const SpaFrontdeskBookingHistory = () => {
     },
   } = useGetRoomBySpaTypeReceptionistQuery(
     {
-      spaTypeId: spaToBook && spaToBook.id,
-      startTime: moment().format("DD-MM-YYYY HH:mm:ss"),
-      endTime: moment().add(0, "minutes").format("DD-MM-YYYY HH:mm:ss"),
+      spaTypeId: spaToBook?.bookingDetailsTrailDtosList[0]?.spaType?.id || null,
+      startTime: moment(formatDateTime(spaToBook?.bookingDate)).format(
+        "DD-MM-YYYY HH:mm:ss"
+      ),
+      endTime: moment(formatDateTime(spaToBook?.bookingDate))
+        .add(
+          spaToBook?.bookingDetailsTrailDtosList[0]?.spaType?.spaTypeDetailsList.reduce(
+            (prev, curr) => prev + curr.durationMinutes,
+            0
+          ),
+          "minutes"
+        )
+        .format("DD-MM-YYYY HH:mm:ss"),
       hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
     },
     { skip: !Boolean(spaToBook) }
   );
-  console.log(
-    spaToBook?.bookingDetailsTRailDtosList[0]?.spaType?.spaTypeDetailsList,
-    "okkkk"
-  );
 
   const navigate = useNavigate();
+
+  const handleUpdateSpaBooking = React.useCallback(
+    (payload) => {
+      updateSpaBooking(payload)
+        .unwrap()
+        .then((res) => {
+          setSnack({
+            open: true,
+            message: res.message,
+            seveirty: "success",
+          });
+        })
+        .catch((err) => {
+          setSnack({
+            open: true,
+            message: err.data?.message || err.data,
+            severity: "error",
+          });
+        });
+    },
+    [updateSpaBooking]
+  );
+
   return (
     <React.Fragment>
       <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
@@ -127,7 +162,12 @@ const SpaFrontdeskBookingHistory = () => {
         open={Boolean(spaToBook)}
         handleClose={() => setSpaToBook(null)}
         spaToBook={spaToBook}
+        spaRoomDtoList={spaRoomList.data.spaRoomDtoList}
+        therapistUserList={spaRoomList.data.therapistUserList}
+        key={spaToBook?.id || null}
       />
+      <LoadingComponent open={isLoading || updateSpaBookingRes.isLoading} />
+      <SnackAlert snack={snack} setSnack={setSnack} />
     </React.Fragment>
   );
 };
@@ -154,10 +194,10 @@ const Row = React.memo(function ({ booking, index, setSpaToBook }) {
         <TableCell>{booking.customerPhoneNo}</TableCell>
         <TableCell>
           <Typography variant="body2">
-            {moment(booking.bookingDate).format("DD-MM-YYYY")}
+            {moment(formatDateTime(booking.bookingDate)).format("DD-MM-YYYY")}
           </Typography>
           <Typography variant="caption">
-            {moment(booking.bookingDate).format("hh:mm a")}
+            {moment(formatDateTime(booking.bookingDate)).format("hh:mm a")}
           </Typography>
         </TableCell>
         <TableCell>{booking.status}</TableCell>
@@ -205,27 +245,54 @@ const Row = React.memo(function ({ booking, index, setSpaToBook }) {
                   )}
                 </TableBody>
               </Table>
-              <Button
-                color="secondary"
-                variant="outlined"
+              <Box
                 sx={{
-                  display: "block",
-                  mx: "auto",
-                  //   color: "#fff",
-                  fontWeight: 600,
-                  textTransform: "none",
-                  fontSize: 15,
                   mt: 2,
-                  "&.Mui-disabled": {
-                    background: "#B2E5F6",
-                    color: "#FFFFFF",
-                  },
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 2,
                 }}
-                // size="small"
-                onClick={() => setSpaToBook(booking)}
               >
-                Update Status
-              </Button>
+                <Button
+                  color="secondary"
+                  variant="outlined"
+                  sx={{
+                    display: "block",
+                    //   color: "#fff",
+                    fontWeight: 600,
+                    textTransform: "none",
+                    fontSize: 15,
+                    "&.Mui-disabled": {
+                      background: "#B2E5F6",
+                      color: "#FFFFFF",
+                    },
+                  }}
+                  // size="small"
+                  onClick={() => setSpaToBook(booking)}
+                >
+                  Confirm Booking
+                </Button>
+                <Button
+                  color="error"
+                  variant="outlined"
+                  sx={{
+                    display: "block",
+                    //   color: "#fff",
+                    fontWeight: 600,
+                    textTransform: "none",
+                    fontSize: 15,
+                    "&.Mui-disabled": {
+                      background: "#B2E5F6",
+                      color: "#FFFFFF",
+                    },
+                  }}
+                  // size="small"
+                  onClick={() => setSpaToBook(booking)}
+                >
+                  Cancel Booking
+                </Button>
+              </Box>
             </Box>
           </Collapse>
         </TableCell>
@@ -234,7 +301,29 @@ const Row = React.memo(function ({ booking, index, setSpaToBook }) {
   );
 });
 
-const UpdateStatusDialog = ({ open, handleClose, spaToBook }) => {
+const UpdateStatusDialog = ({
+  open,
+  handleClose,
+  spaToBook,
+  spaRoomDtoList,
+  therapistUserList,
+}) => {
+  const [formData, setFormData] = React.useState({
+    selectedRoom: null,
+    selectedTherapist: null,
+  });
+
+  const handleChange = React.useCallback((name, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  }, []);
+
+  const handleSubmitDialogForm = React.useCallback((e) => {
+    e.preventDefault();
+  }, []);
+
   return (
     <React.Fragment>
       <Dialog
@@ -244,7 +333,7 @@ const UpdateStatusDialog = ({ open, handleClose, spaToBook }) => {
         onClose={handleClose}
         PaperProps={{
           component: "form",
-          //   onSubmit: handleSubmitDialogForm,
+          onSubmit: handleSubmitDialogForm,
           sx: {
             ".MuiTextField-root": {
               width: "100%",
@@ -300,12 +389,10 @@ const UpdateStatusDialog = ({ open, handleClose, spaToBook }) => {
             <Grid size={12}>
               <Autocomplete
                 size="small"
-                options={[]}
+                options={spaRoomDtoList}
                 getOptionLabel={(option) => option.name}
-                // value={formData.selectedTherapist}
-                // onChange={(e, newVal) =>
-                //   handleChange("selectedTherapist", newVal)
-                // }
+                value={formData.selectedRoom}
+                onChange={(e, newVal) => handleChange("selectedRoom", newVal)}
                 clearOnEscape
                 // disablePortal
                 popupIcon={<KeyboardArrowDownIcon color="primary" />}
@@ -357,12 +444,12 @@ const UpdateStatusDialog = ({ open, handleClose, spaToBook }) => {
             <Grid size={12}>
               <Autocomplete
                 size="small"
-                options={[]}
+                options={therapistUserList}
                 getOptionLabel={(option) => option.name}
-                // value={formData.selectedTherapist}
-                // onChange={(e, newVal) =>
-                //   handleChange("selectedTherapist", newVal)
-                // }
+                value={formData.selectedTherapist}
+                onChange={(e, newVal) =>
+                  handleChange("selectedTherapist", newVal)
+                }
                 clearOnEscape
                 // disablePortal
                 popupIcon={<KeyboardArrowDownIcon color="primary" />}
@@ -432,15 +519,25 @@ const UpdateStatusDialog = ({ open, handleClose, spaToBook }) => {
               },
             }}
             size="small"
-            // disabled={!Boolean(remark.trim() && selectedStatus)}
+            disabled={
+              !Boolean(formData.selectedRoom && formData.selectedTherapist)
+            }
             type="submit"
           >
-            Update Status
+            Confirm Booking
           </Button>
         </DialogActions>
       </Dialog>
     </React.Fragment>
   );
 };
+
+function formatDateTime(dateTime) {
+  if (dateTime) {
+    const [date, time] = dateTime.split(" ");
+    return `${date.split("-").reverse().join("-")} ${time}`;
+  }
+  return null;
+}
 
 export default SpaFrontdeskBookingHistory;

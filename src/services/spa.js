@@ -174,6 +174,16 @@ const spaApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["getSpaBookingReceptionist"],
     }),
+    updateSpaBooking: build.mutation({
+      query: (payload) => ({
+        url: config.apiName.updateSpaBooking,
+        method: "POST",
+        params: {
+          hotelId: payload,
+        },
+      }),
+      invalidatesTags: ["getSpaBookingReceptionist"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -197,4 +207,5 @@ export const {
   useGetRoomBySpaTypeReceptionistQuery,
   useBookSpaByReceptionistMutation,
   useGetSpaBookingReceptionistQuery,
+  useUpdateSpaBookingMutation,
 } = spaApi;
