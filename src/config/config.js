@@ -132,6 +132,7 @@ const config = Object.freeze({
     bookSpaByReceptionist: "api/spa/bookings/receptionist",
     getSpaBookingReceptionist: "api/get/booking/receptionist",
     updateSpaBooking: "api/spatype/update/booking",
+    updateSpaBookingByTherapist: "api/spa/booking/update-status-by-therapist",
     // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",

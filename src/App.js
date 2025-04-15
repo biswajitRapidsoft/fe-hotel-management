@@ -99,6 +99,7 @@ const SpaAdmin = React.lazy(() => import("./features/spa/SpaAdmin"));
 const SpaFrontdeskDashboard = React.lazy(() =>
   import("./features/spa/SpaFrontdeskDashboard")
 );
+const SpaTherapist = React.lazy(() => import("./features/spa/SpaTherapist"));
 const SpaFrontdeskBookingHistory = React.lazy(() =>
   import("./features/spa/SpaFrontdeskBookingHistory")
 );
@@ -316,7 +317,8 @@ function App() {
               path="/spa-frontdesk-dashboard"
               element={<SpaFrontdeskDashboard />}
             />
-            <Route path="/spa-admin" element={<SpaAdmin />} />
+            {/* <Route path="/spa-admin" element={<SpaAdmin />} /> */}
+            <Route path="/spa-admin" element={<SpaTherapist />} />
             <Route
               path="/spa-frontdesk-booking-history"
               element={<SpaFrontdeskBookingHistory />}

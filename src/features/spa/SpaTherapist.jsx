@@ -25,11 +25,13 @@ import ClearIcon from "@mui/icons-material/Clear";
 import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import Swal from "sweetalert2";
 
 import {
   useGetRoomBySpaTypeReceptionistQuery,
   useGetSpaBookingHistoryAdminQuery,
-  useUpdateSpaBookingMutation,
+  useUpdateSpaBookingByTherapistMutation,
+  useGetSpaTypeReceptionistQuery,
 } from "../../services/spa";
 import moment from "moment";
 import { useNavigate } from "react-router-dom";
@@ -37,7 +39,7 @@ import { useNavigate } from "react-router-dom";
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 
-const SpaFrontdeskBookingHistory = () => {
+const SpaTherapist = () => {
   const [spaToBook, setSpaToBook] = React.useState(null);
   const [isCancelDialog, setIsCancelDialog] = React.useState(false);
   const [snack, setSnack] = React.useState({
@@ -45,7 +47,16 @@ const SpaFrontdeskBookingHistory = () => {
     message: "",
     severity: "",
   });
-  const [updateSpaBooking, updateSpaBookingRes] = useUpdateSpaBookingMutation();
+
+  const [updateSpaBooking, updateSpaBookingRes] =
+    useUpdateSpaBookingByTherapistMutation();
+  const {
+    data: spaTypeList = {
+      data: [],
+    },
+  } = useGetSpaTypeReceptionistQuery(
+    JSON.parse(sessionStorage.getItem("data")).hotelId
+  );
   const {
     data: bookingList = {
       data: {
@@ -69,7 +80,7 @@ const SpaFrontdeskBookingHistory = () => {
     },
   } = useGetRoomBySpaTypeReceptionistQuery(
     {
-      spaTypeId: spaToBook?.bookingDetailsTrailDtosList[0]?.spaType?.id || null,
+      spaTypeId: spaToBook?.id || null,
       startTime: moment(formatDateTime(spaToBook?.bookingDate)).format(
         "DD-MM-YYYY HH:mm:ss"
       ),
@@ -113,16 +124,35 @@ const SpaFrontdeskBookingHistory = () => {
     [updateSpaBooking]
   );
 
+  const handleStartTherapy = React.useCallback((booking) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        updateSpaBooking({
+          status: "STARTED",
+          bookingSpaRefNumber: booking.bookingSpaRefNumber,
+        });
+      }
+    });
+  }, []);
+
   return (
     <React.Fragment>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+      {/* <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
         <IconButton onClick={() => navigate("/spa-frontdesk-dashboard")}>
           <KeyboardBackspaceIcon color="primary" />
         </IconButton>
         <Typography variant="h6" sx={{ fontWeight: "bold", letterSpacing: 1 }}>
           Spa Booking History
         </Typography>
-      </Box>
+      </Box> */}
       <TableContainer sx={{ maxHeight: 540 }} component={Paper}>
         <Table size="small" stickyHeader>
           <TableHead>
@@ -156,6 +186,7 @@ const SpaFrontdeskBookingHistory = () => {
                   key={booking.id}
                   setSpaToBook={setSpaToBook}
                   setIsCancelDialog={setIsCancelDialog}
+                  handleStartTherapy={handleStartTherapy}
                 />
               );
             })}
@@ -171,6 +202,8 @@ const SpaFrontdeskBookingHistory = () => {
         isCancelDialog={isCancelDialog}
         key={spaToBook?.id || null}
         handleUpdateSpaBooking={handleUpdateSpaBooking}
+        spaTypeList={spaTypeList.data}
+        setSpaToBook={setSpaToBook}
       />
       <LoadingComponent open={isLoading || updateSpaBookingRes.isLoading} />
       <SnackAlert snack={snack} setSnack={setSnack} />
@@ -183,6 +216,7 @@ const Row = React.memo(function ({
   index,
   setSpaToBook,
   setIsCancelDialog,
+  handleStartTherapy,
 }) {
   const [open, setOpen] = React.useState(false);
 
@@ -256,7 +290,7 @@ const Row = React.memo(function ({
                   )}
                 </TableBody>
               </Table>
-              {booking.status === "BOOKED" && (
+              {["CONFIRMED", "STARTED"].includes(booking.status) && (
                 <Box
                   sx={{
                     mt: 2,
@@ -266,50 +300,56 @@ const Row = React.memo(function ({
                     gap: 2,
                   }}
                 >
-                  <Button
-                    color="secondary"
-                    variant="outlined"
-                    sx={{
-                      display: "block",
-                      //   color: "#fff",
-                      fontWeight: 600,
-                      textTransform: "none",
-                      fontSize: 15,
-                      "&.Mui-disabled": {
-                        background: "#B2E5F6",
-                        color: "#FFFFFF",
-                      },
-                    }}
-                    // size="small"
-                    onClick={() => {
-                      setSpaToBook(booking);
-                      setIsCancelDialog(false);
-                    }}
-                  >
-                    Confirm Booking
-                  </Button>
-                  <Button
-                    color="error"
-                    variant="outlined"
-                    sx={{
-                      display: "block",
-                      //   color: "#fff",
-                      fontWeight: 600,
-                      textTransform: "none",
-                      fontSize: 15,
-                      "&.Mui-disabled": {
-                        background: "#B2E5F6",
-                        color: "#FFFFFF",
-                      },
-                    }}
-                    // size="small"
-                    onClick={() => {
-                      setSpaToBook(booking);
-                      setIsCancelDialog(true);
-                    }}
-                  >
-                    Cancel Booking
-                  </Button>
+                  {booking.status === "CONFIRMED" && (
+                    <Button
+                      color="secondary"
+                      variant="outlined"
+                      sx={{
+                        display: "block",
+                        //   color: "#fff",
+                        fontWeight: 600,
+                        textTransform: "none",
+                        fontSize: 15,
+                        "&.Mui-disabled": {
+                          background: "#B2E5F6",
+                          color: "#FFFFFF",
+                        },
+                      }}
+                      size="small"
+                      // onClick={() => {
+                      //   setSpaToBook(booking);
+                      //   setIsCancelDialog(false);
+                      // }}
+                      onClick={() => {
+                        handleStartTherapy(booking);
+                      }}
+                    >
+                      Start Therapy
+                    </Button>
+                  )}
+                  {booking.status === "STARTED" && (
+                    <Button
+                      color="warning"
+                      variant="outlined"
+                      sx={{
+                        display: "block",
+                        //   color: "#fff",
+                        fontWeight: 600,
+                        textTransform: "none",
+                        fontSize: 15,
+                        "&.Mui-disabled": {
+                          background: "#B2E5F6",
+                          color: "#FFFFFF",
+                        },
+                      }}
+                      // size="small"
+                      onClick={() => {
+                        setSpaToBook(booking);
+                      }}
+                    >
+                      Add Another Therapy
+                    </Button>
+                  )}
                 </Box>
               )}
             </Box>
@@ -328,8 +368,11 @@ const UpdateStatusDialog = ({
   therapistUserList,
   isCancelDialog,
   handleUpdateSpaBooking,
+  spaTypeList,
+  setSpaToBook,
 }) => {
   const [formData, setFormData] = React.useState({
+    selectedSpaType: null,
     selectedRoom: null,
     selectedTherapist: null,
     remark: "",
@@ -340,7 +383,11 @@ const UpdateStatusDialog = ({
       ...prevData,
       [name]: value,
     }));
+    if (name == "selectedSpaType") {
+      setSpaToBook(value);
+    }
   }, []);
+  console.log(spaToBook, "spaToBook");
 
   const handleSubmitDialogForm = React.useCallback(
     (e) => {
@@ -419,155 +466,209 @@ const UpdateStatusDialog = ({
         }}
       >
         <DialogTitle sx={{ fontWeight: 600, fontSize: 24 }}>
-          {isCancelDialog ? "Cancel Booking" : "Confirm Booking"}
+          Add Another Therapy
           <Typography sx={{ fontWeight: 600, color: "#7A7A7A" }}>
             {spaToBook?.bookingSpaRefNumber}
           </Typography>
         </DialogTitle>
         <DialogContent>
           <Grid container rowSpacing={2}>
-            {isCancelDialog ? (
+            <React.Fragment>
               <Grid size={12}>
-                <TextField
-                  label={
-                    <React.Fragment>
-                      Remark{" "}
-                      <Box
-                        component="span"
-                        sx={{
-                          color: (theme) => theme.palette.error.main,
-                        }}
-                      >
-                        *
-                      </Box>
-                    </React.Fragment>
+                <Autocomplete
+                  size="small"
+                  options={spaTypeList}
+                  getOptionLabel={(option) => option.name}
+                  value={formData.selectedSpaType}
+                  onChange={(e, newVal) =>
+                    handleChange("selectedSpaType", newVal)
                   }
-                  name="remark"
-                  value={formData.remark}
-                  onChange={(e) => handleChange(e.target.name, e.target.value)}
-                  variant="standard"
+                  clearOnEscape
+                  // disablePortal
+                  popupIcon={<KeyboardArrowDownIcon color="primary" />}
+                  sx={{
+                    "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover":
+                      {
+                        backgroundColor: "#E9E5F1",
+                        color: "#280071",
+                        fontWeight: 600,
+                      },
+                    "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                      {
+                        backgroundColor: "#E9E5F1",
+                        color: "#280071",
+                        fontWeight: 600,
+                      },
+                  }}
+                  clearIcon={<ClearIcon color="primary" />}
+                  PaperComponent={(props) => (
+                    <Paper
+                      sx={{
+                        background: "#fff",
+                        color: "#B4B4B4",
+                        borderRadius: "10px",
+                      }}
+                      {...props}
+                    />
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label={
+                        <React.Fragment>
+                          Select SpaType{" "}
+                          <Box
+                            component="span"
+                            sx={{
+                              color: (theme) => theme.palette.error.main,
+                            }}
+                          >
+                            *
+                          </Box>
+                        </React.Fragment>
+                      }
+                      variant="standard"
+                    />
+                  )}
                 />
               </Grid>
-            ) : (
-              <React.Fragment>
-                <Grid size={12}>
-                  <Autocomplete
-                    size="small"
-                    options={spaRoomDtoList}
-                    getOptionLabel={(option) => option.name}
-                    value={formData.selectedRoom}
-                    onChange={(e, newVal) =>
-                      handleChange("selectedRoom", newVal)
-                    }
-                    clearOnEscape
-                    // disablePortal
-                    popupIcon={<KeyboardArrowDownIcon color="primary" />}
-                    sx={{
-                      "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover":
-                        {
-                          backgroundColor: "#E9E5F1",
-                          color: "#280071",
-                          fontWeight: 600,
-                        },
-                      "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
-                        {
-                          backgroundColor: "#E9E5F1",
-                          color: "#280071",
-                          fontWeight: 600,
-                        },
-                    }}
-                    clearIcon={<ClearIcon color="primary" />}
-                    PaperComponent={(props) => (
-                      <Paper
-                        sx={{
-                          background: "#fff",
-                          color: "#B4B4B4",
-                          borderRadius: "10px",
-                        }}
-                        {...props}
-                      />
-                    )}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label={
-                          <React.Fragment>
-                            Select Room{" "}
-                            <Box
-                              component="span"
-                              sx={{
-                                color: (theme) => theme.palette.error.main,
-                              }}
-                            >
-                              *
-                            </Box>
-                          </React.Fragment>
-                        }
-                        variant="standard"
-                      />
-                    )}
-                  />
-                </Grid>
-                <Grid size={12}>
-                  <Autocomplete
-                    size="small"
-                    options={therapistUserList}
-                    getOptionLabel={(option) => option.name}
-                    value={formData.selectedTherapist}
-                    onChange={(e, newVal) =>
-                      handleChange("selectedTherapist", newVal)
-                    }
-                    clearOnEscape
-                    // disablePortal
-                    popupIcon={<KeyboardArrowDownIcon color="primary" />}
-                    sx={{
-                      "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover":
-                        {
-                          backgroundColor: "#E9E5F1",
-                          color: "#280071",
-                          fontWeight: 600,
-                        },
-                      "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
-                        {
-                          backgroundColor: "#E9E5F1",
-                          color: "#280071",
-                          fontWeight: 600,
-                        },
-                    }}
-                    clearIcon={<ClearIcon color="primary" />}
-                    PaperComponent={(props) => (
-                      <Paper
-                        sx={{
-                          background: "#fff",
-                          color: "#B4B4B4",
-                          borderRadius: "10px",
-                        }}
-                        {...props}
-                      />
-                    )}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label={
-                          <React.Fragment>
-                            Select Therapist{" "}
-                            <Box
-                              component="span"
-                              sx={{
-                                color: (theme) => theme.palette.error.main,
-                              }}
-                            >
-                              *
-                            </Box>
-                          </React.Fragment>
-                        }
-                        variant="standard"
-                      />
-                    )}
-                  />
-                </Grid>
-              </React.Fragment>
-            )}
+              <Grid size={12}>
+                <Autocomplete
+                  size="small"
+                  options={spaRoomDtoList}
+                  getOptionLabel={(option) => option.name}
+                  value={formData.selectedRoom}
+                  onChange={(e, newVal) => handleChange("selectedRoom", newVal)}
+                  clearOnEscape
+                  // disablePortal
+                  popupIcon={<KeyboardArrowDownIcon color="primary" />}
+                  sx={{
+                    "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover":
+                      {
+                        backgroundColor: "#E9E5F1",
+                        color: "#280071",
+                        fontWeight: 600,
+                      },
+                    "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                      {
+                        backgroundColor: "#E9E5F1",
+                        color: "#280071",
+                        fontWeight: 600,
+                      },
+                  }}
+                  clearIcon={<ClearIcon color="primary" />}
+                  PaperComponent={(props) => (
+                    <Paper
+                      sx={{
+                        background: "#fff",
+                        color: "#B4B4B4",
+                        borderRadius: "10px",
+                      }}
+                      {...props}
+                    />
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label={
+                        <React.Fragment>
+                          Select Room{" "}
+                          <Box
+                            component="span"
+                            sx={{
+                              color: (theme) => theme.palette.error.main,
+                            }}
+                          >
+                            *
+                          </Box>
+                        </React.Fragment>
+                      }
+                      variant="standard"
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid size={12}>
+                <Autocomplete
+                  size="small"
+                  options={therapistUserList}
+                  getOptionLabel={(option) => option.name}
+                  value={formData.selectedTherapist}
+                  onChange={(e, newVal) =>
+                    handleChange("selectedTherapist", newVal)
+                  }
+                  clearOnEscape
+                  // disablePortal
+                  popupIcon={<KeyboardArrowDownIcon color="primary" />}
+                  sx={{
+                    "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover":
+                      {
+                        backgroundColor: "#E9E5F1",
+                        color: "#280071",
+                        fontWeight: 600,
+                      },
+                    "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                      {
+                        backgroundColor: "#E9E5F1",
+                        color: "#280071",
+                        fontWeight: 600,
+                      },
+                  }}
+                  clearIcon={<ClearIcon color="primary" />}
+                  PaperComponent={(props) => (
+                    <Paper
+                      sx={{
+                        background: "#fff",
+                        color: "#B4B4B4",
+                        borderRadius: "10px",
+                      }}
+                      {...props}
+                    />
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label={
+                        <React.Fragment>
+                          Select Therapist{" "}
+                          <Box
+                            component="span"
+                            sx={{
+                              color: (theme) => theme.palette.error.main,
+                            }}
+                          >
+                            *
+                          </Box>
+                        </React.Fragment>
+                      }
+                      variant="standard"
+                    />
+                  )}
+                />
+              </Grid>
+            </React.Fragment>
+
+            <Grid size={12}>
+              <TextField
+                label={
+                  <React.Fragment>
+                    Remark{" "}
+                    <Box
+                      component="span"
+                      sx={{
+                        color: (theme) => theme.palette.error.main,
+                      }}
+                    >
+                      *
+                    </Box>
+                  </React.Fragment>
+                }
+                name="remark"
+                value={formData.remark}
+                onChange={(e) => handleChange(e.target.name, e.target.value)}
+                variant="standard"
+              />
+            </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>
@@ -591,14 +692,14 @@ const UpdateStatusDialog = ({
             size="small"
             disabled={
               !Boolean(
-                isCancelDialog
-                  ? formData.remark.trim()
-                  : formData.selectedRoom && formData.selectedTherapist
+                formData.remark.trim() &&
+                  formData.selectedRoom &&
+                  formData.selectedTherapist
               )
             }
             type="submit"
           >
-            {isCancelDialog ? "Cancel Booking" : "Confirm Booking"}
+            Add Another Therapy
           </Button>
         </DialogActions>
       </Dialog>
@@ -614,4 +715,4 @@ function formatDateTime(dateTime) {
   return null;
 }
 
-export default SpaFrontdeskBookingHistory;
+export default SpaTherapist;
