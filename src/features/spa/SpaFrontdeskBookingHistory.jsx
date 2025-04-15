@@ -361,7 +361,7 @@ const UpdateStatusDialog = ({
         remark: isCancelDialog ? formData.remark : null,
       });
     },
-    [formData, isCancelDialog, spaToBook]
+    [formData, isCancelDialog, spaToBook, handleUpdateSpaBooking]
   );
 
   return (

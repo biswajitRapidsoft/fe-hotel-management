@@ -22,7 +22,7 @@ import {
   DialogActions,
 } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
-import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
+// import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import Swal from "sweetalert2";
@@ -34,13 +34,13 @@ import {
   useGetSpaTypeReceptionistQuery,
 } from "../../services/spa";
 import moment from "moment";
-import { useNavigate } from "react-router-dom";
 
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
 
 const SpaTherapist = () => {
   const [spaToBook, setSpaToBook] = React.useState(null);
+  const [spaToAdd, setSpaToAdd] = React.useState(null);
   const [isCancelDialog, setIsCancelDialog] = React.useState(false);
   const [snack, setSnack] = React.useState({
     open: false,
@@ -71,6 +71,7 @@ const SpaTherapist = () => {
     fromDate: null,
     toDate: null,
   });
+  console.log(spaToAdd, "spaToAdd");
   const {
     data: spaRoomList = {
       data: {
@@ -80,13 +81,11 @@ const SpaTherapist = () => {
     },
   } = useGetRoomBySpaTypeReceptionistQuery(
     {
-      spaTypeId: spaToBook?.id || null,
-      startTime: moment(formatDateTime(spaToBook?.bookingDate)).format(
-        "DD-MM-YYYY HH:mm:ss"
-      ),
-      endTime: moment(formatDateTime(spaToBook?.bookingDate))
+      spaTypeId: spaToAdd?.id || null,
+      startTime: moment().format("DD-MM-YYYY HH:mm:ss"),
+      endTime: moment()
         .add(
-          spaToBook?.bookingDetailsTrailDtosList[0]?.spaType?.spaTypeDetailsList.reduce(
+          spaToAdd?.spaTypeDetailsList?.reduce(
             (prev, curr) => prev + curr.durationMinutes,
             0
           ),
@@ -95,10 +94,8 @@ const SpaTherapist = () => {
         .format("DD-MM-YYYY HH:mm:ss"),
       hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
     },
-    { skip: !Boolean(spaToBook) }
+    { skip: !Boolean(spaToAdd) }
   );
-
-  const navigate = useNavigate();
 
   const handleUpdateSpaBooking = React.useCallback(
     (payload) => {
@@ -124,24 +121,27 @@ const SpaTherapist = () => {
     [updateSpaBooking]
   );
 
-  const handleStartTherapy = React.useCallback((booking) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        updateSpaBooking({
-          status: "STARTED",
-          bookingSpaRefNumber: booking.bookingSpaRefNumber,
-        });
-      }
-    });
-  }, []);
+  const handleStartTherapy = React.useCallback(
+    (booking) => {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          updateSpaBooking({
+            status: "STARTED",
+            bookingSpaRefNumber: booking.bookingSpaRefNumber,
+          });
+        }
+      });
+    },
+    [updateSpaBooking]
+  );
 
   return (
     <React.Fragment>
@@ -203,7 +203,7 @@ const SpaTherapist = () => {
         key={spaToBook?.id || null}
         handleUpdateSpaBooking={handleUpdateSpaBooking}
         spaTypeList={spaTypeList.data}
-        setSpaToBook={setSpaToBook}
+        setSpaToAdd={setSpaToAdd}
       />
       <LoadingComponent open={isLoading || updateSpaBookingRes.isLoading} />
       <SnackAlert snack={snack} setSnack={setSnack} />
@@ -369,46 +369,60 @@ const UpdateStatusDialog = ({
   isCancelDialog,
   handleUpdateSpaBooking,
   spaTypeList,
-  setSpaToBook,
+  setSpaToAdd,
 }) => {
   const [formData, setFormData] = React.useState({
     selectedSpaType: null,
     selectedRoom: null,
+    selectedRoomInputVal: "",
     selectedTherapist: null,
+    selectedTherapistInputVal: "",
     remark: "",
   });
 
-  const handleChange = React.useCallback((name, value) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-    if (name == "selectedSpaType") {
-      setSpaToBook(value);
-    }
-  }, []);
-  console.log(spaToBook, "spaToBook");
+  const handleChange = React.useCallback(
+    (name, value) => {
+      if (name === "selectedSpaType") {
+        setFormData((prevData) => ({
+          ...prevData,
+          selectedRoom: null,
+          selectedRoomInputVal: "",
+          selectedTherapist: null,
+          selectedTherapistInputVal: "",
+          [name]: value,
+        }));
+      } else {
+        setFormData((prevData) => ({
+          ...prevData,
+          [name]: value,
+        }));
+      }
+      if (name === "selectedSpaType") {
+        setSpaToAdd(value);
+      }
+    },
+    [setSpaToAdd]
+  );
 
   const handleSubmitDialogForm = React.useCallback(
     (e) => {
       e.preventDefault();
       handleUpdateSpaBooking({
-        status: isCancelDialog ? "CANCELLED" : "CONFIRMED",
+        spaTypeList: [{ id: formData.selectedSpaType.id }],
+        status: spaToBook.status,
         bookingSpaRefNumber: spaToBook.bookingSpaRefNumber,
-        spaRoomDto: isCancelDialog
-          ? null
-          : {
-              id: formData.selectedRoom.id,
-            },
-        therapist: isCancelDialog
-          ? null
-          : {
-              id: formData.selectedTherapist.id,
-            },
-        remark: isCancelDialog ? formData.remark : null,
+        spaRoomDto: {
+          id: formData.selectedRoom.id,
+        },
+        therapist: {
+          id: formData.selectedTherapist.id,
+        },
+        remark: formData.remark,
+        gstPrice: formData.selectedSpaType.price * 0.18,
+        totalPrice: formData.selectedSpaType.price,
       });
     },
-    [formData, isCancelDialog, spaToBook]
+    [formData, spaToBook, handleUpdateSpaBooking]
   );
 
   return (
@@ -535,7 +549,7 @@ const UpdateStatusDialog = ({
               <Grid size={12}>
                 <Autocomplete
                   size="small"
-                  options={spaRoomDtoList}
+                  options={formData.selectedSpaType ? spaRoomDtoList : []}
                   getOptionLabel={(option) => option.name}
                   value={formData.selectedRoom}
                   onChange={(e, newVal) => handleChange("selectedRoom", newVal)}
@@ -591,7 +605,7 @@ const UpdateStatusDialog = ({
               <Grid size={12}>
                 <Autocomplete
                   size="small"
-                  options={therapistUserList}
+                  options={formData.selectedSpaType ? therapistUserList : []}
                   getOptionLabel={(option) => option.name}
                   value={formData.selectedTherapist}
                   onChange={(e, newVal) =>

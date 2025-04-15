@@ -95,7 +95,7 @@ const SpaInvoiceForFrontesk = React.lazy(() =>
   import("./features/spaInvoiceForFrontdesk/SpaInvoiceForFrontdesk")
 );
 const LoginV2 = React.lazy(() => import("./features/login/Loginv2"));
-const SpaAdmin = React.lazy(() => import("./features/spa/SpaAdmin"));
+// const SpaAdmin = React.lazy(() => import("./features/spa/SpaAdmin"));
 const SpaFrontdeskDashboard = React.lazy(() =>
   import("./features/spa/SpaFrontdeskDashboard")
 );
