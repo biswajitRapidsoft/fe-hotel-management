@@ -121,8 +121,8 @@ const SpaTherapist = () => {
     [updateSpaBooking]
   );
 
-  const handleStartTherapy = React.useCallback(
-    (booking) => {
+  const handleStartEndTherapy = React.useCallback(
+    (booking, status) => {
       Swal.fire({
         title: "Are you sure?",
         text: "You won't be able to revert this!",
@@ -134,7 +134,7 @@ const SpaTherapist = () => {
       }).then((result) => {
         if (result.isConfirmed) {
           updateSpaBooking({
-            status: "STARTED",
+            status: status,
             bookingSpaRefNumber: booking.bookingSpaRefNumber,
           });
         }
@@ -186,7 +186,7 @@ const SpaTherapist = () => {
                   key={booking.id}
                   setSpaToBook={setSpaToBook}
                   setIsCancelDialog={setIsCancelDialog}
-                  handleStartTherapy={handleStartTherapy}
+                  handleStartEndTherapy={handleStartEndTherapy}
                 />
               );
             })}
@@ -216,7 +216,7 @@ const Row = React.memo(function ({
   index,
   setSpaToBook,
   setIsCancelDialog,
-  handleStartTherapy,
+  handleStartEndTherapy,
 }) {
   const [open, setOpen] = React.useState(false);
 
@@ -321,10 +321,37 @@ const Row = React.memo(function ({
                       //   setIsCancelDialog(false);
                       // }}
                       onClick={() => {
-                        handleStartTherapy(booking);
+                        handleStartEndTherapy(booking, "STARTED");
                       }}
                     >
                       Start Therapy
+                    </Button>
+                  )}
+                  {booking.status === "STARTED" && (
+                    <Button
+                      color="error"
+                      variant="outlined"
+                      sx={{
+                        display: "block",
+                        //   color: "#fff",
+                        fontWeight: 600,
+                        textTransform: "none",
+                        fontSize: 15,
+                        "&.Mui-disabled": {
+                          background: "#B2E5F6",
+                          color: "#FFFFFF",
+                        },
+                      }}
+                      size="small"
+                      // onClick={() => {
+                      //   setSpaToBook(booking);
+                      //   setIsCancelDialog(false);
+                      // }}
+                      onClick={() => {
+                        handleStartEndTherapy(booking, "DONE");
+                      }}
+                    >
+                      End Therapy
                     </Button>
                   )}
                   {booking.status === "STARTED" && (
