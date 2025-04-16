@@ -5,13 +5,31 @@ import {
   Button,
   Checkbox,
   Container,
+  Divider,
   FormControlLabel,
   FormGroup,
   Grid2 as Grid,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   TextField,
+  Typography,
+  IconButton,
+  Autocomplete,
+  Paper,
 } from "@mui/material";
 
-import { useSaveSpaTypeMutation } from "../../services/spa";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import ClearIcon from "@mui/icons-material/Clear";
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
+import {
+  useSaveSpaTypeMutation,
+  useGetAllTherapistByHotelIdQuery,
+} from "../../services/spa";
 
 import { useUploadFileMutation } from "../../services/hotel";
 
@@ -19,10 +37,26 @@ import SnackAlert from "../../components/Alert";
 
 import { UploadImageFormComponent } from "../roomType/RoomType";
 
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+
 import LoadingComponent from "../../components/LoadingComponent";
 import SpaTypeListTable from "./SpaTypeListTable";
+import { v4 as uuidv4 } from "uuid";
+
+export const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+export const checkedIcon = (
+  <CheckBoxIcon fontSize="small" sx={{ color: "#280071" }} />
+);
 
 const SpaType = () => {
+  const {
+    data: therapistList = {
+      data: [],
+    },
+  } = useGetAllTherapistByHotelIdQuery(
+    sessionStorage.getItem("hotelIdForSpaType")
+  );
   const [snack, setSnack] = React.useState({
     open: false,
     severity: "",
@@ -36,11 +70,12 @@ const SpaType = () => {
     isAdvance: false,
     advancePercentage: "",
     description: "",
+    therapistList: [],
   });
 
   const [saveSpaType, saveSpaTypeRes] = useSaveSpaTypeMutation();
-
   const [uploadImage, uploadImageRes] = useUploadFileMutation();
+  const [spaBreakDownArr, setSpaBreakDownArr] = React.useState([]);
   const [uploadedImageArr, setUploadedImageArr] = React.useState([]);
 
   // state to manage updation of spa type
@@ -83,7 +118,9 @@ const SpaType = () => {
       isAdvance: false,
       advancePercentage: "",
       description: "",
+      therapistList: [],
     });
+    setSpaBreakDownArr([]);
     setUploadedImageArr([]);
   }, []);
 
@@ -91,7 +128,13 @@ const SpaType = () => {
   //   return Boolean(formData.spaType.trim() && formData.basePrice);
   // }, [formData]);
   const isFormValid = React.useCallback(() => {
-    if (!formData.spaType.trim() || !formData.basePrice) {
+    if (
+      !formData.spaType.trim() ||
+      !formData.basePrice ||
+      !formData.description.trim() ||
+      !Boolean(formData.therapistList.length) ||
+      !Boolean(spaBreakDownArr.length)
+    ) {
       return false;
     }
 
@@ -100,7 +143,7 @@ const SpaType = () => {
     }
 
     return true;
-  }, [formData]);
+  }, [formData, spaBreakDownArr]);
 
   const handleSubmit = React.useCallback(
     (e) => {
@@ -116,6 +159,13 @@ const SpaType = () => {
         id: Boolean(spaToUpdate) ? spaToUpdate.id : "",
         isActive: Boolean(spaToUpdate) ? spaToUpdate.isActive : true,
         description: formData.description,
+        therapistId: formData.therapistList.map((therapist) => therapist.id),
+        spaTypeDetailsList: spaBreakDownArr.map((breakDown) => ({
+          id: typeof breakDown.id === "string" ? null : breakDown.id,
+          serviceName: breakDown.name,
+          serviceDescription: breakDown.description,
+          durationMinutes: breakDown.time,
+        })),
       })
         .unwrap()
         .then((res) => {
@@ -134,7 +184,14 @@ const SpaType = () => {
           });
         });
     },
-    [saveSpaType, formData, uploadedImageArr, handleResetForm, spaToUpdate]
+    [
+      saveSpaType,
+      formData,
+      uploadedImageArr,
+      handleResetForm,
+      spaToUpdate,
+      spaBreakDownArr,
+    ]
   );
 
   React.useEffect(() => {
@@ -145,9 +202,18 @@ const SpaType = () => {
         isAdvance: Boolean(spaToUpdate?.isAdvanceNeeded),
         advancePercentage: spaToUpdate?.advancePaymentPercentage,
         description: spaToUpdate.description,
+        therapistList: spaToUpdate.therapistUserList || [],
       });
+      setSpaBreakDownArr(
+        spaToUpdate?.spaTypeDetailsList?.map((spaDetail) => ({
+          id: spaDetail.id,
+          name: spaDetail.serviceName,
+          description: spaDetail.serviceDescription,
+          time: spaDetail.durationMinutes,
+        }))
+      );
     }
-  }, [spaToUpdate]);
+  }, [spaToUpdate, therapistList.data]);
 
   const handleUploadImage = React.useCallback(
     (imgSource) => {
@@ -398,8 +464,88 @@ const SpaType = () => {
               />
             </FormGroup>
           </Grid>
+          <Grid size={3}>
+            <Autocomplete
+              multiple
+              disableCloseOnSelect
+              options={therapistList.data}
+              getOptionLabel={(option) => option.name}
+              value={formData.therapistList}
+              onChange={(e, newVal) =>
+                handleChange({
+                  target: {
+                    name: "therapistList",
+                    value: newVal,
+                  },
+                })
+              }
+              renderOption={(props, option, { selected }) => (
+                <li {...props}>
+                  <Checkbox
+                    icon={icon}
+                    checkedIcon={checkedIcon}
+                    style={{ marginRight: 8 }}
+                    checked={selected}
+                  />
+                  {option.name}
+                </li>
+              )}
+              renderTags={(list) => list.map((item) => item.name).join(", ")}
+              clearOnEscape
+              disablePortal
+              popupIcon={<KeyboardArrowDownIcon color="primary" />}
+              sx={{
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover": {
+                  backgroundColor: "#E9E5F1",
+                  color: "#280071",
+                  fontWeight: 600,
+                },
+                "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                  {
+                    backgroundColor: "#E9E5F1",
+                    color: "#280071",
+                    fontWeight: 600,
+                  },
+              }}
+              clearIcon={<ClearIcon color="primary" />}
+              PaperComponent={(props) => (
+                <Paper
+                  sx={{
+                    background: "#fff",
+                    color: "#B4B4B4",
+                    borderRadius: "10px",
+                  }}
+                  {...props}
+                />
+              )}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label={
+                    <React.Fragment>
+                      Select Therapist{" "}
+                      <Box
+                        component="span"
+                        sx={{
+                          color: (theme) => theme.palette.error.main,
+                        }}
+                      >
+                        *
+                      </Box>
+                    </React.Fragment>
+                  }
+                  variant="standard"
+                />
+              )}
+            />
+          </Grid>
         </Grid>
         <Box>
+          <AddSpaBreakDownForm
+            spaBreakDownArr={spaBreakDownArr}
+            setSpaBreakDownArr={setSpaBreakDownArr}
+            setSnack={setSnack}
+          />
           <UploadImageFormComponent
             uploadedImageArr={uploadedImageArr}
             handleUploadImage={handleUploadImage}
@@ -447,5 +593,310 @@ const SpaType = () => {
     </Container>
   );
 };
+
+function AddSpaBreakDownForm({
+  spaBreakDownArr,
+  setSpaBreakDownArr,
+  setSnack,
+}) {
+  const [formData, setFormData] = React.useState({
+    name: "",
+    time: "",
+    description: "",
+  });
+
+  const [breakDownToUpdate, setBreakDownToUpdate] = React.useState(null);
+
+  const handleChange = React.useCallback((e) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [e.target.name]:
+        e.target.name === "time"
+          ? e.target.value.replace(/\D|^0/g, "")
+          : e.target.value,
+    }));
+  }, []);
+
+  const handleResetForm = React.useCallback(() => {
+    setFormData({
+      name: "",
+      description: "",
+      time: "",
+    });
+  }, []);
+
+  const isFormValid = React.useCallback(() => {
+    return Boolean(
+      formData.name.trim() &&
+        formData.time.trim() &&
+        formData.description.trim()
+    );
+  }, [formData]);
+
+  const handleAddSpaBreakDown = React.useCallback(() => {
+    if (
+      Boolean(
+        spaBreakDownArr.find(
+          (breakDown) =>
+            breakDown.name.trim().toLowerCase() ===
+              formData.name.trim().toLocaleLowerCase() &&
+            (breakDownToUpdate
+              ? breakDownToUpdate.name.trim().toLowerCase() !==
+                formData.name.trim().toLowerCase()
+              : true)
+        )
+      )
+    ) {
+      return setSnack({
+        open: true,
+        message: "Spa breakdown name already exists.",
+        severity: "error",
+      });
+    }
+    if (breakDownToUpdate) {
+      const spaBreakDownArrToSet = [];
+      spaBreakDownArr.forEach((item) => {
+        if (item.id === breakDownToUpdate.id) {
+          spaBreakDownArrToSet.push({
+            ...item,
+            name: formData.name,
+            description: formData.description,
+            time: formData.time,
+          });
+        } else {
+          spaBreakDownArrToSet.push(item);
+        }
+      });
+      setSpaBreakDownArr(spaBreakDownArrToSet);
+    } else {
+      setSpaBreakDownArr((prevData) => [
+        ...prevData,
+        {
+          id: uuidv4(),
+          name: formData.name,
+          time: formData.time,
+          description: formData.description,
+        },
+      ]);
+    }
+    handleResetForm();
+  }, [
+    setSpaBreakDownArr,
+    formData,
+    handleResetForm,
+    spaBreakDownArr,
+    setSnack,
+  ]);
+
+  const handleDeleteSpaBreakDown = React.useCallback(
+    (uid) => {
+      setSpaBreakDownArr((prevData) =>
+        prevData.filter((data) => data.id !== uid)
+      );
+    },
+    [setSpaBreakDownArr]
+  );
+
+  React.useEffect(() => {
+    if (breakDownToUpdate) {
+      setFormData((prevData) => ({
+        ...prevData,
+        name: breakDownToUpdate.name,
+        time: breakDownToUpdate.time,
+      }));
+    }
+  }, [breakDownToUpdate]);
+
+  return (
+    <React.Fragment>
+      <Box
+        sx={{
+          mt: 2,
+          px: 1,
+          py: 0.5,
+          // borderBottom: (theme) => `3px solid ${theme.palette.primary.main}`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          backgroundColor: "#BDBDBD",
+        }}
+      >
+        <Typography
+          variant="h5"
+          sx={{
+            letterSpacing: 1,
+            //   color: (theme) => theme.palette.primary.main,
+            color: "#FFFFFF",
+            fontWeight: 600,
+          }}
+          // gutterBottom
+        >
+          Add Spa Breakdown
+        </Typography>
+      </Box>
+      <Divider sx={{ borderColor: "#BDBDBD" }} />
+      <Box sx={{ p: 2, pr: 2, pb: 2, border: "1px solid #BDBDBD" }}>
+        <Grid container columnSpacing={2}>
+          <Grid size={3}>
+            <TextField
+              label={
+                <React.Fragment>
+                  Name
+                  <Box
+                    component="span"
+                    sx={{
+                      color: (theme) => theme.palette.error.main,
+                    }}
+                  >
+                    *
+                  </Box>
+                </React.Fragment>
+              }
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              variant="standard"
+            />
+          </Grid>
+          <Grid size={3}>
+            <TextField
+              label={
+                <React.Fragment>
+                  Description
+                  <Box
+                    component="span"
+                    sx={{
+                      color: (theme) => theme.palette.error.main,
+                    }}
+                  >
+                    *
+                  </Box>
+                </React.Fragment>
+              }
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              variant="standard"
+            />
+          </Grid>
+          <Grid size={3}>
+            <TextField
+              label={
+                <React.Fragment>
+                  Time
+                  <Box
+                    component="span"
+                    sx={{
+                      color: (theme) => theme.palette.error.main,
+                    }}
+                  >
+                    *
+                  </Box>
+                </React.Fragment>
+              }
+              name="time"
+              value={formData.time}
+              onChange={handleChange}
+              variant="standard"
+            />
+          </Grid>
+          <Grid size={3}>
+            <Button
+              color="secondary"
+              variant="contained"
+              sx={{
+                color: "#fff",
+                fontWeight: 600,
+                textTransform: "none",
+                fontSize: 15,
+                mt: 1.5,
+                "&.Mui-disabled": {
+                  background: "#B2E5F6",
+                  color: "#FFFFFF",
+                },
+              }}
+              size="small"
+              onClick={handleAddSpaBreakDown}
+              disabled={!Boolean(isFormValid())}
+            >
+              {Boolean(breakDownToUpdate) ? "Update" : "Add"}
+            </Button>
+          </Grid>
+          <Grid size={12}>
+            <Box sx={{ mt: 3, mb: 2 }}>
+              <TableContainer>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow
+                      sx={{
+                        ".MuiTableCell-root": {
+                          fontSize: "1rem",
+                          backgroundColor: "#E9E5F1",
+                        },
+                      }}
+                    >
+                      <TableCell>S.No.</TableCell>
+                      <TableCell>Name</TableCell>
+                      <TableCell>Description</TableCell>
+                      <TableCell>Time</TableCell>
+                      <TableCell>Action</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {spaBreakDownArr.map((breakDown, index) => {
+                      return (
+                        <TableRow
+                          key={breakDown.id}
+                          sx={{
+                            "& > *": { borderBottom: "unset" },
+                            ".MuiTableCell-root": {
+                              color: "#747474",
+                            },
+                          }}
+                        >
+                          <TableCell>{index + 1}</TableCell>
+                          <TableCell>{breakDown.name}</TableCell>
+                          <TableCell>{breakDown.description}</TableCell>
+                          <TableCell>{breakDown.time}</TableCell>
+                          <TableCell>
+                            {typeof breakDown.id === "string" && (
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 1,
+                                }}
+                              >
+                                <IconButton
+                                  size="small"
+                                  onClick={() =>
+                                    handleDeleteSpaBreakDown(breakDown.id)
+                                  }
+                                >
+                                  <DeleteIcon fontSize="small" color="error" />
+                                </IconButton>
+                                <IconButton
+                                  onClick={() =>
+                                    setBreakDownToUpdate(breakDown)
+                                  }
+                                >
+                                  <EditIcon />
+                                </IconButton>
+                              </Box>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
+          </Grid>
+        </Grid>
+      </Box>
+    </React.Fragment>
+  );
+}
 
 export default SpaType;

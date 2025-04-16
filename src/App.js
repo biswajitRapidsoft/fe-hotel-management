@@ -87,12 +87,22 @@ const ManagerDashboard = React.lazy(() =>
 const SpaType = React.lazy(() => import("./features/spaType/SpaType"));
 const Spa = React.lazy(() => import("./features/spa/Spa"));
 const SpaInvoice = React.lazy(() => import("./features/spa/SpaInvoice"));
+const SpaRoomAllocation = React.lazy(() =>
+  import("./features/spaType/SpaRoomAllocation")
+);
 
 const SpaInvoiceForFrontesk = React.lazy(() =>
   import("./features/spaInvoiceForFrontdesk/SpaInvoiceForFrontdesk")
 );
 const LoginV2 = React.lazy(() => import("./features/login/Loginv2"));
-const SpaAdmin = React.lazy(() => import("./features/spa/SpaAdmin"));
+// const SpaAdmin = React.lazy(() => import("./features/spa/SpaAdmin"));
+const SpaFrontdeskDashboard = React.lazy(() =>
+  import("./features/spa/SpaFrontdeskDashboard")
+);
+const SpaTherapist = React.lazy(() => import("./features/spa/SpaTherapist"));
+const SpaFrontdeskBookingHistory = React.lazy(() =>
+  import("./features/spa/SpaFrontdeskBookingHistory")
+);
 const CleaningServiceHistory = React.lazy(() =>
   import("./features/dashboard/CleaningServiceHistory")
 );
@@ -291,6 +301,10 @@ function App() {
             <Route path="/extra-item" element={<ExtraItem />} />
             <Route path="/employee-list" element={<EmployeeList />} />
             <Route path="/spa-type" element={<SpaType />} />
+            <Route
+              path="/spa-room-allocation"
+              element={<SpaRoomAllocation />}
+            />
             <Route path="/spa" element={<Spa />} />
             <Route path="/HallList" element={<HallList />} />
             <Route path="/createTable" element={<CreateTable />} />
@@ -333,6 +347,16 @@ function App() {
             />
             <Route path="/FoodItemList" element={<FoodItemList />} />
             <Route path="/barItemList" element={<BarItemList />} />
+            <Route
+              path="/spa-frontdesk-dashboard"
+              element={<SpaFrontdeskDashboard />}
+            />
+            {/* <Route path="/spa-admin" element={<SpaAdmin />} /> */}
+            <Route path="/spa-admin" element={<SpaTherapist />} />
+            <Route
+              path="/spa-frontdesk-booking-history"
+              element={<SpaFrontdeskBookingHistory />}
+            />
             {/* LaundryHistoryForGuest */}
           </Route>
           <Route element={<Layout />}>
@@ -356,7 +380,7 @@ function App() {
             />
             <Route path="/OrderHistoryToday" element={<OrderHistoryToday />} />
             <Route path="/RoomDineIn" element={<RoomDineIn />} />
-            <Route path="/spa-admin" element={<SpaAdmin />} />
+            {/* <Route path="/spa-admin" element={<SpaAdmin />} /> */}
             <Route path="/hallBookings" element={<HallBookingDashboard />} />
             <Route
               path="/HouseKeepingHistory"

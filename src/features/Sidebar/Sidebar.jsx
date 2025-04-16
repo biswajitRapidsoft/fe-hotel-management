@@ -124,7 +124,7 @@ const sideBarMenuOptions = [
     menuIcon: <SpaIcon sx={{ color: "#fff" }} />,
     menuIconAlt: "Spa Logo",
     menuTitle: "Spa",
-    visibility: [FRONTDESK],
+    visibility: [],
   },
   {
     pathname: "/housekeeper-dashboard",

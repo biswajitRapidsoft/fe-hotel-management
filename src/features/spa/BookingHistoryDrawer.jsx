@@ -154,7 +154,13 @@ const BookingHistoryDrawer = ({ open, handleClose }) => {
             <Paper sx={{ display: "flex", gap: 1, p: 1 }} key={booking.id}>
               <Box
                 component="img"
-                src={booking?.images ? booking?.images[0] : ""}
+                // src={booking?.images ? booking?.images[0] : ""}
+                src={
+                  booking?.bookingDetailsTrailDtosList[0]?.spaType?.images
+                    ? booking?.bookingDetailsTrailDtosList[0]?.spaType
+                        ?.images[0]
+                    : ""
+                }
                 sx={{ width: 175 }}
               />
               <Box sx={{ flexGrow: 1 }}>
@@ -165,7 +171,10 @@ const BookingHistoryDrawer = ({ open, handleClose }) => {
                     justifyContent: "space-between",
                   }}
                 >
-                  <Typography variant="h6">{booking.spaTypeName}</Typography>
+                  <Typography variant="h6">
+                    {/* {booking.spaTypeName} */}
+                    {booking?.bookingDetailsTrailDtosList[0]?.spaType?.name}
+                  </Typography>
                   <Tooltip title="Download Invoice" arrow>
                     <IconButton onClick={() => handleDownloadInvoice(booking)}>
                       <ReceiptIcon />
@@ -181,7 +190,7 @@ const BookingHistoryDrawer = ({ open, handleClose }) => {
                   </Typography>
                   <Typography>{booking.bookingDate}</Typography>
                 </Box>
-                <Box sx={{ display: "flex", alignItems: "center" }}>
+                {/* <Box sx={{ display: "flex", alignItems: "center" }}>
                   <Typography sx={{ width: "100px", fontWeight: "bold" }}>
                     Slot:
                   </Typography>
@@ -190,7 +199,7 @@ const BookingHistoryDrawer = ({ open, handleClose }) => {
                     .slice(0, 5)}-${booking.endTime
                     .split(" ")[1]
                     .slice(0, 5)}`}</Typography>
-                </Box>
+                </Box> */}
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                   <Typography sx={{ width: "100px", fontWeight: "bold" }}>
                     Price:

@@ -7,7 +7,7 @@ const config = Object.freeze({
   // baseUrl: "http://192.168.12.43:8080/be-hms/",
   baseUrl: "https://hms.watsoo.com/backend/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/", // HO Staging
-  // baseUrl: "http://192.168.12.3:9000/",
+  baseUrl: "http://192.168.12.3:9000/",
   // baseUrl: "http://192.168.30.44:8070/be-hms/",
   // baseUrl: "http://192.168.12.3:9000/",
   apiName: {
@@ -124,7 +124,17 @@ const config = Object.freeze({
       "api/get/all/bar/staff/service/order/request",
     deliverBarOrdersByServiceStaff:
       "api/deliver/bar/order/by/bar/service/staff",
-    // DASHBOARD API ENDPOINTS-106
+    getAllTherapistByHotelId: "api/get/all/therapist/users",
+    saveSpaRoom: "api/save/spa/room",
+    getSpaRooms: "api/get/all/spa/room",
+    getSpaTypeReceptionist: "api/spa/types/receptionist",
+    getRoomBySpaTypeReceptionist: "api/get/room/by/spa-type",
+    bookSpaByReceptionist: "api/spa/bookings/receptionist",
+    getSpaBookingReceptionist: "api/get/booking/receptionist",
+    updateSpaBooking: "api/spatype/update/booking",
+    updateSpaBookingByTherapist: "api/spa/booking/update-status-by-therapist",
+    getSpaBookingByTherapist: "api/spa/bookings/by-therapist",
+    // DASHBOARD API ENDPOINTS
     getAllRoomListByHotelId: "api/get/room/list",
     getAllGovtIds: "api/get/all/govt/ids",
     getAllPaymentMethods: "api/get/all/payment/methods",
