@@ -1768,7 +1768,11 @@ const CustomRow = memo(function ({
                     whiteSpace: "nowrap",
                   }}
                 >
-                  {row?.bookingStatus?.replace(/_/g, " ")}
+                  {(row?.bookingStatus === "Checked_Out" &&
+                  row.isForcedRoomCheckout
+                    ? "Forced_Check_Out"
+                    : row?.bookingStatus
+                  )?.replace(/_/g, " ")}
                 </Box>
               ) : // </Typography>
               subitem?.key === "bookingAction" ? (
