@@ -77,6 +77,8 @@ const Header = () => {
   }, [notificationEl]);
 
   const [openDialog, setOpenDialog] = React.useState(false);
+  const [changeProfileDialog, setChangeProfileDialog] = React.useState(false);
+
   const [openPasswordChangeDialog, setOpenPasswordChangeDialog] =
     React.useState(false);
 
@@ -131,6 +133,12 @@ const Header = () => {
     navigate("/");
   }, [navigate]);
 
+  const handleChangeProfileDialog = React.useCallback(() => {
+    setChangeProfileDialog(true);
+  }, []);
+  const handleCloseChangeProfileDialog = React.useCallback(() => {
+    setChangeProfileDialog(null);
+  }, []);
   return (
     <StyledHeaderBox
     // sx={{
@@ -248,6 +256,7 @@ const Header = () => {
             display: "flex",
             alignItems: "center",
             gap: 1,
+            cursor: "pointer",
             position: "relative",
             "&:before": {
               content: "''",
@@ -264,6 +273,7 @@ const Header = () => {
             alt="avatar"
             src={JSON.parse(sessionStorage?.getItem("data"))?.userImageUrl}
             sx={{ width: 48, height: 48 }}
+            onClick={() => handleChangeProfileDialog()}
           />
           <Box
             sx={{
@@ -359,10 +369,55 @@ const Header = () => {
         togglePasswordVisibility={togglePasswordVisibility}
       />
       <SnackAlert snack={snack} setSnack={setSnack} />
+      <ChangeProfileImageDialog
+        changeProfileDialog={changeProfileDialog}
+        handleCloseChangeProfileDialog={handleCloseChangeProfileDialog}
+      />
     </StyledHeaderBox>
   );
 };
 
+const ChangeProfileImageDialog = React.memo(function ({
+  changeProfileDialog,
+  handleCloseChangeProfileDialog,
+}) {
+  return (
+    <React.Fragment>
+      <BootstrapDialog
+        open={Boolean(changeProfileDialog)}
+        onClose={handleCloseChangeProfileDialog}
+        aria-labelledby="password-change-dialog-title"
+        maxWidth="sm"
+        fullWidth
+        sx={{
+          ".MuiDialogTitle-root": {
+            px: 5,
+            py: 3,
+          },
+        }}
+        PaperProps={{
+          sx: { borderRadius: 4 },
+        }}
+      >
+        <DialogTitle id="view-image-dialog-title" sx={{ fontSize: 24 }}>
+          Change Profile Image
+        </DialogTitle>{" "}
+        <IconButton
+          aria-label="close"
+          onClick={handleCloseChangeProfileDialog}
+          sx={{
+            position: "absolute",
+            right: 30,
+            top: 16,
+            color: "#280071",
+          }}
+        >
+          <CloseIcon sx={{ fontSize: 30 }} />
+        </IconButton>
+      </BootstrapDialog>
+    </React.Fragment>
+  );
+});
 const AlertDialog = React.memo(function ({ open, handleClose, handleLogout }) {
   return ReactDOM.createPortal(
     <Dialog
