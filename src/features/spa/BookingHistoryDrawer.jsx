@@ -154,7 +154,13 @@ const BookingHistoryDrawer = ({ open, handleClose }) => {
             <Paper sx={{ display: "flex", gap: 1, p: 1 }} key={booking.id}>
               <Box
                 component="img"
-                src={booking?.images ? booking?.images[0] : ""}
+                // src={booking?.images ? booking?.images[0] : ""}
+                src={
+                  booking?.bookingDetailsTrailDtosList[0]?.spaType?.images
+                    ? booking?.bookingDetailsTrailDtosList[0]?.spaType
+                        ?.images[0]
+                    : ""
+                }
                 sx={{ width: 175 }}
               />
               <Box sx={{ flexGrow: 1 }}>
@@ -165,7 +171,10 @@ const BookingHistoryDrawer = ({ open, handleClose }) => {
                     justifyContent: "space-between",
                   }}
                 >
-                  <Typography variant="h6">{booking.spaTypeName}</Typography>
+                  <Typography variant="h6">
+                    {/* {booking.spaTypeName} */}
+                    {booking?.bookingDetailsTrailDtosList[0]?.spaType?.name}
+                  </Typography>
                   <Tooltip title="Download Invoice" arrow>
                     <IconButton onClick={() => handleDownloadInvoice(booking)}>
                       <ReceiptIcon />

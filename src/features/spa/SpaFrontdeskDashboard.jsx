@@ -740,7 +740,7 @@ const BookingDrawer = React.memo(function ({
         formData.selectedRoom &&
         formData.firstName &&
         formData.phoneNo &&
-        formData.email &&
+        (formData.email ? formData.email.includes("@") : true) &&
         formData.address
     );
   }, [formData]);

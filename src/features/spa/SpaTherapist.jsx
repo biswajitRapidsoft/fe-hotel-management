@@ -32,6 +32,7 @@ import {
   useGetSpaBookingHistoryAdminQuery,
   useUpdateSpaBookingByTherapistMutation,
   useGetSpaTypeReceptionistQuery,
+  useGetSpaBookingByTherapistQuery,
 } from "../../services/spa";
 import moment from "moment";
 
@@ -57,19 +58,30 @@ const SpaTherapist = () => {
   } = useGetSpaTypeReceptionistQuery(
     JSON.parse(sessionStorage.getItem("data")).hotelId
   );
+  // const {
+  //   data: bookingList = {
+  //     data: {
+  //       data: [],
+  //     },
+  //   },
+  //   isLoading,
+  // } = useGetSpaBookingHistoryAdminQuery({
+  //   hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
+  //   pageNo: 0,
+  //   pageSize: 0,
+  //   fromDate: null,
+  //   toDate: null,
+  // });
   const {
-    data: bookingList = {
+    data: bookingListTherapist = {
       data: {
-        data: [],
+        bokingList: [],
       },
     },
     isLoading,
-  } = useGetSpaBookingHistoryAdminQuery({
+  } = useGetSpaBookingByTherapistQuery({
     hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
-    pageNo: 0,
-    pageSize: 0,
-    fromDate: null,
-    toDate: null,
+    therapistId: JSON.parse(sessionStorage.getItem("data")).id,
   });
   console.log(spaToAdd, "spaToAdd");
   const {
@@ -178,18 +190,33 @@ const SpaTherapist = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {bookingList.data.data.map((booking, index) => {
-              return (
-                <Row
-                  booking={booking}
-                  index={index}
-                  key={booking.id}
-                  setSpaToBook={setSpaToBook}
-                  setIsCancelDialog={setIsCancelDialog}
-                  handleStartEndTherapy={handleStartEndTherapy}
-                />
-              );
-            })}
+            {bookingListTherapist?.data?.bookingList ? (
+              bookingListTherapist.data.bookingList.map((booking, index) => {
+                return (
+                  <Row
+                    booking={booking}
+                    index={index}
+                    key={booking.id}
+                    setSpaToBook={setSpaToBook}
+                    setIsCancelDialog={setIsCancelDialog}
+                    handleStartEndTherapy={handleStartEndTherapy}
+                  />
+                );
+              })
+            ) : (
+              <TableRow
+                sx={{
+                  "& > *": { borderBottom: "unset" },
+                  ".MuiTableCell-root": {
+                    //   fontSize: "1rem",
+                    letterSpacing: 1,
+                    textAlign: "center",
+                  },
+                }}
+              >
+                <TableCell colSpan={7}>No Recored Found.</TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </TableContainer>
