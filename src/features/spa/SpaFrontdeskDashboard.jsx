@@ -114,7 +114,7 @@ const SpaFrontdeskDashboard = () => {
       if (spaToBook.isAdvanceNeeded) {
         setOpenPaymentDialog((spaToBook.price * 0.2).toFixed(2));
         setBookingPayload(payload);
-        setFetchApi(bookSpa);
+        setFetchApi(() => bookSpa);
       } else {
         bookSpa(payload)
           .unwrap()
