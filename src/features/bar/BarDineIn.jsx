@@ -43,7 +43,7 @@ import {
   CANCELLED,
   DELIVERED,
   ORDER_PLACED,
-  READY_TO_SERVE,
+  // READY_TO_SERVE,
   REJECTED,
 } from "../../helper/constants";
 import { useNavigate } from "react-router-dom";
@@ -111,14 +111,14 @@ const BarDineIn = () => {
   }, []);
 
   const [orderDetailsDialog, setOrderDetailsDialog] = React.useState(null);
-
+  console.log("orderDetailsDialog", orderDetailsDialog);
   const handleOpenPaymentDialog = React.useCallback(() => {
-    const totalPrice = orderDetailsDialog?.bookingRequestDto?.totalPrice || 0;
-    const gstPrice = orderDetailsDialog?.bookingRequestDto?.gstPrice || 0;
+    const totalPrice = orderDetailsDialog?.totalAmount || 0;
+    const gstPrice = orderDetailsDialog?.gstPrice || 0;
 
     const payload = {
       paidAmount: totalPrice + gstPrice,
-      orderId: orderDetailsDialog?.bookingRequestDto?.orderId,
+      orderId: orderDetailsDialog?.orderId,
     };
 
     setMakePartialPaymentPayload(payload);
@@ -353,7 +353,7 @@ const Row = ({
           item.middleName || ""
         } ${item.lastName || ""}`}</TableCell> */}
         <TableCell sx={{ minWidth: 150 }}>{item?.customerName}</TableCell>
-        <TableCell>{item.phoneNo}</TableCell>
+        <TableCell>{item.bookingDetails.phoneNumber}</TableCell>
         <TableCell>{item.dinningType.replace("_", " ")}</TableCell>
         <TableCell>
           {item?.bookingDetails
@@ -457,7 +457,7 @@ const Row = ({
                     Update Status
                   </Button>
                 )}
-              {item?.orderStatus === READY_TO_SERVE && (
+              {/* {item?.orderStatus === READY_TO_SERVE && (
                 <Button
                   sx={{
                     display: "block",
@@ -481,7 +481,7 @@ const Row = ({
                 >
                   Proceed to Payment
                 </Button>
-              )}
+              )} */}
               {item?.dinningType === "Room_Delivery" && (
                 <Button
                   sx={{
@@ -794,7 +794,7 @@ function AssignStaffDialog({
   setSnack,
 }) {
   const [selectedServiceStaff, setSelectedServiceStaff] = React.useState(null);
-  console.log("selectedServiceStaff", selectedServiceStaff);
+  console.log("assignStaffDialog", assignStaffDialog);
   const [selectedServiceStaffInputVal, setSelectedServiceStaffInputVal] =
     React.useState("");
 
@@ -919,8 +919,8 @@ function AssignStaffDialog({
                       <>
                         <TableRow key={index}>
                           <TableCell>{index + 1}</TableCell>
-                          <TableCell>{item?.itemName}</TableCell>
-                          <TableCell>{item?.noOfItems}</TableCell>
+                          <TableCell>{item?.name}</TableCell>
+                          <TableCell>{item?.quantity}</TableCell>
                           <TableCell>
                             {Boolean(item?.isDelivered) ? "Yes" : "No"}
                           </TableCell>
@@ -1165,34 +1165,37 @@ const OrderDetailsDialog = ({
     handleCloseOrderDetailsDialog,
   ]);
 
-  const handleChange = React.useCallback((e, newValue, reason, details) => {
-    if (reason === "selectOption" || reason === "clear") {
-      setFormData((prevData) => ({
-        ...prevData,
-        paymentType: newValue,
-      }));
-      return;
-    }
-
-    const { name, type, checked, value } = e.target;
-
-    setFormData((prevData) => {
-      if (name === "roomNumber") {
-        return {
+  const handleChange = React.useCallback(
+    (e, newValue, reason, details) => {
+      if (reason === "selectOption" || reason === "clear") {
+        setFormData((prevData) => ({
           ...prevData,
-          [name]: value.replace(/\D/g, ""),
-        };
-      } else if (type === "checkbox") {
-        return {
-          ...prevData,
-          isAssosciateWithRoom:
-            name === "isAssosciateWithRoom" ? checked : false,
-          isProceedToPayment: name === "isProceedToPayment" ? checked : false,
-        };
+          paymentType: newValue,
+        }));
+        return;
       }
-      return prevData;
-    });
-  }, []);
+
+      const { name, type, checked, value } = e.target;
+
+      setFormData((prevData) => {
+        if (name === "roomNumber") {
+          return {
+            ...prevData,
+            [name]: value.replace(/\D/g, ""),
+          };
+        } else if (type === "checkbox") {
+          return {
+            ...prevData,
+            isAssosciateWithRoom:
+              name === "isAssosciateWithRoom" ? checked : false,
+            isProceedToPayment: name === "isProceedToPayment" ? checked : false,
+          };
+        }
+        return prevData;
+      });
+    },
+    [setFormData]
+  );
 
   const handleDownloadInvoice = React.useCallback((orderDetailsDialog) => {
     const imageUrl = JSON.parse(sessionStorage.getItem("data")).hotelLogoUrl;
@@ -1277,11 +1280,14 @@ const OrderDetailsDialog = ({
     };
   }, []);
 
-  const removeBookingByRefNumber = useCallback((refNumber) => {
-    setOrderMapDtos((prev) =>
-      prev.filter((item) => item.bookingRefNumber !== refNumber)
-    );
-  }, []);
+  const removeBookingByRefNumber = useCallback(
+    (refNumber) => {
+      setOrderMapDtos((prev) =>
+        prev.filter((item) => item.bookingRefNumber !== refNumber)
+      );
+    },
+    [setOrderMapDtos]
+  );
 
   useEffect(() => {
     const bookingDataByRoomNo = bookingDetailsRes?.data?.data;
@@ -1301,7 +1307,7 @@ const OrderDetailsDialog = ({
     } else if (!isSplit) {
       setOrderMapDtos([]);
     }
-  }, [bookingDetailsRes, isSplit]);
+  }, [bookingDetailsRes, isSplit, setFormData, setOrderMapDtos]);
 
   useEffect(() => {
     const totalPrice = orderDetailsDialog?.totalAmount ?? 0;
@@ -1316,7 +1322,7 @@ const OrderDetailsDialog = ({
           }))
         : [];
     setCustomOrderMapDtos(updatedOrderDtos);
-  }, [orderMapDtos, orderDetailsDialog]);
+  }, [orderMapDtos, orderDetailsDialog, setCustomOrderMapDtos]);
 
   return (
     <>

@@ -185,6 +185,19 @@ const OrderHistoryToday = React.lazy(() =>
 const FinalHotelBillInvoice = React.lazy(() =>
   import("./features/HotelBillInvoice/FinalHotelBillInvoice")
 );
+const FinalFoodBillInvoice = React.lazy(() =>
+  import("./features/HotelBillInvoice/FinalFoodBillInvoice")
+);
+const FinalBarBillInvoice = React.lazy(() =>
+  import("./features/HotelBillInvoice/FinalBarBillInvoice")
+);
+const FinalSpaBillInvoice = React.lazy(() =>
+  import("./features/HotelBillInvoice/FinalSpaBillInvoice")
+);
+
+const SpaManagerDashboard = React.lazy(() =>
+  import("./features/spa/SpaManagerDashboard")
+);
 
 function App() {
   const location = useLocation();
@@ -233,6 +246,18 @@ function App() {
           <Route
             path="/FinalHotelBillInvoice/"
             element={<FinalHotelBillInvoice key="final-bill" />}
+          />
+          <Route
+            path="/FinalFoodBillInvoice"
+            element={<FinalFoodBillInvoice key="final-foodBill" />}
+          />
+          <Route
+            path="/FinalBarBillInvoice"
+            element={<FinalBarBillInvoice key="final-barBill" />}
+          />
+          <Route
+            path="/FinalSpaBillInvoice"
+            element={<FinalSpaBillInvoice key="final-spaBill" />}
           />
           <Route
             path="/foodBillInvoiceInBookingHistory/:bookingRefNo"
@@ -286,6 +311,11 @@ function App() {
             <Route path="/CreateBarTable" element={<CreateBarTable />} />
             <Route path="/WaiterDashboard" element={<WaiterDashboard />} />
             <Route
+              path="/KitchenServiceStaff"
+              element={<KitchenServiceStaff />}
+            />
+            <Route path="/BarServiceStaff" element={<BarServiceStaff />} />
+            <Route
               path="/BarWaiterDashboard"
               element={<BarWaiterDashboard />}
             />
@@ -298,6 +328,10 @@ function App() {
             <Route path="/bar" element={<Bar />} />
             <Route path="/bar-admin" element={<BarAdmin />} />
             <Route path="/managerDashboard" element={<ManagerDashboard />} />
+            <Route
+              path="/SpaManagerDashboard"
+              element={<SpaManagerDashboard />}
+            />
             <Route
               path="/inventoryManagement"
               element={<InventoryManagement />}
@@ -356,11 +390,6 @@ function App() {
               path="/housekeeper-dashboard"
               element={<HouseKeeperDashboard />}
             />
-            <Route
-              path="/KitchenServiceStaff"
-              element={<KitchenServiceStaff />}
-            />
-            <Route path="/BarServiceStaff" element={<BarServiceStaff />} />
             <Route
               path="/LaundryHistory"
               element={<LaundryHistoryForAdmin />}

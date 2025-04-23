@@ -59,10 +59,10 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import ClearIcon from "@mui/icons-material/Clear";
 import LoadingComponent from "../../components/LoadingComponent";
 import SnackAlert from "../../components/Alert";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 const BarOrderHistoryToday = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [snack, setSnack] = React.useState({
     open: false,
     message: "",
@@ -132,7 +132,7 @@ const BarOrderHistoryToday = () => {
     JSON.parse(sessionStorage.getItem("data")).hotelId
   );
 
-  const { data: tableListForBarCounterStaff = { data: [] }, isLoading } =
+  const { data: tableListForBarCounterStaff = { data: [] } } =
     useGetAllBarTableForCounterStaffQuery({
       hotelId: JSON.parse(sessionStorage.getItem("data")).hotelId,
       userId: JSON.parse(sessionStorage.getItem("data")).id,
@@ -301,7 +301,7 @@ const Row = ({
   setAssignStaffDialog,
   setOrderDetailsDialog,
 }) => {
-  console.log("item", item);
+  console.log("item", item?.bookingDto?.phoneNumber);
   const [open, setOpen] = React.useState(false);
   return (
     <React.Fragment>
@@ -322,7 +322,7 @@ const Row = ({
         {/* <TableCell sx={{ minWidth: 150 }}>{`${item.bookingDetails.firstName} ${
           item.bookingDetails.middleName || ""
         } ${item.bookingDetails.lastName || ""}`}</TableCell> */}
-        <TableCell>{item?.phoneNo}</TableCell>
+        <TableCell>{item?.bookingDto?.phoneNumber}</TableCell>
         <TableCell>{item?.dinningType?.replace("_", " ")}</TableCell>
         <TableCell>
           {item?.bookingDto?.roomDto
@@ -404,7 +404,7 @@ const Row = ({
                 </TableBody>
               </Table>
 
-              {[DELIVERED, CANCELLED, REJECTED, ORDER_PLACED].includes(
+              {[CANCELLED, REJECTED, ORDER_PLACED].includes(
                 item?.orderStatus
               ) &&
                 item?.dinningType !== "Room_Delivery" &&
@@ -430,7 +430,8 @@ const Row = ({
                   </Button>
                 )}
 
-              {item?.orderStatus === READY_TO_SERVE &&
+              {[DELIVERED, READY_TO_SERVE].includes(item?.orderStatus) &&
+                // item?.orderStatus === READY_TO_SERVE &&
                 !Boolean(item?.dinningType === "Room_Delivery") && (
                   <Button
                     sx={{
@@ -456,7 +457,7 @@ const Row = ({
                     Proceed to Payment
                   </Button>
                 )}
-              {item?.dinningType === "Room_Delivery" &&
+              {/* {item?.dinningType === "Room_Delivery" &&
                 !Boolean(item?.orderTakenBy) && (
                   <Button
                     sx={{
@@ -476,7 +477,7 @@ const Row = ({
                   >
                     Assign Staff
                   </Button>
-                )}
+                )} */}
             </Box>
           </Collapse>
         </TableCell>
@@ -1138,34 +1139,37 @@ const OrderDetailsDialog = ({
     handleCloseOrderDetailsDialog,
   ]);
 
-  const handleChange = React.useCallback((e, newValue, reason, details) => {
-    if (reason === "selectOption" || reason === "clear") {
-      setFormData((prevData) => ({
-        ...prevData,
-        paymentType: newValue,
-      }));
-      return;
-    }
-
-    const { name, type, checked, value } = e.target;
-
-    setFormData((prevData) => {
-      if (name === "roomNumber") {
-        return {
+  const handleChange = React.useCallback(
+    (e, newValue, reason, details) => {
+      if (reason === "selectOption" || reason === "clear") {
+        setFormData((prevData) => ({
           ...prevData,
-          [name]: value.replace(/\D/g, ""),
-        };
-      } else if (type === "checkbox") {
-        return {
-          ...prevData,
-          isAssosciateWithRoom:
-            name === "isAssosciateWithRoom" ? checked : false,
-          isProceedToPayment: name === "isProceedToPayment" ? checked : false,
-        };
+          paymentType: newValue,
+        }));
+        return;
       }
-      return prevData;
-    });
-  }, []);
+
+      const { name, type, checked, value } = e.target;
+
+      setFormData((prevData) => {
+        if (name === "roomNumber") {
+          return {
+            ...prevData,
+            [name]: value.replace(/\D/g, ""),
+          };
+        } else if (type === "checkbox") {
+          return {
+            ...prevData,
+            isAssosciateWithRoom:
+              name === "isAssosciateWithRoom" ? checked : false,
+            isProceedToPayment: name === "isProceedToPayment" ? checked : false,
+          };
+        }
+        return prevData;
+      });
+    },
+    [setFormData]
+  );
 
   const handleDownloadInvoice = React.useCallback((orderDetailsDialog) => {
     const imageUrl = JSON.parse(sessionStorage.getItem("data")).hotelLogoUrl;
@@ -1257,11 +1261,14 @@ const OrderDetailsDialog = ({
     };
   }, []);
 
-  const removeBookingByRefNumber = useCallback((refNumber) => {
-    setOrderMapDtos((prev) =>
-      prev.filter((item) => item.bookingRefNumber !== refNumber)
-    );
-  }, []);
+  const removeBookingByRefNumber = useCallback(
+    (refNumber) => {
+      setOrderMapDtos((prev) =>
+        prev.filter((item) => item.bookingRefNumber !== refNumber)
+      );
+    },
+    [setOrderMapDtos]
+  );
 
   useEffect(() => {
     const bookingDataByRoomNo = bookingDetailsRes?.data?.data;
@@ -1281,7 +1288,7 @@ const OrderDetailsDialog = ({
     } else if (!isSplit) {
       setOrderMapDtos([]);
     }
-  }, [bookingDetailsRes, isSplit]);
+  }, [bookingDetailsRes, isSplit, setOrderMapDtos, setFormData]);
 
   useEffect(() => {
     const totalPrice = orderDetailsDialog?.totalAmount ?? 0;
@@ -1296,7 +1303,7 @@ const OrderDetailsDialog = ({
           }))
         : [];
     setCustomOrderMapDtos(updatedOrderDtos);
-  }, [orderMapDtos, orderDetailsDialog]);
+  }, [orderMapDtos, orderDetailsDialog, setCustomOrderMapDtos]);
 
   return (
     <>
@@ -1330,7 +1337,7 @@ const OrderDetailsDialog = ({
               }}
             >
               Order Details
-            </Typography>{" "}
+            </Typography>
           </Box>
         </DialogTitle>
         <DialogContent dividers>
@@ -1447,32 +1454,37 @@ const OrderDetailsDialog = ({
               </TableContainer>
             </Box>
             <Box>
-              <Box sx={{ display: "flex" }}>
-                <FormGroup sx={{ mt: 1 }}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={formData.isAssosciateWithRoom}
-                        name="isAssosciateWithRoom"
-                        onChange={handleChange}
-                      />
-                    }
-                    label="Is Assosciate With Room"
-                  />
-                </FormGroup>
-                <FormGroup sx={{ mt: 1 }}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={formData.isProceedToPayment}
-                        name="isProceedToPayment"
-                        onChange={handleChange}
-                      />
-                    }
-                    label="Proceed to Payment"
-                  />
-                </FormGroup>
-              </Box>
+              {(orderDetailsDialog?.dinningType === "Dine_In" &&
+                orderDetailsDialog?.orderStatus === "Delivered") ||
+              (orderDetailsDialog?.dinningType === "Take_Away" &&
+                orderDetailsDialog?.orderStatus === "Ready_to_serve") ? (
+                <Box sx={{ display: "flex" }}>
+                  <FormGroup sx={{ mt: 1 }}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={formData.isAssosciateWithRoom}
+                          name="isAssosciateWithRoom"
+                          onChange={handleChange}
+                        />
+                      }
+                      label="Is Assosciate With Room"
+                    />
+                  </FormGroup>
+                  <FormGroup sx={{ mt: 1 }}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={formData.isProceedToPayment}
+                          name="isProceedToPayment"
+                          onChange={handleChange}
+                        />
+                      }
+                      label="Proceed to Payment"
+                    />
+                  </FormGroup>
+                </Box>
+              ) : null}
 
               {formData?.isAssosciateWithRoom && (
                 <Box sx={{ display: "flex" }}>

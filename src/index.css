@@ -6,6 +6,13 @@
 
 body {
   background-color: #f7f0ff;
+  /* background-color: #fff; */
+}
+
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+  }
 }
 
 .swal2-container {

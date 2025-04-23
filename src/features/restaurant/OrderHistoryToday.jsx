@@ -96,8 +96,9 @@ const OrderHistoryToday = () => {
   }, []);
 
   const [orderDetailsDialog, setOrderDetailsDialog] = React.useState(null);
-  console.log("orderDetailsDialog", orderDetailsDialog);
   const handleOpenPaymentDialog = React.useCallback(() => {
+    console.log("orderDetailsDialog", orderDetailsDialog);
+
     const totalPrice = orderDetailsDialog?.bookingDetails?.totalPrice || 0;
     const gstPrice = orderDetailsDialog?.bookingDetails?.gstPrice || 0;
 
@@ -397,7 +398,7 @@ const Row = ({
                 </TableBody>
               </Table>
 
-              {[DELIVERED, CANCELLED, REJECTED, ORDER_PLACED].includes(
+              {[CANCELLED, REJECTED, ORDER_PLACED].includes(
                 item?.bookingDetails?.foodBookingStatus
               ) &&
                 item?.bookingDetails?.dinningType !== "Room_Delivery" &&
@@ -423,34 +424,39 @@ const Row = ({
                   </Button>
                 )}
 
-              {item?.bookingDetails?.foodBookingStatus === READY_TO_SERVE &&
-                !Boolean(
-                  item?.bookingDetails?.dinningType === "Room_Delivery"
-                ) && (
-                  <Button
-                    sx={{
-                      display: "block",
-                      mx: "auto",
-                      mt: 2,
-                      mb: 1,
-                      textTransform: "none",
-                      fontSize: 18,
-                      fontWeight: 600,
-                      px: 3,
-                      letterSpacing: 1,
-                    }}
-                    variant="outlined"
-                    color="secondary"
-                    // onClick={() => handlePayment(item)}
-                    onClick={() => {
-                      if (Boolean(item?.bookingDto)) {
-                        setOrderDetailsDialog(item);
-                      }
-                    }}
-                  >
-                    Proceed to Payment
-                  </Button>
-                )}
+              {
+                // item?.bookingDetails?.foodBookingStatus === READY_TO_SERVE
+                [DELIVERED, READY_TO_SERVE].includes(
+                  item?.bookingDetails?.foodBookingStatus
+                ) &&
+                  !Boolean(
+                    item?.bookingDetails?.dinningType === "Room_Delivery"
+                  ) && (
+                    <Button
+                      sx={{
+                        display: "block",
+                        mx: "auto",
+                        mt: 2,
+                        mb: 1,
+                        textTransform: "none",
+                        fontSize: 18,
+                        fontWeight: 600,
+                        px: 3,
+                        letterSpacing: 1,
+                      }}
+                      variant="outlined"
+                      color="secondary"
+                      // onClick={() => handlePayment(item)}
+                      onClick={() => {
+                        if (Boolean(item?.bookingDto)) {
+                          setOrderDetailsDialog(item);
+                        }
+                      }}
+                    >
+                      Proceed to Payment
+                    </Button>
+                  )
+              }
               {item?.bookingDetails?.dinningType === "Room_Delivery" &&
                 !Boolean(item?.orderTakenBy) && (
                   <Button
@@ -1449,7 +1455,7 @@ const OrderDetailsDialog = ({
               </TableContainer>
             </Box>
             <Box>
-              <Box sx={{ display: "flex" }}>
+              {/* <Box sx={{ display: "flex" }}>
                 <FormGroup sx={{ mt: 1 }}>
                   <FormControlLabel
                     control={
@@ -1474,7 +1480,41 @@ const OrderDetailsDialog = ({
                     label="Proceed to Payment"
                   />
                 </FormGroup>
-              </Box>
+              </Box> */}
+              {(orderDetailsDialog?.bookingDetails?.dinningType === "Dine_In" &&
+                orderDetailsDialog?.bookingDetails?.foodBookingStatus ===
+                  "Delivered") ||
+              (orderDetailsDialog?.bookingDetails?.dinningType ===
+                "Take_Away" &&
+                orderDetailsDialog?.bookingDetails?.foodBookingStatus ===
+                  "Ready_to_serve") ? (
+                <Box sx={{ display: "flex" }}>
+                  <FormGroup sx={{ mt: 1 }}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={formData.isAssosciateWithRoom}
+                          name="isAssosciateWithRoom"
+                          onChange={handleChange}
+                        />
+                      }
+                      label="Is Assosciate With Room"
+                    />
+                  </FormGroup>
+                  <FormGroup sx={{ mt: 1 }}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={formData.isProceedToPayment}
+                          name="isProceedToPayment"
+                          onChange={handleChange}
+                        />
+                      }
+                      label="Proceed to Payment"
+                    />
+                  </FormGroup>
+                </Box>
+              ) : null}
 
               {formData?.isAssosciateWithRoom && (
                 <Box sx={{ display: "flex" }}>

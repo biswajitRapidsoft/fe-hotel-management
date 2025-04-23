@@ -553,7 +553,9 @@ const OrderDetailsDialog = ({
                 Order Sub-total:
               </Typography>
               <Typography>
-                ₹ {orderDetailsDialog?.bookingRequestDto?.totalAmount}
+                ₹{" "}
+                {orderDetailsDialog?.bookingRequestDto?.totalAmount +
+                  orderDetailsDialog?.bookingRequestDto?.gstPrice}
               </Typography>
             </Box>
             {Boolean(

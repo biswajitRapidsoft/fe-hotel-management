@@ -97,7 +97,10 @@ const barApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
-      invalidatesTags: ["getAllTablesForBarWaiter"],
+      invalidatesTags: [
+        "getAllTablesForBarWaiter",
+        "getAllDineInRequestForBarFromRoom",
+      ],
     }),
     completeBarOrder: build.mutation({
       query: (payload) => ({

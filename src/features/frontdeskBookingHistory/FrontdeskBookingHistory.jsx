@@ -4213,50 +4213,91 @@ const ViewAllInvoiceDialogInBookingHistory = React.memo(function ({
 }) {
   const [selectedInvoice, setSelectedInvoice] = useState("Final Invoice");
   // console.log("selectedInvoice", selectedInvoice);
-  const handleViewHotelBillInvoice = useCallback(
-    (viewHotelInvoiceDialog) => {
-      console.log("viewHotelInvoiceDialog", viewHotelInvoiceDialog);
-      const bookingRefNumber = viewHotelInvoiceDialog?.bookingRefNumber;
-      console.log("bookingRefNumber", bookingRefNumber);
+  // const handleViewHotelBillInvoice = useCallback(
+  //   (viewHotelInvoiceDialog) => {
+  //     console.log("viewHotelInvoiceDialog", viewHotelInvoiceDialog);
+  //     const bookingRefNumber = viewHotelInvoiceDialog?.bookingRefNumber;
+  //     console.log("bookingRefNumber", bookingRefNumber);
+  //     if (bookingRefNumber) {
+  //       sessionStorage.setItem(
+  //         `hotelBillInvoiceInHistory-${bookingRefNumber}`,
+  //         JSON.stringify(viewHotelInvoiceDialog)
+  //       );
+
+  //       window.open(`/hotelBillInvoiceInHistory/${bookingRefNumber}`, "_blank");
+  //     }
+  //   },
+  //   // [customerGstNumber]
+  //   []
+  // );
+
+  const handleViewFinalHotelBillInvoice = useCallback(
+    (roomData) => {
+      const bookingRefNumber = roomData?.bookingRefNumber;
+
       if (bookingRefNumber) {
         sessionStorage.setItem(
-          `hotelBillInvoiceInHistory-${bookingRefNumber}`,
-          JSON.stringify(viewHotelInvoiceDialog)
+          "FinalHotelBillbookingRefNumber",
+          bookingRefNumber
         );
 
-        window.open(`/hotelBillInvoiceInHistory/${bookingRefNumber}`, "_blank");
+        window.open(`/FinalHotelBillInvoice`, "_blank");
       }
     },
     // [customerGstNumber]
     []
   );
 
-  const handleViewFoodBillInvoice = useCallback((roomData) => {
+  // const handleViewFoodBillInvoice = useCallback((roomData) => {
+  //   const bookingRefNumber = roomData?.bookingRefNumber;
+
+  //   if (bookingRefNumber) {
+  //     sessionStorage.setItem(
+  //       `foodBillInvoiceInBookingHistory-${bookingRefNumber}`,
+  //       JSON.stringify(roomData)
+  //     );
+
+  //     window.open(
+  //       `/foodBillInvoiceInBookingHistory/${bookingRefNumber}`,
+  //       "_blank"
+  //     );
+  //   }
+  // }, []);
+
+  const handleViewFinalFoodBillInvoice = useCallback((roomData) => {
     const bookingRefNumber = roomData?.bookingRefNumber;
 
     if (bookingRefNumber) {
       sessionStorage.setItem(
-        `foodBillInvoiceInBookingHistory-${bookingRefNumber}`,
-        JSON.stringify(roomData)
+        "FinalHotelBillFoodbookingRefNumber",
+        bookingRefNumber
       );
 
-      window.open(
-        `/foodBillInvoiceInBookingHistory/${bookingRefNumber}`,
-        "_blank"
-      );
+      window.open(`/FinalFoodBillInvoice`, "_blank");
     }
   }, []);
 
-  const handleViewBarBillInvoice = useCallback((roomData) => {
-    const bookingRefNumber = roomData?.bookingRefNumber;
+  // const handleViewBarBillInvoice = useCallback((roomData) => {
+  //   const bookingRefNumber = roomData?.bookingRefNumber;
 
+  //   if (bookingRefNumber) {
+  //     sessionStorage.setItem(
+  //       `barBillInvoiceInBookingHistory-${bookingRefNumber}`,
+  //       JSON.stringify(roomData)
+  //     );
+
+  //     window.open(`/BarInvoiceInBookingHistory/${bookingRefNumber}`, "_blank");
+  //   }
+  // }, []);
+  const handleViewFinalBarBillInvoice = useCallback((roomData) => {
+    const bookingRefNumber = roomData?.bookingRefNumber;
     if (bookingRefNumber) {
       sessionStorage.setItem(
-        `barBillInvoiceInBookingHistory-${bookingRefNumber}`,
-        JSON.stringify(roomData)
+        "FinalHotelBillBarbookingRefNumber",
+        bookingRefNumber
       );
 
-      window.open(`/BarInvoiceInBookingHistory/${bookingRefNumber}`, "_blank");
+      window.open(`/FinalBarBillInvoice`, "_blank");
     }
   }, []);
   const handleViewSpaBillInvoice = useCallback((roomData) => {
@@ -4417,11 +4458,14 @@ const ViewAllInvoiceDialogInBookingHistory = React.memo(function ({
               size="small"
               onClick={() => {
                 if (selectedInvoice === "Final Invoice") {
-                  handleViewHotelBillInvoice(viewHotelInvoiceDialog);
+                  // handleViewHotelBillInvoice(viewHotelInvoiceDialog);
+                  handleViewFinalHotelBillInvoice(viewHotelInvoiceDialog);
                 } else if (selectedInvoice === "Food Invoice") {
-                  handleViewFoodBillInvoice(viewHotelInvoiceDialog);
+                  // handleViewFoodBillInvoice(viewHotelInvoiceDialog);
+                  handleViewFinalFoodBillInvoice(viewHotelInvoiceDialog);
                 } else if (selectedInvoice === "Bar Invoice") {
-                  handleViewBarBillInvoice(viewHotelInvoiceDialog);
+                  // handleViewBarBillInvoice(viewHotelInvoiceDialog);
+                  handleViewFinalBarBillInvoice(viewHotelInvoiceDialog);
                 } else if (selectedInvoice === "Spa Invoice") {
                   handleViewSpaBillInvoice(viewHotelInvoiceDialog);
                 } else {

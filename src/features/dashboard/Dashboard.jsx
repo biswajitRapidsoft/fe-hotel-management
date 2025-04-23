@@ -1613,13 +1613,20 @@ const RoomServiceCard = memo(function ({
           `hotelBillInvoice-${bookingRefNumber}`,
           JSON.stringify(roomData)
         );
-        sessionStorage.setItem("customerGstNumber", customerGstNumber);
+        // sessionStorage.setItem("customerGstNumber", customerGstNumber);
+        navigate(`/FinalHotelBillInvoice`, {
+          state: {
+            roomData,
+            customerGstNumber,
+          },
+        });
 
-        window.open(`/hotelBillInvoice/${bookingRefNumber}`, "_blank");
+        // window.open(`/hotelBillInvoice/${bookingRefNumber}`, "_blank");
       }
     },
-    [customerGstNumber]
+    [customerGstNumber, navigate]
   );
+
   React.useEffect(() => {
     // useEffect(() => {
     const handleBeforeUnload = (event) => {
@@ -1664,19 +1671,53 @@ const RoomServiceCard = memo(function ({
     }
   }, []);
 
-  const handleViewFoodBillInvoice = useCallback((roomData) => {
+  // const handleViewFoodBillInvoice = useCallback((roomData) => {
+  //   const bookingRefNumber = roomData?.bookingDto?.bookingRefNumber;
+
+  //   if (bookingRefNumber) {
+  //     sessionStorage.setItem(
+  //       `foodBillInvoice-${bookingRefNumber}`,
+  //       JSON.stringify(roomData)
+  //     );
+
+  //     window.open(`/foodBillInvoice/${bookingRefNumber}`, "_blank");
+  //   }
+  // }, []);
+  const handleViewFinalFoodBillInvoice = useCallback((roomData) => {
     const bookingRefNumber = roomData?.bookingDto?.bookingRefNumber;
 
     if (bookingRefNumber) {
       sessionStorage.setItem(
-        `foodBillInvoice-${bookingRefNumber}`,
-        JSON.stringify(roomData)
+        "FinalHotelBillFoodbookingRefNumber",
+        bookingRefNumber
       );
 
-      window.open(`/foodBillInvoice/${bookingRefNumber}`, "_blank");
+      window.open(`/FinalFoodBillInvoice`, "_blank");
     }
   }, []);
 
+  const handleViewFinalBarBillInvoice = useCallback((roomData) => {
+    const bookingRefNumber = roomData?.bookingDto?.bookingRefNumber;
+    if (bookingRefNumber) {
+      sessionStorage.setItem(
+        "FinalHotelBillBarbookingRefNumber",
+        bookingRefNumber
+      );
+
+      window.open(`/FinalBarBillInvoice`, "_blank");
+    }
+  }, []);
+  const handleViewFinalSpaBillInvoice = useCallback((roomData) => {
+    const bookingRefNumber = roomData?.bookingDto?.bookingRefNumber;
+    if (bookingRefNumber) {
+      sessionStorage.setItem(
+        "FinalHotelBillSpabookingRefNumber",
+        bookingRefNumber
+      );
+
+      window.open(`/FinalSpaBillInvoice`, "_blank");
+    }
+  }, []);
   return (
     <>
       <Box
@@ -3739,11 +3780,13 @@ const RoomServiceCard = memo(function ({
                       if (selectedInvoice === "Final Invoice") {
                         handleViewFinalHotelBillInvoice(isSelectedRoom);
                       } else if (selectedInvoice === "Food Invoice") {
-                        handleViewFoodBillInvoice(isSelectedRoom);
+                        handleViewFinalFoodBillInvoice(isSelectedRoom);
                       } else if (selectedInvoice === "Bar Invoice") {
-                        handleViewBarBillInvoice(isSelectedRoom);
+                        // handleViewBarBillInvoice(isSelectedRoom);
+                        handleViewFinalBarBillInvoice(isSelectedRoom);
                       } else if (selectedInvoice === "Spa Invoice") {
-                        handleViewSpaBillInvoice(isSelectedRoom);
+                        // handleViewSpaBillInvoice(isSelectedRoom);
+                        handleViewFinalSpaBillInvoice(isSelectedRoom);
                       } else {
                         alert("Please select an option to view the bill.");
                       }
@@ -3776,98 +3819,106 @@ const RoomServiceCard = memo(function ({
 
             {/* )} */}
 
-            {Boolean(
-              Boolean(
-                isSelectedRoom?.bookingDto?.isCheckoutProceed === false
-              ) &&
-                Boolean(
-                  isSelectedRoom?.bookingDto?.isCheckedByKeepingStaff === true
-                )
-            ) &&
-              selectedInvoice === "Final Invoice" && (
-                <Box sx={{ width: "100%", gap: 1 }}>
-                  <Box
-                    sx={{
-                      ".MuiTextField-root": {
-                        width: "100%",
-                        backgroundColor: "transparent",
-                        ".MuiInputBase-root": {
-                          color: "#B4B4B4",
-                          background: "rgba(255, 255, 255, 0.25)",
+            {
+              // Boolean(
+              //   Boolean(
+              //     isSelectedRoom?.bookingDto?.isCheckoutProceed === false
+              //   ) &&
+              //     Boolean(
+              //       isSelectedRoom?.bookingDto?.isCheckedByKeepingStaff === true
+              //     )
+              // )
+              [
+                "Checked_In",
+                "Room_Checkout_Requested",
+                "Room_Checkout_Request_Approved",
+                "Room_Upgrade_Request",
+              ].includes(isSelectedRoom?.bookingDto?.bookingStatus) &&
+                selectedInvoice === "Final Invoice" && (
+                  <Box sx={{ width: "100%", gap: 1 }}>
+                    <Box
+                      sx={{
+                        ".MuiTextField-root": {
+                          width: "100%",
+                          backgroundColor: "transparent",
+                          ".MuiInputBase-root": {
+                            color: "#B4B4B4",
+                            background: "rgba(255, 255, 255, 0.25)",
+                          },
                         },
-                      },
-                      ".MuiFormLabel-root": {
-                        color: (theme) => theme.palette.primary.main,
-                        fontWeight: 600,
-                        fontSize: 14,
-                      },
-                      ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
-                        borderBottom: (theme) =>
-                          `1px solid ${theme.palette.primary.main}`,
-                      },
-                      ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
-                        borderBottom: (theme) =>
-                          `1px solid ${theme.palette.primary.main}`,
-                      },
-                      "& .MuiOutlinedInput-root": {
-                        height: "35px",
-                        minHeight: "35px",
-                      },
-                      "& .MuiInputBase-input": {
-                        padding: "13px",
-                        height: "100%",
-                        boxSizing: "border-box",
-                        fontSize: "13px",
-                      },
-                      width: "70%",
-                    }}
-                  >
-                    <TextField
-                      margin="normal"
-                      required
-                      fullWidth
-                      id="customerGstNumber"
-                      label="Gst Number"
-                      name="customerGstNumber"
-                      // autoComplete="noOfPeoples"
-                      inputProps={{
-                        maxLength: 15,
-                        style: {
-                          fontSize: "14px",
+                        ".MuiFormLabel-root": {
+                          color: (theme) => theme.palette.primary.main,
+                          fontWeight: 600,
+                          fontSize: 14,
                         },
-                      }}
-                      InputLabelProps={{
-                        style: {
+                        ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+                          borderBottom: (theme) =>
+                            `1px solid ${theme.palette.primary.main}`,
+                        },
+                        ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+                          borderBottom: (theme) =>
+                            `1px solid ${theme.palette.primary.main}`,
+                        },
+                        "& .MuiOutlinedInput-root": {
+                          height: "35px",
+                          minHeight: "35px",
+                        },
+                        "& .MuiInputBase-input": {
+                          padding: "13px",
+                          height: "100%",
+                          boxSizing: "border-box",
                           fontSize: "13px",
                         },
+                        width: "70%",
                       }}
-                      sx={{
-                        // "& .MuiInputBase-root": {
-                        //   height: "23px",
-                        // },
-                        "& .MuiTextField-root": {
-                          maxHeight: "10px",
-                          backgroundColor: "transparent",
-                        },
-                      }}
-                      variant="standard"
-                      value={customerGstNumber}
-                      onChange={(e) => setCustomerGstNumber(e.target.value)}
-                    />
-                  </Box>
+                    >
+                      <TextField
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="customerGstNumber"
+                        label="Gst Number"
+                        name="customerGstNumber"
+                        // autoComplete="noOfPeoples"
+                        inputProps={{
+                          maxLength: 15,
+                          style: {
+                            fontSize: "14px",
+                          },
+                        }}
+                        InputLabelProps={{
+                          style: {
+                            fontSize: "13px",
+                          },
+                        }}
+                        sx={{
+                          // "& .MuiInputBase-root": {
+                          //   height: "23px",
+                          // },
+                          "& .MuiTextField-root": {
+                            maxHeight: "10px",
+                            backgroundColor: "transparent",
+                          },
+                        }}
+                        variant="standard"
+                        value={customerGstNumber}
+                        onChange={(e) => setCustomerGstNumber(e.target.value)}
+                      />
+                    </Box>
 
-                  <Button
-                    variant="contained"
-                    size="small"
-                    onClick={() => {
-                      handleViewHotelGstBillInvoice(isSelectedRoom);
-                    }}
-                    fullWidth
-                  >
-                    View GST Invoice
-                  </Button>
-                </Box>
-              )}
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={() => {
+                        handleViewHotelGstBillInvoice(isSelectedRoom);
+                      }}
+                      fullWidth
+                    >
+                      View GST Invoice
+                    </Button>
+                  </Box>
+                )
+            }
 
             {/* OCCUPIED ROOM CASE */}
             {selectedRoomStatusType?.key === OCCUPIED?.key && (

@@ -17,7 +17,6 @@ import Grid from "@mui/material/Grid2";
 import dayjs from "dayjs";
 import moment from "moment";
 import { useGetAllFinalInvoiceDetailsQuery } from "../../services/dashboard";
-import { useLocation } from "react-router-dom";
 
 const gstData = `
     {
@@ -36,8 +35,7 @@ const hotelLogo = JSON.parse(sessionStorage.getItem("data"))?.hotelLogoUrl;
 const customerGstNumberfromSession =
   sessionStorage.getItem("customerGstNumber");
 
-const FinalHotelBillInvoice = () => {
-  const location = useLocation();
+const FinalSpaBillInvoice = () => {
   const [isPrinting, setIsPrinting] = useState(false);
   const handlePrint = useCallback(() => {
     setIsPrinting(true);
@@ -46,45 +44,16 @@ const FinalHotelBillInvoice = () => {
       setIsPrinting(false);
     }, 0);
   }, []);
-
-  const foodListTableHeaders = useMemo(() => [
-    { label: "Sl. No.", key: "sno" },
-    { label: "Item", key: "itemName" },
-    { label: "Quantity", key: "totalQuantity" },
-    { label: "Price", key: "Price" },
-  ]);
-  const barListTableHeaders = useMemo(() => [
-    { label: "Sl. No.", key: "sno" },
-    { label: "Item", key: "itemName" },
-    { label: "Quantity", key: "totalQuantity" },
-    { label: "Price", key: "Price" },
-  ]);
-  const spaListTableHeaders = useMemo(() => [
-    { label: "Sl. No.", key: "sno" },
-    { label: "Customer Name", key: "Name" },
-    { label: "Start Time", key: "startTime" },
-    { label: "End Time", key: "endTime" },
-    { label: "Total Price", key: "totalPrice" },
-  ]);
-  const laundryListTableHeaders = useMemo(() => [
-    { label: "Sl. No.", key: "sno" },
-    { label: "Item Name", key: "itemName" },
-    { label: "Quantity", key: "quantity" },
-    { label: "Price", key: "price" },
-  ]);
-  const customerDetailsTableHeaders = useMemo(() => [
-    { label: "Sl. No.", key: "sno" },
-    { label: "Customer Name", key: "Name" },
-    { label: "Govt. ID Type", key: "govtIdType" },
-    { label: "Govt. ID Number", key: "govtIdNo" },
-  ]);
-  const transactionListTableHeaders = useMemo(() => [
-    { label: "Sl. No.", key: "sno" },
-    { label: "transactionRefNo", key: "transactionRefNo" },
-    { label: "Transaction Date", key: "createdAt" },
-    { label: "Amount", key: "amount" },
-    { label: "Remarks", key: "remarks" },
-  ]);
+  const spaListTableHeaders = useMemo(
+    () => [
+      { label: "Sl. No.", key: "sno" },
+      { label: "Ref. Number", key: "spaBookingRefNumber" },
+      { label: "Spa Type", key: "spaType" },
+      { label: "Therapist", key: "therapist" },
+      { label: "Price", key: "price" },
+    ],
+    []
+  );
 
   const {
     data: finalInvoiceDetails = {
@@ -92,59 +61,19 @@ const FinalHotelBillInvoice = () => {
     },
     isLoading,
   } = useGetAllFinalInvoiceDetailsQuery(
-    sessionStorage.getItem("FinalHotelBillbookingRefNumber")
+    sessionStorage.getItem("FinalHotelBillSpabookingRefNumber")
   );
-
-  React.useEffect(() => {
-    if (location?.state) {
-      setGstNumber(location.state.customerGstNumber);
-    }
-  }, [location]);
-  const totalAmount = useMemo(
-    () =>
-      parseFloat(
-        finalInvoiceDetails?.data?.bookingTransactionDetailsList
-          ?.filter((item) => !Boolean(item?.isCredit))
-          ?.reduce((sum, item) => sum + (item?.amount || 0), 0) // ✅ Initial value 0
-      ).toFixed(2),
-    [finalInvoiceDetails]
-  );
-
-  const subTotalPaidExpense = useMemo(
-    () =>
-      parseFloat(
-        finalInvoiceDetails?.data?.bookingTransactionDetailsList
-          ?.filter((item) => Boolean(item?.isCredit))
-          ?.reduce((sum, item) => sum + (item.amount || 0), 0)
-      ).toFixed(2),
-    [finalInvoiceDetails]
-  );
-
-  const amountToBePaid = useMemo(
-    () => parseFloat(totalAmount - subTotalPaidExpense).toFixed(2),
-    [totalAmount, subTotalPaidExpense]
-  );
-
-  console.log(
-    "finalInvoiceDetails",
-
-    finalInvoiceDetails?.data?.bookingTransactionDetailsList
-  );
-
-  const [gstNumber, setGstNumber] = React.useState(null);
-
-  console.log("gstNumber", gstNumber);
 
   return (
     <>
       <Box
         sx={{
           width: "100%",
+          height: "100vh",
+          backgroundColor: "#fff",
           display: "flex",
           flexDirection: "column",
           gap: 1,
-          backgroundColor: "#fff",
-          overflowY: "auto",
           // px: "400px",
           px: {
             xs: "50px",
@@ -282,18 +211,16 @@ const FinalHotelBillInvoice = () => {
                         component="span"
                         sx={{
                           fontSize: "15.5px",
-                          // color: "#707070",
-                          // fontWeight: 600,
                         }}
                       >
                         {
                           finalInvoiceDetails?.data?.customerBookingDetalis
                             ?.firstName
-                        }{" "}
+                        }
                         {
                           finalInvoiceDetails?.data?.customerBookingDetalis
                             ?.middleName
-                        }{" "}
+                        }
                         {
                           finalInvoiceDetails?.data?.customerBookingDetalis
                             ?.lastName
@@ -901,7 +828,7 @@ const FinalHotelBillInvoice = () => {
                     </Typography>
                   </Grid>
                 </Grid>
-                {Boolean(gstNumber) && (
+                {Boolean(customerGstNumberfromSession) && (
                   <Box sx={{ width: "20%" }}>
                     <QRCode
                       size={256}
@@ -953,165 +880,13 @@ const FinalHotelBillInvoice = () => {
                           marginBottom: "5px",
                         }}
                       >
-                        Food Details :
-                      </Typography>
-
-                      <FoodInvoiceTable
-                        foodListTableHeaders={foodListTableHeaders}
-                        foodListTableData={
-                          finalInvoiceDetails?.data?.mergeFoodItem
-                        }
-                      />
-                    </Box>
-                  </Grid>
-                )}
-                {Boolean(finalInvoiceDetails?.data?.mergeBarItems?.length) && (
-                  <Grid size={12}>
-                    <Box
-                      sx={{
-                        width: "100%",
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          fontSize: "18px",
-                          fontWeight: 600,
-                          width: "100%",
-                          borderBottom: "2px solid #ccc",
-                          marginBottom: "5px",
-                        }}
-                      >
-                        Bar Details :
-                      </Typography>
-
-                      <BarInvoiceTable
-                        barListTableHeaders={barListTableHeaders}
-                        barOrderDtos={finalInvoiceDetails?.data?.mergeBarItems}
-                      />
-                    </Box>
-                  </Grid>
-                )}
-                {Boolean(finalInvoiceDetails?.data?.stayersDetails?.length) && (
-                  <Grid size={12}>
-                    <Box
-                      sx={{
-                        width: "100%",
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          fontSize: "18px",
-                          fontWeight: 600,
-                          width: "100%",
-                          borderBottom: "2px solid #ccc",
-                          marginBottom: "5px",
-                        }}
-                      >
-                        Stayer Details :
-                      </Typography>
-
-                      <StayerDetailsTable
-                        customerDetailsTableHeaders={
-                          customerDetailsTableHeaders
-                        }
-                        customerDetailsList={
-                          finalInvoiceDetails?.data?.stayersDetails
-                        }
-                      />
-                    </Box>
-                  </Grid>
-                )}
-
-                {Boolean(
-                  finalInvoiceDetails?.data?.spaBookingDetails?.length
-                ) && (
-                  <Grid size={12}>
-                    <Box
-                      sx={{
-                        width: "100%",
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          fontSize: "18px",
-                          fontWeight: 600,
-                          width: "100%",
-                          borderBottom: "2px solid #ccc",
-                          marginBottom: "5px",
-                        }}
-                      >
                         Spa Details :
                       </Typography>
 
                       <SpaInvoiceTable
                         spaListTableHeaders={spaListTableHeaders}
-                        spaDataList={
-                          finalInvoiceDetails?.data?.spaBookingDetails
-                        }
-                      />
-                    </Box>
-                  </Grid>
-                )}
-
-                {Boolean(
-                  finalInvoiceDetails?.data?.laundryDataList?.length
-                ) && (
-                  <Grid size={12}>
-                    <Box
-                      sx={{
-                        width: "100%",
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          fontSize: "18px",
-                          fontWeight: 600,
-                          width: "100%",
-                          borderBottom: "2px solid #ccc",
-                          marginBottom: "5px",
-                        }}
-                      >
-                        Laundry Details :
-                      </Typography>
-
-                      <LaundryInvoiceTable
-                        laundryListTableHeaders={laundryListTableHeaders}
-                        laundryListTableData={
-                          finalInvoiceDetails?.data?.laundryDataList
-                        }
-                      />
-                    </Box>
-                  </Grid>
-                )}
-                {Boolean(
-                  finalInvoiceDetails?.data?.bookingTransactionDetailsList
-                    ?.length
-                ) && (
-                  <Grid size={12}>
-                    <Box
-                      sx={{
-                        width: "100%",
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          fontSize: "18px",
-                          fontWeight: 600,
-                          width: "100%",
-                          borderBottom: "2px solid #ccc",
-                          marginBottom: "5px",
-                        }}
-                      >
-                        Transaction Details :
-                      </Typography>
-
-                      <TransactionListTable
-                        transactionListTableHeaders={
-                          transactionListTableHeaders
-                        }
-                        transactionList={
-                          finalInvoiceDetails?.data
-                            ?.bookingTransactionDetailsList
+                        spaListTableData={
+                          finalInvoiceDetails?.data?.spaBookingDetailsTrailDtos
                         }
                       />
                     </Box>
@@ -1142,143 +917,6 @@ const FinalHotelBillInvoice = () => {
                             width: "100%",
                             height: "30px",
                             border: "1.3px solid black",
-                            borderTop: "1.7px solid black",
-                            borderLeft: "1.7px solid black",
-                            bgcolor: "white",
-                            paddingLeft: "5px",
-                          }}
-                        >
-                          <Typography sx={{ fontWeight: 550 }}>
-                            Room Charges
-                          </Typography>
-                        </Box>
-                      </Grid>
-
-                      <Grid size={6}>
-                        <Box
-                          sx={{
-                            width: "100%",
-                            height: "30px",
-                            border: "1.3px solid black",
-                            borderTop: "1.7px solid black",
-                            borderRight: "1.7px solid black",
-                            bgcolor: "white",
-                          }}
-                        >
-                          <Typography
-                            sx={{ textAlign: "right", fontWeight: 550 }}
-                          >
-                            {finalInvoiceDetails?.data?.roomCharge?.amount}
-                          </Typography>
-                        </Box>
-                      </Grid>
-
-                      <Grid size={6}>
-                        <Box
-                          sx={{
-                            width: "100%",
-                            height: "30px",
-                            border: "1.3px solid black",
-                            borderLeft: "1.7px solid black",
-                            bgcolor: "white",
-                            paddingLeft: "5px",
-                          }}
-                        >
-                          <Typography sx={{ fontWeight: 550 }}>
-                            Inventory Charges
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid size={6}>
-                        <Box
-                          sx={{
-                            width: "100%",
-                            height: "30px",
-                            border: "1.3px solid black",
-                            borderRight: "1.7px solid black",
-                            bgcolor: "white",
-                          }}
-                        >
-                          <Typography
-                            sx={{ textAlign: "right", fontWeight: 550 }}
-                          >
-                            {finalInvoiceDetails?.data?.inventoryCharge?.amount}
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid size={6}>
-                        <Box
-                          sx={{
-                            width: "100%",
-                            height: "30px",
-                            border: "1.3px solid black",
-                            borderLeft: "1.7px solid black",
-                            bgcolor: "white",
-                            paddingLeft: "5px",
-                          }}
-                        >
-                          <Typography sx={{ fontWeight: 550 }}>
-                            Food Charges
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid size={6}>
-                        <Box
-                          sx={{
-                            width: "100%",
-                            height: "30px",
-                            border: "1.3px solid black",
-                            borderRight: "1.7px solid black",
-                            bgcolor: "white",
-                          }}
-                        >
-                          <Typography
-                            sx={{ textAlign: "right", fontWeight: 550 }}
-                          >
-                            {finalInvoiceDetails?.data?.foodCharge?.amount}
-                          </Typography>
-                        </Box>
-                      </Grid>
-
-                      <Grid size={6}>
-                        <Box
-                          sx={{
-                            width: "100%",
-                            height: "30px",
-                            border: "1.3px solid black",
-                            borderLeft: "1.7px solid black",
-                            bgcolor: "white",
-                            paddingLeft: "5px",
-                          }}
-                        >
-                          <Typography sx={{ fontWeight: 550 }}>
-                            Laundry Charges
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid size={6}>
-                        <Box
-                          sx={{
-                            width: "100%",
-                            height: "30px",
-                            border: "1.3px solid black",
-                            borderRight: "1.7px solid black",
-                            bgcolor: "white",
-                          }}
-                        >
-                          <Typography
-                            sx={{ textAlign: "right", fontWeight: 550 }}
-                          >
-                            {finalInvoiceDetails?.data?.laundryCharge?.amount}
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid size={6}>
-                        <Box
-                          sx={{
-                            width: "100%",
-                            height: "30px",
-                            border: "1.3px solid black",
                             borderLeft: "1.7px solid black",
                             bgcolor: "white",
                             paddingLeft: "5px",
@@ -1302,182 +940,76 @@ const FinalHotelBillInvoice = () => {
                           <Typography
                             sx={{ textAlign: "right", fontWeight: 550 }}
                           >
+                            {
+                              finalInvoiceDetails?.data?.spaCharge
+                                ?.amountWithoutGst
+                            }
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderLeft: "1.7px solid black",
+                            bgcolor: "white",
+                            paddingLeft: "5px",
+                          }}
+                        >
+                          <Typography sx={{ fontWeight: 550 }}>
+                            GST Charges
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderRight: "1.7px solid black",
+                            bgcolor: "white",
+                          }}
+                        >
+                          <Typography
+                            sx={{ textAlign: "right", fontWeight: 550 }}
+                          >
+                            {finalInvoiceDetails?.data?.spaCharge?.gstAmount}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderLeft: "1.7px solid black",
+                            bgcolor: "white",
+                            paddingLeft: "5px",
+                          }}
+                        >
+                          <Typography sx={{ fontWeight: 550 }}>
+                            Sub-Total
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid size={6}>
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "30px",
+                            border: "1.3px solid black",
+                            borderRight: "1.7px solid black",
+                            bgcolor: "white",
+                          }}
+                        >
+                          <Typography
+                            sx={{ textAlign: "right", fontWeight: 550 }}
+                          >
                             {finalInvoiceDetails?.data?.spaCharge?.amount}
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid size={6}>
-                        <Box
-                          sx={{
-                            width: "100%",
-                            height: "30px",
-                            border: "1.3px solid black",
-                            borderLeft: "1.7px solid black",
-                            bgcolor: "white",
-                            paddingLeft: "5px",
-                          }}
-                        >
-                          <Typography sx={{ fontWeight: 550 }}>
-                            Bar Charges
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid size={6}>
-                        <Box
-                          sx={{
-                            width: "100%",
-                            height: "30px",
-                            border: "1.3px solid black",
-                            borderRight: "1.7px solid black",
-                            bgcolor: "white",
-                          }}
-                        >
-                          <Typography
-                            sx={{ textAlign: "right", fontWeight: 550 }}
-                          >
-                            {finalInvoiceDetails?.data?.barCharge?.amount}
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid size={6}>
-                        <Box
-                          sx={{
-                            width: "100%",
-                            height: "30px",
-                            border: "1.3px solid black",
-                            borderLeft: "1.7px solid black",
-                            bgcolor: "white",
-                            paddingLeft: "5px",
-                          }}
-                        >
-                          <Typography sx={{ fontWeight: 550 }}>
-                            Lost Key Price
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid size={6}>
-                        <Box
-                          sx={{
-                            width: "100%",
-                            height: "30px",
-                            border: "1.3px solid black",
-                            borderRight: "1.7px solid black",
-                            bgcolor: "white",
-                          }}
-                        >
-                          <Typography
-                            sx={{ textAlign: "right", fontWeight: 550 }}
-                          >
-                            {finalInvoiceDetails?.data?.keyLostCharge?.amount}
-                          </Typography>
-                        </Box>
-                      </Grid>
-
-                      <Grid size={6}>
-                        <Box
-                          sx={{
-                            width: "100%",
-                            height: "30px",
-                            border: "1.3px solid black",
-                            borderLeft: "1.7px solid black",
-                            borderBottom: "1.7px solid black",
-                            bgcolor: "white",
-                            paddingLeft: "5px",
-                          }}
-                        >
-                          <Typography sx={{ fontWeight: 550 }}>
-                            Total
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid size={6}>
-                        <Box
-                          sx={{
-                            width: "100%",
-                            height: "30px",
-                            border: "1.3px solid black",
-                            borderRight: "1.7px solid black",
-                            borderBottom: "1.7px solid black",
-                            bgcolor: "white",
-                          }}
-                        >
-                          <Typography
-                            sx={{ textAlign: "right", fontWeight: 550 }}
-                          >
-                            {totalAmount}
-                          </Typography>
-                        </Box>
-                      </Grid>
-
-                      <Grid size={6}>
-                        <Box
-                          sx={{
-                            width: "100%",
-                            height: "30px",
-                            border: "1.3px solid black",
-                            borderLeft: "1.7px solid black",
-                            bgcolor: "white",
-                            paddingLeft: "5px",
-                          }}
-                        >
-                          <Typography sx={{ fontWeight: 550 }}>
-                            Paid Amount
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid size={6}>
-                        <Box
-                          sx={{
-                            width: "100%",
-                            height: "30px",
-                            border: "1.3px solid black",
-                            borderRight: "1.7px solid black",
-                            bgcolor: "white",
-                          }}
-                        >
-                          <Typography
-                            sx={{ textAlign: "right", fontWeight: 550 }}
-                          >
-                            {subTotalPaidExpense}
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid size={6}>
-                        <Box
-                          sx={{
-                            width: "100%",
-                            height: "30px",
-                            border: "1.3px solid black",
-                            borderLeft: "1.7px solid black",
-                            bgcolor: "white",
-                            paddingLeft: "5px",
-                          }}
-                        >
-                          <Typography
-                            sx={{ fontSize: "20px", fontWeight: 600 }}
-                          >
-                            Amount to pay
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid size={6}>
-                        <Box
-                          sx={{
-                            width: "100%",
-                            height: "30px",
-                            border: "1.3px solid black",
-                            borderRight: "1.7px solid black",
-                            bgcolor: "white",
-                          }}
-                        >
-                          <Typography
-                            sx={{
-                              textAlign: "right",
-                              fontSize: "19px",
-                              fontWeight: 600,
-                            }}
-                          >
-                            {amountToBePaid}
                           </Typography>
                         </Box>
                       </Grid>
@@ -1526,133 +1058,10 @@ const FinalHotelBillInvoice = () => {
   );
 };
 
-const FoodInvoiceTable = memo(function ({
-  foodListTableHeaders,
-  foodListTableData,
+const SpaInvoiceTable = memo(function ({
+  spaListTableHeaders,
+  spaListTableData,
 }) {
-  return (
-    <React.Fragment>
-      <TableContainer
-        // component={Paper}
-        sx={{
-          overflow: "auto",
-          // maxHeight: { xs: isForCheckOut ? "220px" : "310px" },
-          // xl: "calc(100vh - 280px)",
-          "&::-webkit-scrollbar": {
-            // height: "14px",
-          },
-          "&::-webkit-scrollbar-track": {
-            backgroundColor: "#ffffff00",
-            width: "none",
-          },
-          "&::-webkit-scrollbar-thumb": {
-            backgroundColor: "#280071",
-            borderRadius: "4px",
-          },
-          "&::-webkit-scrollbar-thumb:hover": {
-            backgroundColor: "#3b0b92",
-          },
-        }}
-      >
-        <Table aria-label="simple table" stickyHeader size="small">
-          <TableHead>
-            <TableRow>
-              {foodListTableHeaders?.map((item, index) => {
-                return (
-                  <TableCell
-                    key={`room-table-head-${index}`}
-                    align="center"
-                    sx={{
-                      backgroundColor: "#dbd8ff",
-                      fontWeight: "bold",
-                      // paddingY: "10px",
-                      fontSize: "13px",
-                    }}
-                  >
-                    {item?.label}
-                  </TableCell>
-                );
-              })}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {foodListTableData?.map((item, index) => {
-              return (
-                <TableRow key={`food-item-${item}-${index}`}>
-                  <TableCell align="center">{index + 1}</TableCell>
-                  <TableCell align="center">{item?.itemName}</TableCell>
-                  <TableCell align="center">{item?.noOfItems}</TableCell>
-                  <TableCell align="center">{item?.price}</TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </React.Fragment>
-  );
-});
-
-const BarInvoiceTable = memo(function ({ barListTableHeaders, barOrderDtos }) {
-  return (
-    <React.Fragment>
-      <TableContainer
-        sx={{
-          overflow: "auto",
-          "&::-webkit-scrollbar": {},
-          "&::-webkit-scrollbar-track": {
-            backgroundColor: "#ffffff00",
-            width: "none",
-          },
-          "&::-webkit-scrollbar-thumb": {
-            backgroundColor: "#280071",
-            borderRadius: "4px",
-          },
-          "&::-webkit-scrollbar-thumb:hover": {
-            backgroundColor: "#3b0b92",
-          },
-        }}
-      >
-        <Table aria-label="simple table" stickyHeader size="small">
-          <TableHead>
-            <TableRow>
-              {barListTableHeaders?.map((item, index) => {
-                return (
-                  <TableCell
-                    key={`room-table-head-${index}`}
-                    align="center"
-                    sx={{
-                      backgroundColor: "#dbd8ff",
-                      fontWeight: "bold",
-                      fontSize: "13px",
-                    }}
-                  >
-                    {item?.label}
-                  </TableCell>
-                );
-              })}
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-            {barOrderDtos?.map((item, index) => {
-              return (
-                <TableRow key={`bar-item-${item}-${index}`}>
-                  <TableCell align="center">{index + 1}</TableCell>
-                  <TableCell align="center">{item?.name}</TableCell>
-                  <TableCell align="center">{item?.quantity}</TableCell>
-                  <TableCell align="center">{item?.price}</TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </React.Fragment>
-  );
-});
-
-const SpaInvoiceTable = memo(function ({ spaListTableHeaders, spaDataList }) {
   return (
     <React.Fragment>
       <TableContainer
@@ -1678,80 +1087,12 @@ const SpaInvoiceTable = memo(function ({ spaListTableHeaders, spaDataList }) {
               {spaListTableHeaders?.map((item, index) => {
                 return (
                   <TableCell
-                    key={`spa-table-head-${index}`}
-                    align="center"
-                    sx={{
-                      backgroundColor: "#dbd8ff",
-                      fontWeight: "bold",
-                      fontSize: "13px",
-                    }}
-                  >
-                    {item?.label}
-                  </TableCell>
-                );
-              })}
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-            {spaDataList?.map((item, index) => {
-              return (
-                <TableRow key={`bar-item-${item}-${index}`}>
-                  <TableCell align="center">{index + 1}</TableCell>
-                  <TableCell align="center">
-                    {item?.customerFirstName}
-                  </TableCell>
-                  <TableCell align="center">
-                    {moment(item?.startTime).format("DD-MM-YYYY hh:mm A")}
-                  </TableCell>
-                  <TableCell align="center">
-                    {moment(item?.endTime).format("DD-MM-YYYY hh:mm A")}
-                  </TableCell>
-                  <TableCell align="center">{item?.totalPrice}</TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </React.Fragment>
-  );
-});
-
-const LaundryInvoiceTable = memo(function ({
-  laundryListTableHeaders,
-  laundryListTableData,
-}) {
-  return (
-    <React.Fragment>
-      <TableContainer
-        sx={{
-          overflow: "auto",
-          "&::-webkit-scrollbar": {},
-          "&::-webkit-scrollbar-track": {
-            backgroundColor: "#ffffff00",
-            width: "none",
-          },
-          "&::-webkit-scrollbar-thumb": {
-            backgroundColor: "#280071",
-            borderRadius: "4px",
-          },
-          "&::-webkit-scrollbar-thumb:hover": {
-            backgroundColor: "#3b0b92",
-          },
-        }}
-      >
-        <Table aria-label="simple table" stickyHeader size="small">
-          <TableHead>
-            <TableRow>
-              {laundryListTableHeaders?.map((item, index) => {
-                return (
-                  <TableCell
                     key={`room-table-head-${index}`}
                     align="center"
                     sx={{
                       backgroundColor: "#dbd8ff",
                       fontWeight: "bold",
+                      // paddingY: "10px",
                       fontSize: "13px",
                     }}
                   >
@@ -1762,138 +1103,16 @@ const LaundryInvoiceTable = memo(function ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {laundryListTableData?.map((item, index) =>
-              item?.itemsDto?.map((subItem, subIndex) => (
-                <TableRow key={`laundry-item-${index}-${subIndex}`}>
-                  <TableCell align="center">{index + 1}</TableCell>
-                  <TableCell align="center">{subItem?.name}</TableCell>
-                  <TableCell align="center">{subItem?.qty}</TableCell>
-                  <TableCell align="center">{subItem?.price}</TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </React.Fragment>
-  );
-});
-
-const StayerDetailsTable = memo(function ({
-  customerDetailsTableHeaders,
-  customerDetailsList,
-}) {
-  return (
-    <React.Fragment>
-      <TableContainer
-        sx={{
-          overflow: "auto",
-          "&::-webkit-scrollbar": {},
-          "&::-webkit-scrollbar-track": {
-            backgroundColor: "#ffffff00",
-            width: "none",
-          },
-          "&::-webkit-scrollbar-thumb": {
-            backgroundColor: "#280071",
-            borderRadius: "4px",
-          },
-          "&::-webkit-scrollbar-thumb:hover": {
-            backgroundColor: "#3b0b92",
-          },
-        }}
-      >
-        <Table aria-label="simple table" stickyHeader size="small">
-          <TableHead>
-            <TableRow>
-              {customerDetailsTableHeaders?.map((item, index) => {
-                return (
-                  <TableCell
-                    key={`room-table-head-${index}`}
-                    align="center"
-                    sx={{
-                      backgroundColor: "#dbd8ff",
-                      fontWeight: "bold",
-                      fontSize: "13px",
-                    }}
-                  >
-                    {item?.label}
-                  </TableCell>
-                );
-              })}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {customerDetailsList?.map((item, index) => {
+            {spaListTableData?.map((item, index) => {
               return (
                 <TableRow key={`food-item-${item}-${index}`}>
                   <TableCell align="center">{index + 1}</TableCell>
-                  <TableCell align="center">{item?.customerName}</TableCell>
-                  <TableCell align="center">{item?.govtIdType}</TableCell>
-                  <TableCell align="center">{item?.govtIdNo}</TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </React.Fragment>
-  );
-});
-
-const TransactionListTable = memo(function ({
-  transactionListTableHeaders,
-  transactionList,
-}) {
-  return (
-    <React.Fragment>
-      <TableContainer
-        sx={{
-          overflow: "auto",
-          "&::-webkit-scrollbar": {},
-          "&::-webkit-scrollbar-track": {
-            backgroundColor: "#ffffff00",
-            width: "none",
-          },
-          "&::-webkit-scrollbar-thumb": {
-            backgroundColor: "#280071",
-            borderRadius: "4px",
-          },
-          "&::-webkit-scrollbar-thumb:hover": {
-            backgroundColor: "#3b0b92",
-          },
-        }}
-      >
-        <Table aria-label="simple table" stickyHeader size="small">
-          <TableHead>
-            <TableRow>
-              {transactionListTableHeaders?.map((item, index) => {
-                return (
-                  <TableCell
-                    key={`room-table-head-${index}`}
-                    align="center"
-                    sx={{
-                      backgroundColor: "#dbd8ff",
-                      fontWeight: "bold",
-                      fontSize: "13px",
-                    }}
-                  >
-                    {item?.label}
-                  </TableCell>
-                );
-              })}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {transactionList?.map((item, index) => {
-              return (
-                <TableRow key={`transaction-${item}-${index}`}>
-                  <TableCell align="center">{index + 1}</TableCell>
-                  <TableCell align="center">{item?.transactionRefNo}</TableCell>
                   <TableCell align="center">
-                    {moment(item?.createdAt).format("DD-MM-YYYY hh:mm A")}
+                    {item?.spaBookingRefNumber}
                   </TableCell>
-                  <TableCell align="center">{item?.amount}</TableCell>
-                  <TableCell align="center">{item?.remarks}</TableCell>
+                  <TableCell align="center">{item?.spaType?.name}</TableCell>
+                  <TableCell align="center">{item?.therapist?.name}</TableCell>
+                  <TableCell align="center">{item?.spaType?.price}</TableCell>
                 </TableRow>
               );
             })}
@@ -1904,4 +1123,4 @@ const TransactionListTable = memo(function ({
   );
 });
 
-export default FinalHotelBillInvoice;
+export default FinalSpaBillInvoice;

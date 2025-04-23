@@ -27,6 +27,7 @@ import ReceiptIcon from "@mui/icons-material/Receipt";
 import moment from "moment";
 import {
   CANCELLED_BAR,
+  COMPLETED,
   DELIVERED,
   DELIVERED_BAR,
   ORDER_PLACED,
@@ -71,7 +72,7 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
     doc.text("Price", 180, tableTop);
 
     let yPosition = tableTop + 10;
-    order.ordersList.forEach((item) => {
+    order?.barOrderList?.forEach((item) => {
       doc.text(item.item.name, 20, yPosition);
       doc.text(item.noOfQty.toString(), 120, yPosition);
       doc.text(item.item.price.toString(), 180, yPosition);
@@ -138,11 +139,15 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
                     <Typography variant="h6">
                       {moment(order.createdAt).format("DD/MM/YYYY hh:mma")}
                     </Typography>
-                    <Tooltip title="Download Invoice" arrow>
-                      <IconButton onClick={() => handleDownloadInvoice(order)}>
-                        <ReceiptIcon />
-                      </IconButton>
-                    </Tooltip>
+                    {!Boolean(order.orderStatus === CANCELLED_BAR) && (
+                      <Tooltip title="Download Invoice" arrow>
+                        <IconButton
+                          onClick={() => handleDownloadInvoice(order)}
+                        >
+                          <ReceiptIcon />
+                        </IconButton>
+                      </Tooltip>
+                    )}
                   </Box>
                   <Box
                     sx={{
@@ -175,7 +180,7 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
                     </Typography>
                   </Box>
                   <Grid container>
-                    {order.ordersList.map((item) => {
+                    {order?.barOrderList?.map((item) => {
                       return (
                         <Grid size={12} key={item.itemName + item.noOfItems}>
                           <Box
@@ -290,9 +295,12 @@ const OrderHistoryDrawer = ({ open, handleClose, orderHistory }) => {
                         (order?.discountPrice || 0)}
                     </Typography>
                   </Box>
-                  {![CANCELLED_BAR, REJECTED, DELIVERED_BAR].includes(
-                    order.orderStatus
-                  ) && (
+                  {![
+                    CANCELLED_BAR,
+                    REJECTED,
+                    DELIVERED_BAR,
+                    COMPLETED,
+                  ].includes(order.orderStatus) && (
                     <Button
                       color="error"
                       variant="contained"

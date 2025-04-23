@@ -69,8 +69,10 @@ const BarCounterStaffDashboard = () => {
   const [makePartialPaymentPayload, setMakePartialPaymentPayload] =
     React.useState(null);
   const [orderDetailsDialog, setOrderDetailsDialog] = React.useState(null);
+
+  console.log("orderDetailsDialog", orderDetailsDialog);
   const handleOpenPaymentDialog = React.useCallback(() => {
-    const totalPrice = orderDetailsDialog?.bookingRequestDto?.totalPrice || 0;
+    const totalPrice = orderDetailsDialog?.bookingRequestDto?.totalAmount || 0;
     const gstPrice = orderDetailsDialog?.bookingRequestDto?.gstPrice || 0;
 
     const payload = {
@@ -579,34 +581,37 @@ const OrderDetailsDialog = ({
     handleCloseOrderDetailsDialog,
   ]);
 
-  const handleChange = React.useCallback((e, newValue, reason, details) => {
-    if (reason === "selectOption" || reason === "clear") {
-      setFormData((prevData) => ({
-        ...prevData,
-        paymentType: newValue,
-      }));
-      return;
-    }
-
-    const { name, type, checked, value } = e.target;
-
-    setFormData((prevData) => {
-      if (name === "roomNumber") {
-        return {
+  const handleChange = React.useCallback(
+    (e, newValue, reason, details) => {
+      if (reason === "selectOption" || reason === "clear") {
+        setFormData((prevData) => ({
           ...prevData,
-          [name]: value.replace(/\D/g, ""),
-        };
-      } else if (type === "checkbox") {
-        return {
-          ...prevData,
-          isAssosciateWithRoom:
-            name === "isAssosciateWithRoom" ? checked : false,
-          isProceedToPayment: name === "isProceedToPayment" ? checked : false,
-        };
+          paymentType: newValue,
+        }));
+        return;
       }
-      return prevData;
-    });
-  }, []);
+
+      const { name, type, checked, value } = e.target;
+
+      setFormData((prevData) => {
+        if (name === "roomNumber") {
+          return {
+            ...prevData,
+            [name]: value.replace(/\D/g, ""),
+          };
+        } else if (type === "checkbox") {
+          return {
+            ...prevData,
+            isAssosciateWithRoom:
+              name === "isAssosciateWithRoom" ? checked : false,
+            isProceedToPayment: name === "isProceedToPayment" ? checked : false,
+          };
+        }
+        return prevData;
+      });
+    },
+    [setFormData]
+  );
 
   const handleDownloadInvoice = React.useCallback((orderDetailsDialog) => {
     const imageUrl = JSON.parse(sessionStorage.getItem("data")).hotelLogoUrl;
@@ -698,11 +703,14 @@ const OrderDetailsDialog = ({
     };
   }, []);
 
-  const removeBookingByRefNumber = useCallback((refNumber) => {
-    setOrderMapDtos((prev) =>
-      prev.filter((item) => item.bookingRefNumber !== refNumber)
-    );
-  }, []);
+  const removeBookingByRefNumber = useCallback(
+    (refNumber) => {
+      setOrderMapDtos((prev) =>
+        prev.filter((item) => item.bookingRefNumber !== refNumber)
+      );
+    },
+    [setOrderMapDtos]
+  );
 
   useEffect(() => {
     const bookingDataByRoomNo = bookingDetailsRes?.data?.data;
@@ -722,7 +730,7 @@ const OrderDetailsDialog = ({
     } else if (!isSplit) {
       setOrderMapDtos([]);
     }
-  }, [bookingDetailsRes, isSplit]);
+  }, [bookingDetailsRes, isSplit, setOrderMapDtos, setFormData]);
 
   useEffect(() => {
     const totalPrice = orderDetailsDialog?.bookingRequestDto?.totalPrice ?? 0;
@@ -737,7 +745,7 @@ const OrderDetailsDialog = ({
           }))
         : [];
     setCustomOrderMapDtos(updatedOrderDtos);
-  }, [orderMapDtos, orderDetailsDialog]);
+  }, [orderMapDtos, orderDetailsDialog, setCustomOrderMapDtos]);
 
   return (
     <>
@@ -897,32 +905,37 @@ const OrderDetailsDialog = ({
               </TableContainer>
             </Box>
             <Box>
-              <Box sx={{ display: "flex" }}>
-                <FormGroup sx={{ mt: 1 }}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={formData.isAssosciateWithRoom}
-                        name="isAssosciateWithRoom"
-                        onChange={handleChange}
-                      />
-                    }
-                    label="Is Assosciate With Room"
-                  />
-                </FormGroup>
-                <FormGroup sx={{ mt: 1 }}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={formData.isProceedToPayment}
-                        name="isProceedToPayment"
-                        onChange={handleChange}
-                      />
-                    }
-                    label="Proceed to Payment"
-                  />
-                </FormGroup>
-              </Box>
+              {Boolean(
+                orderDetailsDialog?.bookingRequestDto?.orderStatus ===
+                  "Delivered"
+              ) && (
+                <Box sx={{ display: "flex" }}>
+                  <FormGroup sx={{ mt: 1 }}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={formData.isAssosciateWithRoom}
+                          name="isAssosciateWithRoom"
+                          onChange={handleChange}
+                        />
+                      }
+                      label="Is Assosciate With Room"
+                    />
+                  </FormGroup>
+                  <FormGroup sx={{ mt: 1 }}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={formData.isProceedToPayment}
+                          name="isProceedToPayment"
+                          onChange={handleChange}
+                        />
+                      }
+                      label="Proceed to Payment"
+                    />
+                  </FormGroup>
+                </Box>
+              )}
 
               {formData?.isAssosciateWithRoom && (
                 <Box sx={{ display: "flex" }}>
