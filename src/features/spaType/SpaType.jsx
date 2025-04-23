@@ -202,7 +202,13 @@ const SpaType = () => {
         isAdvance: Boolean(spaToUpdate?.isAdvanceNeeded),
         advancePercentage: spaToUpdate?.advancePaymentPercentage,
         description: spaToUpdate.description,
-        therapistList: spaToUpdate.therapistUserList || [],
+        therapistList: spaToUpdate.therapistUserList
+          ? therapistList.data.filter((therapist) =>
+              spaToUpdate.therapistUserList.some(
+                (someTherapist) => someTherapist.id === therapist.id
+              )
+            )
+          : [],
       });
       setSpaBreakDownArr(
         spaToUpdate?.spaTypeDetailsList?.map((spaDetail) => ({
@@ -479,17 +485,19 @@ const SpaType = () => {
                   },
                 })
               }
-              renderOption={(props, option, { selected }) => (
-                <li {...props}>
-                  <Checkbox
-                    icon={icon}
-                    checkedIcon={checkedIcon}
-                    style={{ marginRight: 8 }}
-                    checked={selected}
-                  />
-                  {option.name}
-                </li>
-              )}
+              renderOption={(props, option, { selected }) => {
+                return (
+                  <li {...props} key={props.key}>
+                    <Checkbox
+                      icon={icon}
+                      checkedIcon={checkedIcon}
+                      style={{ marginRight: 8 }}
+                      checked={selected}
+                    />
+                    {option.name}
+                  </li>
+                );
+              }}
               renderTags={(list) => list.map((item) => item.name).join(", ")}
               clearOnEscape
               disablePortal
