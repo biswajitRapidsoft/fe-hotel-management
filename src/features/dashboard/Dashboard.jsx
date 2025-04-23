@@ -11100,8 +11100,9 @@ const Dashboard = () => {
         isSelectedRoom.checkInCheckOutTimeConfigDto &&
         isSelectedRoom.checkInCheckOutTimeConfigDto.isPaid === true
           ? (isSelectedRoom.checkInCheckOutTimeConfigDto.isFixedAmount === true
-              ? isSelectedRoom.fixedAmount
-              : earlyCheckInHour * isSelectedRoom.perHourRate) +
+              ? isSelectedRoom.checkInCheckOutTimeConfigDto.fixedAmount
+              : earlyCheckInHour *
+                isSelectedRoom.checkInCheckOutTimeConfigDto.perHourRate) +
             customFormDrawerData.accumulatedRoomCharge
           : customFormDrawerData?.accumulatedRoomCharge;
 
