@@ -701,8 +701,12 @@ function AddSpaBreakDownForm({
       setSpaBreakDownArr((prevData) =>
         prevData.filter((data) => data.id !== uid)
       );
+      if (breakDownToUpdate && breakDownToUpdate.id === uid) {
+        handleResetForm();
+        setBreakDownToUpdate(null);
+      }
     },
-    [setSpaBreakDownArr]
+    [setSpaBreakDownArr, handleResetForm, breakDownToUpdate]
   );
 
   React.useEffect(() => {
@@ -711,6 +715,7 @@ function AddSpaBreakDownForm({
         ...prevData,
         name: breakDownToUpdate.name,
         time: breakDownToUpdate.time,
+        description: breakDownToUpdate.description,
       }));
     }
   }, [breakDownToUpdate]);

@@ -64,6 +64,7 @@ const FinalSpaBillInvoice = () => {
     sessionStorage.getItem("FinalHotelBillSpabookingRefNumber")
   );
 
+  console.log("finalInvoiceDetails", finalInvoiceDetails);
   return (
     <>
       <Box

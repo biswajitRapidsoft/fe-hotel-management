@@ -57,6 +57,7 @@ const Spa = () => {
     },
   } = useGetAllSpaTypeGuestQuery(JSON.parse(sessionStorage.getItem("hotelId")));
   const [spaToBook, setSpaToBook] = React.useState(null);
+  console.log("spaToBook", spaToBook);
   const [selectedSlotType, setSelectedSlotType] = React.useState(DAY);
   const [selectedSlot, setSelectedSlot] = React.useState(null);
   const [selectedDate, setSelectedDate] = React.useState(dayjs(moment()));
@@ -660,8 +661,12 @@ const Spa = () => {
             <Box sx={{ width: "100%", mb: 1 }}>
               {Boolean(spaToBook?.isAdvanceNeeded) && (
                 <Typography sx={{ color: "gray" }}>
-                  You need to pay ₹{(spaToBook?.price * 0.2).toFixed(2)} in
-                  advance
+                  You need to pay ₹
+                  {(
+                    spaToBook?.price *
+                    (spaToBook?.advancePaymentPercentage / 100)
+                  ).toFixed(2)}
+                  in advance
                 </Typography>
               )}
             </Box>

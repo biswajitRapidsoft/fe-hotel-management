@@ -1,15 +1,16 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { memo, useCallback, useMemo, useState } from "react";
 import {
   Box,
   Button,
   Divider,
+  Paper,
   // Paper,
-  // Table,
-  // TableBody,
-  // TableCell,
-  // TableContainer,
-  // TableHead,
-  // TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
@@ -28,14 +29,16 @@ import dayjs from "dayjs";
 // };
 
 const SpaInvoice = () => {
-  // const foodListTableHeaders = useMemo(
-  //   () => [
-  //     { label: "Sl. No.", key: "sno" },
-  //     { label: "Start Time", key: "startTime" },
-  //     { label: "End Time", key: "endTime" },
-  //   ],
-  //   []
-  // );
+  const spaListTableHeaders = useMemo(
+    () => [
+      { label: "Sl. No.", key: "sno" },
+      { label: "Ref. Number", key: "spaBookingRefNumber" },
+      { label: "Spa Type", key: "spaType" },
+      { label: "Therapist", key: "therapist" },
+      { label: "Price", key: "price" },
+    ],
+    []
+  );
   const [isPrinting, setIsPrinting] = useState(false);
 
   const handlePrint = useCallback(() => {
@@ -50,7 +53,7 @@ const SpaInvoice = () => {
     const sessionedEventData = sessionStorage.getItem("orderForSpaInvoice");
     return sessionedEventData ? JSON.parse(sessionedEventData) : null;
   }, []);
-
+  console.log("invoiceData", invoiceData?.bookingDetailsTrailDtosList);
   const hotelLogo = JSON.parse(sessionStorage.getItem("orderForSpaInvoice"))
     .hotelDto?.logoUrl;
 
@@ -886,6 +889,12 @@ const SpaInvoice = () => {
                   </Box>
                 </Grid>
 
+                <Grid size={12} sx={{ mt: 2 }}>
+                  <SpaInvoiceTable
+                    spaListTableHeaders={spaListTableHeaders}
+                    spaListTableData={invoiceData?.bookingDetailsTrailDtosList}
+                  />
+                </Grid>
                 <Grid size={12}>
                   <Box
                     sx={{
@@ -1011,5 +1020,71 @@ const SpaInvoice = () => {
     </>
   );
 };
+
+const SpaInvoiceTable = memo(function ({
+  spaListTableHeaders,
+  spaListTableData,
+}) {
+  return (
+    <React.Fragment>
+      <TableContainer
+        component={Paper}
+        sx={{
+          overflow: "auto",
+          "&::-webkit-scrollbar": {},
+          "&::-webkit-scrollbar-track": {
+            backgroundColor: "#ffffff00",
+            width: "none",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#280071",
+            borderRadius: "4px",
+          },
+          "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: "#3b0b92",
+          },
+        }}
+      >
+        <Table aria-label="simple table" stickyHeader size="small">
+          <TableHead>
+            <TableRow>
+              {spaListTableHeaders?.map((item, index) => {
+                return (
+                  <TableCell
+                    key={`room-table-head-${index}`}
+                    align="center"
+                    sx={{
+                      backgroundColor: "#dbd8ff",
+                      fontWeight: "bold",
+                      // paddingY: "10px",
+                      fontSize: "13px",
+                    }}
+                  >
+                    {item?.label}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {spaListTableData?.map((item, index) => {
+              return (
+                <TableRow key={`food-item-${item}-${index}`}>
+                  <TableCell align="center">{index + 1}</TableCell>
+                  <TableCell align="center">
+                    {item?.spaBookingRefNumber}
+                  </TableCell>
+                  <TableCell align="center">{item?.spaType?.name}</TableCell>
+                  <TableCell align="center">{item?.therapist?.name}</TableCell>
+                  <TableCell align="center">{item?.spaType?.price}</TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </React.Fragment>
+  );
+});
 
 export default SpaInvoice;
