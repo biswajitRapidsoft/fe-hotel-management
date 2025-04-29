@@ -140,7 +140,6 @@ const SpaInvoice = () => {
                       textAlign: "right",
                     }}
                   >
-                    {" "}
                     {invoiceData?.hotelDto?.gstIn}
                   </Typography>
                   <Typography
@@ -150,7 +149,6 @@ const SpaInvoice = () => {
                       textAlign: "right",
                     }}
                   >
-                    {" "}
                     {invoiceData?.hotelDto?.email}
                   </Typography>
 
