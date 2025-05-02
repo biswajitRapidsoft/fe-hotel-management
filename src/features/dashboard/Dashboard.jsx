@@ -189,16 +189,17 @@ export const CustomPolygonHeader = ({
 function getRoomStatusColor(key) {
   switch (key) {
     case "Available":
-      return { color: "#3db7ff", bgcolor: "#b4ffd6" };
+      return { color: "#3db7ff", bgcolor: "#588b8b" };
     case "Reserved":
-      return { color: "#ffa83a", bgcolor: "#ffe3c0" };
+      return { color: "#ffa83a", bgcolor: "#f28f3b" };
+    // return { color: "#ffa83a", bgcolor: "#ffe3c0" };
     case "Occupied":
       // return { color: "#14b85c", bgcolor: "#b4ffd6" };
-      return { color: "#14b85c", bgcolor: "#FF9999" };
+      return { color: "#14b85c", bgcolor: "#a53860" };
     case "Not Available":
       return { color: "#ff5353", bgcolor: "#ffc0c0" };
     case "Being Serviced":
-      return { color: "#b200ff", bgcolor: "#efcaff" };
+      return { color: "#b200ff", bgcolor: "#b388eb" };
     default:
       return { color: "#cccccc", bgcolor: "#ffffff" };
   }
@@ -503,55 +504,18 @@ const CustomRoomFilters = memo(function ({
       sx={{
         // marginTop: "1rem",
         width: "100%",
+        // border: "1px solid black",
       }}
     >
-      <Grid container size={12} columnSpacing={0.5} rowSpacing={1}>
+      <Grid
+        container
+        size={12}
+        columnSpacing={0.5}
+        // rowSpacing={1}
+        // sx={{ border: "1px solid black" }}
+      >
         {/* <Grid size={{ xs: 3, lg: 2.2, xl: 1.7 }}> */}
-        {/* <Grid>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              disablePast
-              value={roomFilters?.toDate}
-              onChange={(newVal) =>
-                handleChangeRoomFiltersOnChange("toDate", newVal)
-              }
-              slotProps={{
-                textField: {
-                  variant: "outlined",
-                  size: "small",
-                  // readOnly: true,
-                  clearable: true,
-                  onKeyDown: (e) => {
-                    e.preventDefault();
-                  },
-                  sx: {
-                    "& .MuiOutlinedInput-root": {
-                      borderRadius: 2,
-                      width: 200,
-                      height: 35,
-                      backgroundColor: "rgba(255, 255, 255, 0.25)",
-                      color: "#B4B4B4",
-                    },
-                    "& .MuiTextField-root": {
-                      width: "100%",
-                      backgroundColor: "transparent",
-                    },
-                    "& .MuiFormLabel-root": {
-                      color: (theme) => theme.palette.primary.main,
-                      fontWeight: 600,
-                      fontSize: 18,
-                    },
-                  },
-                },
-              }}
-              slots={{
-                openPickerIcon: StyledCalendarIcon,
-              }}
-              format="DD/MM/YYYY"
-            />
-          </LocalizationProvider>
-        </Grid> */}
-        <Grid>
+        <Grid size={{ xs: 1.5 }}>
           <Box
             sx={{
               ".MuiTextField-root": {
@@ -667,7 +631,7 @@ const CustomRoomFilters = memo(function ({
             />
           </Box>
         </Grid>
-        <Grid>
+        <Grid size={{ xs: 1.5 }}>
           <Box
             sx={{
               ".MuiTextField-root": {
@@ -782,7 +746,7 @@ const CustomRoomFilters = memo(function ({
             />
           </Box>
         </Grid>
-        <Grid>
+        <Grid size={{ xs: 1.5 }}>
           <Button
             variant="contained"
             size="small"
@@ -806,16 +770,18 @@ const CustomRoomFilters = memo(function ({
             Booking History
           </Button>
         </Grid>
+        <Grid size={{ xs: 3.5 }} />
         {/* <Grid size={{ xs: 0, xl: 1 }} /> */}
-        <Grid size={12}>
+        <Grid size={{ xs: 4 }}>
           <Box
             sx={{
-              width: "100%",
+              // width: "100%",
               // bgcolor: { sm: "red", md: "orange", lg: "cyan", xl: "red" },
               display: "flex",
               flexDirection: "row",
               justifyContent: "flex-end",
               flexWrap: { xs: "wrap", md: "nowrap" },
+              // backgroundColor: "green",
             }}
           >
             {tempRoomFilterVisibleButtonData?.map((item, index) => {
@@ -1132,6 +1098,8 @@ const CustomRoomCard = memo(function ({
       elevation={1}
       sx={{
         display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
         flexDirection: "column",
         flexGrow: 1,
         height: 87,
@@ -1167,11 +1135,11 @@ const CustomRoomCard = memo(function ({
           alignItems: "center",
           flexDirection: "column",
           px: 2,
-          pt: 1,
+          // pt: 1,
           gap: 0.2,
         }}
       >
-        <Typography sx={{ fontSize: "17px", fontWeight: 550 }}>
+        <Typography sx={{ fontSize: "17px", fontWeight: 550, color: "white" }}>
           {roomDetails?.roomNo}
         </Typography>
         <Typography
@@ -1179,7 +1147,9 @@ const CustomRoomCard = memo(function ({
             fontSize: "13.5px",
             textAlign: "center",
             lineHeight: 1.2, // This will reduce the vertical spacing
-            letterSpacing: "normal",
+            letterSpacing: "3",
+            color: "white",
+            fontWeight: "bold",
           }}
         >
           {roomDetails?.roomType?.type
@@ -1239,6 +1209,7 @@ const CustomAlertCard = memo(function ({ alertChipData, alertData }) {
                 sx={{
                   display: "flex",
                   flexDirection: "row",
+                  justifyContent: "space-between",
                   boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px",
                   border: `2px solid ${item?.customColor}`,
                   borderRadius: "5px",
@@ -1247,6 +1218,7 @@ const CustomAlertCard = memo(function ({ alertChipData, alertData }) {
                   userSelect: "none",
                   cursor: "pointer",
                   transition: "all 0.3s ease",
+                  width: "90%",
                   "&:hover": {
                     "& .leftBox": {
                       bgcolor: "#ffffff",
@@ -1272,6 +1244,9 @@ const CustomAlertCard = memo(function ({ alertChipData, alertData }) {
                     bgcolor: `${item?.customColor}`,
                     color: "#ffffff",
                     transition: "all 0.3s ease",
+                    // minWidth: "40px",
+                    // border: "2px solid black",
+                    width: "310px",
                   }}
                 >
                   <Typography
@@ -1287,7 +1262,6 @@ const CustomAlertCard = memo(function ({ alertChipData, alertData }) {
                     alignItems: "center",
                     justifyContent: "center",
                     paddingX: "12px",
-                    minWidth: "40px",
                     color: `${item?.customColor}`,
                     transition: "all 0.3s ease",
                   }}
@@ -9678,39 +9652,7 @@ const Dashboard = () => {
         filterationKey: "Pending_Confirmation",
         navigationPath: "/frontdeskBookingHistory",
         sessionStorageKey: "customBookingHistoryAlertFilter",
-        customColor: "#e65d1d",
-      },
-      {
-        label: "Refund Requests",
-        key: "noOfCancellationRequstCount",
-        filterationKey: "Booking_Cancellation_Requested",
-        navigationPath: "/frontdeskBookingHistory",
-        sessionStorageKey: "customBookingHistoryAlertFilter",
-        customColor: "#5a1de6",
-      },
-      {
-        label: "Checkout Requested",
-        key: "noOfCheckOutRequestSubmitted",
-        filterationKey: "Room_Checkout_Requested",
-        navigationPath: "/frontdeskBookingHistory",
-        sessionStorageKey: "customBookingHistoryAlertFilter",
-        customColor: "#6A9C89",
-      },
-      {
-        label: "Checkout Request Apprroved",
-        key: "noOfCheckOutRequestApproved",
-        filterationKey: "Room_Checkout_Request_Approved",
-        navigationPath: "/frontdeskBookingHistory",
-        sessionStorageKey: "customBookingHistoryAlertFilter",
-        customColor: "#648816",
-      },
-      {
-        label: "Laundry Service Requested",
-        key: "noOfLaundryServiceRequestedCount",
-        filterationKey: "Laundry_Service",
-        navigationPath: "/HouseKeepingHistory",
-        sessionStorageKey: "customHouseKeepingHistoryAlertFilter",
-        customColor: "#982B1C",
+        customColor: "#58148E",
       },
       {
         label: "Room Cleaning Requested",
@@ -9718,7 +9660,42 @@ const Dashboard = () => {
         filterationKey: "Room_Cleaning",
         navigationPath: "/HouseKeepingHistory",
         sessionStorageKey: "customHouseKeepingHistoryAlertFilter",
-        customColor: "#c693e6",
+        customColor: "#6910A8",
+      },
+      {
+        label: "Checkout Requested",
+        key: "noOfCheckOutRequestSubmitted",
+        filterationKey: "Room_Checkout_Requested",
+        navigationPath: "/frontdeskBookingHistory",
+        sessionStorageKey: "customBookingHistoryAlertFilter",
+        customColor: "#8C07DD",
+      },
+      {
+        label: "Checkout Request Apprroved",
+        key: "noOfCheckOutRequestApproved",
+        filterationKey: "Room_Checkout_Request_Approved",
+        navigationPath: "/frontdeskBookingHistory",
+        sessionStorageKey: "customBookingHistoryAlertFilter",
+        customColor: "#9F21E3",
+      },
+
+      {
+        label: "Laundry Service Requested",
+        key: "noOfLaundryServiceRequestedCount",
+        filterationKey: "Laundry_Service",
+        navigationPath: "/HouseKeepingHistory",
+        sessionStorageKey: "customHouseKeepingHistoryAlertFilter",
+        customColor: "#B333E9",
+      },
+
+      {
+        label: "Refund Requests",
+        key: "noOfCancellationRequstCount",
+        filterationKey: "Booking_Cancellation_Requested",
+        navigationPath: "/frontdeskBookingHistory",
+        sessionStorageKey: "customBookingHistoryAlertFilter",
+        // customColor: "#5a1de6",
+        customColor: "#CB5DF1",
       },
     ],
     []
@@ -11296,6 +11273,8 @@ const Dashboard = () => {
           display: "flex",
           flexDirection: "column",
           gap: 1,
+          // border: "4px solid black",
+          // backgroundColor: "#765DA5",
         }}
       >
         <Box sx={{ width: "100%" }}>
