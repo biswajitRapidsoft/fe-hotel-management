@@ -505,16 +505,17 @@ const CustomRoomFilters = memo(function ({
         // marginTop: "1rem",
         width: "100%",
         // border: "1px solid black",
+        display: "flex",
+        justifyContent: "space-between",
       }}
     >
-      <Grid
+      {/* <Grid
         container
         size={12}
         columnSpacing={0.5}
         // rowSpacing={1}
         // sx={{ border: "1px solid black" }}
       >
-        {/* <Grid size={{ xs: 3, lg: 2.2, xl: 1.7 }}> */}
         <Grid size={{ xs: 1.5 }}>
           <Box
             sx={{
@@ -771,7 +772,6 @@ const CustomRoomFilters = memo(function ({
           </Button>
         </Grid>
         <Grid size={{ xs: 3.5 }} />
-        {/* <Grid size={{ xs: 0, xl: 1 }} /> */}
         <Grid size={{ xs: 4 }}>
           <Box
             sx={{
@@ -910,7 +910,398 @@ const CustomRoomFilters = memo(function ({
             })}
           </Box>
         </Grid>
-      </Grid>
+      </Grid> */}
+      <Box sx={{ display: "flex", gap: 1 }}>
+        {" "}
+        <Box
+          sx={{
+            ".MuiTextField-root": {
+              width: "100%",
+              backgroundColor: "transparent",
+              ".MuiInputBase-root": {
+                color: "#B4B4B4",
+                background: "rgba(255, 255, 255, 0.25)",
+              },
+            },
+            ".MuiFormLabel-root": {
+              color: (theme) => theme.palette.primary.main,
+              fontWeight: 600,
+              fontSize: 14,
+            },
+            ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+              borderBottom: (theme) =>
+                `1px solid ${theme.palette.primary.main}`,
+            },
+            ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+              borderBottom: (theme) =>
+                `1px solid ${theme.palette.primary.main}`,
+            },
+            "& .MuiOutlinedInput-root": {
+              height: "35px",
+              minHeight: "35px",
+            },
+            "& .MuiInputBase-input": {
+              padding: "13px",
+              height: "100%",
+              boxSizing: "border-box",
+              fontSize: "13px",
+            },
+          }}
+        >
+          <Autocomplete
+            options={floorData || []}
+            disableClearable
+            fullWidth
+            value={
+              roomFilters.floor || (floorData.length > 0 ? floorData[0] : null)
+            }
+            onChange={(e, newVal) =>
+              handleChangeRoomFiltersOnChange("floor", newVal)
+            }
+            inputValue={roomFilters.floorInputVal}
+            onInputChange={(e, newVal) =>
+              handleChangeRoomFiltersOnChange("floorInputVal", newVal)
+            }
+            getOptionLabel={(option) =>
+              option?.key === "all" ? option?.name : `Floor ${option?.floorNo}`
+            }
+            clearOnEscape
+            disablePortal
+            popupIcon={<KeyboardArrowDownIcon color="primary" />}
+            sx={{
+              // width: 200,
+              ".MuiInputBase-root": {
+                color: "#fff",
+              },
+              "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover": {
+                backgroundColor: "#E9E5F1",
+                color: "#280071",
+                fontWeight: 600,
+              },
+              "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                {
+                  backgroundColor: "#E9E5F1",
+                  color: "#280071",
+                  fontWeight: 600,
+                },
+            }}
+            componentsProps={{
+              popper: {
+                sx: {
+                  "& .MuiAutocomplete-listbox": {
+                    maxHeight: "150px",
+                    overflow: "auto",
+                  },
+                  "& .MuiAutocomplete-option": {
+                    fontSize: "13px",
+                  },
+                },
+              },
+            }}
+            size="small"
+            clearIcon={<ClearIcon color="primary" />}
+            PaperComponent={(props) => (
+              <Paper
+                sx={{
+                  background: "#fff",
+                  color: "#B4B4B4",
+                  borderRadius: "10px",
+                }}
+                {...props}
+              />
+            )}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: 2,
+                    width: 200,
+                    height: 35,
+                  },
+                }}
+              />
+            )}
+          />
+        </Box>
+        <Box
+          sx={{
+            ".MuiTextField-root": {
+              width: "100%",
+              backgroundColor: "transparent",
+              ".MuiInputBase-root": {
+                color: "#B4B4B4",
+                background: "rgba(255, 255, 255, 0.25)",
+              },
+            },
+            ".MuiFormLabel-root": {
+              color: (theme) => theme.palette.primary.main,
+              fontWeight: 600,
+              fontSize: 14,
+            },
+            ".css-3zi3c9-MuiInputBase-root-MuiInput-root:before": {
+              borderBottom: (theme) =>
+                `1px solid ${theme.palette.primary.main}`,
+            },
+            ".css-iwadjf-MuiInputBase-root-MuiInput-root:before": {
+              borderBottom: (theme) =>
+                `1px solid ${theme.palette.primary.main}`,
+            },
+            "& .MuiOutlinedInput-root": {
+              height: "35px",
+              minHeight: "35px",
+            },
+            "& .MuiInputBase-input": {
+              padding: "13px",
+              height: "100%",
+              boxSizing: "border-box",
+              fontSize: "13px",
+            },
+          }}
+        >
+          <Autocomplete
+            options={roomTypes || []}
+            // disableClearable
+            fullWidth
+            value={roomFilters?.roomType || null}
+            onChange={(e, newVal) =>
+              handleChangeRoomFiltersOnChange("roomType", newVal)
+            }
+            inputValue={roomFilters.roomTypeInputVal}
+            onInputChange={(e, newVal) =>
+              handleChangeRoomFiltersOnChange("roomTypeInputVal", newVal)
+            }
+            getOptionLabel={(option) =>
+              option?.type
+                ?.replace(/_/g, " ")
+                ?.replace(/([a-z])([A-Z])/g, "$1 $2")
+                ?.replace(/\b\w/g, (char) => char.toUpperCase()) || ""
+            }
+            clearOnEscape
+            disablePortal
+            popupIcon={<KeyboardArrowDownIcon color="primary" />}
+            sx={{
+              // width: 200,
+              ".MuiInputBase-root": {
+                color: "#fff",
+              },
+              "& + .MuiAutocomplete-popper .MuiAutocomplete-option:hover": {
+                backgroundColor: "#E9E5F1",
+                color: "#280071",
+                fontWeight: 600,
+              },
+              "& + .MuiAutocomplete-popper .MuiAutocomplete-option[aria-selected='true']:hover":
+                {
+                  backgroundColor: "#E9E5F1",
+                  color: "#280071",
+                  fontWeight: 600,
+                },
+            }}
+            componentsProps={{
+              popper: {
+                sx: {
+                  "& .MuiAutocomplete-listbox": {
+                    maxHeight: "150px",
+                    overflow: "auto",
+                  },
+                  "& .MuiAutocomplete-option": {
+                    fontSize: "13px",
+                  },
+                },
+              },
+            }}
+            size="small"
+            clearIcon={<ClearIcon color="primary" />}
+            PaperComponent={(props) => (
+              <Paper
+                sx={{
+                  background: "#fff",
+                  color: "#B4B4B4",
+                  borderRadius: "10px",
+                }}
+                {...props}
+              />
+            )}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Room Type"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: 2,
+                    width: 200,
+                    height: 35,
+                  },
+                }}
+              />
+            )}
+          />
+        </Box>
+        <Box>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => navigate("/frontdeskBookingHistory")}
+            sx={{
+              fontSize: "10px",
+              // wordWrap: "break-word",
+              // wordBreak: "break-all",
+              // whiteSpace: "none",
+              // paddingX: "0.65px",
+              paddingY: "8px",
+              backgroundImage:
+                "linear-gradient(to right, #a4508b 0%, #5f0a87 100%)",
+              color: "white",
+              "&:hover": {
+                backgroundImage:
+                  "linear-gradient(to right, #a4508b 10%, #5f0a87 90%)",
+              },
+            }}
+          >
+            Booking History
+          </Button>
+        </Box>
+      </Box>
+
+      <Box>
+        {" "}
+        <Box
+          sx={{
+            // width: "100%",
+            // bgcolor: { sm: "red", md: "orange", lg: "cyan", xl: "red" },
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            flexWrap: { xs: "wrap", md: "nowrap" },
+            // backgroundColor: "green",
+          }}
+        >
+          {tempRoomFilterVisibleButtonData?.map((item, index) => {
+            return (
+              <Box
+                key={`Floor Filter ${index}`}
+                sx={{
+                  minHeight: "35px",
+                  display: "flex",
+                  fontWeight: 600,
+                  userSelect: "none",
+                  paddingX: "7px",
+                  whiteSpace: "nowrap",
+                  borderLeft: "1px solid #A9A9A9",
+                  gap: "5px",
+                  bgcolor:
+                    item?.name === "All"
+                      ? ""
+                      : roomFilters?.selectedRoomStatus === item?.name
+                      ? "#eedeff"
+                      : "",
+                  height: "100%",
+                  "&:hover": {
+                    cursor: "pointer",
+                    bgcolor:
+                      item?.name === "All"
+                        ? "#f1e4ff"
+                        : roomFilters?.selectedRoomStatus === item?.name
+                        ? "#eedeff"
+                        : "#f1e4ff",
+                    userSelect: "none",
+                  },
+                }}
+                onClick={() =>
+                  handleChangeRoomFiltersOnChange(
+                    "selectedRoomStatus",
+                    item?.name
+                  )
+                }
+              >
+                <Box
+                  sx={{
+                    overflow: "hidden", // Prevents content from visually overflowing
+                    maxWidth: "100%",
+                    // bgcolor: "red",
+                  }}
+                >
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      letterSpacing: 1,
+                      fontSize: "13.5px",
+                      fontWeight: 550,
+                      // whiteSpace: "normal", // Ensures text wraps properly
+                      // wordWrap: "break-word",
+                      // wordBreak: "break-word",
+                      // overflowWrap: "break-word",
+                    }}
+                  >
+                    {item?.name}
+                  </Typography>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "row",
+                      gap: 0.5,
+                      alignItems: "center",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        // flexDirection: "column",
+                        fontSize: "20px",
+                        // bgcolor: "cyan",
+                        justifyContent: "flex-start",
+                        // alignItems: "center",
+                        color:
+                          item?.name === AVAILABLE.key
+                            ? // ? "hsla(202, 100%, 73%, 0.99)"
+                              "hsla(140, 100%, 36%, 0.99)"
+                            : item?.name === RESERVED.key
+                            ? "hsla(32, 98%, 65%, 0.99)"
+                            : item?.name === OCCUPIED.key
+                            ? // ? "hsla(140, 100%, 36%, 0.99)"
+                              " hsla(0, 100%, 75%, 0.99)"
+                            : item?.name === NOT_AVAILABLE.key
+                            ? "hsla(0, 100%, 65%, 0.99)"
+                            : item?.name === BEING_SERVICED.key
+                            ? "hsla(281, 100%, 63%, 0.99)"
+                            : "hsla(0, 0%, 17%, 0.99)",
+                      }}
+                    >
+                      {item?.icon}
+                    </Box>
+                    <Typography
+                      sx={{
+                        fontSize: "18px",
+                        fontWeight: 550,
+                        lineHeight: 0.1,
+                        // marginTop: "-8px",
+                        color:
+                          item?.name === AVAILABLE.key
+                            ? // ? "hsla(202, 100%, 73%, 0.99)"
+                              "hsla(140, 100%, 36%, 0.99)"
+                            : item?.name === RESERVED.key
+                            ? "hsla(32, 98%, 65%, 0.99)"
+                            : item?.name === OCCUPIED.key
+                            ? // ? "hsla(140, 100%, 36%, 0.99)"
+                              "hsla(0, 100%, 75%, 0.99)"
+                            : item?.name === NOT_AVAILABLE.key
+                            ? "hsla(0, 100%, 65%, 0.99)"
+                            : item?.name === BEING_SERVICED.key
+                            ? "hsla(281, 100%, 63%, 0.99)"
+                            : "hsla(0, 0%, 17%, 0.99)",
+                        letterSpacing: 1,
+                      }}
+                    >
+                      {finalCount[item?.name] || 0}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+            );
+          })}
+        </Box>
+      </Box>
     </Box>
   );
 });
