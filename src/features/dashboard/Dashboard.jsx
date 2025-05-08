@@ -186,20 +186,38 @@ export const CustomPolygonHeader = ({
   );
 };
 
+// function getRoomStatusColor(key) {
+//   switch (key) {
+//     case "Available":
+//       return { color: "#3db7ff", bgcolor: "#588b8b" };
+//     case "Reserved":
+//       return { color: "#ffa83a", bgcolor: "#f28f3b" };
+//     // return { color: "#ffa83a", bgcolor: "#ffe3c0" };
+//     case "Occupied":
+//       // return { color: "#14b85c", bgcolor: "#b4ffd6" };
+//       return { color: "#14b85c", bgcolor: "#a53860" };
+//     case "Not Available":
+//       return { color: "#ff5353", bgcolor: "#ffc0c0" };
+//     case "Being Serviced":
+//       return { color: "#b200ff", bgcolor: "#b388eb" };
+//     default:
+//       return { color: "#cccccc", bgcolor: "#ffffff" };
+//   }
+// }
+
 function getRoomStatusColor(key) {
   switch (key) {
     case "Available":
-      return { color: "#3db7ff", bgcolor: "#588b8b" };
+      return { color: "#3db7ff", bgcolor: "#b4ffd6" };
     case "Reserved":
-      return { color: "#ffa83a", bgcolor: "#f28f3b" };
-    // return { color: "#ffa83a", bgcolor: "#ffe3c0" };
+      return { color: "#ffa83a", bgcolor: "#ffe3c0" };
     case "Occupied":
       // return { color: "#14b85c", bgcolor: "#b4ffd6" };
-      return { color: "#14b85c", bgcolor: "#a53860" };
+      return { color: "#14b85c", bgcolor: "#FF9999" };
     case "Not Available":
       return { color: "#ff5353", bgcolor: "#ffc0c0" };
     case "Being Serviced":
-      return { color: "#b200ff", bgcolor: "#b388eb" };
+      return { color: "#b200ff", bgcolor: "#efcaff" };
     default:
       return { color: "#cccccc", bgcolor: "#ffffff" };
   }
@@ -1530,7 +1548,13 @@ const CustomRoomCard = memo(function ({
           gap: 0.2,
         }}
       >
-        <Typography sx={{ fontSize: "17px", fontWeight: 550, color: "white" }}>
+        <Typography
+          sx={{
+            fontSize: "17px",
+            fontWeight: 550,
+            // , color: "white"
+          }}
+        >
           {roomDetails?.roomNo}
         </Typography>
         <Typography
@@ -1539,7 +1563,7 @@ const CustomRoomCard = memo(function ({
             textAlign: "center",
             lineHeight: 1.2, // This will reduce the vertical spacing
             letterSpacing: "3",
-            color: "white",
+            // color: "white",
             fontWeight: "bold",
           }}
         >
