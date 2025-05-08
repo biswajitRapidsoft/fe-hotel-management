@@ -95,7 +95,10 @@ const spaApi = apiSlice.injectEndpoints({
         method: "POST",
         data: payload,
       }),
-      invalidatesTags: ["getSpaBookingHistoryAdmin"],
+      invalidatesTags: [
+        "getSpaBookingHistoryAdmin",
+        "getSpaBookingReceptionist",
+      ],
     }),
     rateSpa: build.mutation({
       query: (payload) => ({
