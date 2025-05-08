@@ -1085,6 +1085,7 @@ const Bar = () => {
 
                 .filter(
                   (option) =>
+                    option !== "Take_Away" &&
                     !(
                       Boolean(OrderCreatedByBarCounterStaff) &&
                       option === "Room_Delivery"

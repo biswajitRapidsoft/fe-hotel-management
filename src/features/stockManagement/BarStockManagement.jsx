@@ -399,7 +399,7 @@ const BarStockManagement = () => {
                       }}
                       key={v4()}
                     >
-                      <TableCell>{1}</TableCell>
+                      <TableCell>{index + 1}</TableCell>
                       <TableCell>{inventoryItem?.name}</TableCell>
                       <TableCell>{inventoryItem?.quantity}</TableCell>
                       <TableCell>

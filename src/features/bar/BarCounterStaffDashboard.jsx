@@ -640,18 +640,18 @@ const OrderDetailsDialog = ({
       doc.setFontSize(14);
       doc.text(hotelName, 20, 26);
       doc.setFontSize(12);
-      doc.text(orderDetailsDialog.bookingRequestDto.address, 20, 32);
+      // doc.text(orderDetailsDialog.bookingRequestDto.address, 20, 32);
 
       doc.setFontSize(12);
       doc.text(
-        `Customer Name: ${orderDetailsDialog.bookingRequestDto.firstName} ${
-          orderDetailsDialog.bookingRequestDto.middleName || ""
-        } ${orderDetailsDialog.bookingRequestDto.lastName || ""}`,
+        `Customer Name: ${orderDetailsDialog?.bookingRequestDto?.firstName} ${
+          orderDetailsDialog?.bookingRequestDto?.middleName || ""
+        } ${orderDetailsDialog?.bookingRequestDto?.lastName || ""}`,
         20,
         50
       );
       doc.text(
-        `Order Status: ${orderDetailsDialog.bookingRequestDto.foodBookingStatus.replace(
+        `Order Status: ${orderDetailsDialog?.bookingRequestDto?.foodBookingStatus?.replace(
           "_",
           " "
         )}`,
@@ -678,15 +678,15 @@ const OrderDetailsDialog = ({
 
       let yPosition = tableTop + 10;
       orderDetailsDialog?.bookingRequestDto?.trailData?.forEach((item) => {
-        doc.text(item.itemName, 20, yPosition);
-        doc.text(item.noOfItems.toString(), 120, yPosition);
+        doc.text(item.name, 20, yPosition);
+        doc.text(item.quantity.toString(), 120, yPosition);
         doc.text(item.price.toString(), 180, yPosition);
         yPosition += 10;
       });
 
-      const total = orderDetailsDialog.bookingRequestDto.totalPrice;
+      const total = orderDetailsDialog?.bookingRequestDto?.totalPrice;
       doc.text("Subtotal:", 140, yPosition);
-      doc.text(`Rs. ${total.toFixed(2)}`, 180, yPosition);
+      doc.text(`Rs. ${total?.toFixed(2)}`, 180, yPosition);
       yPosition += 10;
 
       const gst = total * 0.18;
@@ -699,7 +699,7 @@ const OrderDetailsDialog = ({
       doc.text(`Rs. ${grandTotal.toFixed(2)}`, 180, yPosition);
       yPosition += 10;
 
-      doc.save("restaurant_invoice.pdf");
+      doc.save("bar_invoice.pdf");
     };
   }, []);
 
@@ -849,7 +849,7 @@ const OrderDetailsDialog = ({
                 </Box>
               </Box>
               {Boolean(
-                orderDetailsDialog?.bookingRequestDto?.foodBookingStatus ===
+                orderDetailsDialog?.bookingRequestDto?.orderStatus ===
                   "Delivered"
               ) && (
                 <Box>

@@ -105,6 +105,8 @@ const RoomType = () => {
     }
   }, [roomToUpdate]);
   const [uploadedImageArr, setUploadedImageArr] = React.useState([]);
+
+  console.log("uploadedImageArr", uploadedImageArr);
   const {
     data: extraItemList = {
       data: [],

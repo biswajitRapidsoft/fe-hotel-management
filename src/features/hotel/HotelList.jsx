@@ -321,7 +321,7 @@ const HotelList = () => {
           selectedCity &&
           address &&
           isValidGSTNo(gstIn) &&
-          email &&
+          // email &&
           phoneNumber
       ) && !floorList.map((item) => item.roomList.length).includes(0)
     );
@@ -401,7 +401,7 @@ const HotelList = () => {
         hotelImage: "",
         hotelImageUrl: hotelToUpdate.logoUrl || "",
         gstIn: hotelToUpdate.gstIn || "",
-        email: hotelToUpdate.email,
+        email: hotelToUpdate?.email,
         phoneNumber: hotelToUpdate.contactNos
           ? hotelToUpdate.contactNos[0]
           : "",
@@ -699,14 +699,14 @@ const HotelList = () => {
               label={
                 <React.Fragment>
                   Email{" "}
-                  <Box
+                  {/* <Box
                     component="span"
                     sx={{
                       color: (theme) => theme.palette.error.main,
                     }}
                   >
                     *
-                  </Box>
+                  </Box> */}
                 </React.Fragment>
               }
               name="email"

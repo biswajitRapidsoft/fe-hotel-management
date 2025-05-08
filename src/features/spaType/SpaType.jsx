@@ -77,9 +77,12 @@ const SpaType = () => {
   const [uploadImage, uploadImageRes] = useUploadFileMutation();
   const [spaBreakDownArr, setSpaBreakDownArr] = React.useState([]);
   const [uploadedImageArr, setUploadedImageArr] = React.useState([]);
+  // console.log("uploadedImageArr in spa update", uploadedImageArr);
 
   // state to manage updation of spa type
   const [spaToUpdate, setSpaToUpdate] = React.useState(null);
+
+  console.log("spaToUpdate", spaToUpdate);
 
   const handleChange = React.useCallback((e) => {
     if (e.target.name === "basePrice") {
@@ -218,6 +221,10 @@ const SpaType = () => {
           time: spaDetail.durationMinutes,
         }))
       );
+
+      if (spaToUpdate.images && Array.isArray(spaToUpdate.images)) {
+        setUploadedImageArr(spaToUpdate.images);
+      }
     }
   }, [spaToUpdate, therapistList.data]);
 
