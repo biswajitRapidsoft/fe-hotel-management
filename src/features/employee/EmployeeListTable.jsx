@@ -87,7 +87,7 @@ const EmployeeListTable = ({
           setSnack({
             open: true,
             severity: "success",
-            message: res.message,
+            message: res?.data?.message,
           });
         })
         .catch((err) => {

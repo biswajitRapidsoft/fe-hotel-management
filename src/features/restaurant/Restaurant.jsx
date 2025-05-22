@@ -1387,7 +1387,7 @@ const CustomFoodCard = React.memo(function ({ foodItem, handleAddItemToCart }) {
           </Box>
         </Box>
         <Grid container sx={{ borderRadius: "10px" }}>
-          {Boolean(foodItem?.imageList) && (
+          {/* {Boolean(foodItem?.imageList) && (
             <Grid size={12}>
               <Box
                 component="img"
@@ -1401,6 +1401,41 @@ const CustomFoodCard = React.memo(function ({ foodItem, handleAddItemToCart }) {
                 }}
                 onClick={() => handleFoodDetails(foodItem)}
               />
+            </Grid>
+          )} */}
+          {Boolean(foodItem?.imageList && foodItem?.imageList[0]) ? (
+            <Grid size={12}>
+              <Box
+                component="img"
+                src={foodItem?.imageList[0]}
+                alt="Food Image"
+                sx={{
+                  width: "100%",
+                  height: 200,
+                  borderRadius: "10px",
+                  cursor: "pointer",
+                }}
+                onClick={() => handleFoodDetails(foodItem)}
+              />
+            </Grid>
+          ) : (
+            <Grid size={12}>
+              <Box
+                sx={{
+                  width: "100%",
+                  height: 200,
+                  borderRadius: "10px",
+                  backgroundColor: "#f0f0f0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#999",
+                  fontSize: "0.9rem",
+                  fontStyle: "italic",
+                }}
+              >
+                No Image Available
+              </Box>
             </Grid>
           )}
 
